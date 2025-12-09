@@ -4,219 +4,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Focus | Plena Produtividade</title>
+    <title>Pomodoro Focus | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Poppins', sans-serif;
             transition: background-color 0.5s ease;
         }
 
-        .bg-pomodoro {
+        .mode-focus {
             background-color: #ba4949;
         }
 
-        .bg-short {
+        .mode-short {
             background-color: #38858a;
         }
 
-        .bg-long {
+        .mode-long {
             background-color: #397097;
         }
 
-        .timer-btn {
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
-            transition: all 0.1s;
+        [v-cloak] {
+            display: none;
         }
 
-        .timer-btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
+        /* Slide Animations */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s;
         }
 
-        .progress-ring__circle {
-            transition: stroke-dashoffset 1s linear;
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
         }
     </style>
 </head>
 
-<body :class="currentBg" class="text-white h-screen flex flex-col items-center justify-center p-4">
+<body :class="bgClass" class="text-white min-h-screen flex flex-col items-center">
 
-    <div id="app" class="w-full max-w-md">
+    <div id="app" v-cloak class="w-full max-w-lg p-4 flex-grow flex flex-col">
 
-        <!-- Header / Logo -->
-        <h1 class="text-2xl font-bold flex items-center justify-center gap-2 mb-8 opacity-90">
-            <i class="fa-solid fa-circle-check"></i> Pomodoro Focus
-        </h1>
+        <!-- HEADER -->
+        <header class="flex justify-between items-center py-6 border-b border-white/20 mb-8">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> Pomodoro Focus
+            </h1>
+            <div class="flex gap-3">
+                <button @click="backupData"
+                    class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-bold transition" title="Backup">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                </button>
+                <label
+                    class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-bold transition cursor-pointer"
+                    title="Restaurar">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+                <button @click="toggleReport"
+                    class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-bold transition">
+                    <i class="fa-solid fa-chart-pie"></i> Relatório
+                </button>
+            </div>
+        </header>
 
-        <!-- Timer Module -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center shadow-2xl border border-white/10">
+        <!-- TIMER CARD -->
+        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 mb-8 shadow-xl text-center">
 
-            <!-- Type Selector -->
-            <div class="flex justify-center gap-2 mb-10 bg-black/20 p-1 rounded-full w-fit mx-auto">
-                <button @click="setMode('pomodoro')" :class="{'bg-black/30 font-bold': mode === 'pomodoro'}"
-                    class="px-4 py-2 rounded-full text-sm transition">Pomodoro</button>
-                <button @click="setMode('short')" :class="{'bg-black/30 font-bold': mode === 'short'}"
-                    class="px-4 py-2 rounded-full text-sm transition">Curta Pausa</button>
-                <button @click="setMode('long')" :class="{'bg-black/30 font-bold': mode === 'long'}"
-                    class="px-4 py-2 rounded-full text-sm transition">Longa Pausa</button>
+            <!-- CONTROLS -->
+            <div class="flex justify-center gap-2 mb-8">
+                <button @click="setMode('focus')" :class="mode === 'focus' ? 'bg-black/20 font-bold' : ''"
+                    class="px-4 py-1 rounded-full text-sm transition">Foco</button>
+                <button @click="setMode('short')" :class="mode === 'short' ? 'bg-black/20 font-bold' : ''"
+                    class="px-4 py-1 rounded-full text-sm transition">Curta</button>
+                <button @click="setMode('long')" :class="mode === 'long' ? 'bg-black/20 font-bold' : ''"
+                    class="px-4 py-1 rounded-full text-sm transition">Longa</button>
             </div>
 
-            <!-- The Clock -->
-            <div class="relative w-64 h-64 mx-auto mb-10 flex items-center justify-center">
-                <!-- SVG Circle Progress (Optional Visual) -->
-                <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" class="stroke-white/10" stroke-width="4"></circle>
-                    <circle cx="50" cy="50" r="45" fill="none" class="stroke-white progress-ring__circle"
-                        stroke-width="4" stroke-linecap="round" :stroke-dasharray="283" :stroke-dashoffset="dashOffset">
-                    </circle>
-                </svg>
+            <!-- TIMER DISPLAY -->
+            <div class="text-[6rem] font-bold leading-none mb-8 font-mono tracking-tighter">
+                {{ formattedTime }}
+            </div>
 
-                <div class="text-[6rem] font-bold tracking-tighter leading-none select-none">
-                    {{ formattedTime }}
+            <!-- MAIN BUTTON -->
+            <button @click="toggleTimer"
+                class="bg-white text-gray-800 text-2xl font-bold uppercase py-4 px-12 rounded shadow-lg hover:shadow-2xl hover:-translate-y-1 transition active:translate-y-0 active:shadow-sm w-full md:w-auto">
+                {{ running ? 'Pausar' : 'Iniciar' }}
+            </button>
+        </div>
+
+        <!-- TASKS SECTION -->
+        <div class="flex-grow">
+            <div class="flex justify-between items-end mb-4 border-b border-white/20 pb-2">
+                <h2 class="font-bold text-lg">Tarefas</h2>
+                <button @click="showTaskForm = true"
+                    class="bg-black/20 hover:bg-black/30 w-10 h-10 rounded-xl flex items-center justify-center transition">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div v-if="showTaskForm" class="bg-white rounded-xl p-4 mb-4 text-gray-800 animate-fade-in-down">
+                <input v-model="newTask" @keyup.enter="addTask" type="text" placeholder="No que você vai trabalhar?"
+                    class="w-full text-lg font-bold outline-none mb-4 placeholder-gray-400">
+                <div class="flex justify-end gap-2">
+                    <button @click="showTaskForm = false"
+                        class="text-gray-500 font-bold text-sm px-4 py-2">Cancelar</button>
+                    <button @click="addTask"
+                        class="bg-gray-800 text-white font-bold text-sm px-6 py-2 rounded-lg shadow">Salvar</button>
                 </div>
             </div>
 
-            <!-- Controls -->
-            <div class="flex items-center justify-center gap-6">
-                <!-- Reset -->
-                <button v-if="isRunning || paused" @click="resetTimer"
-                    class="w-14 h-14 rounded-2xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xl transition">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </button>
+            <div class="space-y-3">
+                <div v-for="(task, idx) in tasks" :key="idx"
+                    class="bg-white rounded-xl p-4 text-gray-800 shadow-lg flex justify-between items-center cursor-pointer border-l-8 hover:translate-x-1 transition"
+                    :class="activeTask === idx ? 'border-yellow-400 ring-2 ring-white/50' : 'border-transparent opacity-90'"
+                    @click="activeTask = idx">
 
-                <!-- Play/Pause -->
-                <button @click="toggleTimer"
-                    class="timer-btn bg-white text-slate-800 w-32 h-16 rounded-2xl text-2xl font-bold uppercase tracking-widest hover:scale-105">
-                    {{ isRunning ? 'PAUSE' : 'START' }}
-                </button>
+                    <div class="flex items-center gap-3">
+                        <div @click.stop="toggleTaskDone(idx)"
+                            class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer transition"
+                            :class="task.done ? 'bg-green-500 border-green-500' : 'hover:border-gray-400'">
+                            <i v-if="task.done" class="fa-solid fa-check text-white text-xs"></i>
+                        </div>
+                        <span :class="{'line-through text-gray-400': task.done, 'font-bold': activeTask === idx}">{{
+                            task.name }}</span>
+                    </div>
 
-                <!-- Settings (Fake) -->
-                <button @click="showSettings = true"
-                    class="w-14 h-14 rounded-2xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xl transition">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
+                    <div class="flex items-center gap-4">
+                        <span class="text-gray-400 text-sm font-bold">{{ task.pomodoros }}/{{ task.est || 1 }} <i
+                                class="fa-solid fa-clock text-xs ml-0.5"></i></span>
+                        <button @click.stop="deleteTask(idx)" class="text-gray-300 hover:text-red-400 transition"><i
+                                class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
             </div>
 
+            <div v-if="tasks.length === 0 && !showTaskForm" class="text-center py-10 opacity-60 italic">
+                Sem tarefas. Adicione uma para manter o foco!
+            </div>
         </div>
 
-        <!-- Task List (Simple) -->
-        <div class="mt-8 text-center">
-            <p v-if="mode === 'pomodoro'" class="text-white/80 animate-pulse">Hora de focar! 🔥</p>
-            <p v-else class="text-white/80">Relaxe um pouco... ☕</p>
-        </div>
-
-        <!-- Settings Modal -->
-        <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/60" @click="showSettings = false"></div>
-            <div class="bg-white text-slate-800 p-6 rounded-2xl w-full max-w-sm relative z-10">
-                <h2 class="font-bold text-lg mb-4 border-b pb-2 text-slate-400 uppercase tracking-widest text-xs">
-                    Configurações</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Pomodoro (min)</label>
-                        <input v-model.number="times.pomodoro" type="number" class="w-full bg-slate-100 p-2 rounded">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Curta Pausa (min)</label>
-                        <input v-model.number="times.short" type="number" class="w-full bg-slate-100 p-2 rounded">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Longa Pausa (min)</label>
-                        <input v-model.number="times.long" type="number" class="w-full bg-slate-100 p-2 rounded">
-                    </div>
-                    <button @click="showSettings = false; resetTimer()"
-                        class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl mt-4">Salvar</button>
+        <!-- REPORT MODAL -->
+        <div v-if="showReport"
+            class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white text-gray-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-fade-in-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-xl text-gray-700">Relatório Diário</h3>
+                    <button @click="showReport = false" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
+
+                <div class="flex gap-4 mb-6">
+                    <div class="flex-1 bg-red-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-red-500">{{ stats.focusHours }}h</div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Em Foco</div>
+                    </div>
+                    <div class="flex-1 bg-green-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-green-500">{{ stats.completedTasks }}</div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Tarefas</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-6 max-h-40 overflow-y-auto text-sm">
+                    <div v-for="log in stats.history" class="flex justify-between border-b border-gray-100 py-2">
+                        <span class="text-gray-600 truncate mr-2">{{ log.task || 'Sem tarefa' }}</span>
+                        <span class="font-bold text-gray-400">{{ log.time }}m</span>
+                    </div>
+                </div>
+
+                <button @click="shareWhatsapp"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp"></i> Compartilhar
+                </button>
             </div>
         </div>
 
     </div>
 
     <!-- AUDIO -->
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script>
-        const { createApp, ref, computed, watch } = Vue;
+        const { createApp, ref, computed, watch, onMounted } = Vue;
 
         createApp({
             setup() {
-                const times = ref({
-                    pomodoro: 25,
-                    short: 5,
-                    long: 15
-                });
+                // STATE
+                const mode = ref('focus'); // focus, short, long
+                const time = ref(25 * 60);
+                const running = ref(false);
+                const tasks = ref([]);
+                const activeTask = ref(null);
+                const showTaskForm = ref(false);
+                const newTask = ref('');
+                const showReport = ref(false);
+                const history = ref([]); // { date, task, time, mode }
 
-                const mode = ref('pomodoro');
-                const timeLeft = ref(25 * 60);
-                const isRunning = ref(false);
-                const showSettings = ref(false);
-                const paused = ref(false);
-                const interval = ref(null);
+                let timerInterval;
 
-                const currentBg = computed(() => {
-                    if (mode.value === 'pomodoro') return 'bg-pomodoro';
-                    if (mode.value === 'short') return 'bg-short';
-                    return 'bg-long';
+                // COMPUTED
+                const bgClass = computed(() => {
+                    return {
+                        'mode-focus': mode.value === 'focus',
+                        'mode-short': mode.value === 'short',
+                        'mode-long': mode.value === 'long'
+                    }[mode.value];
                 });
 
                 const formattedTime = computed(() => {
-                    const m = Math.floor(timeLeft.value / 60).toString().padStart(2, '0');
-                    const s = (timeLeft.value % 60).toString().padStart(2, '0');
+                    const m = Math.floor(time.value / 60).toString().padStart(2, '0');
+                    const s = (time.value % 60).toString().padStart(2, '0');
                     return `${m}:${s}`;
                 });
 
-                const dashOffset = computed(() => {
-                    // Full circle is 283
-                    const totalTime = times.value[mode.value] * 60;
-                    const progress = timeLeft.value / totalTime;
-                    return 283 - (283 * progress); // Inverted logic for filling up? Or depleting.
-                    // To deplete: start at 0 offset (full), end at 283 (empty)
-                    return 283 * (1 - progress);
+                const stats = computed(() => {
+                    const today = new Date().toLocaleDateString();
+                    const todaysLogs = history.value.filter(h => h.date === today && h.mode === 'focus');
+                    const totalMin = todaysLogs.reduce((acc, l) => acc + l.time, 0);
+
+                    return {
+                        focusHours: (totalMin / 60).toFixed(1),
+                        completedTasks: tasks.value.filter(t => t.done).length,
+                        history: todaysLogs
+                    };
                 });
 
+                // ACTIONS
                 const setMode = (m) => {
+                    running.value = false;
+                    clearInterval(timerInterval);
                     mode.value = m;
-                    resetTimer();
+                    if (m === 'focus') time.value = 25 * 60;
+                    if (m === 'short') time.value = 5 * 60;
+                    if (m === 'long') time.value = 15 * 60;
+
+                    // Update Title
+                    document.title = `${m === 'focus' ? 'Foco' : 'Pausa'} - Pomodoro`;
                 };
 
                 const toggleTimer = () => {
-                    if (isRunning.value) {
-                        clearInterval(interval.value);
-                        isRunning.value = false;
-                        paused.value = true;
+                    if (running.value) {
+                        running.value = false;
+                        clearInterval(timerInterval);
                     } else {
-                        isRunning.value = true;
-                        paused.value = false;
-                        interval.value = setInterval(() => {
-                            if (timeLeft.value > 0) {
-                                timeLeft.value--;
-                                // Title update
-                                document.title = `${formattedTime.value} - Pomodoro`;
+                        running.value = true;
+                        timerInterval = setInterval(() => {
+                            if (time.value > 0) {
+                                time.value--;
                             } else {
-                                clearInterval(interval.value);
-                                isRunning.value = false;
-                                document.getElementById('alarm-sound').play();
-                                alert('Tempo esgotado!');
+                                completeSession();
                             }
                         }, 1000);
                     }
                 };
 
-                const resetTimer = () => {
-                    clearInterval(interval.value);
-                    isRunning.value = false;
-                    paused.value = false;
-                    timeLeft.value = times.value[mode.value] * 60;
-                    document.title = "Pomodoro Focus";
+                const completeSession = () => {
+                    running.value = false;
+                    clearInterval(timerInterval);
+                    document.getElementById('alarm-sound').play();
+
+                    // Log History
+                    const workedTime = mode.value === 'focus' ? 25 : (mode.value === 'short' ? 5 : 15);
+                    history.value.unshift({
+                        date: new Date().toLocaleDateString(),
+                        task: activeTask.value !== null ? tasks.value[activeTask.value].name : 'Geral',
+                        time: workedTime,
+                        mode: mode.value
+                    });
+
+                    // Increment Task Counter
+                    if (mode.value === 'focus' && activeTask.value !== null) {
+                        tasks.value[activeTask.value].pomodoros++;
+                    }
+
+                    alert(mode.value === 'focus' ? "O tempo acabou! Hora de descansar." : "Pausa acabou! De volta ao trabalho.");
                 };
 
+                const addTask = () => {
+                    if (!newTask.value) return;
+                    tasks.value.push({ name: newTask.value, pomodoros: 0, est: 1, done: false });
+                    newTask.value = '';
+                    showTaskForm.value = false;
+                    if (activeTask.value === null) activeTask.value = tasks.value.length - 1;
+                };
+
+                const deleteTask = (idx) => {
+                    if (confirm("Remover tarefa?")) {
+                        tasks.value.splice(idx, 1);
+                        if (activeTask.value === idx) activeTask.value = null;
+                    }
+                };
+
+                const toggleTaskDone = (idx) => {
+                    tasks.value[idx].done = !tasks.value[idx].done;
+                };
+
+                const toggleReport = () => showReport.value = !showReport.value;
+
+                // BACKUP & RESTORE
+                const backupData = () => {
+                    const data = { tasks: tasks.value, history: history.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `backup_pomodoro_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+                    a.click();
+                };
+
+                const restoreData = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.tasks) tasks.value = data.tasks;
+                            if (data.history) history.value = data.history;
+                            alert("Dados restaurados com sucesso!");
+                        } catch (err) {
+                            alert("Erro ao ler arquivo. Verifique se é um backup válido.");
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+
+                const shareWhatsapp = () => {
+                    const text = `🍅 *Relatório Pomodoro Focus* 🍅\n\n📅 Data: ${new Date().toLocaleDateString()}\n⏱️ Foco Total: ${stats.value.focusHours}h\n✅ Tarefas: ${stats.value.completedTasks}\n\n_Gerado por Plena Apps_`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // STORAGE
+                onMounted(() => {
+                    const t = localStorage.getItem('pomodoro_tasks');
+                    if (t) tasks.value = JSON.parse(t);
+                    const h = localStorage.getItem('pomodoro_history');
+                    if (h) history.value = JSON.parse(h);
+                });
+
+                watch(tasks, () => localStorage.setItem('pomodoro_tasks', JSON.stringify(tasks.value)), { deep: true });
+                watch(history, () => localStorage.setItem('pomodoro_history', JSON.stringify(history.value)), { deep: true });
+
                 return {
-                    times, mode, timeLeft, isRunning, showSettings, paused, currentBg, formattedTime, dashOffset,
-                    setMode, toggleTimer, resetTimer
+                    mode, time, running, tasks, activeTask, newTask, showTaskForm, showReport,
+                    bgClass, formattedTime, stats,
+                    setMode, toggleTimer, addTask, deleteTask, toggleTaskDone, toggleReport,
+                    backupData, restoreData, shareWhatsapp
                 };
             }
         }).mount('#app');

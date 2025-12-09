@@ -7,18 +7,12 @@
     <title>Match dos Signos | Plena Apps</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Lato:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Lato', sans-serif;
-            background: #fff1f2;
-            color: #4a044e;
-        }
-
-        h1,
-        h2 {
-            font-family: 'Abril Fatface', cursive;
+            background: linear-gradient(180deg, #4c1d95 0%, #2e1065 100%);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         [v-cloak] {
@@ -27,58 +21,59 @@
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="pb-20 min-h-screen flex items-center justify-center">
 
-    <div id="app" v-cloak
-        class="w-full max-w-sm bg-white rounded-[2rem] shadow-xl overflow-hidden border-4 border-pink-200">
+    <div id="app" v-cloak class="w-full max-w-lg p-6">
 
-        <!-- Header -->
-        <div class="bg-pink-500 text-white p-6 text-center">
-            <h1 class="text-3xl">Match Astral</h1>
-            <p class="text-pink-100 text-sm">Os astros aprovam?</p>
-        </div>
+        <h1 class="text-3xl font-bold text-center mb-8 text-fuchsia-300 uppercase tracking-widest">Sinastria Amorosa
+        </h1>
 
-        <div class="p-6">
+        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
 
-            <!-- Selector -->
-            <div class="flex justify-between items-center gap-2 mb-8">
+            <div class="flex gap-4 items-center justify-between mb-8">
                 <div class="flex-1">
-                    <label class="block text-xs font-bold text-pink-400 uppercase mb-1">Você</label>
+                    <label class="block text-xs uppercase text-fuchsia-300 mb-2 font-bold text-center">Você</label>
                     <select v-model="sign1"
-                        class="w-full bg-pink-50 border border-pink-200 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
-                        <option v-for="s in signs" :value="s.value">{{ s.icon }} {{ s.name }}</option>
+                        class="w-full bg-black/30 border border-fuchsia-500/50 rounded-lg p-3 text-sm focus:bg-fuchsia-900 outline-none text-center appearance-none cursor-pointer hover:bg-black/50 transition">
+                        <option v-for="s in signs" :value="s">{{ s }}</option>
                     </select>
                 </div>
-                <div class="text-pink-300 text-xl font-bold mt-4">+</div>
+                <div class="text-fuchsia-500 text-2xl font-bold">X</div>
                 <div class="flex-1">
-                    <label class="block text-xs font-bold text-pink-400 uppercase mb-1">Crush</label>
+                    <label class="block text-xs uppercase text-fuchsia-300 mb-2 font-bold text-center">Crush</label>
                     <select v-model="sign2"
-                        class="w-full bg-pink-50 border border-pink-200 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
-                        <option v-for="s in signs" :value="s.value">{{ s.icon }} {{ s.name }}</option>
+                        class="w-full bg-black/30 border border-fuchsia-500/50 rounded-lg p-3 text-sm focus:bg-fuchsia-900 outline-none text-center appearance-none cursor-pointer hover:bg-black/50 transition">
+                        <option v-for="s in signs" :value="s">{{ s }}</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Heart Button -->
-            <div class="text-center mb-8">
-                <button @click="calculateMatch"
-                    class="bg-pink-500 hover:bg-pink-600 text-white w-20 h-20 rounded-full shadow-lg text-3xl transition transform active:scale-95 flex items-center justify-center mx-auto">
-                    💘
-                </button>
-            </div>
+            <button @click="calculate"
+                class="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl shadow-lg transform transition active:scale-95">
+                VER COMPATIBILIDADE
+            </button>
 
-            <!-- Result -->
-            <div v-if="result" class="bg-pink-50 rounded-xl p-6 text-center animate-pulse-once">
-                <div class="text-5xl font-bold text-pink-600 mb-2">{{ result.score }}%</div>
-                <h3 class="text-xl font-bold mb-2">{{ result.title }}</h3>
-                <p class="text-sm text-gray-600 leading-relaxed">
+            <!-- RESULT -->
+            <div v-if="result" class="mt-8 animate-fade-in text-center border-t border-white/10 pt-6">
+
+                <div class="inline-block px-4 py-1 rounded-full bg-black/30 text-xs font-bold uppercase mb-4"
+                    :class="getColor(result.score)">
+                    {{ getLevel(result.score) }}
+                </div>
+
+                <div class="text-5xl font-black mb-4 flex justify-center items-end gap-1"
+                    :class="getColorText(result.score)">
+                    {{ result.score }}<span class="text-xl mb-2">%</span>
+                </div>
+
+                <p class="text-sm leading-relaxed text-gray-200 mb-6 font-light">
                     {{ result.text }}
                 </p>
 
-                <div class="mt-4 pt-4 border-t border-pink-200 grid grid-cols-2 gap-2 text-xs font-bold text-pink-400">
-                    <div>Elemento {{ getElement(sign1) }} <br>+<br> Elemento {{ getElement(sign2) }}</div>
-                    <div>Combinação <br> {{ result.vibe }}</div>
-                </div>
+                <button @click="share"
+                    class="text-sm text-green-400 font-bold hover:text-green-300 flex items-center justify-center gap-2 mx-auto border border-green-500/30 px-6 py-2 rounded-full hover:bg-green-500/10 transition">
+                    <i class="fa-brands fa-whatsapp"></i> Compartilhar no Zap
+                </button>
             </div>
 
         </div>
@@ -86,71 +81,70 @@
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref } = Vue;
 
         createApp({
             setup() {
-                const signs = [
-                    { name: "Áries", value: "fire", icon: "♈" },
-                    { name: "Touro", value: "earth", icon: "♉" },
-                    { name: "Gêmeos", value: "air", icon: "♊" },
-                    { name: "Câncer", value: "water", icon: "♋" },
-                    { name: "Leão", value: "fire", icon: "♌" },
-                    { name: "Virgem", value: "earth", icon: "♍" },
-                    { name: "Libra", value: "air", icon: "♎" },
-                    { name: "Escorpião", value: "water", icon: "♏" },
-                    { name: "Sagitário", value: "fire", icon: "♐" },
-                    { name: "Capricórnio", value: "earth", icon: "♑" },
-                    { name: "Aquário", value: "air", icon: "♒" },
-                    { name: "Peixes", value: "water", icon: "♓" }
-                ];
-
-                const sign1 = ref("fire");
-                const sign2 = ref("air");
+                const signs = ["Áries", "Touro", "Gêmeos", "Câncer", "Leão", "Virgem", "Libra", "Escorpião", "Sagitário", "Capricórnio", "Aquário", "Peixes"];
+                const sign1 = ref("Áries");
+                const sign2 = ref("Libra");
                 const result = ref(null);
 
-                const getElement = (val) => {
-                    if (val === 'fire') return 'Fogo 🔥';
-                    if (val === 'earth') return 'Terra 🌿';
-                    if (val === 'air') return 'Ar 🌪️';
-                    if (val === 'water') return 'Água 💧';
+                const elements = {
+                    "Áries": "Fogo", "Leão": "Fogo", "Sagitário": "Fogo",
+                    "Touro": "Terra", "Virgem": "Terra", "Capricórnio": "Terra",
+                    "Gêmeos": "Ar", "Libra": "Ar", "Aquário": "Ar",
+                    "Câncer": "Água", "Escorpião": "Água", "Peixes": "Água"
                 };
 
-                const calculateMatch = () => {
-                    const s1 = sign1.value;
-                    const s2 = sign2.value;
-
-                    // Logic based on Elements
+                const calculate = () => {
+                    const e1 = elements[sign1.value];
+                    const e2 = elements[sign2.value];
                     let score = 50;
-                    let title = "Amizade Sincera";
-                    let text = "Vocês podem se dar bem, mas exigirá paciência.";
-                    let vibe = "Neutra";
+                    let text = "Uma relação normal, depende de vocês.";
 
-                    if (s1 === s2) {
-                        score = 90; title = "Espelho da Alma"; text = "Vocês se entendem sem falar nada. Cuidado só com a teimosia em dobro!"; vibe = "Intensa";
+                    // Same Sign
+                    if (sign1.value === sign2.value) {
+                        score = 80; text = "Espelho! Vocês se entendem muito bem, mas cuidado com a teimosia igual.";
                     }
-                    else if ((s1 === 'fire' && s2 === 'air') || (s1 === 'air' && s2 === 'fire')) {
-                        score = 95; title = "Explosão de Paixão"; text = "O Ar alimenta o Fogo. Uma relação dinâmica e cheia de aventuras."; vibe = "Perfeita";
+                    // Same Element
+                    else if (e1 === e2) {
+                        score = 95; text = "Perfeitos! Falam a mesma língua e vibram na mesma sintonia elemental.";
                     }
-                    else if ((s1 === 'earth' && s2 === 'water') || (s1 === 'water' && s2 === 'earth')) {
-                        score = 95; title = "Jardim Florido"; text = "A Água nutre a Terra. Uma relação fértil, segura e carinhosa."; vibe = "Perfeita";
+                    // Compatible Elements
+                    else if ((e1 === "Fogo" && e2 === "Ar") || (e1 === "Ar" && e2 === "Fogo")) {
+                        score = 90; text = "O ar alimenta o fogo! Paixão intensa e muita conversa.";
                     }
-                    else if ((s1 === 'fire' && s2 === 'water') || (s1 === 'water' && s2 === 'fire')) {
-                        score = 30; title = "Vapor Quente"; text = "Água apaga Fogo. Muita emoção, mas difícil de manter a estabilidade."; vibe = "Desafiador";
+                    else if ((e1 === "Terra" && e2 === "Água") || (e1 === "Água" && e2 === "Terra")) {
+                        score = 90; text = "A água nutre a terra. Relação fértil, segura e carinhosa.";
                     }
-                    else if ((s1 === 'earth' && s2 === 'air') || (s1 === 'air' && s2 === 'earth')) {
-                        score = 40; title = "Tempestade de Areia"; text = "Mundos diferentes. Um é prático, o outro idealista. Exige conversa."; vibe = "Complexa";
+                    // Incompatible
+                    else if ((e1 === "Fogo" && e2 === "Água") || (e1 === "Água" && e2 === "Fogo")) {
+                        score = 30; text = "Vapor... e apaga. Um sente demais, o outro age demais. Desafio!";
+                    }
+                    else if ((e1 === "Ar" && e2 === "Terra") || (e1 === "Terra" && e2 === "Ar")) {
+                        score = 40; text = "Poeira. Um quer voar, o outro quer raízes. Difícil conciliar.";
+                    }
+                    else if ((e1 === "Fogo" && e2 === "Terra") || (e1 === "Terra" && e2 === "Fogo")) {
+                        score = 50; text = "Terra abafa o fogo? Ou fogo queima a terra? Muita energia, mas conflituosa.";
                     }
                     else {
-                        score = 70; title = "Equilíbrio Possível"; text = "Com respeito às diferenças, podem construir algo legal."; vibe = "Boa";
+                        score = 60; text = "Opostos que podem se atrair se houver maturidade. Aprendizado constante.";
                     }
 
-                    result.value = { score, title, text, vibe };
+                    result.value = { score, text };
                 };
 
-                return {
-                    signs, sign1, sign2, result, calculateMatch, getElement
+                const getLevel = (s) => s > 80 ? "ALMA GÊMEA" : (s > 50 ? "BOM POTENCIAL" : "DESAFIO CÓSMICO");
+                const getColor = (s) => s > 80 ? "text-green-300" : (s > 50 ? "text-yellow-300" : "text-red-300");
+                const getColorText = (s) => s > 80 ? "text-green-400" : (s > 50 ? "text-yellow-400" : "text-red-400");
+
+                const share = () => {
+                    const txt = `🔮 *Match dos Signos*\n\n${sign1.value} + ${sign2.value} = *${result.value.score}%*\n"${result.value.text}"\n\nVerifique o seu em: Plena Apps`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
                 };
+
+                return { signs, sign1, sign2, result, calculate, getLevel, getColor, getColorText, share };
             }
         }).mount('#app');
     </script>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Eventos | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0f172a;
+            color: white;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <div id="app" v-cloak class="max-w-xl mx-auto min-h-screen bg-slate-900 shadow-2xl flex flex-col relative">
+
+        <header
+            class="p-6 flex justify-between items-center bg-slate-800/50 backdrop-blur border-b border-slate-700 sticky top-0 z-10">
+            <h1 class="text-2xl font-black italic tracking-tighter gradient-text">COUNTDOWN</h1>
+            <div class="flex gap-2">
+                <button @click="backupData" class="bg-slate-700 hover:bg-slate-600 p-2 rounded transition"
+                    title="Backup"><i class="fa-solid fa-download"></i></button>
+                <label class="bg-slate-700 hover:bg-slate-600 p-2 rounded transition cursor-pointer" title="Restore">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+                <button @click="showForm = !showForm"
+                    class="bg-blue-600 hover:bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg shadow-blue-500/50 transition">
+                    <i class="fa-solid" :class="showForm ? 'fa-xmark' : 'fa-plus'"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- FORM -->
+        <div v-if="showForm" class="p-6 bg-slate-800 border-b border-slate-700 animate-slide-down">
+            <h3 class="font-bold mb-4 text-blue-400">Novo Evento</h3>
+            <div class="space-y-4">
+                <input v-model="newEvent.name" placeholder="Nome do Evento (Ex: Casamento)"
+                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded text-white outline-none focus:border-blue-500">
+                <input v-model="newEvent.date" type="datetime-local"
+                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded text-white outline-none focus:border-blue-500">
+                <button @click="addEvent"
+                    class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold py-3 rounded shadow-lg transform active:scale-95 transition">
+                    INICIAR CONTAGEM
+                </button>
+            </div>
+        </div>
+
+        <!-- LIST -->
+        <div class="p-6 space-y-4 flex-grow">
+            <div v-for="(evt, idx) in events" :key="evt.id"
+                class="bg-slate-800 rounded-2xl p-6 relative overflow-hidden group hover:bg-slate-700 transition">
+                <!-- Progress BG -->
+                <div class="absolute bottom-0 left-0 h-1 bg-blue-500" :style="{ width: getProgress(evt) + '%' }"></div>
+
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <h2 class="text-xl font-bold">{{ evt.name }}</h2>
+                    <button @click="removeEvent(idx)" class="text-slate-600 hover:text-red-500 transition"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 text-center relative z-10">
+                    <div class="bg-slate-900/50 p-2 rounded-lg">
+                        <span class="block text-2xl font-bold text-blue-400">{{ getCountdown(evt).d }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Dias</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-lg">
+                        <span class="block text-2xl font-bold text-blue-400">{{ getCountdown(evt).h }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Hrs</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-lg">
+                        <span class="block text-2xl font-bold text-blue-400">{{ getCountdown(evt).m }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Min</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-lg">
+                        <span class="block text-2xl font-bold text-blue-400">{{ getCountdown(evt).s }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold">Seg</span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 opacity-0 group-hover:opacity-100 transition">
+                    <button @click="shareEvent(evt)" class="text-sm font-bold text-green-500 hover:text-green-400"><i
+                            class="fa-brands fa-whatsapp"></i> Compartilhar</button>
+                </div>
+            </div>
+
+            <div v-if="events.length === 0" class="text-center py-20 opacity-50">
+                <i class="fa-regular fa-calendar-plus text-4xl mb-4"></i>
+                <p>Nenhum evento. Adicione um para começar!</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, onUnmounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const events = ref([]);
+                const showForm = ref(false);
+                const newEvent = ref({ name: '', date: '' });
+                const now = ref(Date.now());
+
+                // Timer
+                const interval = setInterval(() => {
+                    now.value = Date.now();
+                }, 1000);
+                onUnmounted(() => clearInterval(interval));
+
+                // Logic
+                const addEvent = () => {
+                    if (!newEvent.value.name || !newEvent.value.date) return;
+                    events.value.push({
+                        id: Date.now(),
+                        name: newEvent.value.name,
+                        targetDate: new Date(newEvent.value.date).getTime(),
+                        createdDate: Date.now()
+                    });
+                    newEvent.value = { name: '', date: '' };
+                    showForm.value = false;
+                };
+
+                const removeEvent = (idx) => events.value.splice(idx, 1);
+
+                const getCountdown = (evt) => {
+                    const diff = evt.targetDate - now.value;
+                    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
+
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    return { d, h, m, s };
+                };
+
+                const getProgress = (evt) => {
+                    const totalDuration = evt.targetDate - evt.createdDate;
+                    const elapsed = now.value - evt.createdDate;
+                    if (elapsed >= totalDuration) return 100;
+                    return (elapsed / totalDuration) * 100;
+                };
+
+                const shareEvent = (evt) => {
+                    const c = getCountdown(evt);
+                    const text = `⏳ *Contagem Regressiva: ${evt.name}*\n\n` +
+                        `Faltam: ${c.d} dias, ${c.h} horas e ${c.m} minutos!\n\n` +
+                        `_Criado com Countdown App_`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(events.value)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_countdown_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => { try { events.value = JSON.parse(v.target.result); alert("Backupt Restaurado!"); } catch (e) { alert("Erro!"); } };
+                    r.readAsText(f);
+                };
+
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_countdown');
+                    if (d) events.value = JSON.parse(d);
+                });
+                watch(events, () => localStorage.setItem('plena_countdown', JSON.stringify(events.value)), { deep: true });
+
+                return {
+                    events, showForm, newEvent,
+                    addEvent, removeEvent, getCountdown, getProgress, shareEvent, backupData, restoreData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

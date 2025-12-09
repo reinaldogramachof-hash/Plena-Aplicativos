@@ -4,217 +4,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador Lorem Ipsum | Plena Tools</title>
+    <title>Lorem Ipsum Gen | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;600&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background-color: #f8fafc;
+            font-family: 'Georgia', serif;
         }
 
-        .serif {
-            font-family: 'Merriweather', serif;
+        [v-cloak] {
+            display: none;
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
+        .font-sans {
+            font-family: 'Segoe UI', sans-serif;
         }
     </style>
 </head>
 
-<body class="h-screen flex flex-col md:flex-row bg-[#f3f4f6]">
+<body class="pb-20">
 
-    <div id="app"
-        class="flex-1 w-full max-w-5xl mx-auto md:my-12 md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row bg-white">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Controls Sidebar -->
-        <aside class="w-full md:w-80 bg-slate-50 border-r border-slate-200 p-8 flex flex-col gap-6 z-10">
-            <div>
-                <h1 class="font-bold text-2xl text-slate-800 mb-1">Lorem Ipsum</h1>
-                <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Gerador de Texto Simulado</p>
-            </div>
+        <header class="bg-slate-800 text-white p-6 shadow-md font-sans">
+            <h1 class="text-2xl font-bold">Lorem Ipsum</h1>
+            <p class="text-slate-400 text-xs">Gerador de Placeholder</p>
+        </header>
 
-            <div class="space-y-5 flex-1">
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Quantidade</label>
-                    <div class="flex items-center gap-4">
-                        <input type="number" v-model="count" min="1" max="50"
-                            class="w-20 p-2 border border-slate-300 rounded-lg text-center font-bold text-slate-700 outline-none focus:border-blue-500">
-                        <div class="flex gap-2 rounded-lg bg-slate-200 p-1">
-                            <button @click="type = 'paragraphs'"
-                                class="px-3 py-1.5 rounded-md text-xs font-bold transition"
-                                :class="type === 'paragraphs' ? 'bg-white shadow text-blue-600' : 'text-slate-500'">Parágrafos</button>
-                            <button @click="type = 'words'" class="px-3 py-1.5 rounded-md text-xs font-bold transition"
-                                :class="type === 'words' ? 'bg-white shadow text-blue-600' : 'text-slate-500'">Palavras</button>
-                        </div>
-                    </div>
+        <div class="p-6 flex-grow font-sans space-y-6">
+
+            <!-- CONTROLS -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div class="flex justify-between mb-2">
+                    <label class="font-bold text-slate-700 text-sm">Quantidade</label>
+                    <span class="text-blue-600 font-bold">{{ count }}</span>
+                </div>
+                <input v-model="count" type="range" min="1" max="20"
+                    class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer mb-4">
+
+                <div class="flex gap-2">
+                    <button @click="type='paras'"
+                        :class="type==='paras'?'bg-blue-600 text-white':'bg-white text-slate-600 border'"
+                        class="flex-1 py-2 rounded-lg font-bold text-sm transition">Parágrafos</button>
+                    <button @click="type='words'"
+                        :class="type==='words'?'bg-blue-600 text-white':'bg-white text-slate-600 border'"
+                        class="flex-1 py-2 rounded-lg font-bold text-sm transition">Palavras</button>
+                    <button @click="type='list'"
+                        :class="type==='list'?'bg-blue-600 text-white':'bg-white text-slate-600 border'"
+                        class="flex-1 py-2 rounded-lg font-bold text-sm transition">Lista UL</button>
                 </div>
 
-                <div>
-                    <label class="flex items-center gap-3 cursor-pointer group">
-                        <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition"
-                            :class="startWithLorem ? 'bg-blue-500 border-blue-500 text-white' : 'group-hover:border-blue-400'">
-                            <i v-if="startWithLorem" class="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <input type="checkbox" v-model="startWithLorem" class="hidden">
-                        <span class="text-sm font-medium text-slate-600">Começar com "Lorem ipsum..."</span>
-                    </label>
-                </div>
-                <div>
-                    <label class="flex items-center gap-3 cursor-pointer group">
-                        <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition"
-                            :class="useHtml ? 'bg-blue-500 border-blue-500 text-white' : 'group-hover:border-blue-400'">
-                            <i v-if="useHtml" class="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <input type="checkbox" v-model="useHtml" class="hidden">
-                        <span class="text-sm font-medium text-slate-600">Tags HTML (&lt;p&gt;)</span>
-                    </label>
-                </div>
-
-                <div class="pt-4 border-t border-slate-200">
-                    <button @click="generate"
-                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition transform active:scale-95">
-                        Gerar Texto
-                    </button>
+                <div class="mt-4 flex items-center gap-2">
+                    <input v-model="startWithLorem" type="checkbox" id="lorem" class="w-4 h-4 text-blue-600 rounded">
+                    <label for="lorem" class="text-sm text-slate-600">Começar com "Lorem ipsum..."</label>
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="text-xs text-slate-400 text-center">
-                {{ outputStats }}
-            </div>
-        </aside>
-
-        <!-- Output Area -->
-        <main class="flex-1 flex flex-col relative bg-white">
-            <div class="absolute top-4 right-4 z-20">
-                <button @click="copyText"
-                    class="bg-white/90 backdrop-blur border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 px-4 py-2 rounded-full shadow-sm text-sm font-bold transition flex items-center gap-2">
-                    <i class="fa-regular fa-copy"></i> Copiar
+            <!-- OUTPUT -->
+            <div class="relative group">
+                <div class="bg-gray-50 border-l-4 border-blue-500 p-6 text-slate-600 text-sm leading-relaxed h-80 overflow-y-auto rounded shadow-inner font-serif"
+                    v-html="output"></div>
+                <button @click="copy"
+                    class="absolute top-2 right-2 bg-white text-blue-600 p-2 rounded shadow hover:bg-blue-50 transition opacity-50 group-hover:opacity-100">
+                    <i class="fa-solid fa-copy"></i>
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-8 md:p-12">
-                <div v-if="output" class="prose prose-slate max-w-none text-slate-600 leading-relaxed serif text-lg">
-                    <template v-if="useHtml">
-                        <pre
-                            class="whitespace-pre-wrap font-mono text-sm bg-slate-50 p-4 rounded-lg border border-slate-100 text-slate-700">{{ output }}</pre>
-                    </template>
-                    <template v-else>
-                        <p v-for="(para, i) in outputArray" :key="i" class="mb-6 last:mb-0">{{ para }}</p>
-                    </template>
-                </div>
-                <div v-else class="h-full flex flex-col items-center justify-center opacity-30 select-none">
-                    <i class="fa-solid fa-align-left text-6xl mb-4"></i>
-                    <p class="font-bold">Gere seu texto simulado</p>
-                </div>
-            </div>
-        </main>
+            <button @click="generate"
+                class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl shadow-lg">
+                <i class="fa-solid fa-arrows-rotate"></i> Regenerar
+            </button>
+
+        </div>
 
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, computed, onMounted } = Vue;
 
         createApp({
             setup() {
-                const count = ref(5);
-                const type = ref('paragraphs');
+                const count = ref(3);
+                const type = ref('paras');
                 const startWithLorem = ref(true);
-                const useHtml = ref(false);
                 const output = ref('');
 
-                // Classic Lorem Ipsum Dictionary
                 const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint", "occaecat", "cupidatat", "non", "proident", "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollit", "anim", "id", "est", "laborum"];
 
+                const generatePara = () => {
+                    let p = [];
+                    const len = 30 + Math.floor(Math.random() * 40);
+                    for (let i = 0; i < len; i++) p.push(words[Math.floor(Math.random() * words.length)]);
+                    return p.join(' ') + '.';
+                };
+
                 const generate = () => {
-                    let result = [];
+                    let result = "";
 
-                    if (type.value === 'paragraphs') {
+                    if (type.value === 'paras') {
+                        let paras = [];
                         for (let i = 0; i < count.value; i++) {
-                            // Generate random length paragraph (20-60 words)
-                            const len = Math.floor(Math.random() * 40) + 20;
-                            let para = generateSentence(len);
-
-                            // Adjust start
-                            if (i === 0 && startWithLorem.value) {
-                                // Remove first few words to ensure clean 'Lorem ipsum...'
-                                // Actually, easiest is to force overwrite the start
-                                if (!para.toLowerCase().startsWith("lorem ipsum")) {
-                                    para = "Lorem ipsum dolor sit amet, " + para.toLowerCase();
-                                }
-                            }
-                            result.push(para);
+                            let txt = generatePara();
+                            txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+                            paras.push(`<p class="mb-4">${txt}</p>`);
                         }
-                    } else {
-                        // Just words
-                        let text = generateSentence(count.value).toLowerCase(); // basic sentence generator returns capitalized
                         if (startWithLorem.value) {
-                            text = "Lorem ipsum " + text;
-                            // trim to count
-                            text = text.split(' ').slice(0, count.value).join(' ');
+                            paras[0] = paras[0].replace(/^.*? /, "Lorem ipsum dolor sit amet, ");
                         }
-                        result.push(text);
+                        result = paras.join('');
                     }
-
-                    if (useHtml.value) {
-                        if (type.value === 'paragraphs') {
-                            output.value = result.map(p => `<p>${p}</p>`).join('\n\n');
-                        } else {
-                            output.value = result[0];
+                    else if (type.value === 'words') {
+                        let w = [];
+                        for (let i = 0; i < count.value; i++) w.push(words[Math.floor(Math.random() * words.length)]);
+                        if (startWithLorem.value && count.value > 2) {
+                            w[0] = "Lorem"; w[1] = "ipsum";
                         }
-                    } else {
-                        output.value = result.join('\n\n');
+                        result = w.join(' ');
                     }
-                };
-
-                const generateSentence = (length) => {
-                    let sentence = [];
-                    for (let j = 0; j < length; j++) {
-                        const word = words[Math.floor(Math.random() * words.length)];
-                        sentence.push(word);
+                    else if (type.value === 'list') {
+                        let list = [];
+                        for (let i = 0; i < count.value; i++) {
+                            let txt = generatePara().substring(0, 20 + Math.floor(Math.random() * 30));
+                            list.push(`<li>${txt}</li>`);
+                        }
+                        result = `<ul class="list-disc pl-5">${list.join('')}</ul>`;
                     }
-                    let s = sentence.join(' ');
-                    // Capitalize first letter
-                    return s.charAt(0).toUpperCase() + s.slice(1) + '.';
+
+                    output.value = result;
                 };
 
-                const outputArray = computed(() => {
-                    if (!output.value) return [];
-                    return useHtml.value ? [output.value] : output.value.split('\n\n');
-                });
-
-                const outputStats = computed(() => {
-                    if (!output.value) return 'Pronto para gerar';
-                    const chars = output.value.length;
-                    const w = output.value.split(/\s+/).filter(w => w.length > 0).length;
-                    return `${chars} caracteres • ${w} palavras`;
-                });
-
-                const copyText = () => {
-                    if (!output.value) return;
-                    navigator.clipboard.writeText(output.value);
-                    alert('Texto copiado!');
+                const copy = () => {
+                    // Strip HTML for copy
+                    const tmp = document.createElement("DIV");
+                    tmp.innerHTML = output.value;
+                    navigator.clipboard.writeText(tmp.textContent || tmp.innerText || "");
+                    alert("Copiado!");
                 };
 
-                // Init
-                generate();
+                onMounted(generate);
 
-                return {
-                    count, type, startWithLorem, useHtml, output, outputArray, outputStats,
-                    generate, copyText
-                };
+                // Watchers to auto-regen
+                const { watch } = Vue;
+                watch([count, type, startWithLorem], generate);
+
+                return { count, type, startWithLorem, output, generate, copy };
             }
         }).mount('#app');
     </script>

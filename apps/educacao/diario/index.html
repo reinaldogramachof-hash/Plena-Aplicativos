@@ -8,237 +8,195 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         [v-cloak] {
             display: none;
         }
-
-        .notebook-line {
-            background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 100% 2rem;
-        }
     </style>
 </head>
 
-<body class="text-slate-800">
+<body class="pb-20">
 
-    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen flex flex-col md:flex-row shadow-2xl bg-white">
+    <div id="app" v-cloak class="max-w-2xl mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- SIDEBAR (Turmas) -->
-        <aside class="w-full md:w-64 bg-slate-900 text-white flex flex-col">
-            <div class="p-6 border-b border-slate-700">
-                <div class="flex items-center gap-3 mb-1">
-                    <div class="bg-blue-600 w-8 h-8 rounded flex items-center justify-center font-bold">D</div>
-                    <h1 class="font-bold text-lg">Diário Pro</h1>
-                </div>
-                <p class="text-xs text-slate-400">Gestão de Sala Eficiente</p>
+        <header class="bg-blue-600 text-white p-6 shadow-md flex justify-between items-center rounded-b-lg mb-4">
+            <div>
+                <h1 class="text-2xl font-bold"><i class="fa-solid fa-chalkboard-user"></i> Diário Escolar</h1>
+                <p class="text-blue-100 text-xs">Gestão de Chamada</p>
             </div>
-
-            <nav class="flex-grow p-4 space-y-2">
-                <div v-for="turma in turmas" :key="turma.id" @click="activeTurma = turma"
-                    :class="activeTurma.id === turma.id ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="p-3 rounded-lg cursor-pointer transition flex items-center justify-between">
-                    <span>{{ turma.nome }}</span>
-                    <span class="text-xs bg-black/20 px-2 py-0.5 rounded">{{ turma.alunos.length }}</span>
-                </div>
-
-                <button @click="addTurma"
-                    class="w-full border border-dashed border-slate-600 text-slate-500 p-3 rounded-lg hover:border-slate-400 hover:text-slate-300 transition text-sm">
-                    + Nova Turma
-                </button>
-            </nav>
-
-            <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
-                Data: {{ today }}
+            <div class="flex gap-2">
+                <button @click="backupData" class="bg-blue-500 hover:bg-blue-400 p-2 rounded transition"
+                    title="Backup"><i class="fa-solid fa-download"></i></button>
+                <label class="bg-blue-500 hover:bg-blue-400 p-2 rounded transition cursor-pointer" title="Restaurar">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
             </div>
-        </aside>
+        </header>
 
-        <!-- MAIN AREA -->
-        <main class="flex-grow flex flex-col h-screen overflow-hidden">
-
-            <!-- TOOLBAR -->
-            <header class="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-white">
-                <h2 class="font-bold text-xl text-slate-700">{{ activeTurma.nome }}</h2>
-                <div class="flex gap-2">
-                    <button
-                        class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
-                        <i class="fa-solid fa-calendar-days"></i> Histórico
-                    </button>
-                    <button
-                        class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-200"
-                        @click="addAlunoModal = true">
-                        <i class="fa-solid fa-plus"></i> Add Aluno
-                    </button>
-                </div>
-            </header>
-
-            <!-- STUDENT LIST -->
-            <div class="flex-grow overflow-y-auto p-6 bg-slate-50">
-
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div
-                        class="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <div class="col-span-1 text-center">Nº</div>
-                        <div class="col-span-5">Nome do Aluno</div>
-                        <div class="col-span-2 text-center">Presença</div>
-                        <div class="col-span-2 text-center">Tarefa</div>
-                        <div class="col-span-2 text-center">Ações</div>
+        <!-- CLASS INFO -->
+        <div class="px-6 mb-4">
+            <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-500">Turma</label>
+                        <input v-model="className" placeholder="Ex: 5º Ano B"
+                            class="w-full bg-transparent border-b border-blue-200 outline-none font-bold text-blue-800">
                     </div>
-
-                    <div v-for="(aluno, index) in activeTurma.alunos" :key="aluno.id"
-                        class="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 items-center hover:bg-blue-50/30 transition group">
-
-                        <div class="col-span-1 text-center font-bold text-slate-400">{{ index + 1 }}</div>
-
-                        <div class="col-span-5">
-                            <div class="font-bold text-slate-700">{{ aluno.nome }}</div>
-                            <div class="text-[10px] text-slate-400">{{ aluno.responsavel }}</div>
-                        </div>
-
-                        <!-- Presença Toggle -->
-                        <div class="col-span-2 flex justify-center">
-                            <button @click="aluno.presente = !aluno.presente"
-                                :class="aluno.presente ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
-                                class="w-24 py-1.5 rounded-full text-xs font-bold transition flex items-center justify-center gap-1">
-                                <i :class="aluno.presente ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
-                                {{ aluno.presente ? 'Presente' : 'Faltou' }}
-                            </button>
-                        </div>
-
-                        <!-- Tarefa Checkbox -->
-                        <div class="col-span-2 flex justify-center">
-                            <label class="cursor-pointer flex items-center gap-2 select-none">
-                                <input type="checkbox" v-model="aluno.tarefa"
-                                    class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
-                                <span class="text-xs font-medium"
-                                    :class="aluno.tarefa ? 'text-blue-600' : 'text-slate-400'">
-                                    {{ aluno.tarefa ? 'Feita' : 'Pendente' }}
-                                </span>
-                            </label>
-                        </div>
-
-                        <!-- Zap Action -->
-                        <div class="col-span-2 flex justify-center">
-                            <button @click="openZapModal(aluno)"
-                                class="bg-white border border-slate-200 text-slate-400 hover:text-green-500 hover:border-green-500 w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm">
-                                <i class="fa-brands fa-whatsapp"></i>
-                            </button>
-                        </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-500">Data</label>
+                        <input type="date" v-model="date"
+                            class="w-full bg-transparent border-b border-blue-200 outline-none text-blue-800">
                     </div>
                 </div>
-
-                <div v-if="activeTurma.alunos.length === 0" class="text-center py-20 text-slate-400">
-                    <i class="fa-solid fa-child-reaching text-4xl mb-3 opacity-20"></i>
-                    <p>Nenhum aluno cadastrado nesta turma.</p>
-                </div>
-
             </div>
-        </main>
+        </div>
 
-        <!-- MODAL ZAP -->
-        <div v-if="zapModal.open" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
-                <button @click="zapModal.open = false"
-                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i
-                        class="fa-solid fa-times"></i></button>
-
-                <h3 class="font-bold text-lg mb-1 text-slate-800">Mensagem para Responsável</h3>
-                <p class="text-sm text-slate-500 mb-4">Aluno: <b>{{ zapModal.aluno.nome }}</b></p>
-
-                <div class="bg-slate-100 p-4 rounded-lg mb-4 text-sm relative">
-                    <textarea v-model="zapModal.message"
-                        class="w-full bg-transparent outline-none resize-none h-32 text-slate-700"></textarea>
-                    <div class="absolute bottom-2 right-2 text-[10px] text-slate-400">Editável</div>
-                </div>
-
-                <div class="flex gap-2 mb-4">
-                    <button @click="setTemplate('falta')"
-                        class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded font-bold hover:bg-red-100">Falta</button>
-                    <button @click="setTemplate('tarefa')"
-                        class="flex-1 bg-yellow-50 text-yellow-600 text-xs py-2 rounded font-bold hover:bg-yellow-100">Tarefa</button>
-                    <button @click="setTemplate('elogio')"
-                        class="flex-1 bg-blue-50 text-blue-600 text-xs py-2 rounded font-bold hover:bg-blue-100">Elogio</button>
-                </div>
-
-                <button @click="sendZap"
-                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-whatsapp"></i> Enviar Mensagem
-                </button>
+        <!-- STUDENTS LIST -->
+        <div class="px-6 flex-grow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-bold text-gray-700">Lista de Alunos ({{ students.length }})</h3>
+                <button @click="addStudent" class="text-blue-600 font-bold text-xs hover:underline">+ Adicionar</button>
             </div>
+
+            <div class="space-y-2">
+                <div v-for="(student, idx) in students" :key="idx"
+                    class="flex items-center justify-between p-3 rounded border transition"
+                    :class="student.present ? 'bg-white border-gray-200' : 'bg-red-50 border-red-200'">
+
+                    <div class="flex items-center gap-3 flex-grow">
+                        <button @click="student.present = !student.present"
+                            class="w-8 h-8 rounded-full flex items-center justify-center transition"
+                            :class="student.present ? 'bg-green-500 text-white' : 'bg-red-500 text-white'">
+                            <i class="fa-solid" :class="student.present ? 'fa-check' : 'fa-xmark'"></i>
+                        </button>
+                        <input v-model="student.name" class="bg-transparent outline-none flex-grow"
+                            placeholder="Nome do Aluno">
+                    </div>
+
+                    <div v-if="!student.present" class="ml-2 animate-fade-in">
+                        <button @click="notifyParents(student)"
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-green-200 flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> Avisar
+                        </button>
+                    </div>
+                    <button @click="students.splice(idx,1)" class="ml-2 text-gray-300 hover:text-red-400"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+
+            <div v-if="students.length === 0" class="text-center py-10 text-gray-400">
+                Adicione alunos para começar a chamada.
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="p-6 bg-gray-50 mt-4">
+            <div class="grid grid-cols-3 gap-2 text-center mb-4">
+                <div class="bg-white p-2 rounded border">
+                    <span class="block text-2xl font-bold text-gray-700">{{ students.length }}</span>
+                    <span class="text-xs text-gray-500 uppercase">Total</span>
+                </div>
+                <div class="bg-white p-2 rounded border border-green-200">
+                    <span class="block text-2xl font-bold text-green-600">{{ students.filter(s=>s.present).length
+                        }}</span>
+                    <span class="text-xs text-gray-500 uppercase">Presentes</span>
+                </div>
+                <div class="bg-white p-2 rounded border border-red-200">
+                    <span class="block text-2xl font-bold text-red-600">{{ students.filter(s=>!s.present).length
+                        }}</span>
+                    <span class="text-xs text-gray-500 uppercase">Ausentes</span>
+                </div>
+            </div>
+
+            <button @click="shareReport"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow flex items-center justify-center gap-2">
+                <i class="fa-regular fa-file-lines"></i> Relatório do Dia
+            </button>
         </div>
 
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                // Storage Mock
-                const today = new Date().toLocaleDateString('pt-BR');
+                const className = ref('');
+                const date = ref(new Date().toISOString().split('T')[0]);
+                const students = ref([]);
 
-                const turmas = ref([
-                    {
-                        id: 1, nome: "6º Ano A - Matutino",
-                        alunos: [
-                            { id: 1, nome: "Ana Clara Silva", responsavel: "Mãe (Maria)", presente: true, tarefa: true },
-                            { id: 2, nome: "Bernardo Santos", responsavel: "Pai (João)", presente: true, tarefa: false },
-                            { id: 3, nome: "Carlos Eduardo", responsavel: "Tia (Joana)", presente: false, tarefa: false },
-                        ]
-                    },
-                    { id: 2, nome: "7º Ano B - Matutino", alunos: [] },
-                    { id: 3, nome: "9º Ano A - Vespertino", alunos: [] }
-                ]);
+                const addStudent = () => {
+                    students.value.push({ name: '', present: true });
+                };
 
-                const activeTurma = ref(turmas.value[0]);
-                const addAlunoModal = ref(false);
+                const notifyParents = (s) => {
+                    const text = `⚠️ *Comunicado Escolar*\n\n` +
+                        `Informamos que o aluno(a) *${s.name || 'Estudante'}* faltou à aula hoje (${date.value.split('-').reverse().join('/')}).\n\n` +
+                        `_Por favor, justifique a ausência._`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
 
-                const zapModal = ref({
-                    open: false,
-                    aluno: {},
-                    message: ""
+                const shareReport = () => {
+                    let text = `📋 *Diário de Classe - ${className.value}*\n` +
+                        `📅 Data: ${date.value.split('-').reverse().join('/')}\n\n` +
+                        `✅ Presentes: ${students.value.filter(s => s.present).length}\n` +
+                        `❌ Ausentes: ${students.value.filter(s => !s.present).length}\n\n` +
+                        `*Lista de Faltas:*\n`;
+
+                    const absents = students.value.filter(s => !s.present);
+                    if (absents.length === 0) text += "Nenhuma falta registrada! 🎉";
+                    else absents.forEach(s => text += `- ${s.name}\n`);
+
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const data = { class: className.value, students: students.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_diario_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            students.value = d.students; className.value = d.class || '';
+                            alert("Dados Restaurados!");
+                        } catch (e) { alert("Erro!"); }
+                    };
+                    r.readAsText(f);
+                };
+
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_diario');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        students.value = parsed.students || [];
+                        className.value = parsed.class || '';
+                    }
                 });
 
-                const addTurma = () => {
-                    const nome = prompt("Nome da nova turma:");
-                    if (nome) {
-                        turmas.value.push({ id: Date.now(), nome: nome, alunos: [] });
-                    }
-                };
-
-                const openZapModal = (aluno) => {
-                    zapModal.value.aluno = aluno;
-                    zapModal.value.message = `Olá! Sou responsável pela turma do(a) ${aluno.nome} e gostaria de falar sobre o desempenho escolar.`;
-                    zapModal.value.open = true;
-                };
-
-                const setTemplate = (type) => {
-                    const nome = zapModal.value.aluno.nome;
-                    if (type === 'falta') {
-                        zapModal.value.message = `Olá. Informamos que o aluno(a) *${nome}* não compareceu à aula hoje (${today}). Gostaria de saber o motivo.`;
-                    } else if (type === 'tarefa') {
-                        zapModal.value.message = `Olá. O aluno(a) *${nome}* não entregou a atividade solicitada para hoje. É importante manter as tarefas em dia.`;
-                    } else if (type === 'elogio') {
-                        zapModal.value.message = `Olá! Passando para elogiar o desempenho do(a) *${nome}* na aula de hoje. Parabéns pelo empenho! 👏`;
-                    }
-                };
-
-                const sendZap = () => {
-                    const text = zapModal.value.message;
-                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-                    window.open(url, '_blank');
-                    zapModal.value.open = false;
-                };
+                watch([students, className], () => {
+                    localStorage.setItem('plena_diario', JSON.stringify({ students: students.value, class: className.value }));
+                }, { deep: true });
 
                 return {
-                    today, turmas, activeTurma, addTurma, addAlunoModal,
-                    zapModal, openZapModal, setTemplate, sendZap
+                    className, date, students,
+                    addStudent, notifyParents, shareReport, backupData, restoreData
                 };
             }
         }).mount('#app');

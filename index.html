@@ -388,14 +388,14 @@
                 const filterCategory = ref('Todos');
                 const selectedProduct = ref(null);
 
-                const categories = ['Todos', 'Gestão', 'Serviços', 'Comércio', 'Food', 'Marketing', 'RH', 'Saúde', 'Educação', 'Utilidades', 'Lazer', 'Família', 'Transporte', 'Produtividade'];
+                const categories = ['Todos', 'Gestão', 'Serviços', 'Comércio', 'Food', 'Marketing', 'RH', 'Saúde', 'Educação', 'Utilidades', 'Lazer', 'Games', 'Família', 'Transporte', 'Produtividade'];
 
                 // DADOS POPULADOS COMPLETOS DA PLENA APPS FACTORY
                 const products = ref([
                     // PRODUTIVIDADE
                     {
                         id: 50, name: "Pomodoro Focus", category: "Produtividade", link: "apps/produtividade/pomodoro/index.html",
-                        image: "https://images.unsplash.com/photo-1506322840447-631d5298f2d1?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1593344484962-796055d4a3a4?w=600&q=80",
                         desc: "Aumente sua produtividade usando a técnica Pomodoro com timers personalizáveis.",
                         price: "19,90", oldPrice: "39,00", reviews: 45, badge: "Foco",
                         features: ["Timer Personalizável", "Histórico de Ciclos", "Sons de Alerta", "Modo Escuro"]
@@ -417,7 +417,7 @@
                     },
                     {
                         id: 103, name: "Estoque Fácil", category: "Gestão", link: "apps/gestao/estoque/index.html",
-                        image: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
                         desc: "Controle de entrada e saída de mercadorias com cálculo de lucro.",
                         price: "39,90", oldPrice: "79,00", reviews: 30, badge: "Novo",
                         features: ["Entrada/Saída", "Alerta de Baixo Estoque", "Cálculo de Margem", "Relatórios"]
@@ -438,7 +438,7 @@
                     },
                     {
                         id: 106, name: "Gerador de Orçamentos", category: "Gestão", link: "apps/gestao/orcamento/index.html",
-                        image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80",
                         desc: "Crie orçamentos formais e profissionais em PDF para seus clientes.",
                         price: "34,90", oldPrice: "69,00", reviews: 45,
                         features: ["PDF A4 Profissional", "Validade Automática", "Termos Editáveis", "Duplicação"]
@@ -468,7 +468,7 @@
                     },
                     {
                         id: 201, name: "Comanda Digital", category: "Food", link: "apps/food/comanda/index.html",
-                        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&q=80",
                         desc: "Substitua o papel. Comandas digitais para bares e restaurantes.",
                         price: "45,90", oldPrice: "99,00", reviews: 75, badge: "Top Food",
                         features: ["Mesas numeradas", "Adicionar Pedidos", "Fechar Conta", "Taxa de Serviço"]
@@ -498,7 +498,7 @@
                     // SERVIÇOS
                     {
                         id: 310, name: "Pet Sitter Pro", category: "Serviços", link: "apps/servicos/petsitter/index.html",
-                        image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80",
                         desc: "Relatório de passeios e cuidados para Dog Walkers e Sitters.",
                         price: "19,90", oldPrice: "39,00", reviews: 50, badge: "Novo",
                         features: ["Diário de Bordo", "Checklist Xixi/Cocô", "Botão Zap", "Profissional"]
@@ -556,7 +556,7 @@
                     },
                     {
                         id: 403, name: "Sorteador Pro", category: "Marketing", link: "apps/mkt/sorteio/index.html",
-                        image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?w=600&q=80",
                         desc: "Realize sorteios de números ou nomes de forma transparente.",
                         price: "14,90", oldPrice: "29,00", reviews: 200,
                         features: ["Números Aleatórios", "Lista de Nomes", "Modo Roleta", "Animação"]
@@ -565,7 +565,7 @@
                     // RH
                     {
                         id: 501, name: "Gerador de Holerite", category: "RH", link: "apps/rh/holerite/index.html",
-                        image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80",
                         desc: "Emita demonstrativos de pagamento simples para pequenos negócios.",
                         price: "34,90", oldPrice: "79,00", reviews: 42,
                         features: ["Cálculo Automático", "PDF Oficial", "Acumulados", "Descontos"]
@@ -639,14 +639,14 @@
                     },
                     {
                         id: 642, name: "Medida Certa", category: "Utilidades", link: "apps/utilidades/cozinha/index.html",
-                        image: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1590796855152-41f2746b107e?w=600&q=80",
                         desc: "Converta xícaras em gramas com precisão para cada ingrediente.",
                         price: "Gratuito", oldPrice: "12,00", reviews: 800, badge: "Chef",
                         features: ["Farinha/Açúcar/etc", "Gramas para Xícaras", "Tabela Densidade"]
                     },
                     {
                         id: 643, name: "Faxina Express", category: "Utilidades", link: "apps/utilidades/faxina/index.html",
-                        image: "https://images.unsplash.com/photo-1581578731117-10d52b43c12c?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=600&q=80",
                         desc: "Checklists de limpeza por cômodo. A casa brilha, você descansa.",
                         price: "Gratuito", oldPrice: "15,00", reviews: 600,
                         features: ["Progresso Visual", "Lista por Cômodo", "Salva Status"]
@@ -654,14 +654,14 @@
                     // EDUCAÇÃO
                     {
                         id: 710, name: "Diário do Professor", category: "Educação", link: "apps/educacao/diario/index.html",
-                        image: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=600&q=80",
                         desc: "Faça a chamada e envie alertas de falta para os pais no Zap.",
                         price: "19,90", oldPrice: "39,00", reviews: 88, badge: "Gestão",
                         features: ["Chamada Rápida", "Alerta Pais (Zap)", "Controle Tarefas", "Turmas"]
                     },
                     {
                         id: 711, name: "Lesson Planner", category: "Educação", link: "apps/educacao/planner/index.html",
-                        image: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
                         desc: "Planeje suas aulas da semana com grade visual e códigos BNCC.",
                         price: "24,90", oldPrice: "49,00", reviews: 60,
                         features: ["Grade Semanal", "Campos BNCC", "Imprimir PDF", "Organizador"]
@@ -682,7 +682,7 @@
                     },
                     {
                         id: 790, name: "Fração Visual", category: "Educação", link: "apps/educacao/fracao/index.html",
-                        image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80",
                         desc: "Descomplique frações com pizzas e barras interativas.",
                         price: "Gratuito", oldPrice: "29,90", reviews: 50, badge: "Matemática",
                         features: ["Visual 3 em 1", "Conversão %", "Interativo", "Fácil"]
@@ -704,8 +704,12 @@
                     {
                         id: 702, name: "Flashcards Estudo", category: "Educação", link: "apps/educacao/flashcards/index.html",
                         image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
+                        desc: "Crie cartões de memorização para estudar para provas.",
+                        price: "Gratuito", oldPrice: "19,90", reviews: 120, badge: "Estudo",
+                        features: ["Frente/Verso", "Modo Quiz", "Organizar", "Simples"]
+                    },
 
-                    // UTILID// GAMES & DIVERSÃO
+                    // GAMES & DIVERSÃO
                     {
                         id: 301, name: "Dragon Soundboard", category: "Games", link: "apps/games/dragon/index.html",
                         image: "https://images.unsplash.com/photo-1577493340887-b7bfff550145?w=600&q=80",
@@ -722,21 +726,21 @@
                     },
                     {
                         id: 303, name: "Quiz Curiosidades", category: "Games", link: "apps/games/curiosidades/index.html",
-                        image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1598556776374-ba3676574f82?w=600&q=80",
                         desc: "Você sabia? Teste seus conhecimentos e aprenda fatos incríveis.",
                         price: "Gratuito", oldPrice: "15,00", reviews: 900, badge: "Edu",
                         features: ["Fatos Curiosos", "Quiz Interativo", "Você Sabia", "Diversão"]
                     },
                     {
                         id: 304, name: "Caça Palavras", category: "Games", link: "apps/games/caca-palavras/index.html",
-                        image: "https://images.unsplash.com/photo-1629814249584-bd4d53cf0e7d?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?w=600&q=80",
                         desc: "Encontre as palavras escondidas em diversos temas.",
                         price: "Gratuito", oldPrice: "10,00", reviews: 500,
                         features: ["Temas Variados", "Geração Infinita", "Clássico"]
                     },
                     {
                         id: 305, name: "Cruzadinha Pocket", category: "Games", link: "apps/games/cruzadinha/index.html",
-                        image: "https://images.unsplash.com/photo-1585567540608-f46328325dd2?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1632297129525-4557997424bd?w=600&q=80",
                         desc: "Mini palavras cruzadas para exercitar a mente rapidinho.",
                         price: "Gratuito", oldPrice: "10,00", reviews: 600,
                         features: ["Nível Fácil", "Dicas", "Teclado Rápido"]
@@ -750,10 +754,7 @@
                         price: "Gratuito", oldPrice: "9,90", reviews: 500, badge: "Viral",
                         features: ["Calc por Pessoa", "Lista Compras", "Divisão de Custos", "Infalível"]
                     },
-                    {
-                        price: "Gratuito", oldPrice: "19,90", reviews: 50, badge: "Arcade",
-                        features: ["Acessível (Áudio)", "Alto Contraste", "Retrô 8-bit", "Offline"]
-                    },
+
                     {
                         id: 801, name: "Gerador de Senhas", category: "Utilidades", link: "apps/utils/senha/index.html",
                         image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80",
@@ -839,7 +840,7 @@
                     // ÚLTIMOS LANÇAMENTOS (FINAL SPRINT)
                     {
                         id: 960, name: "Gerador de Contrato", category: "Gestão", link: "apps/gestao/contrato/index.html",
-                        image: "https://images.unsplash.com/photo-1554224155-1696413565d3?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80",
                         desc: "Crie contratos de prestação de serviços prontos para imprimir.",
                         price: "39,90", oldPrice: "80,00", reviews: 22,
                         features: ["Preenchimento Fácil", "PDF Pronto", "Modelo Jurídico", "Edição Rápida"]
@@ -853,7 +854,7 @@
                     },
                     {
                         id: 962, name: "Contador de Palavras", category: "Utilidades", link: "apps/utils/contador/index.html",
-                        image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&q=80",
                         desc: "Ferramenta essencial para redatores e estudantes.",
                         price: "9,90", oldPrice: "19,90", reviews: 120,
                         features: ["Contagem Real-time", "Tempo de Leitura", "Densidade", "Limpeza"]
@@ -899,7 +900,7 @@
                     },
                     {
                         id: 850, name: "Countdown Eventos", category: "Família", link: "apps/eventos/countdown/index.html",
-                        image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1580983566005-ecb9be158aba?w=600&q=80",
                         desc: "Contagem regressiva para datas importantes.",
                         price: "Gratuito", oldPrice: "10,00", reviews: 40,
                         features: ["Dias/Horas/Min", "Temas", "Festas", "Viagens"]
@@ -913,7 +914,7 @@
                     },
                     {
                         id: 150, name: "Calc Comissões", category: "Gestão", link: "apps/gestao/comissao/index.html",
-                        image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1554672723-b27b2f520930?w=600&q=80",
                         desc: "Calcule comissões de vendedores com faixas e metas.",
                         price: "29,90", oldPrice: "59,00", reviews: 30,
                         features: ["Metas", "Porcentagem Variável", "Bônus", "Relatório"]
@@ -934,43 +935,43 @@
                     },
                     // UTILIDADES & LAZER -// ESOTÉRICO & ASTROLOGIA
                     {
-                        id: 790, name: "Tarot do Dia", category: "Lazer", link: "apps/lazer/tarot/index.html",
-                        image: "https://images.unsplash.com/photo-1636224483785-5b8d3a19b5b6?w=600&q=80",
+                        id: 310, name: "Tarot do Dia", category: "Lazer", link: "apps/lazer/tarot/index.html",
+                        image: "https://images.unsplash.com/photo-1620066224169-373bedda56e6?w=600&q=80",
                         desc: "Tire sua carta do dia e receba um conselho místico.",
                         price: "Gratuito", oldPrice: "19,90", reviews: 1500, badge: "Novo",
                         features: ["Carta Diária", "Significado Completo", "Compartilhável", "Místico"]
                     },
                     {
-                        id: 791, name: "Numerologia Express", category: "Lazer", link: "apps/lazer/numerologia/index.html",
-                        image: "https://images.unsplash.com/photo-1542566275-c5112fa72c3d?w=600&q=80",
+                        id: 311, name: "Numerologia Express", category: "Lazer", link: "apps/lazer/numerologia/index.html",
+                        image: "https://images.unsplash.com/photo-1549488497-60e03b22cf05?w=600&q=80",
                         desc: "Descubra o número da sua alma através do seu nome.",
                         price: "Gratuito", oldPrice: "9,90", reviews: 800,
                         features: ["Cálculo Pitagórico", "Missão de Vida", "Destino", "Fácil"]
                     },
                     {
-                        id: 792, name: "Calculadora do Amor", category: "Lazer", link: "apps/lazer/amor/index.html",
-                        image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&q=80",
+                        id: 312, name: "Calculadora do Amor", category: "Lazer", link: "apps/lazer/amor/index.html",
+                        image: "https://images.unsplash.com/photo-1516574187841-693083f94453?w=600&q=80",
                         desc: "Descubra a compatibilidade com seu crush agora mesmo.",
                         price: "Gratuito", oldPrice: "9,90", reviews: 2000, badge: "Fun",
                         features: ["Algoritmo de Match", "Frases Divertidas", "Prank", "Social"]
                     },
                     {
-                        id: 793, name: "Meu Mapa Astral", category: "Lazer", link: "apps/lazer/mapa-astral/index.html",
-                        image: "https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?w=600&q=80",
+                        id: 313, name: "Meu Mapa Astral", category: "Lazer", link: "apps/lazer/mapa-astral/index.html",
+                        image: "https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=600&q=80",
                         desc: "Descubra seu Sol, Ascendente e essência astral.",
                         price: "Gratuito", oldPrice: "39,90", reviews: 2500, badge: "Viral",
                         features: ["Sol & Ascendente", "Card para Postar", "Design Galáxia"]
                     },
                     {
-                        id: 794, name: "Match dos Signos", category: "Lazer", link: "apps/lazer/sinastria/index.html",
+                        id: 314, name: "Match dos Signos", category: "Lazer", link: "apps/lazer/sinastria/index.html",
                         image: "https://images.unsplash.com/photo-1516575150278-77136aed6920?w=600&q=80",
                         desc: "Combinação amorosa entre signos (Sinastria Básica).",
                         price: "Gratuito", oldPrice: "15,00", reviews: 1200,
                         features: ["Compatibilidade", "Amor & Amizade", "Elementos"]
                     },
                     {
-                        id: 795, name: "Calendário Lunar", category: "Lazer", link: "apps/lazer/lua/index.html",
-                        image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=600&q=80",
+                        id: 315, name: "Calendário Lunar", category: "Lazer", link: "apps/lazer/lua/index.html",
+                        image: "https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?w=600&q=80",
                         desc: "Veja a fase da lua hoje e receba dicas (cabelo, negócios).",
                         price: "Gratuito", oldPrice: "10,00", reviews: 600, badge: "Útil",
                         features: ["Fase Atual", "Dicas Diárias", "Iluminação %"]
@@ -1020,7 +1021,7 @@
                     },
                     {
                         id: 804, name: "Dados RPG & Sorte", category: "Lazer", link: "apps/lazer/dados/index.html",
-                        image: "https://images.unsplash.com/photo-1610890716171-6b1c9f2bdabf?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1632948155949-bb20b6e15964?w=600&q=80",
                         desc: "Rolador de dados 3D virtuais para jogos de mesa.",
                         price: "Gratuito", oldPrice: "15,00", reviews: 70,
                         features: ["D4, D6, D8, D20", "Soma Auto", "Histórico", "Física 3D"]
@@ -1035,21 +1036,21 @@
                     // SERVIÇOS PROFISSIONAIS - GESTÃO & ORÇAMENTO
                     {
                         id: 504, name: "Ateliê Digital", category: "Serviços", link: "apps/servicos/costura/index.html",
-                        image: "https://images.unsplash.com/photo-1596200222050-93450c05274d?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1528646067710-5645e3ea1e00?w=600&q=80",
                         desc: "Para costureiras: Organize medidas, provas e status de encomendas.",
                         price: "Gratuito", oldPrice: "34,90", reviews: 500, badge: "Novo",
                         features: ["Ficha Medidas", "Status Pedido", "Avisar Whatsapp", "Gestão"]
                     },
                     {
                         id: 505, name: "Jardim Pro", category: "Serviços", link: "apps/servicos/jardim/index.html",
-                        image: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=600&q=80",
                         desc: "Calculadora de orçamento para jardineiros (m² ou hora).",
                         price: "Gratuito", oldPrice: "29,90", reviews: 300,
                         features: ["Cálculo m²", "Agenda Clientes", "Orçamento Zap", "Rápido"]
                     },
                     {
                         id: 506, name: "SOS Reparos", category: "Serviços", link: "apps/servicos/reparos/index.html",
-                        image: "https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&q=80",
                         desc: "Gere orçamentos rápidos para elétrica, hidráulica e reparos.",
                         price: "Gratuito", oldPrice: "39,90", reviews: 650, badge: "Pro",
                         features: ["Mão de Obra", "Lista Materiais", "PDF Zap", "Profissional"]
@@ -1084,14 +1085,14 @@
                     },
                     {
                         id: 351, name: "Calc Materiais", category: "Serviços", link: "apps/servicos/materiais/index.html",
-                        image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80",
                         desc: "Orçamento de materiais de construção ou reforma.",
                         price: "29,90", oldPrice: "59,00", reviews: 25,
                         features: ["Área m²", "Tinta/Piso", "Quantidade", "Custo Total"]
                     },
                     {
                         id: 352, name: "Ponto Simples", category: "Serviços", link: "apps/servicos/ponto/index.html",
-                        image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80",
+                        image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
                         desc: "Registro de entrada e saída simplificado para freelancers.",
                         price: "19,90", oldPrice: "39,00", reviews: 30,
                         features: ["Entrada/Saída", "Pausas", "Total Horas", "Semana"]

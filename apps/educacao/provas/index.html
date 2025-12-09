@@ -9,227 +9,227 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .page-a4 {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        body {
+            background-color: #52525b;
+            font-family: 'Times New Roman', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .times {
+            font-family: 'Times New Roman', serif;
         }
 
         @media print {
-            body {
-                background: white;
-            }
-
             .no-print {
                 display: none !important;
             }
 
-            .page-a4 {
+            body {
+                background: white;
+            }
+
+            #preview {
+                width: 100%;
+                border: none;
+                padding: 0;
                 box-shadow: none;
                 margin: 0;
-                width: 100%;
             }
         }
     </style>
 </head>
 
-<body class="bg-slate-100 font-serif">
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <div id="app" v-cloak class="flex flex-col md:flex-row min-h-screen">
+    <!-- SIDEBAR EDITOR (No Print) -->
+    <div class="w-full md:w-1/3 bg-gray-900 text-white flex flex-col no-print border-r border-gray-700 h-full">
+        <header class="p-4 bg-gray-800 shadow relative">
+            <h1 class="text-xl font-bold font-sans"><i class="fa-solid fa-file-signature"></i> Editor de Prova</h1>
+            <div class="absolute top-4 right-4 flex gap-2">
+                <button @click="backupData" class="text-gray-400 hover:text-white" title="Backup"><i
+                        class="fa-solid fa-download"></i></button>
+                <label class="text-gray-400 hover:text-white cursor-pointer" title="Restaurar"><i
+                        class="fa-solid fa-upload"></i><input type="file" @change="restoreData" class="hidden"
+                        accept=".json"></label>
+            </div>
+        </header>
 
-        <!-- EDITOR SIDEBAR -->
-        <aside
-            class="w-full md:w-96 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0 no-print z-20">
-            <header class="p-4 border-b border-slate-200 bg-slate-50">
-                <h1 class="font-bold text-slate-800"><i class="fa-solid fa-file-pen text-blue-600 mr-2"></i>Editor de
-                    Prova</h1>
-            </header>
-
-            <div class="flex-grow overflow-y-auto p-4 space-y-4">
-
-                <!-- Header Info -->
-                <div class="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <h3 class="text-xs font-bold uppercase text-slate-400">Cabeçalho</h3>
-                    <input v-model="info.school" type="text" placeholder="Nome da Escola"
-                        class="w-full p-2 border rounded text-sm">
-                    <input v-model="info.teacher" type="text" placeholder="Nome do Professor"
-                        class="w-full p-2 border rounded text-sm">
-                    <div class="flex gap-2">
-                        <input v-model="info.class" type="text" placeholder="Turma/Ano"
-                            class="w-full p-2 border rounded text-sm">
-                        <input v-model="info.discipline" type="text" placeholder="Disciplina"
-                            class="w-full p-2 border rounded text-sm">
-                    </div>
-                </div>
-
-                <!-- Questions List -->
-                <div class="space-y-3">
-                    <h3 class="text-xs font-bold uppercase text-slate-400">Questões</h3>
-
-                    <div v-for="(q, idx) in questions" :key="idx"
-                        class="bg-white border hover:border-blue-400 rounded-lg p-3 shadow-sm transition group relative">
-                        <div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition">
-                            <button @click="removeQuestion(idx)" class="text-red-400 hover:text-red-600"><i
-                                    class="fa-solid fa-trash"></i></button>
-                        </div>
-
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-0.5 rounded">#{{ idx + 1
-                                }}</span>
-                            <select v-model="q.type" class="text-xs border rounded p-1">
-                                <option value="discursive">Discursiva (Linhas)</option>
-                                <option value="multiple">Múltipla Escolha</option>
-                            </select>
-                        </div>
-
-                        <textarea v-model="q.text" rows="2" placeholder="Enunciado da questão..."
-                            class="w-full p-2 border border-slate-200 rounded text-sm font-sans mb-2 outline-none focus:border-blue-400"></textarea>
-
-                        <!-- Opts for Multiple -->
-                        <div v-if="q.type === 'multiple'" class="space-y-1 pl-2 border-l-2 border-slate-100">
-                            <div v-for="(opt, oIdx) in q.options" :key="oIdx" class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-400">{{ String.fromCharCode(97 + oIdx)
-                                    }})</span>
-                                <input v-model="q.options[oIdx]" type="text"
-                                    class="w-full text-xs border-b border-dashed bg-transparent outline-none">
-                            </div>
-                            <button @click="addOption(q)" class="text-[10px] text-blue-500 hover:underline">+
-                                Opção</button>
-                        </div>
-
-                        <!-- Lines for Discursive -->
-                        <div v-if="q.type === 'discursive'" class="flex items-center gap-2">
-                            <label class="text-xs text-slate-400">Linhas:</label>
-                            <input type="number" v-model="q.lines" class="w-12 text-xs border rounded p-1">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <button @click="addQuestion('discursive')"
-                        class="bg-white border border-dashed border-slate-300 py-3 rounded-lg text-slate-500 hover:border-blue-500 hover:text-blue-500 transition text-sm">
-                        + Discursiva
-                    </button>
-                    <button @click="addQuestion('multiple')"
-                        class="bg-white border border-dashed border-slate-300 py-3 rounded-lg text-slate-500 hover:border-blue-500 hover:text-blue-500 transition text-sm">
-                        + Objetiva
-                    </button>
-                </div>
-
+        <div class="flex-grow overflow-y-auto p-4 space-y-6 font-sans">
+            <!-- Header Config -->
+            <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                <h3 class="font-bold text-sm text-gray-400 mb-2 uppercase">Cabeçalho</h3>
+                <input v-model="schoolName" class="w-full bg-gray-700 p-2 rounded mb-2 text-sm"
+                    placeholder="Nome da Escola">
+                <input v-model="teacherName" class="w-full bg-gray-700 p-2 rounded mb-2 text-sm"
+                    placeholder="Professor">
+                <input v-model="subject" class="w-full bg-gray-700 p-2 rounded mb-2 text-sm" placeholder="Matéria">
+                <input v-model="grade" class="w-full bg-gray-700 p-2 rounded text-sm" placeholder="Turma/Série">
             </div>
 
-            <footer class="p-4 border-t border-slate-200 bg-white">
-                <button @click="print"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-print"></i> Imprimir Prova
-                </button>
-            </footer>
-        </aside>
+            <!-- Questions -->
+            <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                <h3 class="font-bold text-sm text-gray-400 mb-2 uppercase">Adicionar Questão</h3>
+                <textarea v-model="newQ.text" class="w-full bg-gray-700 p-2 rounded mb-2 text-sm" rows="3"
+                    placeholder="Enunciado da questão..."></textarea>
 
-        <!-- PREVIEW AREA (A4) -->
-        <main class="flex-grow p-8 bg-slate-200 overflow-y-auto">
-
-            <div class="page-a4 relative">
-
-                <!-- CABEÇALHO DA PROVA -->
-                <div class="border border-black mb-8 p-4 flex flex-col gap-4">
-                    <div class="text-center border-b border-black pb-4">
-                        <h1 class="text-xl font-bold uppercase">{{ info.school || 'Nome da Escola' }}</h1>
-                        <p class="text-sm">Avaliação de {{ info.discipline || 'Disciplina' }}</p>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <div><b>Professor(a):</b> {{ info.teacher }}</div>
-                        <div><b>Turma:</b> {{ info.class }}</div>
-                        <div><b>Data:</b> ____/____/____</div>
-                    </div>
-                    <div class="text-sm">
-                        <b>Aluno(a):</b> _________________________________________________________________
-                    </div>
-                    <div class="flex justify-between text-xs pt-2">
-                        <span><b>Valor:</b> 10,0</span>
-                        <span><b>Nota:</b> __________</span>
-                    </div>
+                <div class="flex gap-2 mb-2">
+                    <select v-model="newQ.type" class="bg-gray-700 p-2 rounded text-sm flex-grow">
+                        <option value="discursive">Discursiva (Linhas)</option>
+                        <option value="objective">Objetiva (Múltipla Escolha)</option>
+                    </select>
+                    <input v-if="newQ.type==='discursive'" v-model.number="newQ.lines" type="number"
+                        class="w-16 bg-gray-700 p-2 rounded text-sm" placeholder="Linhas">
                 </div>
 
-                <!-- QUESTÕES -->
-                <div class="space-y-6 text-justify">
-                    <div v-for="(q, idx) in questions" :key="idx">
-                        <div class="flex gap-2 mb-2">
-                            <span class="font-bold">{{ idx + 1 }}.</span>
-                            <p class="whitespace-pre-wrap">{{ q.text || 'Digite o enunciado...' }}</p>
-                        </div>
-
-                        <!-- Discursiva Lines -->
-                        <div v-if="q.type === 'discursive'" class="pl-6 space-y-3 mt-4">
-                            <div v-for="l in q.lines" class="border-b border-black opacity-30 h-6 w-full"></div>
-                        </div>
-
-                        <!-- Multiple Choice -->
-                        <div v-if="q.type === 'multiple'" class="pl-6 space-y-2 mt-2">
-                            <div v-for="(opt, oIdx) in q.options" :key="oIdx" class="flex gap-2 items-start">
-                                <span class="font-bold"> {{ String.fromCharCode(97 + oIdx) }}) </span>
-                                <span>{{ opt }}</span>
-                            </div>
-                        </div>
-                    </div>
+                <div v-if="newQ.type==='objective'" class="space-y-1 mb-2">
+                    <input v-model="newQ.optA" class="w-full bg-gray-700 p-1 rounded text-xs" placeholder="Opção A">
+                    <input v-model="newQ.optB" class="w-full bg-gray-700 p-1 rounded text-xs" placeholder="Opção B">
+                    <input v-model="newQ.optC" class="w-full bg-gray-700 p-1 rounded text-xs" placeholder="Opção C">
+                    <input v-model="newQ.optD" class="w-full bg-gray-700 p-1 rounded text-xs" placeholder="Opção D">
                 </div>
 
-                <!-- Footer Clean -->
-                <div class="absolute bottom-10 left-0 w-full text-center text-[10px] text-gray-400 no-print-text">
-                    Gerado via Plena Apps - Provas
-                </div>
-
+                <button @click="addQuestion"
+                    class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded font-bold text-sm">Adicionar à
+                    Prova</button>
             </div>
 
-        </main>
+            <!-- List (Sortable simplified) -->
+            <div class="space-y-2">
+                <div v-for="(q, idx) in questions" :key="idx"
+                    class="bg-gray-800 p-2 rounded flex justify-between items-center text-xs">
+                    <span class="truncate w-48">{{ idx+1 }}. {{ q.text }}</span>
+                    <button @click="questions.splice(idx,1)" class="text-red-400 hover:text-red-300"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
 
+        <div class="p-4 bg-gray-800">
+            <button @click="printExam" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-bold shadow"><i
+                    class="fa-solid fa-print"></i> IMPRIMIR / PDF</button>
+        </div>
+    </div>
+
+    <!-- PREVIEW (A4) -->
+    <div class="flex-grow bg-gray-500 overflow-y-auto p-8 flex justify-center">
+        <div id="preview" class="bg-white w-[210mm] min-h-[297mm] shadow-2xl p-[20mm] text-black">
+
+            <!-- Header Render -->
+            <div
+                class="border-b-2 border-black pb-4 mb-8 text-center uppercase font-bold tracking-wider leading-relaxed">
+                <div class="text-xl mb-2">{{ schoolName || 'NOME DA ESCOLA' }}</div>
+                <div class="flex justify-between text-sm mt-4 text-left">
+                    <div class="w-2/3">
+                        <p>Aluno(a): __________________________________________________</p>
+                        <p>Professor(a): {{ teacherName }}</p>
+                    </div>
+                    <div class="w-1/3 text-right">
+                        <p>Data: ___/___/_____</p>
+                        <p>Turma: {{ grade }} | Nota: ______</p>
+                    </div>
+                </div>
+                <div class="mt-4 border bg-gray-100 p-1">AVALIAÇÃO DE {{ subject || 'MATÉRIA' }}</div>
+            </div>
+
+            <!-- Questions Render -->
+            <div class="space-y-6">
+                <div v-for="(q, idx) in questions" :key="idx">
+                    <div class="font-bold flex gap-2">
+                        <span>{{ idx + 1 }})</span>
+                        <span class="whitespace-pre-wrap">{{ q.text }}</span>
+                    </div>
+
+                    <!-- Discursive -->
+                    <div v-if="q.type === 'discursive'" class="mt-2 space-y-2">
+                        <div v-for="n in (q.lines || 3)" class="border-b border-gray-400 h-6"></div>
+                    </div>
+
+                    <!-- Objective -->
+                    <div v-if="q.type === 'objective'" class="mt-2 text-sm ml-6 space-y-1">
+                        <div>( ) a) {{ q.optA }}</div>
+                        <div>( ) b) {{ q.optB }}</div>
+                        <div>( ) c) {{ q.optC }}</div>
+                        <div>( ) d) {{ q.optD }}</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
-        const { createApp, ref } = Vue;
+        const { createApp, ref, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                const info = ref({
-                    school: 'Escola Modelo Estadual',
-                    teacher: '',
-                    class: '',
-                    discipline: ''
+                const schoolName = ref('');
+                const teacherName = ref('');
+                const subject = ref('');
+                const grade = ref('');
+                const questions = ref([]);
+
+                const newQ = ref({ text: '', type: 'discursive', lines: 3, optA: '', optB: '', optC: '', optD: '' });
+
+                const addQuestion = () => {
+                    if (!newQ.value.text) return;
+                    questions.value.push({ ...newQ.value });
+                    newQ.value = { text: '', type: 'discursive', lines: 3, optA: '', optB: '', optC: '', optD: '' };
+                };
+
+                const printExam = () => window.print();
+
+                // Backup
+                const backupData = () => {
+                    const data = { header: { school: schoolName.value, teacher: teacherName.value, subj: subject.value, grade: grade.value }, qs: questions.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `prova_${subject.value || 'gerada'}_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            questions.value = d.qs;
+                            if (d.header) { schoolName.value = d.header.school; teacherName.value = d.header.teacher; subject.value = d.header.subj; grade.value = d.header.grade; }
+                            alert("Prova Restaurada!");
+                        } catch (e) { alert("Erro!"); }
+                    };
+                    r.readAsText(f);
+                };
+
+                // No persistent storage to avoid clutter, just JSON backup. Actually localstorage draft is good.
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_exam');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        questions.value = parsed.qs;
+                        if (parsed.header) { schoolName.value = parsed.header.school; teacherName.value = parsed.header.teacher; subject.value = parsed.header.subj; grade.value = parsed.header.grade; }
+                    }
                 });
 
-                const questions = ref([
-                    { type: 'discursive', text: 'Explique com suas palavras a importância do tema estudado.', lines: 4 },
-                    { type: 'multiple', text: 'Qual das opções abaixo está correta?', options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'] }
-                ]);
+                watch([questions, schoolName, teacherName, subject, grade], () => {
+                    localStorage.setItem('plena_exam', JSON.stringify({
+                        qs: questions.value,
+                        header: { school: schoolName.value, teacher: teacherName.value, subj: subject.value, grade: grade.value }
+                    }));
+                }, { deep: true });
 
-                const addQuestion = (type) => {
-                    if (type === 'discursive') {
-                        questions.value.push({ type: 'discursive', text: '', lines: 3 });
-                    } else {
-                        questions.value.push({ type: 'multiple', text: '', options: ['', '', '', ''] });
-                    }
-                };
-
-                const removeQuestion = (idx) => {
-                    questions.value.splice(idx, 1);
-                };
-
-                const addOption = (q) => {
-                    q.options.push('');
-                };
-
-                const print = () => {
-                    window.print();
-                };
 
                 return {
-                    info, questions, addQuestion, removeQuestion, addOption, print
+                    schoolName, teacherName, subject, grade, questions, newQ,
+                    addQuestion, printExam, backupData, restoreData
                 };
             }
-        }).mount('#app');
+        }).mount('body');  // Mount on body to handle split view easier
     </script>
 </body>
 

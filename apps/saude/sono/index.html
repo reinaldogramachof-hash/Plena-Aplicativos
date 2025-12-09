@@ -3,191 +3,189 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Rastreador de Sono | Plena Saúde</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Tracker | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #1a202c;
-            color: #e2e8f0;
-            font-family: 'Inter', sans-serif;
+            background-color: #1e1b4b;
+            color: #c7d2fe;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .chart-bar {
+            transition: height 0.5s ease;
         }
     </style>
 </head>
 
-<body class="min-h-screen p-4 flex flex-col items-center">
+<body class="pb-20">
 
-    <div id="app" class="w-full max-w-lg">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen p-6 flex flex-col">
 
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-indigo-400 mb-2"><i class="fa-solid fa-moon"></i> Sleep Tracker</h1>
-            <p class="text-slate-400 text-sm">Monitore a qualidade do seu descanso.</p>
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white"><i class="fa-solid fa-moon text-indigo-400"></i> Sleep Tracker
+                </h1>
+                <p class="text-xs text-indigo-400">Monitor de Sono</p>
+            </div>
+            <div class="flex gap-2">
+                <button @click="backupData" class="text-indigo-700 hover:text-white" title="Backup"><i
+                        class="fa-solid fa-download"></i></button>
+                <label class="text-indigo-700 hover:text-white cursor-pointer" title="Restaurar"><i
+                        class="fa-solid fa-upload"></i><input type="file" @change="restoreData" class="hidden"
+                        accept=".json"></label>
+            </div>
         </header>
 
-        <!-- Input Card -->
-        <div class="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700 mb-6">
+        <!-- CHART -->
+        <div class="bg-indigo-900/50 p-6 rounded-2xl mb-8 border border-indigo-800">
+            <div class="flex justify-between items-end h-40 gap-2">
+                <div v-for="(day, idx) in chartData" :key="idx"
+                    class="flex-1 flex flex-col justify-end items-center group">
+                    <div class="text-[10px] mb-1 opacity-0 group-hover:opacity-100 transition">{{ day.hours.toFixed(1)
+                        }}h</div>
+                    <div class="w-full bg-indigo-500 hover:bg-indigo-400 rounded-t-lg chart-bar relative"
+                        :style="{height: (day.hours/12)*100 + '%'}">
+                        <!-- Quality Dot -->
+                        <div class="absolute -top-1 right-0 w-2 h-2 rounded-full" :class="qualityColor(day.quality)">
+                        </div>
+                    </div>
+                    <div class="text-[10px] mt-2 text-indigo-400">{{ day.label }}</div>
+                </div>
+            </div>
+            <div class="text-center mt-4 text-xs text-indigo-400">Últimos 7 dias</div>
+        </div>
+
+        <!-- NEW ENTRY -->
+        <div class="bg-indigo-800 p-6 rounded-2xl shadow-xl">
+            <h3 class="font-bold text-white mb-4"><i class="fa-solid fa-plus"></i> Registrar Noite</h3>
+
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-xs font-bold text-indigo-400 uppercase mb-2">Deitei às</label>
-                    <input v-model="bedTime" type="time"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-indigo-500 outline-none">
+                    <label class="block text-xs text-indigo-300 mb-1">Dormiu às</label>
+                    <input v-model="entry.bedtime" type="time"
+                        class="w-full bg-indigo-900 border border-indigo-700 rounded p-3 text-white outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-indigo-400 uppercase mb-2">Acordei às</label>
-                    <input v-model="wakeTime" type="time"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-indigo-500 outline-none">
+                    <label class="block text-xs text-indigo-300 mb-1">Acordou às</label>
+                    <input v-model="entry.waketime" type="time"
+                        class="w-full bg-indigo-900 border border-indigo-700 rounded p-3 text-white outline-none focus:border-indigo-500">
                 </div>
             </div>
 
             <div class="mb-6">
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Qualidade</label>
-                <div class="flex justify-between gap-2">
-                    <button v-for="q in 5" :key="q" @click="quality = q"
-                        :class="quality === q ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-400'"
-                        class="flex-1 py-2 rounded-lg font-bold hover:bg-indigo-500 transition">
-                        <i class="fa-solid fa-star text-xs"></i> {{ q }}
+                <label class="block text-xs text-indigo-300 mb-2">Qualidade</label>
+                <div class="flex justify-between">
+                    <button v-for="q in [1,2,3,4,5]" @click="entry.quality = q"
+                        :class="entry.quality === q ? 'bg-indigo-500 text-white scale-110' : 'bg-indigo-900 text-indigo-400'"
+                        class="w-10 h-10 rounded-full font-bold transition flex items-center justify-center border border-indigo-700">
+                        {{ q }}
                     </button>
+                </div>
+                <div class="flex justify-between text-[10px] text-indigo-500 mt-1 px-1">
+                    <span>Péssimo</span>
+                    <span>Excelente</span>
                 </div>
             </div>
 
-            <button @click="addEntry"
-                class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition transform active:scale-95">
-                Registrar Noite
+            <button @click="save"
+                class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-900/50">
+                Salvar Registro
             </button>
         </div>
 
-        <!-- Weekly Chart -->
-        <div class="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700 mb-6 relative">
-            <h3 class="text-sm font-bold text-slate-400 uppercase mb-4">Últimos 7 Dias</h3>
-            <canvas id="sleepChart" class="w-full h-48"></canvas>
-            <div v-if="history.length === 0" class="absolute inset-0 flex items-center justify-center bg-slate-800/80">
-                <p class="text-slate-500 text-sm">Nenhum registro ainda</p>
+        <!-- STATS -->
+        <div class="mt-8 grid grid-cols-2 gap-4">
+            <div class="bg-indigo-900/30 p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-white">{{ avgHours }}h</div>
+                <div class="text-xs text-indigo-400">Média Horas</div>
             </div>
-        </div>
-
-        <!-- History -->
-        <div class="space-y-3">
-            <div v-for="(entry, idx) in sortedHistory" :key="idx"
-                class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
-                <div>
-                    <div class="text-sm font-bold text-white">{{ formatDate(entry.date) }}</div>
-                    <div class="text-xs text-slate-400">{{ entry.start }} - {{ entry.end }}</div>
-                </div>
-                <div class="text-right">
-                    <div class="text-xl font-bold text-indigo-400">{{ formatDuration(entry.duration) }}</div>
-                    <div class="text-xs text-yellow-500">
-                        <i v-for="n in entry.quality" class="fa-solid fa-star"></i>
-                    </div>
-                </div>
-                <button @click="deleteEntry(idx)" class="ml-4 text-slate-600 hover:text-red-400"><i
-                        class="fa-solid fa-trash"></i></button>
+            <div class="bg-indigo-900/30 p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-white">{{ avgQuality }}/5</div>
+                <div class="text-xs text-indigo-400">Média Qualidade</div>
             </div>
         </div>
 
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+        const { createApp, ref, computed, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                const bedTime = ref('23:00');
-                const wakeTime = ref('07:00');
-                const quality = ref(3);
-                const history = ref([]);
-                let chartInstance = null;
-
-                onMounted(() => {
-                    const saved = localStorage.getItem('plena_sleep_v1');
-                    if (saved) history.value = JSON.parse(saved);
-                    renderChart();
-                });
-
-                const addEntry = () => {
-                    const duration = calculateDuration(bedTime.value, wakeTime.value);
-                    history.value.push({
-                        date: new Date().toISOString(),
-                        start: bedTime.value,
-                        end: wakeTime.value,
-                        duration: duration, // in minutes
-                        quality: quality.value
-                    });
-                    save();
-                    renderChart();
-                };
-
-                const deleteEntry = (idx) => {
-                    if (confirm('Apagar registro?')) {
-                        history.value.splice(idx, 1);
-                        save();
-                        renderChart();
-                    }
-                };
+                const entry = ref({ bedtime: '', waketime: '', quality: 3 });
+                const logs = ref([]);
 
                 const save = () => {
-                    localStorage.setItem('plena_sleep_v1', JSON.stringify(history.value));
+                    if (!entry.value.bedtime || !entry.value.waketime) return alert("Preencha os horários!");
+
+                    // Calc duration handles crossing midnight
+                    const start = new Date("2000-01-01 " + entry.value.bedtime);
+                    const end = new Date("2000-01-01 " + entry.value.waketime);
+                    let diff = (end - start) / 3600000; // hours
+                    if (diff < 0) diff += 24;
+
+                    logs.value.push({
+                        date: new Date().toISOString(), // Entry date
+                        hours: diff,
+                        quality: entry.value.quality,
+                        weekday: new Date().toLocaleDateString('pt-BR', { weekday: 'short' })
+                    });
+
+                    entry.value = { bedtime: '', waketime: '', quality: 3 };
                 };
 
-                const calculateDuration = (start, end) => {
-                    let [h1, m1] = start.split(':').map(Number);
-                    let [h2, m2] = end.split(':').map(Number);
-                    let min1 = h1 * 60 + m1;
-                    let min2 = h2 * 60 + m2;
-                    if (min2 < min1) min2 += 24 * 60; // Next day
-                    return min2 - min1;
-                };
-
-                const formatDuration = (mins) => {
-                    const h = Math.floor(mins / 60);
-                    const m = mins % 60;
-                    return `${h}h ${m}m`;
-                };
-
-                const formatDate = (iso) => {
-                    return new Date(iso).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
-                };
-
-                const sortedHistory = computed(() => {
-                    return [...history.value].reverse();
+                const chartData = computed(() => {
+                    // Last 7 entries
+                    return logs.value.slice(-7).map(l => ({
+                        label: l.weekday.replace('.', ''),
+                        hours: l.hours,
+                        quality: l.quality
+                    }));
                 });
 
-                const renderChart = async () => {
-                    await nextTick();
-                    const ctx = document.getElementById('sleepChart');
-                    if (!ctx) return;
-
-                    if (chartInstance) chartInstance.destroy();
-
-                    const data = history.value.slice(-7); // Last 7
-
-                    chartInstance = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.map(d => new Date(d.date).getDate()),
-                            datasets: [{
-                                label: 'Horas',
-                                data: data.map(d => (d.duration / 60).toFixed(1)),
-                                backgroundColor: '#6366f1',
-                                borderRadius: 4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                            }
-                        }
-                    });
+                const qualityColor = (q) => {
+                    if (q >= 4) return 'bg-green-400';
+                    if (q === 3) return 'bg-yellow-400';
+                    return 'bg-red-400';
                 };
 
-                return {
-                    bedTime, wakeTime, quality, history, sortedHistory,
-                    addEntry, deleteEntry, formatDuration, formatDate
+                const avgHours = computed(() => {
+                    if (logs.value.length === 0) return 0;
+                    const sum = logs.value.reduce((a, b) => a + b.hours, 0);
+                    return (sum / logs.value.length).toFixed(1);
+                });
+
+                const avgQuality = computed(() => {
+                    if (logs.value.length === 0) return 0;
+                    const sum = logs.value.reduce((a, b) => a + b.quality, 0);
+                    return (sum / logs.value.length).toFixed(1);
+                });
+
+                // Standard Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(logs.value)], { type: "application/json" });
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sleep_backup.json`; a.click();
                 };
+                const restoreData = (e) => {
+                    const f = e.target.files[0]; if (!f) return;
+                    const r = new FileReader(); r.onload = (v) => { logs.value = JSON.parse(v.target.result); alert("Dados restaurados!"); }; r.readAsText(f);
+                };
+
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_sleep');
+                    if (d) logs.value = JSON.parse(d);
+                });
+                watch(logs, () => localStorage.setItem('plena_sleep', JSON.stringify(logs.value)), { deep: true });
+
+                return { entry, save, chartData, qualityColor, avgHours, avgQuality, backupData, restoreData };
             }
         }).mount('#app');
     </script>

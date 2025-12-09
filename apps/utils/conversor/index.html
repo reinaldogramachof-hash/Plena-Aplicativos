@@ -3,237 +3,181 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conversor Universal | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor Universal | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Public Sans', 'sans-serif'] },
-                    colors: {
-                        brand: { 500: '#3b82f6', 600: '#2563eb' }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             background-color: #f8fafc;
-            color: #334155;
-            font-family: 'Public Sans', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .tab-active {
-            background: #fff;
-            color: #2563eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-group:focus-within label {
-            color: #2563eb;
-        }
-
-        .input-group:focus-within input {
-            border-color: #2563eb;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="h-screen overflow-hidden flex flex-col items-center justify-center p-4">
+<body class="pb-20">
 
-    <div id="app" class="w-full max-w-2xl h-full md:h-auto flex flex-col">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Header -->
-        <div class="text-center mb-6 mt-4 md:mt-0">
-            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-arrow-right-arrow-left text-brand-500"></i> Conversor <span
-                    class="text-brand-600">Universal</span>
-            </h1>
+        <header class="bg-teal-600 text-white p-6 shadow-md">
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-arrow-right-arrow-left"></i> Conversor</h1>
+            <p class="text-teal-100 text-xs">Medidas, Pesos e Temperaturas</p>
+        </header>
+
+        <!-- CATEGORIES -->
+        <div class="flex overflow-x-auto p-4 gap-2 no-scrollbar bg-teal-50">
+            <button v-for="c in categories" @click="cat = c.id"
+                :class="cat===c.id ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 border border-teal-200'"
+                class="px-4 py-2 rounded-full font-bold whitespace-nowrap transition text-sm">
+                <i :class="c.icon" class="mr-1"></i> {{ c.name }}
+            </button>
         </div>
 
-        <!-- Main Card -->
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 flex-1 flex flex-col overflow-hidden">
+        <div class="p-6 flex-grow flex flex-col items-center justify-center">
 
-            <!-- Tabs -->
-            <div class="flex overflow-x-auto p-2 bg-slate-100 gap-2 no-scrollbar">
-                <button v-for="cat in categories" :key="cat.id" @click="currentCategory = cat.id"
-                    class="flex-1 min-w-[100px] py-3 px-4 rounded-xl text-sm font-bold transition-all flex flex-col items-center gap-1 border border-transparent"
-                    :class="currentCategory === cat.id ? 'tab-active border-slate-200' : 'text-slate-500 hover:bg-slate-200'">
-                    <i :class="cat.icon" class="text-lg"></i>
-                    {{ cat.name }}
-                </button>
-            </div>
-
-            <!-- Converter Area -->
-            <div class="p-6 md:p-8 flex-1 overflow-y-auto bg-white/50 relative">
-
-                <div v-for="cat in categories" :key="cat.id">
-                    <div v-if="currentCategory === cat.id" class="space-y-4 animate-fade-in">
-
-                        <div v-for="unit in cat.units" :key="unit.id" class="input-group relative">
-                            <label
-                                class="absolute left-4 top-2 text-xs font-bold text-slate-400 uppercase tracking-wider transition-colors z-10">{{
-                                unit.name }} ({{ unit.symbol }})</label>
-                            <input type="number" v-model="values[unit.id]"
-                                @input="convert(unit.id, $event.target.value)" placeholder="0"
-                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pt-7 pb-3 px-4 text-xl font-bold text-slate-700 outline-none transition-all placeholder-slate-300 shadow-sm focus:shadow-md focus:bg-white spin-hide">
-
-                            <!-- Copy Btn -->
-                            <button @click="copy(values[unit.id])"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500 transition opacity-0 group-hover:opacity-100 input-group:hover:opacity-100">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                        </div>
-
-                    </div>
+            <!-- FROM -->
+            <div class="w-full mb-4">
+                <div class="flex justify-between mb-1">
+                    <label class="text-xs font-bold text-gray-400">DE</label>
+                    <select v-model="fromUnit"
+                        class="text-xs bg-transparent font-bold text-teal-600 outline-none text-right">
+                        <option v-for="u in currentUnits" :value="u.id">{{ u.opt }}</option>
+                    </select>
                 </div>
-
-                <!-- Empty State / Intro if needed, but tabs default to first -->
-
+                <input v-model.number="amount" type="number"
+                    class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-4 text-3xl font-bold text-gray-700 outline-none focus:border-teal-500 transition">
             </div>
 
-            <!-- Footer Info -->
-            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
-                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Precisão de 4 casas decimais
-                </p>
+            <!-- SWAP -->
+            <button @click="swap"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-500 w-12 h-12 rounded-full mb-4 flex items-center justify-center transition">
+                <i class="fa-solid fa-sort"></i>
+            </button>
+
+            <!-- TO -->
+            <div class="w-full mb-8">
+                <div class="flex justify-between mb-1">
+                    <label class="text-xs font-bold text-gray-400">PARA</label>
+                    <select v-model="toUnit"
+                        class="text-xs bg-transparent font-bold text-teal-600 outline-none text-right">
+                        <option v-for="u in currentUnits" :value="u.id">{{ u.opt }}</option>
+                    </select>
+                </div>
+                <div
+                    class="w-full bg-teal-50 border-2 border-teal-100 rounded-xl p-4 text-3xl font-bold text-teal-700 break-all">
+                    {{ result }} <span class="text-base font-normal opacity-50">{{ toUnit }}</span>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-gray-400">
+                1 {{ fromUnit }} = {{ rate }} {{ toUnit }}
             </div>
 
         </div>
 
     </div>
 
-    <style>
-        .spin-hide::-webkit-outer-spin-button,
-        .spin-hide::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, computed, watch } = Vue;
 
         createApp({
             setup() {
-                const currentCategory = ref('length');
-                // Store active values for all units across all categories flatly? 
-                // Alternatively, reset when switching cat? Better to keep state? 
-                // Let's keep state separate but simple.
-
-                const values = ref({});
+                const cat = ref('length');
+                const amount = ref(1);
+                const fromUnit = ref('m');
+                const toUnit = ref('cm');
 
                 const categories = [
-                    {
-                        id: 'length', name: 'Comprimento', icon: 'fa-solid fa-ruler-combined',
-                        units: [
-                            { id: 'm', name: 'Metros', symbol: 'm', factor: 1 },
-                            { id: 'cm', name: 'Centímetros', symbol: 'cm', factor: 0.01 },
-                            { id: 'km', name: 'Quilômetros', symbol: 'km', factor: 1000 },
-                            { id: 'ft', name: 'Pés', symbol: 'ft', factor: 0.3048 },
-                            { id: 'in', name: 'Polegadas', symbol: 'in', factor: 0.0254 },
-                            { id: 'mi', name: 'Milhas', symbol: 'mi', factor: 1609.34 }
-                        ]
-                    },
-                    {
-                        id: 'weight', name: 'Peso', icon: 'fa-solid fa-weight-hanging',
-                        units: [
-                            { id: 'kg', name: 'Quilogramas', symbol: 'kg', factor: 1 },
-                            { id: 'g', name: 'Gramas', symbol: 'g', factor: 0.001 },
-                            { id: 'lb', name: 'Libras', symbol: 'lb', factor: 0.453592 },
-                            { id: 'oz', name: 'Onças', symbol: 'oz', factor: 0.0283495 }
-                        ]
-                    },
-                    {
-                        id: 'temp', name: 'Temperatura', icon: 'fa-solid fa-temperature-half',
-                        units: [
-                            { id: 'c', name: 'Celsius', symbol: '°C' },
-                            { id: 'f', name: 'Fahrenheit', symbol: '°F' },
-                            { id: 'k', name: 'Kelvin', symbol: 'K' }
-                        ]
-                    },
-                    {
-                        id: 'speed', name: 'Velocidade', icon: 'fa-solid fa-gauge-high',
-                        units: [
-                            { id: 'kmh', name: 'km/h', symbol: 'km/h', factor: 1 },
-                            { id: 'mph', name: 'Milhas/h', symbol: 'mph', factor: 1.60934 },
-                            { id: 'ms', name: 'm/s', symbol: 'm/s', factor: 3.6 }
-                        ]
-                    }
+                    { id: 'length', name: 'Comprimento', icon: 'fa-solid fa-ruler' },
+                    { id: 'weight', name: 'Peso', icon: 'fa-solid fa-weight-hanging' },
+                    { id: 'temp', name: 'Temperatura', icon: 'fa-solid fa-temperature-half' },
+                    { id: 'vol', name: 'Volume', icon: 'fa-solid fa-flask' }
                 ];
 
-                const convert = (sourceId, val) => {
-                    if (val === '') {
-                        // Clear all in category
-                        const cat = categories.find(c => c.units.find(u => u.id === sourceId));
-                        cat.units.forEach(u => values.value[u.id] = '');
-                        return;
-                    }
-
-                    const value = parseFloat(val);
-                    if (isNaN(value)) return;
-
-                    const cat = categories.find(c => c.units.find(u => u.id === sourceId));
-
-                    if (cat.id === 'temp') {
-                        // Special logic for Temp
-                        if (sourceId === 'c') {
-                            values.value.f = strip((value * 9 / 5) + 32);
-                            values.value.k = strip(value + 273.15);
-                        } else if (sourceId === 'f') {
-                            values.value.c = strip((value - 32) * 5 / 9);
-                            values.value.k = strip((value - 32) * 5 / 9 + 273.15);
-                        } else if (sourceId === 'k') {
-                            values.value.c = strip(value - 273.15);
-                            values.value.f = strip((value - 273.15) * 9 / 5 + 32);
-                        }
-                    } else {
-                        // Factor based
-                        const sourceUnit = cat.units.find(u => u.id === sourceId);
-                        const baseValue = value * sourceUnit.factor; // Convert to base (e.g. meters)
-
-                        cat.units.forEach(u => {
-                            if (u.id !== sourceId) {
-                                values.value[u.id] = strip(baseValue / u.factor);
-                            }
-                        });
-                    }
+                const units = {
+                    length: [
+                        { id: 'm', opt: 'Metros (m)', factor: 1 },
+                        { id: 'cm', opt: 'Centímetros (cm)', factor: 0.01 },
+                        { id: 'mm', opt: 'Milímetros (mm)', factor: 0.001 },
+                        { id: 'km', opt: 'Quilômetros (km)', factor: 1000 },
+                        { id: 'in', opt: 'Polegadas (in)', factor: 0.0254 },
+                        { id: 'ft', opt: 'Pés (ft)', factor: 0.3048 }
+                    ],
+                    weight: [
+                        { id: 'kg', opt: 'Quilogramas (kg)', factor: 1 },
+                        { id: 'g', opt: 'Gramas (g)', factor: 0.001 },
+                        { id: 'lb', opt: 'Libras (lb)', factor: 0.453592 },
+                        { id: 'oz', opt: 'Onças (oz)', factor: 0.0283495 }
+                    ],
+                    vol: [
+                        { id: 'l', opt: 'Litros (L)', factor: 1 },
+                        { id: 'ml', opt: 'Mililitros (ml)', factor: 0.001 },
+                        { id: 'gal', opt: 'Galões (gal)', factor: 3.78541 }
+                    ],
+                    temp: [
+                        { id: 'c', opt: 'Celsius (°C)' },
+                        { id: 'f', opt: 'Fahrenheit (°F)' },
+                        { id: 'k', opt: 'Kelvin (K)' }
+                    ]
                 };
 
-                const strip = (num) => parseFloat(num.toFixed(4));
+                const currentUnits = computed(() => units[cat.value]);
 
-                const copy = (val) => {
-                    if (!val) return;
-                    navigator.clipboard.writeText(val);
-                    // Maybe show toast? 
+                const convertLengthWeightVol = (val, from, to) => {
+                    const u = currentUnits.value;
+                    const fromF = u.find(x => x.id === from).factor;
+                    const toF = u.find(x => x.id === to).factor;
+                    // Convert to base then to target
+                    const base = val * fromF;
+                    return base / toF;
                 };
 
-                return {
-                    currentCategory, categories, values, convert, copy
+                const convertTemp = (val, from, to) => {
+                    if (from === to) return val;
+                    let c = val;
+                    if (from === 'f') c = (val - 32) * 5 / 9;
+                    if (from === 'k') c = val - 273.15;
+
+                    if (to === 'c') return c;
+                    if (to === 'f') return (c * 9 / 5) + 32;
+                    if (to === 'k') return c + 273.15;
+                    return c;
                 };
+
+                const result = computed(() => {
+                    if (!amount.value && amount.value !== 0) return '...';
+                    let res = 0;
+                    if (cat.value === 'temp') res = convertTemp(amount.value, fromUnit.value, toUnit.value);
+                    else res = convertLengthWeightVol(amount.value, fromUnit.value, toUnit.value);
+
+                    // Format output
+                    return parseFloat(res.toFixed(4));
+                });
+
+                const rate = computed(() => {
+                    if (cat.value === 'temp') return '...'; // Dynamic for temp
+                    let res = convertLengthWeightVol(1, fromUnit.value, toUnit.value);
+                    return parseFloat(res.toFixed(4));
+                });
+
+                const swap = () => {
+                    const tmp = fromUnit.value;
+                    fromUnit.value = toUnit.value;
+                    toUnit.value = tmp;
+                };
+
+                // Watch category change to reset units
+                watch(cat, (newCat) => {
+                    fromUnit.value = units[newCat][0].id;
+                    toUnit.value = units[newCat][1].id;
+                });
+
+                return { cat, categories, currentUnits, amount, fromUnit, toUnit, result, rate, swap };
             }
         }).mount('#app');
     </script>

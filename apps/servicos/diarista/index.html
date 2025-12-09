@@ -4,15 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diarista Pro | Plena Serviços</title>
-    <!-- LIBS -->
+    <title>Diarista Pro | Plena Apps</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Handlee&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0fdf4;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Handlee', cursive;
         }
 
         [v-cloak] {
@@ -21,331 +28,179 @@
     </style>
 </head>
 
-<body class="bg-pink-50 text-slate-800">
+<body class="pb-20">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- HEADER -->
-        <header class="bg-pink-600 text-white p-6 sticky top-0 z-50 shadow-md rounded-b-3xl">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-broom"></i> Diarista Pro
-                </h1>
-                <div class="bg-white/20 px-3 py-1 rounded-full text-sm font-bold">
-                    {{ currentMonth }}
+        <header class="bg-teal-500 text-white p-6 rounded-b-3xl shadow-md mb-6 relative overflow-hidden">
+            <div class="relative z-10 flex justify-between items-center">
+                <h1 class="text-3xl font-bold"><i class="fa-solid fa-broom"></i> Diarista Pro</h1>
+                <div class="flex gap-2">
+                    <button @click="backupData" class="bg-teal-600 hover:bg-teal-700 p-2 rounded-full transition"
+                        title="Backup"><i class="fa-solid fa-download"></i></button>
+                    <label class="bg-teal-600 hover:bg-teal-700 p-2 rounded-full transition cursor-pointer"
+                        title="Restaurar">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
                 </div>
             </div>
-            <!-- Earnings Summary -->
-            <div class="flex justify-between items-end">
-                <div>
-                    <span class="text-pink-200 text-sm">Ganhos do Mês</span>
-                    <div class="text-3xl font-bold">R$ {{ totalEarnings }},00</div>
-                </div>
-                <button @click="showAddClientModal"
-                    class="bg-white text-pink-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition">
-                    <i class="fa-solid fa-plus font-bold"></i>
-                </button>
-            </div>
+            <i class="fa-solid fa-sparkles absolute -bottom-4 -right-4 text-6xl text-teal-400 opacity-50"></i>
         </header>
 
-        <!-- MAIN CONTENT -->
-        <main class="flex-grow p-4 overflow-y-auto pb-24">
-
-            <!-- SCHEDULE -->
-            <h2 class="font-bold text-slate-700 text-lg mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-calendar-day text-pink-500"></i> Próximas Faxinas
-            </h2>
-
-            <!-- EMPTY STATE -->
-            <div v-if="schedule.length === 0"
-                class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <i class="fa-solid fa-calendar-xmark text-slate-300 text-4xl mb-3"></i>
-                <p class="text-slate-500 font-medium">Nenhuma faxina agendada.</p>
-                <button @click="showAddClientModal" class="text-pink-600 font-bold text-sm mt-2">Agendar Agora</button>
-            </div>
-
-            <!-- LIST -->
-            <div class="space-y-4">
-                <div v-for="job in sortedSchedule" :key="job.id"
-                    :class="job.completed ? 'opacity-60 grayscale bg-slate-50' : 'bg-white border-l-4 border-pink-500'"
-                    class="p-4 rounded-xl shadow-sm border border-slate-100 transition relative">
-
-                    <!-- INFO -->
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <div class="text-xs font-bold text-pink-500 uppercase flex items-center gap-1 mb-1">
-                                <i class="fa-regular fa-clock"></i> {{ formatDate(job.date) }} • {{ job.time }}
-                            </div>
-                            <h3 class="font-bold text-lg text-slate-800 leading-tight">{{ job.clientName }}</h3>
-                            <p class="text-sm text-slate-500">{{ job.address }}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="block font-bold text-slate-700">R$ {{ job.price }}</span>
-                            <span v-if="job.completed"
-                                class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">Pago</span>
-                            <span v-else
-                                class="text-xs font-bold text-orange-500 bg-orange-100 px-2 py-0.5 rounded">Pendente</span>
-                        </div>
-                    </div>
-
-                    <!-- CHECKLIST TOGGLE -->
-                    <div class="bg-pink-50 rounded-lg p-3">
-                        <div @click="job.showChecklist = !job.showChecklist"
-                            class="flex justify-between items-center text-xs font-bold text-pink-700 cursor-pointer">
-                            <span><i class="fa-solid fa-list-check"></i> O que fazer? ({{ getCompletedTasks(job) }}/{{
-                                job.checklist.length }})</span>
-                            <i :class="job.showChecklist ? 'fa-chevron-up' : 'fa-chevron-down'" class="fa-solid"></i>
-                        </div>
-
-                        <!-- TASKS -->
-                        <div v-if="job.showChecklist" class="mt-3 space-y-2 border-t border-pink-100 pt-2">
-                            <label v-for="(task, idx) in job.checklist" :key="idx"
-                                class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" v-model="task.done" @change="saveData"
-                                    class="w-5 h-5 rounded text-pink-600 focus:ring-pink-500 border-gray-300">
-                                <span :class="task.done ? 'line-through text-slate-400' : 'text-slate-700'"
-                                    class="text-sm select-none">{{ task.text }}</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- ACTIONS -->
-                    <div v-if="!job.completed" class="flex gap-2 mt-4">
-                        <button @click="completeJob(job)"
-                            class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg text-sm shadow-sm transition">
-                            <i class="fa-solid fa-check"></i> Concluir & Receber
-                        </button>
-                        <a :href="getWhatsAppLink(job)" target="_blank"
-                            class="bg-green-100 text-green-700 px-3 py-2 rounded-lg hover:bg-green-200">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                        </a>
-                        <button @click="deleteJob(job.id)" class="text-slate-300 hover:text-red-400 px-2">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-        </main>
-
-        <!-- ADD MODAL -->
-        <div v-if="showModal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
-            <div
-                class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 relative z-10 animate-slide-up h-[85vh] flex flex-col">
-
-                <h3 class="text-xl font-bold mb-6 text-slate-800">Nova Faxina</h3>
-
-                <div class="space-y-4 overflow-y-auto flex-grow pr-2">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Nome do Cliente</label>
-                        <input v-model="newJob.clientName" type="text" class="w-full border rounded-xl p-3 text-lg"
-                            placeholder="Ex: Dona Maria">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-slate-600 mb-1">Data</label>
-                            <input v-model="newJob.date" type="date" class="w-full border rounded-xl p-3">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-600 mb-1">Hora</label>
-                            <input v-model="newJob.time" type="time" class="w-full border rounded-xl p-3">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Valor (R$)</label>
-                        <input v-model="newJob.price" type="number"
-                            class="w-full border rounded-xl p-3 text-lg font-bold text-green-600" placeholder="0,00">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-1">Endereço (Opcional)</label>
-                        <input v-model="newJob.address" type="text" class="w-full border rounded-xl p-3 text-sm"
-                            placeholder="Rua, Número...">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-600 mb-2">Checklist Base</label>
-                        <div class="space-y-2 mb-2">
-                            <div v-for="(task, idx) in newJob.checklist" :key="idx" class="flex gap-2">
-                                <input v-model="task.text" type="text"
-                                    class="flex-grow border rounded-lg p-2 text-sm bg-slate-50" placeholder="Tarefa...">
-                                <button @click="removeTask(idx)" class="text-red-400"><i
-                                        class="fa-solid fa-times"></i></button>
-                            </div>
-                        </div>
-                        <button @click="addTask" class="text-pink-600 text-sm font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-plus-circle"></i> Adicionar Tarefa
-                        </button>
-                        <!-- Quick Add -->
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <button @click="quickTask('Limpar Vidros')"
-                                class="text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded-full">+ Vidros</button>
-                            <button @click="quickTask('Passar Roupa')"
-                                class="text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded-full">+ Roupa</button>
-                            <button @click="quickTask('Limpar Geladeira')"
-                                class="text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded-full">+ Geladeira</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-4 border-t border-slate-100 flex gap-3">
-                    <button @click="closeModal"
-                        class="flex-1 bg-slate-100 text-slate-500 font-bold py-3 rounded-xl">Cancelar</button>
-                    <button @click="saveJob"
-                        class="flex-[2] bg-pink-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-200">Agendar</button>
-                </div>
-
+        <!-- CLIENT INFO -->
+        <div class="px-6 mb-6">
+            <div class="bg-white border rounded-xl p-4 shadow-sm flex items-center gap-3">
+                <div
+                    class="bg-teal-100 w-10 h-10 rounded-full flex items-center justify-center text-teal-600 font-bold">
+                    <i class="fa-regular fa-user"></i></div>
+                <input v-model="clientName" placeholder="Nome do Cliente/Casa"
+                    class="flex-grow font-bold text-gray-700 outline-none placeholder-gray-300">
             </div>
         </div>
 
-        <!-- FOOTER NAV -->
-        <nav
-            class="absolute bottom-0 w-full bg-white border-t border-slate-200 p-2 flex justify-around items-center text-xs font-bold text-slate-400 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-            <a href="../../../index.html" class="flex flex-col items-center p-2 hover:text-pink-600 transition">
-                <i class="fa-solid fa-store text-xl mb-1"></i>
-                Sair
-            </a>
-            <div class="text-pink-600 flex flex-col items-center p-2">
-                <i class="fa-solid fa-broom text-xl mb-1"></i>
-                Agenda
+        <!-- ROOMS CHECKLIST -->
+        <div class="px-6 flex-grow space-y-6">
+            <div v-for="(room, rIdx) in rooms" :key="rIdx">
+                <h2
+                    class="text-xl font-bold text-teal-700 mb-2 border-b border-teal-100 flex justify-between items-center">
+                    {{ room.name }}
+                    <span class="text-xs bg-teal-100 text-teal-600 px-2 py-1 rounded-full font-sans">{{
+                        completedCount(room) }}/{{ room.tasks.length }}</span>
+                </h2>
+                <div class="space-y-2">
+                    <div v-for="(task, tIdx) in room.tasks" :key="tIdx" @click="task.done = !task.done"
+                        class="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition select-none"
+                        :class="task.done ? 'bg-teal-50 text-teal-800' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'">
+
+                        <div class="w-6 h-6 rounded border-2 flex items-center justify-center transition"
+                            :class="task.done ? 'bg-teal-500 border-teal-500' : 'border-gray-300'">
+                            <i v-if="task.done" class="fa-solid fa-check text-white text-xs"></i>
+                        </div>
+                        <span :class="{'line-through opacity-70': task.done}" class="font-medium">{{ task.name }}</span>
+                    </div>
+                </div>
             </div>
-        </nav>
+
+            <!-- Add Custom Room -->
+            <div class="pt-4">
+                <button @click="addRoom" class="text-teal-500 font-bold text-sm hover:underline">+ Adicionar
+                    Cômodo</button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="p-6">
+            <button @click="shareReport"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transform transition hover:scale-105">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Relatório
+            </button>
+        </div>
 
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { createApp, ref, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                const showModal = ref(false);
-                const schedule = ref([]);
-
-                const currentMonth = computed(() => {
-                    return new Date().toLocaleDateString('pt-BR', { month: 'long' });
-                });
-
-                const newJob = ref({
-                    clientName: '',
-                    date: '',
-                    time: '08:00',
-                    price: '',
-                    address: '',
-                    checklist: []
-                });
-
-                // --- PERSISTENCE ---
-                const saveData = () => {
-                    localStorage.setItem('diarista_pro_schedule', JSON.stringify(schedule.value));
-                };
-
-                const loadData = () => {
-                    const saved = localStorage.getItem('diarista_pro_schedule');
-                    if (saved) schedule.value = JSON.parse(saved);
-                };
-
-                onMounted(() => {
-                    loadData();
-                });
-
-                watch(schedule, saveData, { deep: true });
-
-                // --- COMPUTED ---
-                const sortedSchedule = computed(() => {
-                    return [...schedule.value].sort((a, b) => {
-                        // Sort by date then time
-                        const dateA = new Date(a.date + 'T' + a.time);
-                        const dateB = new Date(b.date + 'T' + b.time);
-                        return dateA - dateB;
-                    });
-                });
-
-                const totalEarnings = computed(() => {
-                    return schedule.value
-                        .filter(j => j.completed) // Only completed/paid jobs? Or verified ones. Let's count completed.
-                        .reduce((sum, j) => sum + Number(j.price || 0), 0);
-                });
-
-                // --- ACTIONS ---
-                const showAddClientModal = () => {
-                    newJob.value = {
-                        clientName: '',
-                        date: new Date().toISOString().split('T')[0],
-                        time: '08:00',
-                        price: '',
-                        address: '',
-                        checklist: [
-                            { text: 'Limpar Banheiros', done: false },
-                            { text: 'Limpar Cozinha', done: false },
-                            { text: 'Aspirar Sala', done: false },
-                            { text: 'Passar Pano', done: false }
+                const clientName = ref('');
+                const rooms = ref([
+                    {
+                        name: 'Cozinha',
+                        tasks: [
+                            { name: 'Lavar Louça', done: false },
+                            { name: 'Limpar Fogão/Forno', done: false },
+                            { name: 'Limpar Geladeira (Ext)', done: false },
+                            { name: 'Passar Pano', done: false }
                         ]
-                    };
-                    showModal.value = true;
+                    },
+                    {
+                        name: 'Banheiro',
+                        tasks: [
+                            { name: 'Lavar Box/Banheira', done: false },
+                            { name: 'Limpar Vaso Sanitário', done: false },
+                            { name: 'Limpar Pia/Espelho', done: false },
+                            { name: 'Trocar Lixo', done: false }
+                        ]
+                    },
+                    {
+                        name: 'Sala/Quartos',
+                        tasks: [
+                            { name: 'Tirar Pó', done: false },
+                            { name: 'Aspirar Tapetes', done: false },
+                            { name: 'Arrumar Camas', done: false },
+                            { name: 'Limpar Vidros', done: false }
+                        ]
+                    }
+                ]);
+
+                const completedCount = (room) => room.tasks.filter(t => t.done).length;
+
+                const addRoom = () => {
+                    const name = prompt("Nome do Cômodo:");
+                    if (name) {
+                        rooms.value.push({ name: name, tasks: [{ name: 'Limpar Geral', done: false }] });
+                    }
                 };
 
-                const closeModal = () => showModal.value = false;
+                const shareReport = () => {
+                    let text = `✨ *Relatório de Limpeza - Diarista Pro* ✨\n` +
+                        `👤 Cliente: ${clientName.value || 'Geral'}\n` +
+                        `📅 Data: ${new Date().toLocaleDateString()}\n\n`;
 
-                const addTask = () => {
-                    newJob.value.checklist.push({ text: '', done: false });
-                };
-
-                const removeTask = (index) => {
-                    newJob.value.checklist.splice(index, 1);
-                };
-
-                const quickTask = (text) => {
-                    newJob.value.checklist.push({ text: text, done: false });
-                };
-
-                const saveJob = () => {
-                    if (!newJob.value.clientName || !newJob.value.price) return alert('Preencha nome e valor!');
-
-                    schedule.value.push({
-                        id: Date.now(),
-                        ...newJob.value,
-                        completed: false,
-                        showChecklist: false
+                    rooms.value.forEach(r => {
+                        const done = r.tasks.filter(t => t.done);
+                        if (done.length > 0) {
+                            text += `*${r.name}:* ${done.length}/${r.tasks.length} concluídos\n`;
+                            done.forEach(t => text += `✅ ${t.name}\n`);
+                            text += `\n`;
+                        }
                     });
-                    closeModal();
+
+                    text += `_Serviço finalizado com carinho! 🧹_`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                const completeJob = (job) => {
-                    if (confirm(`Confirmar recebimento de R$ ${job.price}?`)) {
-                        job.completed = true;
-                    }
+                // Backup
+                const backupData = () => {
+                    const data = { client: clientName.value, rooms: rooms.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_diarista_${Date.now()}.json`;
+                    a.click();
                 };
 
-                const deleteJob = (id) => {
-                    if (confirm('Excluir este agendamento?')) {
-                        schedule.value = schedule.value.filter(j => j.id !== id);
-                    }
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            rooms.value = d.rooms; clientName.value = d.client || '';
+                            alert("Checklist Restaurado!");
+                        } catch (e) { alert("Erro!"); }
+                    };
+                    r.readAsText(f);
                 };
 
-                // --- UTILS ---
-                const formatDate = (dateStr) => {
-                    if (!dateStr) return '';
-                    const parts = dateStr.split('-');
-                    return `${parts[2]}/${parts[1]}`;
-                };
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_diarista');
+                    if (d) rooms.value = JSON.parse(d);
+                    const c = localStorage.getItem('plena_diarista_client');
+                    if (c) clientName.value = c;
+                });
 
-                const getCompletedTasks = (job) => {
-                    return job.checklist.filter(t => t.done).length;
-                };
-
-                const getWhatsAppLink = (job) => {
-                    const text = `Olá ${job.clientName}, confirmando nossa faxina dia ${formatDate(job.date)} às ${job.time}.`;
-                    return `https://wa.me/?text=${encodeURIComponent(text)}`;
-                };
+                watch([rooms, clientName], () => {
+                    localStorage.setItem('plena_diarista', JSON.stringify(rooms.value));
+                    localStorage.setItem('plena_diarista_client', clientName.value);
+                }, { deep: true });
 
                 return {
-                    showModal, schedule, currentMonth, sortedSchedule, totalEarnings, newJob,
-                    showAddClientModal, closeModal, addTask, removeTask, quickTask, saveJob, completeJob, deleteJob,
-                    formatDate, getCompletedTasks, getWhatsAppLink, saveData
+                    rooms, clientName, completedCount, addRoom, shareReport, backupData, restoreData
                 };
             }
         }).mount('#app');

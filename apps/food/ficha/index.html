@@ -3,668 +3,256 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ficha Técnica | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Técnica | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#fff1f2',
-                            100: '#ffe4e6',
-                            500: '#f43f5e',
-                            600: '#e11d48',
-                            700: '#be123c',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+<body class="pb-20">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Sidebar -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
-                    <i class="fa-solid fa-utensils text-white text-sm"></i>
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white p-6 flex justify-between items-center shadow-lg">
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-clipboard-list"></i> Ficha Técnica Pro</h1>
+            <div class="flex gap-2">
+                <button @click="backupData" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded transition"
+                    title="Backup"><i class="fa-solid fa-download"></i></button>
+                <label class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded transition cursor-pointer" title="Restore">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <div class="p-8 flex-grow">
+
+            <!-- HEADER INFO -->
+            <div
+                class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Prato</label>
+                    <input v-model="dishName" type="text"
+                        class="w-full text-xl font-bold text-gray-800 bg-transparent border-b-2 border-indigo-200 outline-none focus:border-indigo-500"
+                        placeholder="Ex: Risoto de Camarão">
                 </div>
-                <h1 class="font-bold text-lg tracking-tight">Ficha Técnica</h1>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rendimento (Porções)</label>
+                    <input v-model.number="yields" type="number"
+                        class="w-full text-xl font-bold text-gray-800 bg-transparent border-b-2 border-indigo-200 outline-none focus:border-indigo-500"
+                        placeholder="1">
+                </div>
             </div>
 
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a @click="currentView = 'recipes'"
-                    :class="currentView === 'recipes' || currentView === 'editor' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-book-open w-5 text-center"></i> <span>Receitas</span>
-                </a>
-                <a @click="currentView = 'ingredients'"
-                    :class="currentView === 'ingredients' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-carrot w-5 text-center"></i> <span>Ingredientes</span>
-                </a>
-            </nav>
+            <!-- INGREDIENTS -->
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <span
+                        class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                    Ingredientes & Custos
+                </h3>
 
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                <button @click="backupData" class="hover:text-white underline">Backup</button> |
-                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
-                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
-
-            <!-- Mobile Header -->
-            <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
-                            class="fa-solid fa-utensils text-xs"></i></div>
-                    <span class="font-bold text-slate-800">Ficha Técnica</span>
-                </div>
-                <div class="text-xs font-bold text-slate-400">v3.0</div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
-
-                <!-- VIEW: RECIPES LIST -->
-                <div v-if="currentView === 'recipes'" class="max-w-5xl mx-auto animate-fade-in">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-slate-800">Minhas Receitas</h2>
-                        <button @click="newRecipe"
-                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
-                                class="fa-solid fa-plus mr-2"></i> Nova Receita</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div v-for="r in recipes" :key="r.id"
-                            class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:border-brand-300 transition group relative">
-                            <div
-                                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex gap-1 z-10">
-                                <button @click="editRecipe(r)"
-                                    class="w-8 h-8 rounded bg-white shadow text-blue-500 hover:text-blue-700 flex items-center justify-center"><i
-                                        class="fa-solid fa-pen text-xs"></i></button>
-                                <button @click="deleteRecipe(r.id)"
-                                    class="w-8 h-8 rounded bg-white shadow text-red-500 hover:text-red-700 flex items-center justify-center"><i
-                                        class="fa-solid fa-trash text-xs"></i></button>
-                            </div>
-
-                            <div class="h-2 bg-brand-500"></div>
-                            <div class="p-5">
-                                <h3 class="font-bold text-lg text-slate-800 mb-1 truncate">{{ r.name }}</h3>
-                                <div class="text-xs text-slate-500 mb-4">Rende: {{ r.yield }} {{ r.yieldUnit }}</div>
-
-                                <div class="flex justify-between items-end">
-                                    <div>
-                                        <div class="text-[10px] uppercase font-bold text-slate-400">Custo Total</div>
-                                        <div class="font-bold text-slate-700">{{ formatCurrency(r.totalCost) }}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-[10px] uppercase font-bold text-slate-400">Por Porção</div>
-                                        <div class="font-black text-xl text-brand-600">{{ formatCurrency(r.totalCost /
-                                            (r.yield || 1)) }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-if="recipes.length === 0"
-                            class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
-                            <p class="text-slate-400 mb-4">Nenhuma receita cadastrada.</p>
-                            <button @click="newRecipe" class="text-brand-600 font-bold underline">Criar minha primeira
-                                ficha técnica</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VIEW: RECIPE EDITOR -->
-                <div v-if="currentView === 'editor'" class="max-w-4xl mx-auto animate-fade-in">
-                    <div class="flex items-center gap-4 mb-6">
-                        <button @click="currentView = 'recipes'"
-                            class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i
-                                class="fa-solid fa-arrow-left"></i></button>
-                        <h2 class="text-2xl font-bold text-slate-800">{{ activeRecipe.id ? 'Editar' : 'Nova' }} Receita
-                        </h2>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Left: Info & Ingredients -->
-                        <div class="lg:col-span-2 space-y-6">
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                                <h3 class="font-bold text-slate-800 mb-4">Informações Básicas</h3>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="col-span-2">
-                                        <label class="label">Nome do Prato</label>
-                                        <input v-model="activeRecipe.name" class="input"
-                                            placeholder="Ex: Bolo de Cenoura">
-                                    </div>
-                                    <div>
-                                        <label class="label">Rendimento</label>
-                                        <input v-model.number="activeRecipe.yield" type="number" class="input"
-                                            placeholder="1">
-                                    </div>
-                                    <div>
-                                        <label class="label">Unidade</label>
-                                        <select v-model="activeRecipe.yieldUnit" class="input">
-                                            <option value="porções">Porções</option>
-                                            <option value="kg">Kg</option>
-                                            <option value="un">Unidades</option>
-                                            <option value="fatias">Fatias</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-slate-800">Ingredientes</h3>
-                                    <button @click="addIngModal = true"
-                                        class="text-xs font-bold text-brand-600 hover:underline">+ Adicionar</button>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div v-for="(item, idx) in activeRecipe.ingredients" :key="idx"
-                                        class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                        <div>
-                                            <div class="font-bold text-slate-700 text-sm">{{ getIngName(item.id) }}
-                                            </div>
-                                            <div class="text-xs text-slate-500">{{ item.qty }} {{ getIngUnit(item.id) }}
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-4">
-                                            <div class="font-bold text-slate-600 text-sm">{{
-                                                formatCurrency(calculateItemCost(item)) }}</div>
-                                            <button @click="removeIngFromRecipe(idx)"
-                                                class="text-slate-300 hover:text-red-500"><i
-                                                    class="fa-solid fa-times"></i></button>
-                                        </div>
-                                    </div>
-                                    <div v-if="activeRecipe.ingredients.length === 0"
-                                        class="text-center py-4 text-slate-400 text-sm italic">Nenhum ingrediente
-                                        adicionado.</div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                                <h3 class="font-bold text-slate-800 mb-4">Custos Extras (Embalagem, Gás, etc)</h3>
-                                <div class="flex items-center gap-4">
-                                    <div class="relative flex-1">
-                                        <span class="absolute left-3 top-3 text-slate-400 text-sm">R$</span>
-                                        <input v-model.number="activeRecipe.extraCost" type="number" step="0.01"
-                                            class="input pl-8">
-                                    </div>
-                                    <div class="text-xs text-slate-500 w-1/2">Adicione aqui custos fixos aproximados
-                                        para esta receita.</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: Totals -->
-                        <div class="lg:col-span-1">
-                            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl sticky top-6">
-                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Custos da
-                                    Receita</h3>
-
-                                <div class="mb-6 space-y-2">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-400 text-sm">Ingredientes</span>
-                                        <span class="font-medium">{{ formatCurrency(recipeTotals.ingredients) }}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-400 text-sm">Extras</span>
-                                        <span class="font-medium">{{ formatCurrency(activeRecipe.extraCost || 0)
-                                            }}</span>
-                                    </div>
-                                    <div
-                                        class="border-t border-slate-700 my-2 pt-2 flex justify-between items-center text-lg font-bold">
-                                        <span>Total</span>
-                                        <span class="text-brand-400">{{ formatCurrency(recipeTotals.total) }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="bg-slate-800 p-4 rounded-xl mb-6">
-                                    <div class="text-xs text-slate-400 uppercase mb-1">Custo por {{
-                                        activeRecipe.yieldUnit || 'Unidade' }}</div>
-                                    <div class="text-3xl font-black text-white">{{ formatCurrency(recipeTotals.unitCost)
-                                        }}</div>
-                                </div>
-
-                                <div>
-                                    <label class="text-xs font-bold text-slate-400 uppercase mb-1 block">Preço de Venda
-                                        Sugerido</label>
-                                    <div class="flex gap-2 mb-2">
-                                        <input v-model.number="activeRecipe.targetMargin" type="number"
-                                            class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white w-16 text-center text-sm"
-                                            placeholder="%">
-                                        <span class="text-sm self-center text-slate-400">% Margem</span>
-                                    </div>
-                                    <div class="text-xl font-bold text-green-400">{{
-                                        formatCurrency(recipeTotals.unitCost * (1 +
-                                        (activeRecipe.targetMargin||100)/100)) }}</div>
-                                </div>
-
-                                <button @click="saveRecipe"
-                                    class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition">Salvar
-                                    Receita</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VIEW: INGREDIENTS DB -->
-                <div v-if="currentView === 'ingredients'" class="max-w-4xl mx-auto animate-fade-in">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h2 class="text-2xl font-bold text-slate-800">Banco de Insumos</h2>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input v-model="ingSearch" class="input py-2 text-sm" placeholder="Buscar ingrediente...">
-                            <button @click="newIngredient"
-                                class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition whitespace-nowrap"><i
-                                    class="fa-solid fa-plus"></i> Novo</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold text-left">
-                                <tr>
-                                    <th class="p-4">Nome</th>
-                                    <th class="p-4">Embalagem</th>
-                                    <th class="p-4">Preço Pago</th>
-                                    <th class="p-4">Custo Unitário</th>
-                                    <th class="p-4 text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <tr v-for="ing in filteredIngredients" :key="ing.id" class="hover:bg-slate-50">
-                                    <td class="p-4 font-medium text-slate-700">{{ ing.name }}</td>
-                                    <td class="p-4 text-sm text-slate-500">{{ ing.pkgSize }} {{ ing.unit }}</td>
-                                    <td class="p-4 text-sm text-slate-500">{{ formatCurrency(ing.pkgPrice) }}</td>
-                                    <td class="p-4 font-bold text-brand-600">{{ formatCurrency(ing.pkgPrice /
-                                        ing.pkgSize) }}/{{ ing.unit }}</td>
-                                    <td class="p-4 text-center">
-                                        <button @click="editIngredient(ing)"
-                                            class="text-blue-500 hover:underline text-xs font-bold mr-2">Editar</button>
-                                        <button @click="deleteIngredient(ing.id)"
-                                            class="text-red-500 hover:underline text-xs font-bold">Excluir</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div v-if="filteredIngredients.length === 0" class="p-8 text-center text-slate-400">Nenhum
-                            ingrediente encontrado.</div>
-                    </div>
-                </div>
-
-                <!-- ADD INGREDIENT TO RECIPE MODAL -->
-                <div v-if="addIngModal"
-                    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div
-                        class="bg-white w-full max-w-md rounded-2xl shadow-xl animate-fade-in flex flex-col max-h-[80vh]">
-                        <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-                            <h3 class="font-bold">Adicionar Ingrediente</h3>
-                            <button @click="addIngModal = false" class="text-slate-400"><i
-                                    class="fa-solid fa-times"></i></button>
-                        </div>
-                        <div class="p-4 overflow-y-auto">
-                            <input v-model="ingSearchModal" class="input mb-4"
-                                placeholder="Buscar no banco de dados...">
-                            <div class="space-y-2">
-                                <button v-for="ing in filteredIngredientsModal" :key="ing.id"
-                                    @click="selectIngForRecipe(ing)"
-                                    class="w-full text-left p-3 rounded-lg border border-slate-200 hover:bg-brand-50 hover:border-brand-200 transition flex justify-between items-center group">
-                                    <div>
-                                        <div class="font-bold text-slate-700">{{ ing.name }}</div>
-                                        <div class="text-xs text-slate-500">Custa {{
-                                            formatCurrency(ing.pkgPrice/ing.pkgSize) }}/{{ ing.unit }}</div>
-                                    </div>
-                                    <i class="fa-solid fa-plus text-slate-300 group-hover:text-brand-600"></i>
-                                </button>
-                                <div v-if="filteredIngredientsModal.length === 0"
-                                    class="text-center text-sm text-slate-400 py-4">
-                                    Não encontrado. <button @click="openQuickIngCreate"
-                                        class="text-brand-600 font-bold underline">Criar rápido?</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INGREDIENT EDITOR MODAL -->
-                <div v-if="ingEditorModal"
-                    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-fade-in p-6 space-y-4">
-                        <h3 class="font-bold text-lg text-slate-800">{{ ingForm.id ? 'Editar' : 'Novo' }} Ingrediente
-                        </h3>
-                        <div>
-                            <label class="label">Nome</label>
-                            <input v-model="ingForm.name" class="input" placeholder="Ex: Farinha de Trigo">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="label">Qtd Embalagem</label>
-                                <input v-model.number="ingForm.pkgSize" type="number" class="input" placeholder="1">
-                            </div>
-                            <div>
-                                <label class="label">Unidade</label>
-                                <select v-model="ingForm.unit" class="input">
-                                    <option value="kg">kg (Quilo)</option>
-                                    <option value="g">g (Grama)</option>
-                                    <option value="l">l (Litro)</option>
-                                    <option value="ml">ml (Mililitro)</option>
-                                    <option value="un">un (Unidade)</option>
+                <table class="w-full text-left text-sm mb-4">
+                    <thead class="bg-gray-100 text-gray-500 uppercase text-xs">
+                        <tr>
+                            <th class="p-3 rounded-tl-lg">Ingrediente</th>
+                            <th class="p-3">Qtd Bruta</th>
+                            <th class="p-3">Unidade</th>
+                            <th class="p-3">Custo Total (R$)</th>
+                            <th class="p-3 w-10"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr v-for="(ing, idx) in ingredients" :key="idx" class="group hover:bg-gray-50">
+                            <td class="p-2"><input v-model="ing.name" placeholder="Item"
+                                    class="w-full bg-transparent outline-none"></td>
+                            <td class="p-2"><input v-model.number="ing.qty" placeholder="0"
+                                    class="w-full bg-transparent outline-none"></td>
+                            <td class="p-2">
+                                <select v-model="ing.unit" class="bg-transparent outline-none text-gray-500">
+                                    <option value="kg">kg</option>
+                                    <option value="g">g</option>
+                                    <option value="L">L</option>
+                                    <option value="ml">ml</option>
+                                    <option value="un">un</option>
                                 </select>
-                            </div>
+                            </td>
+                            <td class="p-2 font-bold text-gray-700"><input v-model.number="ing.cost" placeholder="0.00"
+                                    class="w-full bg-transparent outline-none"></td>
+                            <td class="p-2 text-center"><button @click="ingredients.splice(idx,1)"
+                                    class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button @click="ingredients.push({name:'', qty:null, unit:'kg', cost:null})"
+                    class="text-indigo-600 font-bold text-sm hover:underline">+ Adicionar Ingrediente</button>
+            </div>
+
+            <!-- PREPARATION -->
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <span
+                        class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                    Modo de Preparo
+                </h3>
+                <textarea v-model="method" rows="6"
+                    class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 outline-none focus:border-indigo-500"
+                    placeholder="Descreva o passo a passo..."></textarea>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="bg-gray-900 text-white p-6 rounded-xl shadow-lg">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <p class="text-gray-400 text-xs uppercase mb-1">Custo Total</p>
+                        <p class="text-xl font-bold text-red-400">R$ {{ totalCost.toFixed(2) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-xs uppercase mb-1">Custo/Porção</p>
+                        <p class="text-xl font-bold text-yellow-400">R$ {{ costPerPortion.toFixed(2) }}</p>
+                    </div>
+                    <div
+                        class="col-span-2 md:col-span-2 border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 pl-0 md:pl-4 text-left">
+                        <div class="flex gap-2 items-center mb-2">
+                            <span class="text-gray-400 text-xs uppercase">Preço Venda:</span>
+                            <input v-model.number="salePrice" type="number"
+                                class="bg-gray-800 border border-gray-600 rounded p-1 w-24 text-center text-white font-bold">
                         </div>
-                        <div>
-                            <label class="label">Preço da Embalagem (R$)</label>
-                            <input v-model.number="ingForm.pkgPrice" type="number" step="0.01" class="input"
-                                placeholder="0.00">
-                        </div>
-                        <div class="pt-2">
-                            <button @click="saveIngredient" class="w-full btn-primary py-3 rounded-xl">Salvar
-                                Ingrediente</button>
-                            <button @click="ingEditorModal = false"
-                                class="w-full text-slate-500 text-sm font-bold mt-4 hover:underline">Cancelar</button>
+                        <div class="flex justify-between items-center bg-gray-800 p-2 rounded">
+                            <span class="text-sm">Lucro:</span>
+                            <span class="font-bold text-green-400">R$ {{ profit.toFixed(2) }} ({{
+                                profitMargin.toFixed(0) }}%)</span>
                         </div>
                     </div>
                 </div>
-
             </div>
-        </main>
+
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="p-4 bg-gray-100 border-t flex justify-end gap-2">
+            <button @click="clear"
+                class="bg-white text-gray-600 px-4 py-2 rounded shadow font-bold hover:bg-gray-50">Novo</button>
+            <button @click="shareWhatsapp"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow font-bold flex items-center gap-2">
+                <i class="fa-brands fa-whatsapp"></i> Compartilhar Ficha
+            </button>
+        </div>
+
     </div>
-
-    <style>
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }
-
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            outline: none;
-            transition: all;
-            background: #f8fafc;
-            font-weight: 500;
-        }
-
-        .input:focus {
-            border-color: #f43f5e;
-            background: #fff;
-            ring: 2px solid #f43f5e;
-        }
-
-        .btn-primary {
-            background-color: #e11d48;
-            color: white;
-            font-weight: 700;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #be123c;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_RECIPES = 'plena_ficha_recipes_v1';
-        const DB_INGREDIENTS = 'plena_ficha_ingredients_v1';
 
         createApp({
             setup() {
-                const currentView = ref('recipes');
+                const dishName = ref('');
+                const yields = ref(1);
+                const ingredients = ref([{ name: '', qty: null, unit: 'kg', cost: null }]);
+                const method = ref('');
+                const salePrice = ref(0);
 
-                // Data
-                const recipes = ref([]);
-                const ingredients = ref([]);
+                // Computed
+                const totalCost = computed(() => ingredients.value.reduce((acc, i) => acc + (i.cost || 0), 0));
 
-                // Search
-                const ingSearch = ref('');
-                const ingSearchModal = ref('');
-
-                // Modals
-                const addIngModal = ref(false);
-                const ingEditorModal = ref(false);
-
-                // Forms
-                const activeRecipe = ref(null);
-                const ingForm = ref({ id: null, name: '', pkgSize: 1, unit: 'kg', pkgPrice: 0 });
-
-                // Persistence
-                onMounted(() => {
-                    const r = localStorage.getItem(DB_RECIPES);
-                    if (r) recipes.value = JSON.parse(r);
-                    const i = localStorage.getItem(DB_INGREDIENTS);
-                    if (i) ingredients.value = JSON.parse(i);
-                    else {
-                        // Secrets
-                        ingredients.value = [
-                            { id: 1, name: 'Farinha de Trigo', pkgSize: 1, unit: 'kg', pkgPrice: 4.50 },
-                            { id: 2, name: 'Açúcar Refinado', pkgSize: 1, unit: 'kg', pkgPrice: 3.80 },
-                            { id: 3, name: 'Ovos', pkgSize: 30, unit: 'un', pkgPrice: 20.00 },
-                            { id: 4, name: 'Leite Integral', pkgSize: 1, unit: 'l', pkgPrice: 4.20 },
-                            { id: 5, name: 'Manteiga', pkgSize: 200, unit: 'g', pkgPrice: 12.00 },
-                        ];
-                    }
-                });
-                watch(recipes, () => localStorage.setItem(DB_RECIPES, JSON.stringify(recipes.value)), { deep: true });
-                watch(ingredients, () => localStorage.setItem(DB_INGREDIENTS, JSON.stringify(ingredients.value)), { deep: true });
-
-                // Computeds
-                const filteredIngredients = computed(() => {
-                    if (!ingSearch.value) return ingredients.value;
-                    return ingredients.value.filter(i => i.name.toLowerCase().includes(ingSearch.value.toLowerCase()));
-                });
-                const filteredIngredientsModal = computed(() => {
-                    if (!ingSearchModal.value) return ingredients.value;
-                    return ingredients.value.filter(i => i.name.toLowerCase().includes(ingSearchModal.value.toLowerCase()));
+                const costPerPortion = computed(() => {
+                    if (yields.value <= 0) return 0;
+                    return totalCost.value / yields.value;
                 });
 
-                const recipeTotals = computed(() => {
-                    if (!activeRecipe.value) return { ingredients: 0, total: 0, unitCost: 0 };
-
-                    let ingCost = 0;
-                    activeRecipe.value.ingredients.forEach(item => {
-                        ingCost += calculateItemCost(item);
-                    });
-
-                    const total = ingCost + (Number(activeRecipe.value.extraCost) || 0);
-                    const yieldVal = Number(activeRecipe.value.yield) || 1;
-
-                    return { ingredients: ingCost, total, unitCost: total / yieldVal };
+                const profit = computed(() => {
+                    if (costPerPortion.value === 0) return 0;
+                    return salePrice.value - costPerPortion.value;
                 });
 
-                // Helpers
-                const getIngName = (id) => ingredients.value.find(i => i.id === id)?.name || 'Desconhecido';
-                const getIngUnit = (id) => ingredients.value.find(i => i.id === id)?.unit || '';
-                const formatCurrency = (v) => v ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00';
+                const profitMargin = computed(() => {
+                    if (salePrice.value <= 0) return 0;
+                    return (profit.value / salePrice.value) * 100;
+                });
 
-                const calculateItemCost = (item) => {
-                    const ing = ingredients.value.find(i => i.id === item.id);
-                    if (!ing) return 0;
-                    // Cost = (PkgPrice / PkgSize) * QtyUsed
-                    const pricePerUnit = Number(ing.pkgPrice) / Number(ing.pkgSize);
-                    return pricePerUnit * Number(item.qty);
-                };
-
-                // Methods - Recipes
-                const newRecipe = () => {
-                    activeRecipe.value = {
-                        id: null,
-                        name: '',
-                        yield: 1,
-                        yieldUnit: 'porções',
-                        extraCost: 0,
-                        targetMargin: 100,
-                        ingredients: [],
-                        totalCost: 0
-                    };
-                    currentView.value = 'editor';
-                };
-
-                const editRecipe = (r) => {
-                    activeRecipe.value = JSON.parse(JSON.stringify(r));
-                    currentView.value = 'editor';
-                };
-
-                const saveRecipe = () => {
-                    if (!activeRecipe.value.name) return alert('Nome da receita é obrigatório');
-
-                    // Update calculated total cost before saving for list view
-                    activeRecipe.value.totalCost = recipeTotals.value.total;
-
-                    if (activeRecipe.value.id) {
-                        const idx = recipes.value.findIndex(r => r.id === activeRecipe.value.id);
-                        if (idx !== -1) recipes.value[idx] = activeRecipe.value;
-                    } else {
-                        activeRecipe.value.id = Date.now();
-                        recipes.value.push(activeRecipe.value);
-                    }
-                    alert('Receita salva com sucesso!');
-                    currentView.value = 'recipes';
-                };
-
-                const deleteRecipe = (id) => {
-                    if (confirm('Excluir esta receita?')) recipes.value = recipes.value.filter(r => r.id !== id);
-                };
-
-                // Methods - Ingredients in Recipe
-                const selectIngForRecipe = (ing) => {
-                    const qty = prompt(`Quantidade de ${ing.name} (em ${ing.unit}):`, 1);
-                    if (qty) {
-                        activeRecipe.value.ingredients.push({ id: ing.id, qty: Number(qty) });
-                        addIngModal.value = false;
-                        ingSearchModal.value = '';
+                // Actions
+                const clear = () => {
+                    if (confirm('Limpar ficha?')) {
+                        dishName.value = '';
+                        yields.value = 1;
+                        ingredients.value = [{ name: '', qty: null, unit: 'kg', cost: null }];
+                        method.value = '';
+                        salePrice.value = 0;
                     }
                 };
 
-                const removeIngFromRecipe = (idx) => activeRecipe.value.ingredients.splice(idx, 1);
-                const openQuickIngCreate = () => {
-                    addIngModal.value = false;
-                    newIngredient();
-                };
-
-                // Methods - Ingredients Manager
-                const newIngredient = () => {
-                    ingForm.value = { id: null, name: '', pkgSize: 1, unit: 'kg', pkgPrice: 0 };
-                    ingEditorModal.value = true;
-                };
-
-                const editIngredient = (ing) => {
-                    ingForm.value = { ...ing };
-                    ingEditorModal.value = true;
-                };
-
-                const saveIngredient = () => {
-                    if (!ingForm.value.name) return alert('Nome do ingrediente obrigatório');
-                    if (ingForm.value.id) {
-                        const idx = ingredients.value.findIndex(i => i.id === ingForm.value.id);
-                        if (idx !== -1) ingredients.value[idx] = ingForm.value;
-                    } else {
-                        ingForm.value.id = Date.now();
-                        ingredients.value.push(ingForm.value);
-                    }
-                    ingEditorModal.value = false;
-                };
-
-                const deleteIngredient = (id) => {
-                    // Check usage
-                    const inUse = recipes.value.some(r => r.ingredients.some(i => i.id === id));
-                    if (inUse) return alert('Este ingrediente está sendo usado em uma receita. Remova-o das receitas primeiro.');
-
-                    if (confirm('Excluir ingrediente?')) ingredients.value = ingredients.value.filter(i => i.id !== id);
+                const shareWhatsapp = () => {
+                    let text = `📋 *Ficha Técnica: ${dishName.value}*\n` +
+                        `🍽️ Rendimento: ${yields.value} porções\n\n` +
+                        `*CUSTOS:*\n` +
+                        `🔴 Total: R$ ${totalCost.value.toFixed(2)}\n` +
+                        `🟡 Por Porção: R$ ${costPerPortion.value.toFixed(2)}\n\n` +
+                        `*PREÇIFICAÇÃO:*\n` +
+                        `💲 Venda Sugerida: R$ ${salePrice.value.toFixed(2)}\n` +
+                        `🟢 Lucro Líquido: R$ ${profit.value.toFixed(2)} (${profitMargin.value.toFixed(0)}%)\n`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
                 // Backup
                 const backupData = () => {
-                    const data = { recipes: recipes.value, ingredients: ingredients.value };
-                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const data = { dishName: dishName.value, yields: yields.value, ingredients: ingredients.value, method: method.value, salePrice: salePrice.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = 'fichatecnica_backup.json';
+                    a.download = `ficha_${dishName.value || 'tecnica'}_${Date.now()}.json`;
                     a.click();
                 };
-                const triggerImport = () => document.getElementById('importFile').click();
-                const importData = (e) => {
+
+                const restoreData = (e) => {
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (ev) => {
-                        const d = JSON.parse(ev.target.result);
-                        if (d.recipes) recipes.value = d.recipes;
-                        if (d.ingredients) ingredients.value = d.ingredients;
-                        location.reload();
-                    }
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            dishName.value = d.dishName; yields.value = d.yields; ingredients.value = d.ingredients;
+                            method.value = d.method; salePrice.value = d.salePrice;
+                            alert("Ficha Carregada!");
+                        } catch (e) { alert("Erro!"); }
+                    };
                     r.readAsText(f);
                 };
 
+                // Storage (Auto-save current draft)
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_ficha_draft');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        dishName.value = parsed.dishName; yields.value = parsed.yields; ingredients.value = parsed.ingredients;
+                        method.value = parsed.method; salePrice.value = parsed.salePrice;
+                    }
+                });
+
+                watch([dishName, yields, ingredients, method, salePrice], () => {
+                    localStorage.setItem('plena_ficha_draft', JSON.stringify({
+                        dishName: dishName.value, yields: yields.value, ingredients: ingredients.value, method: method.value, salePrice: salePrice.value
+                    }));
+                }, { deep: true });
+
                 return {
-                    currentView, recipes, ingredients, activeRecipe,
-                    addIngModal, ingEditorModal, ingForm, ingSearch, ingSearchModal,
-                    filteredIngredients, filteredIngredientsModal, recipeTotals,
-                    getIngName, getIngUnit, formatCurrency, calculateItemCost,
-                    newRecipe, editRecipe, saveRecipe, deleteRecipe,
-                    selectIngForRecipe, removeIngFromRecipe, openQuickIngCreate,
-                    newIngredient, editIngredient, saveIngredient, deleteIngredient,
-                    backupData, triggerImport, importData
+                    dishName, yields, ingredients, method, salePrice,
+                    totalCost, costPerPortion, profit, profitMargin,
+                    clear, shareWhatsapp, backupData, restoreData
                 };
             }
         }).mount('#app');

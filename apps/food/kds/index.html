@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDS Kitchen | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #111827;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="overflow-x-auto">
+
+    <div id="app" v-cloak class="min-h-screen min-w-[1000px] p-6">
+
+        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-3xl font-bold text-yellow-500"><i class="fa-solid fa-fire-burner"></i> KDS - Cozinha</h1>
+            <div class="flex gap-4 items-center">
+                <button @click="newOrder"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold"><i
+                        class="fa-solid fa-plus"></i> Novo Pedido</button>
+                <div class="text-gray-400 text-sm font-bold">{{ currentTime }}</div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-3 gap-6 h-[calc(100vh-150px)]">
+
+            <!-- COL: A FAZER -->
+            <div class="bg-gray-800/50 rounded-xl p-4 flex flex-col border border-gray-700">
+                <h2 class="font-bold text-xl mb-4 text-red-400 border-b border-gray-700 pb-2 flex justify-between">
+                    <span>A Fazer</span>
+                    <span class="bg-red-500/20 px-2 rounded">{{ orders.filter(o => o.status === 'todo').length }}</span>
+                </h2>
+                <div class="overflow-y-auto space-y-4 flex-grow pr-2">
+                    <div v-for="order in orders.filter(o => o.status === 'todo')" :key="order.id"
+                        class="bg-gray-800 border-l-4 border-red-500 p-4 rounded shadow-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-lg">#{{ order.id }}</span>
+                            <span class="text-xs text-gray-500">{{ order.time }}</span>
+                        </div>
+                        <ul class="text-sm text-gray-300 space-y-1 mb-4">
+                            <li v-for="item in order.items">1x {{ item }}</li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono font-bold text-yellow-500"><i class="fa-regular fa-clock"></i> {{
+                                getTimer(order) }}</span>
+                            <button @click="setStatus(order, 'prep')"
+                                class="bg-gray-700 hover:bg-blue-600 px-3 py-1 rounded text-sm transition">Iniciar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COL: PREPARANDO -->
+            <div class="bg-gray-800/50 rounded-xl p-4 flex flex-col border border-gray-700">
+                <h2 class="font-bold text-xl mb-4 text-yellow-400 border-b border-gray-700 pb-2 flex justify-between">
+                    <span>Preparando</span>
+                    <span class="bg-yellow-500/20 px-2 rounded">{{ orders.filter(o => o.status === 'prep').length
+                        }}</span>
+                </h2>
+                <div class="overflow-y-auto space-y-4 flex-grow pr-2">
+                    <div v-for="order in orders.filter(o => o.status === 'prep')" :key="order.id"
+                        class="bg-gray-800 border-l-4 border-yellow-500 p-4 rounded shadow-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-lg">#{{ order.id }}</span>
+                            <span class="text-xs text-gray-500">{{ order.time }}</span>
+                        </div>
+                        <ul class="text-sm text-gray-300 space-y-1 mb-4">
+                            <li v-for="item in order.items">1x {{ item }}</li>
+                        </ul>
+                        <div class="flex justify-between items-center bg-black/30 p-2 rounded">
+                            <span class="font-mono font-bold text-red-400 animate-pulse"><i
+                                    class="fa-solid fa-stopwatch"></i> {{ getTimer(order) }}</span>
+                            <button @click="setStatus(order, 'ready')"
+                                class="bg-green-600 hover:bg-green-500 px-4 py-1 rounded text-sm transition font-bold">PRONTO</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COL: PRONTO -->
+            <div class="bg-gray-800/50 rounded-xl p-4 flex flex-col border border-gray-700">
+                <h2 class="font-bold text-xl mb-4 text-green-400 border-b border-gray-700 pb-2 flex justify-between">
+                    <span>Pronto / Entregar</span>
+                    <span class="bg-green-500/20 px-2 rounded">{{ orders.filter(o => o.status === 'ready').length
+                        }}</span>
+                </h2>
+                <div class="overflow-y-auto space-y-4 flex-grow pr-2">
+                    <div v-for="order in orders.filter(o => o.status === 'ready')" :key="order.id"
+                        class="bg-gray-800 border-l-4 border-green-500 p-4 rounded shadow-lg opacity-80">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-lg text-green-500">#{{ order.id }}</span>
+                            <span class="text-xs text-green-500 font-bold">PRONTO</span>
+                        </div>
+                        <ul class="text-sm text-gray-400 space-y-1 mb-4">
+                            <li v-for="item in order.items">1x {{ item }}</li>
+                        </ul>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <span>Tempo Total: {{ order.finishTime || '00:00' }}</span>
+                            <button @click="archiveOrder(order.id)" class="text-gray-400 hover:text-white"><i
+                                    class="fa-solid fa-check-double"></i> Arquivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const orders = ref([
+                    { id: 101, time: '12:00', startTimestamp: Date.now() - 300000, status: 'prep', items: ['Hamburguer', 'Fritas'] },
+                    { id: 102, time: '12:05', startTimestamp: Date.now() - 60000, status: 'todo', items: ['Coca-Cola', 'X-Salada'] }
+                ]);
+                const currentTime = ref('');
+                const now = ref(Date.now());
+
+                // Timer Update
+                const interval = setInterval(() => {
+                    now.value = Date.now();
+                    currentTime.value = new Date().toLocaleTimeString();
+                }, 1000);
+
+                onUnmounted(() => clearInterval(interval));
+
+                // Helper
+                const getTimer = (order) => {
+                    if (order.finishTime) return order.finishTime;
+                    const diff = Math.floor((now.value - order.startTimestamp) / 1000);
+                    const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                    const s = (diff % 60).toString().padStart(2, '0');
+                    return `${m}:${s}`;
+                };
+
+                const newOrder = () => {
+                    const id = orders.value.length > 0 ? Math.max(...orders.value.map(o => o.id)) + 1 : 100;
+                    const itemsOpts = ['X-Burger', 'X-Bacon', 'Fritas', 'Coca', 'Suco', 'Milkshake'];
+                    const randomItems = [itemsOpts[Math.floor(Math.random() * itemsOpts.length)]];
+                    if (Math.random() > 0.5) randomItems.push(itemsOpts[Math.floor(Math.random() * itemsOpts.length)]);
+
+                    orders.value.push({
+                        id: id,
+                        time: new Date().toLocaleTimeString().slice(0, 5),
+                        startTimestamp: Date.now(),
+                        status: 'todo',
+                        items: randomItems
+                    });
+                };
+
+                const setStatus = (order, status) => {
+                    order.status = status;
+                    if (status === 'ready') {
+                        // Freeze timer
+                        const diff = Math.floor((Date.now() - order.startTimestamp) / 1000);
+                        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                        const s = (diff % 60).toString().padStart(2, '0');
+                        order.finishTime = `${m}:${s}`;
+                    }
+                };
+
+                const archiveOrder = (id) => {
+                    orders.value = orders.value.filter(o => o.id !== id);
+                };
+
+                // No persistent storage needed for KDS usually as it's a live flow, but simple localstorage helps refresh
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_kds');
+                    if (d) orders.value = JSON.parse(d);
+                });
+                // Watch deep to save state
+                // Note: startTimestamp needs to be relative to loaded time ideally or just keep absolute. 
+                // For simplicity, we keep absolute, so refresh works.
+
+                return {
+                    orders, currentTime,
+                    getTimer, newOrder, setStatus, archiveOrder
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -8,11 +8,11 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Balsamiq Sans', cursive;
-            background-color: #6366f1;
+            background-color: #4c1d95;
+            font-family: 'Poppins', sans-serif;
             color: white;
         }
 
@@ -22,86 +22,95 @@
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="app" v-cloak class="w-full max-w-md">
+    <div id="app" v-cloak
+        class="w-full max-w-lg bg-white text-gray-900 rounded-3xl shadow-2xl overflow-hidden relative min-h-[500px] flex flex-col">
+
+        <!-- HEADER -->
+        <header class="bg-purple-600 p-6 text-white flex justify-between items-center relative z-10">
+            <div>
+                <h1 class="font-bold text-xl"><i class="fa-solid fa-brain"></i> Quiz Mania</h1>
+                <p class="text-purple-200 text-xs">Teste seu conhecimento</p>
+            </div>
+            <div class="bg-black/20 px-3 py-1 rounded-full text-xs font-bold font-mono">
+                {{ currentIndex + 1 }} / {{ questions.length }}
+            </div>
+        </header>
 
         <!-- START SCREEN -->
-        <div v-if="state === 'start'" class="text-center animate-fade-in-up">
-            <div
-                class="bg-white text-indigo-600 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6 shadow-2xl">
-                <i class="fa-solid fa-lightbulb text-6xl"></i>
-            </div>
-            <h1 class="text-4xl font-bold mb-4">Você Sabia?</h1>
-            <p class="text-indigo-200 mb-8 text-lg">Teste seus conhecimentos e descubra fatos incríveis!</p>
-            <button @click="startGame"
-                class="bg-yellow-400 hover:bg-yellow-300 text-indigo-900 font-bold py-4 px-12 rounded-2xl shadow-lg text-xl transition transform active:scale-95">
-                Começar
+        <div v-if="!started"
+            class="flex-grow flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+            <i class="fa-solid fa-circle-question text-6xl text-purple-500 mb-6 bounce"></i>
+            <h2 class="text-2xl font-bold mb-2">Pronto para o desafio?</h2>
+            <p class="text-gray-500 mb-8">Responda {{ questions.length }} perguntas e veja sua pontuação final!</p>
+            <button @click="started = true"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-105">
+                COMEÇAR AGORA
             </button>
         </div>
 
-        <!-- GAME SCREEN -->
-        <div v-if="state === 'playing'" class="w-full">
-            <!-- Progress -->
-            <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-indigo-300 mb-4">
-                <span>Questão {{ currentIdx + 1 }}/{{ questions.length }}</span>
-                <span>Placar: {{ score }}</span>
-            </div>
-            <div class="h-2 bg-indigo-900 rounded-full mb-8">
-                <div class="h-full bg-yellow-400 rounded-full transition-all duration-500"
-                    :style="{ width: ((currentIdx+1)/questions.length)*100 + '%' }"></div>
+        <!-- QUIZ SCREEN -->
+        <div v-if="started && !finished" class="flex-grow flex flex-col p-6 animate-slide-left">
+            <!-- Question -->
+            <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-800 leading-tight">{{ currentQuestion.text }}</h3>
             </div>
 
-            <!-- Question Card -->
-            <div
-                class="bg-white text-indigo-900 p-8 rounded-3xl shadow-2xl mb-6 relative overflow-hidden min-h-[300px] flex flex-col justify-center">
+            <!-- Options -->
+            <div class="space-y-3 flex-grow">
+                <button v-for="(opt, idx) in currentQuestion.options" :key="idx" @click="checkAnswer(idx)"
+                    :disabled="feedback !== null"
+                    class="w-full p-4 rounded-xl border-2 text-left font-medium transition relative overflow-hidden"
+                    :class="getOptionClass(idx)">
 
-                <div v-if="!showFeedback">
-                    <h2 class="text-2xl font-bold text-center mb-8">{{ currentQ.q }}</h2>
-                    <div class="space-y-3">
-                        <button v-for="(opt, idx) in currentQ.options" :key="idx" @click="answer(idx)"
-                            class="w-full bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl font-bold text-left transition border border-indigo-100">
-                            {{ opt }}
-                        </button>
-                    </div>
-                </div>
+                    <span class="relative z-10">{{ opt }}</span>
 
-                <!-- Feedback / Fact -->
-                <div v-else class="text-center animate-fade-in">
-                    <div class="text-6xl mb-4">
-                        <i v-if="isCorrect" class="fa-solid fa-circle-check text-green-500"></i>
-                        <i v-else class="fa-solid fa-circle-xmark text-red-500"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4" :class="isCorrect ? 'text-green-600' : 'text-red-500'">
-                        {{ isCorrect ? 'Acertou!' : 'Errou...' }}
-                    </h3>
-                    <div class="bg-indigo-50 p-4 rounded-xl text-left border-l-4 border-indigo-500 mb-6">
-                        <div class="text-xs font-bold uppercase text-indigo-400 mb-1">Você Sabia?</div>
-                        <p class="text-sm">{{ currentQ.fact }}</p>
-                    </div>
-                    <button @click="nextQuestion"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg">
-                        {{ isLast ? 'Ver Resultado' : 'Próxima' }}
-                    </button>
-                </div>
+                    <!-- Feedback Icon -->
+                    <i v-if="feedback !== null && idx === currentQuestion.correct"
+                        class="fa-solid fa-check absolute right-4 top-4 text-green-600 text-xl"></i>
+                    <i v-if="feedback === false && idx === selectedIdx"
+                        class="fa-solid fa-xmark absolute right-4 top-4 text-red-600 text-xl"></i>
 
+                </button>
+            </div>
+
+            <!-- Next Button -->
+            <button v-if="feedback !== null" @click="nextQuestion"
+                class="mt-6 w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg">
+                {{ currentIndex === questions.length - 1 ? 'VER RESULTADO' : 'PRÓXIMA' }} <i
+                    class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div v-if="finished"
+            class="flex-grow flex flex-col items-center justify-center p-8 text-center animate-pulse-in">
+            <div class="w-32 h-32 rounded-full flex items-center justify-center mb-6 border-8"
+                :class="score > questions.length/2 ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500'">
+                <span class="text-4xl font-black">{{ score }}</span>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-2">{{ scoreMessage }}</h2>
+            <p class="text-gray-500 mb-8">Você acertou {{ score }} de {{ questions.length }} questões.</p>
+
+            <div class="w-full space-y-3">
+                <button @click="shareWhatsapp"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Compartilhar
+                </button>
+                <button @click="reset"
+                    class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">
+                    Jogar Novamente
+                </button>
             </div>
         </div>
 
-        <!-- END SCREEN -->
-        <div v-if="state === 'end'"
-            class="text-center bg-indigo-800 p-8 rounded-3xl shadow-2xl border border-indigo-600">
-            <h2 class="text-3xl font-bold mb-2">Quiz Finalizado!</h2>
-            <div class="text-6xl font-bold text-yellow-400 my-6">{{ score }} <span
-                    class="text-2xl text-indigo-300">pts</span></div>
-
-            <p class="text-indigo-200 mb-8" v-if="score > questions.length * 8">Uau! Você é um gênio das curiosidades!
-                🧠</p>
-            <p class="text-indigo-200 mb-8" v-else>Bom jogo! Sempre aprendendo algo novo. 📚</p>
-
-            <button @click="startGame" class="bg-white text-indigo-900 font-bold py-3 px-8 rounded-xl shadow-lg">
-                Jogar Novamente
-            </button>
+        <!-- Backup btn (Small footer) -->
+        <div class="absolute top-6 right-16 z-50">
+            <button @click="backupData"
+                class="bg-purple-700 w-8 h-8 rounded-full text-xs text-white/50 hover:text-white" title="Backup"><i
+                    class="fa-solid fa-save"></i></button>
         </div>
 
     </div>
@@ -111,72 +120,82 @@
 
         createApp({
             setup() {
-                const state = ref('start'); // start, playing, end
-                const currentIdx = ref(0);
+                const started = ref(false);
+                const finished = ref(false);
+                const currentIndex = ref(0);
                 const score = ref(0);
-                const showFeedback = ref(false);
-                const isCorrect = ref(false);
+                const feedback = ref(null); // null, true (correct), false (wrong)
+                const selectedIdx = ref(null);
 
-                const questions = [
-                    {
-                        q: "Qual animal consegue dormir por 3 anos seguidos?",
-                        options: ["Urso", "Caracol", "Preguiça", "Koala"],
-                        ans: 1, // Caracol
-                        fact: "Caracóis podem entrar em hibernação profunda por até 3 anos se o clima estiver muito seco!"
-                    },
-                    {
-                        q: "Quantos corações tem um polvo?",
-                        options: ["Um", "Dois", "Três", "Quatro"],
-                        ans: 2, // Três
-                        fact: "Polvos têm 3 corações: dois bombeiam sangue para as brânquias e um para o resto do corpo."
-                    },
-                    {
-                        q: "Onde foi inventado o sorvete?",
-                        options: ["Itália", "França", "China", "EUA"],
-                        ans: 2, // China
-                        fact: "A China inventou uma mistura de leite e arroz congelada na neve por volta de 200 a.C.!"
-                    },
-                    {
-                        q: "Qual fruta flutua na água?",
-                        options: ["Manga", "Maçã", "Abacate", "Melancia"],
-                        ans: 1, // Maçã
-                        fact: "Maçãs flutuam porque 25% do seu volume é composto de ar."
-                    },
-                    {
-                        q: "Quantos dentes tem um mosquito?",
-                        options: ["Nenhum", "2", "10", "47"],
-                        ans: 3, // 47
-                        fact: "Sim! Mosquitos têm 47 'dentes' afiados em sua probóscide para furar a pele."
-                    }
-                ];
+                const questions = ref([
+                    { text: 'Qual o maior planeta do Sistema Solar?', options: ['Terra', 'Júpiter', 'Saturno', 'Sol'], correct: 1 },
+                    { text: 'Quantos ossos tem o corpo humano adulto?', options: ['206', '300', '150', '210'], correct: 0 },
+                    { text: 'Quem pintou a Mona Lisa?', options: ['Van Gogh', 'Picasso', 'Leonardo da Vinci', 'Michelangelo'], correct: 2 },
+                    { text: 'Qual é a capital da Austrália?', options: ['Sydney', 'Melbourne', 'Canberra', 'Perth'], correct: 2 },
+                    { text: 'Qual metal é líquido em temperatura ambiente?', options: ['Ferro', 'Mercúrio', 'Ouro', 'Chumbo'], correct: 1 }
+                ]);
 
-                const currentQ = computed(() => questions[currentIdx.value]);
-                const isLast = computed(() => currentIdx.value === questions.length - 1);
+                const currentQuestion = computed(() => questions.value[currentIndex.value]);
 
-                const startGame = () => {
-                    state.value = 'playing';
-                    currentIdx.value = 0;
-                    score.value = 0;
-                    showFeedback.value = false;
+                const checkAnswer = (idx) => {
+                    if (feedback.value !== null) return;
+                    selectedIdx.value = idx;
+                    const correct = idx === currentQuestion.value.correct;
+                    feedback.value = correct;
+                    if (correct) score.value++;
                 };
 
-                const answer = (idx) => {
-                    isCorrect.value = idx === currentQ.value.ans;
-                    if (isCorrect.value) score.value += 10;
-                    showFeedback.value = true;
+                const getOptionClass = (idx) => {
+                    if (feedback.value === null) return 'bg-gray-50 border-gray-100 hover:border-purple-300 hover:bg-purple-50';
+                    if (idx === currentQuestion.value.correct) return 'bg-green-100 border-green-500 text-green-800';
+                    if (idx === selectedIdx.value && !feedback.value) return 'bg-red-50 border-red-500 text-red-800 opacity-50';
+                    return 'opacity-50 bg-gray-50';
                 };
 
                 const nextQuestion = () => {
-                    if (isLast.value) {
-                        state.value = 'end';
+                    if (currentIndex.value < questions.value.length - 1) {
+                        currentIndex.value++;
+                        feedback.value = null;
+                        selectedIdx.value = null;
                     } else {
-                        currentIdx.value++;
-                        showFeedback.value = false;
+                        finished.value = true;
                     }
                 };
 
+                const scoreMessage = computed(() => {
+                    const p = (score.value / questions.value.length) * 100;
+                    if (p === 100) return 'Perfeito! 🏆';
+                    if (p >= 70) return 'Muito Bom! 👏';
+                    if (p >= 50) return 'Na Média 👍';
+                    return 'Tente de novo! 😅';
+                });
+
+                const reset = () => {
+                    started.value = false;
+                    finished.value = false;
+                    currentIndex.value = 0;
+                    score.value = 0;
+                    feedback.value = null;
+                };
+
+                const shareWhatsapp = () => {
+                    const text = `🧠 *Quiz Curiosidades*\n\nAcertei ${score.value} de ${questions.value.length} questões!\nNível: ${scoreMessage.value}\n\nConsegue me superar?`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                const backupData = () => {
+                    // Backup questions (if user could edit them, which is not enabled here but useful for consistency)
+                    const data = { questions: questions.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `quiz_backup.json`;
+                    a.click();
+                };
+
                 return {
-                    state, currentIdx, score, questions, currentQ, startGame, answer, nextQuestion, showFeedback, isCorrect, isLast
+                    started, finished, currentIndex, score, questions, currentQuestion, feedback, selectedIdx,
+                    checkAnswer, getOptionClass, nextQuestion, scoreMessage, reset, shareWhatsapp, backupData
                 };
             }
         }).mount('#app');

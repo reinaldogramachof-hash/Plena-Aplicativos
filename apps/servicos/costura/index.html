@@ -8,17 +8,18 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lato:wght@400;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
     <style>
         body {
-            font-family: 'Lato', sans-serif;
-            background-color: #fdf2f8;
+            background-color: #fff1f2;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         h1,
-        h2 {
-            font-family: 'Dancing Script', cursive;
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
         }
 
         [v-cloak] {
@@ -27,120 +28,134 @@
     </style>
 </head>
 
-<body class="min-h-screen pb-20">
+<body class="pb-20">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- HEADER -->
-        <header class="bg-pink-400 text-white p-6 rounded-b-3xl shadow-lg relative z-10">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl">Ateliê Digital</h1>
-                <button
-                    class="bg-white text-pink-500 rounded-full w-8 h-8 flex items-center justify-center font-bold shadow hover:bg-pink-50"
-                    @click="showForm = true">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+        <header class="bg-pink-600 text-white p-6 shadow-md relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-pink-500 opacity-20 text-9xl"><i class="fa-solid fa-scissors"></i>
             </div>
-            <p class="text-pink-100 mt-1 text-sm">Organize suas encomendas e medidas.</p>
+            <div class="relative z-10 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold italic">Ateliê Digital</h1>
+                    <p class="text-pink-100 text-xs">Gestão para Costureiras</p>
+                </div>
+                <div class="flex gap-2">
+                    <button @click="backupData" class="text-pink-200 hover:text-white" title="Backup"><i
+                            class="fa-solid fa-download"></i></button>
+                    <label class="text-pink-200 hover:text-white cursor-pointer" title="Restaurar"><i
+                            class="fa-solid fa-upload"></i><input type="file" @change="restoreData" class="hidden"
+                            accept=".json"></label>
+                </div>
+            </div>
         </header>
 
-        <!-- EMPTY STATE -->
-        <div v-if="orders.length === 0 && !showForm" class="text-center py-20 opacity-40">
-            <i class="fa-solid fa-scissors text-6xl text-pink-300 mb-4"></i>
-            <p>Nenhuma encomenda.<br>Toque no + para começar.</p>
+        <!-- TABS -->
+        <div class="flex border-b">
+            <button @click="tab = 'orders'"
+                :class="tab==='orders' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-400'"
+                class="flex-1 py-3 text-center border-b-2 font-bold transition">Encomendas</button>
+            <button @click="tab = 'new'"
+                :class="tab==='new' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-400'"
+                class="flex-1 py-3 text-center border-b-2 font-bold transition">Nova Ficha</button>
         </div>
 
-        <!-- LIST -->
-        <div v-if="!showForm" class="p-4 space-y-4">
-            <div v-for="(order, idx) in orders" :key="idx"
-                class="bg-white border border-pink-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full" :class="getStatusColor(order.status)"></div>
+        <!-- NEW ORDER -->
+        <div v-if="tab === 'new'" class="p-6 bg-pink-50/50 flex-grow animate-fade-in">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-pink-400 font-bold uppercase">Nome da Cliente</label>
+                    <input v-model="form.client"
+                        class="w-full border-b-2 border-pink-200 bg-transparent py-2 px-1 outline-none focus:border-pink-500"
+                        placeholder="Maria Silva">
+                </div>
+                <div>
+                    <label class="text-xs text-pink-400 font-bold uppercase">Peça / Serviço</label>
+                    <input v-model="form.service"
+                        class="w-full border-b-2 border-pink-200 bg-transparent py-2 px-1 outline-none focus:border-pink-500"
+                        placeholder="Ex: Vestido de Festa">
+                </div>
 
-                <div class="flex justify-between items-start mb-3 pl-2">
-                    <div>
-                        <h3 class="font-bold text-lg text-gray-800">{{ order.client }}</h3>
-                        <p class="text-xs text-gray-400">{{ order.piece }}</p>
+                <div class="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl shadow-sm border border-pink-100">
+                    <h3 class="col-span-2 text-center text-pink-500 font-bold mb-2 sep">Medidas (cm)</h3>
+                    <div><span class="text-xs text-gray-400">Busto</span><input v-model="form.bust" type="number"
+                            class="w-full border rounded p-1"></div>
+                    <div><span class="text-xs text-gray-400">Cintura</span><input v-model="form.waist" type="number"
+                            class="w-full border rounded p-1"></div>
+                    <div><span class="text-xs text-gray-400">Quadril</span><input v-model="form.hips" type="number"
+                            class="w-full border rounded p-1"></div>
+                    <div><span class="text-xs text-gray-400">Comprimento</span><input v-model="form.length"
+                            type="number" class="w-full border rounded p-1"></div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="text-xs text-pink-400 font-bold uppercase">Valor (R$)</label>
+                        <input v-model.number="form.price" type="number"
+                            class="w-full border-b-2 border-pink-200 bg-transparent py-2 outline-none">
                     </div>
-                    <select v-model="order.status"
-                        class="text-xs font-bold border border-gray-200 rounded px-2 py-1 outline-none bg-gray-50">
-                        <option value="pending">Aguardando</option>
-                        <option value="cutting">Cortando</option>
-                        <option value="sewing">Costurando</option>
-                        <option value="fitting">Prova</option>
-                        <option value="ready">Pronto</option>
-                    </select>
+                    <div class="flex-1">
+                        <label class="text-xs text-pink-400 font-bold uppercase">Entrega</label>
+                        <input v-model="form.date" type="date"
+                            class="w-full border-b-2 border-pink-200 bg-transparent py-2 outline-none">
+                    </div>
                 </div>
 
-                <div class="bg-pink-50 p-3 rounded-xl grid grid-cols-2 gap-2 text-xs text-gray-600 mb-3">
-                    <div><span class="font-bold">Busto:</span> {{ order.measures.bust }}cm</div>
-                    <div><span class="font-bold">Cintura:</span> {{ order.measures.waist }}cm</div>
-                    <div><span class="font-bold">Quadril:</span> {{ order.measures.hips }}cm</div>
-                    <div><span class="font-bold">Comp.:</span> {{ order.measures.length }}cm</div>
-                </div>
-
-                <div class="flex justify-end gap-2">
-                    <button @click="deleteOrder(idx)" class="text-red-400 text-xs px-2"><i
-                            class="fa-solid fa-trash"></i></button>
-                    <button @click="notifyClient(order)"
-                        class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-green-600">
-                        <i class="fa-brands fa-whatsapp mr-1"></i> Avisar
-                    </button>
-                </div>
+                <button @click="saveOrder"
+                    class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-full shadow-lg mt-4">
+                    Salvar Ficha
+                </button>
             </div>
         </div>
 
-        <!-- NEW ORDER FORM MODAL -->
-        <div v-if="showForm"
-            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center">
-            <div
-                class="bg-white w-full max-w-md p-6 rounded-t-3xl sm:rounded-3xl animate-slide-up h-[85vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl text-pink-600">Nova Encomenda</h2>
-                    <button @click="showForm = false" class="text-gray-400 hover:text-gray-600"><i
-                            class="fa-solid fa-xmark text-xl"></i></button>
+        <!-- ORDERS LIST -->
+        <div v-if="tab === 'orders'" class="p-6 space-y-4">
+            <div v-for="(order, idx) in orders" :key="idx"
+                class="bg-white rounded-xl shadow-md border-l-4 border-pink-500 p-4 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">{{ order.client }}</h3>
+                        <p class="text-pink-600 text-sm italic">{{ order.service }}</p>
+                    </div>
+                    <span :class="statusColor(order.status)"
+                        class="text-[10px] font-bold px-2 py-1 rounded uppercase">{{ order.status }}</span>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cliente</label>
-                        <input v-model="newOrder.client" type="text"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400">
+                <div class="text-xs text-gray-500 grid grid-cols-4 gap-2 bg-pink-50 p-2 rounded mb-3">
+                    <div class="text-center">
+                        <div>Busto</div><b>{{ order.bust || '-' }}</b>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Peça (Ex: Vestido
-                            Festa)</label>
-                        <input v-model="newOrder.piece" type="text"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400">
+                    <div class="text-center">
+                        <div>Cint.</div><b>{{ order.waist || '-' }}</b>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Busto (cm)</label>
-                            <input v-model="newOrder.measures.bust" type="number"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400 text-center">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cintura (cm)</label>
-                            <input v-model="newOrder.measures.waist" type="number"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400 text-center">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Quadril (cm)</label>
-                            <input v-model="newOrder.measures.hips" type="number"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400 text-center">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Comprimento</label>
-                            <input v-model="newOrder.measures.length" type="number"
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-pink-400 text-center">
-                        </div>
+                    <div class="text-center">
+                        <div>Quad.</div><b>{{ order.hips || '-' }}</b>
                     </div>
-
-                    <button @click="saveOrder"
-                        class="w-full bg-pink-500 text-white font-bold py-4 rounded-xl shadow-lg mt-6 hover:bg-pink-600">
-                        Salvar Medidas
-                    </button>
+                    <div class="text-center">
+                        <div>Comp.</div><b>{{ order.length || '-' }}</b>
+                    </div>
                 </div>
+
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                    <div class="text-gray-600 font-bold text-sm">
+                        R$ {{ (order.price||0).toFixed(2) }} <span class="text-xs font-normal text-gray-400">| {{
+                            formatDate(order.date) }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="nextStatus(order)"
+                            class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded font-bold text-gray-600">Mudar
+                            Status</button>
+                        <button @click="shareOrder(order)" class="text-green-500 text-lg"><i
+                                class="fa-brands fa-whatsapp"></i></button>
+                        <button @click="deleteOrder(idx)" class="text-red-400 text-sm hover:text-red-600"><i
+                                class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="orders.length === 0" class="text-center text-gray-400 mt-10">
+                <i class="fa-solid fa-clipboard-list text-4xl mb-2"></i>
+                <p>Nenhuma encomenda ainda.</p>
             </div>
         </div>
 
@@ -151,54 +166,71 @@
 
         createApp({
             setup() {
-                const showForm = ref(false);
+                const tab = ref('orders');
                 const orders = ref([]);
-                const newOrder = ref({
-                    client: "",
-                    piece: "",
-                    status: "pending",
-                    measures: { bust: "", waist: "", hips: "", length: "" }
-                });
+                const form = ref({});
 
                 const saveOrder = () => {
-                    if (!newOrder.value.client) return alert("Nome do cliente obrigatório");
-                    orders.value.unshift(JSON.parse(JSON.stringify(newOrder.value)));
-                    showForm.value = false;
-                    // Reset
-                    newOrder.value = { client: "", piece: "", status: "pending", measures: { bust: "", waist: "", hips: "", length: "" } };
+                    if (!form.value.client || !form.value.service) return alert("Preencha nome e serviço!");
+                    orders.value.unshift({
+                        ...form.value,
+                        status: 'Pendente',
+                        createdAt: new Date().toISOString()
+                    });
+                    form.value = {};
+                    tab.value = 'orders';
+                };
+
+                const nextStatus = (order) => {
+                    const steps = ['Pendente', 'Em Produção', 'Prova', 'Pronto', 'Entregue'];
+                    const idx = steps.indexOf(order.status);
+                    if (idx < steps.length - 1) order.status = steps[idx + 1];
+                    else order.status = steps[0];
+                };
+
+                const statusColor = (s) => {
+                    if (s === 'Pendente') return 'bg-gray-100 text-gray-500';
+                    if (s === 'Em Produção') return 'bg-blue-100 text-blue-500';
+                    if (s === 'Prova') return 'bg-yellow-100 text-yellow-600';
+                    if (s === 'Pronto') return 'bg-green-100 text-green-600';
+                    return 'bg-pink-100 text-pink-600';
+                };
+
+                const formatDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '';
+
+                const shareOrder = (order) => {
+                    const text = `👗 *Ateliê Digital*\n\nOlá ${order.client}!\nSua encomenda: *${order.service}*\nStatus: *${order.status}*\nValor: R$ ${order.price}\n\nQualquer dúvida estou à disposição!`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
                 const deleteOrder = (idx) => {
-                    if (confirm("Apagar encomenda?")) orders.value.splice(idx, 1);
+                    if (confirm("Excluir esta ficha?")) orders.value.splice(idx, 1);
                 };
 
-                const getStatusColor = (s) => {
-                    const map = { pending: 'bg-gray-300', cutting: 'bg-blue-400', sewing: 'bg-yellow-400', fitting: 'bg-orange-400', ready: 'bg-green-500' };
-                    return map[s] || 'bg-gray-300';
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(orders.value)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `atelie_backup_${Date.now()}.json`;
+                    a.click();
                 };
 
-                const notifyClient = (order) => {
-                    let msg = "";
-                    if (order.status === 'ready') msg = `Olá ${order.client}! Sua peça (${order.piece}) está pronta! Pode vir buscar. 🧵✨`;
-                    else if (order.status === 'fitting') msg = `Olá ${order.client}! Precisamos agendar a prova da sua peça (${order.piece}).`;
-                    else msg = `Olá ${order.client}, passando para avisar que sua peça (${order.piece}) já está em produção!`;
-
-                    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-                    window.open(url, '_blank');
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => { orders.value = JSON.parse(v.target.result); alert("Fichas restauradas!"); };
+                    r.readAsText(f);
                 };
 
                 onMounted(() => {
-                    const saved = localStorage.getItem('plena_costura');
-                    if (saved) try { orders.value = JSON.parse(saved); } catch (e) { }
+                    const d = localStorage.getItem('plena_atelie');
+                    if (d) orders.value = JSON.parse(d);
                 });
+                watch(orders, () => localStorage.setItem('plena_atelie', JSON.stringify(orders.value)), { deep: true });
 
-                watch(orders, () => {
-                    localStorage.setItem('plena_costura', JSON.stringify(orders.value));
-                }, { deep: true });
-
-                return {
-                    showForm, orders, newOrder, saveOrder, deleteOrder, getStatusColor, notifyClient
-                };
+                return { tab, orders, form, saveOrder, nextStatus, statusColor, formatDate, shareOrder, deleteOrder, backupData, restoreData };
             }
         }).mount('#app');
     </script>

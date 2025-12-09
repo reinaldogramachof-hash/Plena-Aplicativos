@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obra Fácil | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #ea580c;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-orange-600 min-h-screen pb-10">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col">
+
+        <header class="bg-gray-900 text-white p-6 shadow-lg">
+            <h1 class="text-2xl font-bold mb-1"><i class="fa-solid fa-trowel-bricks"></i> Obra Fácil</h1>
+            <p class="text-gray-400 text-xs">Calculadora de Materiais</p>
+            <div class="flex gap-2 mt-4">
+                <button @click="backupData"
+                    class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs transition">Backup</button>
+                <label class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs transition cursor-pointer">
+                    Restaurar <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </div>
+        </header>
+
+        <!-- TABS -->
+        <div class="flex border-b">
+            <button @click="tab='piso'"
+                :class="tab==='piso'?'border-orange-500 text-orange-600':'border-transparent text-gray-400'"
+                class="flex-1 py-3 font-bold border-b-2 transition">Piso/Azulejo</button>
+            <button @click="tab='parede'"
+                :class="tab==='parede'?'border-orange-500 text-orange-600':'border-transparent text-gray-400'"
+                class="flex-1 py-3 font-bold border-b-2 transition">Pintura</button>
+        </div>
+
+        <div class="p-6 flex-grow">
+
+            <!-- PISOS -->
+            <div v-if="tab==='piso'" class="space-y-4 animate-fade-in">
+                <h3 class="font-bold text-gray-700">Calculadora de Revestimento</h3>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-400">Largura (m)</label>
+                        <input v-model.number="piso.width" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-400">Comprimento (m)</label>
+                        <input v-model.number="piso.length" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs uppercase font-bold text-gray-400">Peça (cm x cm)</label>
+                    <div class="flex gap-2">
+                        <input v-model.number="piso.pieceW" placeholder="60" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                        <span class="mt-2 text-gray-400">x</span>
+                        <input v-model.number="piso.pieceL" placeholder="60" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mt-4">
+                    <p class="text-xs text-orange-600 uppercase font-bold mb-2">Resultado (+10% Quebra)</p>
+                    <div class="flex justify-between items-end">
+                        <span class="text-3xl font-bold text-orange-700">{{ pisoResult.area.toFixed(2) }}m²</span>
+                        <span class="text-xl font-bold text-orange-900">{{ pisoResult.pieces }} peças</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PINTURA -->
+            <div v-if="tab==='parede'" class="space-y-4 animate-fade-in">
+                <h3 class="font-bold text-gray-700">Calculadora de Pintura</h3>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-400">Largura Parede (m)</label>
+                        <input v-model.number="paint.width" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase font-bold text-gray-400">Altura (m)</label>
+                        <input v-model.number="paint.height" type="number"
+                            class="w-full bg-gray-100 p-2 rounded border focus:border-orange-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs uppercase font-bold text-gray-400">Demãos</label>
+                    <select v-model="paint.coats" class="w-full bg-gray-100 p-2 rounded border">
+                        <option value="1">1 Demão</option>
+                        <option value="2">2 Demãos</option>
+                        <option value="3">3 Demãos</option>
+                    </select>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-4">
+                    <p class="text-xs text-blue-600 uppercase font-bold mb-2">Tinta Necessária (Estimada)</p>
+                    <div class="flex justify-between items-end">
+                        <span class="text-3xl font-bold text-blue-700">{{ paintResult.liters.toFixed(1) }}L</span>
+                        <span class="text-sm font-bold text-blue-900">~{{ paintResult.area }}m² área</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUDGET -->
+            <div class="mt-8 border-t pt-4">
+                <h3 class="font-bold text-gray-700 mb-2">Orçamento Rápido</h3>
+                <div class="flex gap-2 mb-2">
+                    <input v-model="budgetItem" placeholder="Item (ex: Cimento)"
+                        class="flex-grow p-2 border rounded bg-white">
+                    <input v-model.number="budgetCost" placeholder="R$" type="number"
+                        class="w-20 p-2 border rounded bg-white">
+                    <button @click="addBudget" class="bg-gray-800 text-white px-3 rounded"><i
+                            class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="space-y-1">
+                    <div v-for="(b, idx) in budgetList" :key="idx" class="flex justify-between text-sm border-b py-1">
+                        <span>{{ b.name }}</span>
+                        <div class="flex gap-2">
+                            <span class="font-bold">R$ {{ b.cost.toFixed(2) }}</span>
+                            <button @click="budgetList.splice(idx,1)" class="text-red-400"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 text-right font-bold text-lg">Total: R$ {{ budgetTotal.toFixed(2) }}</div>
+            </div>
+
+        </div>
+
+        <div class="p-6">
+            <button @click="shareWhatsapp"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp"></i> Enviar Lista Material
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const tab = ref('piso');
+
+                // Piso State
+                const piso = ref({ width: 0, length: 0, pieceW: 60, pieceL: 60 });
+
+                // Paint State
+                const paint = ref({ width: 0, height: 0, coats: 2 });
+
+                // Budget
+                const budgetItem = ref('');
+                const budgetCost = ref(null);
+                const budgetList = ref([]);
+
+                // Computed Piso
+                const pisoResult = computed(() => {
+                    const area = (piso.value.width * piso.value.length);
+                    const pieceArea = (piso.value.pieceW / 100 * piso.value.pieceL / 100);
+                    const pieces = pieceArea > 0 ? Math.ceil((area * 1.1) / pieceArea) : 0; // +10%
+                    return { area, pieces };
+                });
+
+                // Computed Paint (Approx 10m2 per liter per coat)
+                const paintResult = computed(() => {
+                    const area = paint.value.width * paint.value.height;
+                    const totalArea = area * paint.value.coats;
+                    const liters = totalArea / 10;
+                    return { area, liters };
+                });
+
+                const budgetTotal = computed(() => budgetList.value.reduce((a, b) => a + b.cost, 0));
+
+                // Actions
+                const addBudget = () => {
+                    if (!budgetItem.value || !budgetCost.value) return;
+                    budgetList.value.push({ name: budgetItem.value, cost: parseFloat(budgetCost.value) });
+                    budgetItem.value = ''; budgetCost.value = null;
+                };
+
+                const shareWhatsapp = () => {
+                    let text = `🏗️ *Materia Obra Fácil*\n\n`;
+                    if (pisoResult.value.area > 0) {
+                        text += `🧱 *PISO:*\nÁrea: ${pisoResult.value.area.toFixed(2)}m²\nPeças: ${pisoResult.value.pieces} un (c/ quebra)\n\n`;
+                    }
+                    if (paintResult.value.area > 0) {
+                        text += `🎨 *PINTURA:*\nÁrea: ${paintResult.value.area}m²\nTinta Estimada: ${paintResult.value.liters.toFixed(1)} Litros\n\n`;
+                    }
+
+                    if (budgetList.value.length > 0) {
+                        text += `💰 *ORÇAMENTO:*\n`;
+                        budgetList.value.forEach(b => text += `- ${b.name}: R$ ${b.cost.toFixed(2)}\n`);
+                        text += `*Total: R$ ${budgetTotal.value.toFixed(2)}*\n`;
+                    }
+
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const data = { piso: piso.value, paint: paint.value, budget: budgetList.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_obra_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            if (d.piso) piso.value = d.piso;
+                            if (d.paint) paint.value = d.paint;
+                            if (d.budget) budgetList.value = d.budget;
+                            alert("Dados Restaurados!");
+                        } catch (e) { alert("Erro!"); }
+                    };
+                    r.readAsText(f);
+                };
+
+                // Persist
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_obra');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        budgetList.value = parsed.budget || [];
+                        if (parsed.piso) piso.value = parsed.piso;
+                        if (parsed.paint) paint.value = parsed.paint;
+                    }
+                });
+
+                watch([piso, paint, budgetList], () => {
+                    localStorage.setItem('plena_obra', JSON.stringify({ piso: piso.value, paint: paint.value, budget: budgetList.value }));
+                }, { deep: true });
+
+                return {
+                    tab, piso, paint, budgetItem, budgetCost, budgetList,
+                    pisoResult, paintResult, budgetTotal,
+                    addBudget, shareWhatsapp, backupData, restoreData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

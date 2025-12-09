@@ -3,233 +3,106 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minha Garagem | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manutenção Auto | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Roboto', 'sans-serif'], tech: ['Rajdhani', 'sans-serif'] },
-                    colors: {
-                        garage: { 50: '#f8fafc', 100: '#f1f5f9', 700: '#334155', 800: '#1e293b', 900: '#0f172a', accent: '#f97316' }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #f1f5f9;
-            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .carbon-fiber {
-            background-color: #1a1a1a;
-            background-image: linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000),
-                linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000);
-            background-size: 8px 8px;
-            background-position: 0 0, 4px 4px;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="h-screen overflow-hidden flex flex-col md:flex-row bg-[#e2e8f0]">
+<body class="pb-20">
 
-    <div id="app"
-        class="flex-1 flex h-full w-full relative max-w-5xl mx-auto shadow-2xl bg-[#f1f5f9] md:rounded-xl md:my-4 overflow-hidden border border-slate-300">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Sidebar Dashboard -->
-        <aside class="w-full md:w-80 bg-garage-900 text-white z-10 flex flex-col h-full relative overflow-hidden">
-            <div class="carbon-fiber absolute inset-0 opacity-20 pointer-events-none"></div>
-
-            <div class="p-6 border-b border-white/10 relative z-10">
-                <div class="flex items-center gap-3 mb-6">
-                    <div
-                        class="w-12 h-12 rounded-lg bg-garage-accent flex items-center justify-center text-white text-2xl shadow-lg shadow-orange-500/30">
-                        <i class="fa-solid fa-wrench"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-tech font-bold text-2xl uppercase tracking-wider leading-none">Minha<br>Garagem
-                        </h1>
-                    </div>
-                </div>
-
-                <!-- Odometer -->
-                <div class="bg-black/40 rounded-xl p-4 border border-white/5">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Última Quilometragem
-                    </p>
-                    <div class="font-tech text-3xl font-bold text-white tracking-widest flex items-baseline gap-1">
-                        {{ maxKm.toLocaleString() }} <span class="text-sm text-garage-accent">km</span>
-                    </div>
+        <header class="bg-slate-800 text-white p-6 shadow-md rounded-b-lg">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold"><i class="fa-solid fa-wrench"></i> Manutenção Auto</h1>
+                <div class="flex gap-2">
+                    <button @click="backupData" class="text-slate-400 hover:text-white" title="Backup"><i
+                            class="fa-solid fa-download"></i></button>
+                    <label class="text-slate-400 hover:text-white cursor-pointer" title="Restaurar"><i
+                            class="fa-solid fa-upload"></i><input type="file" @change="restoreData" class="hidden"
+                            accept=".json"></label>
                 </div>
             </div>
-
-            <div class="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-garage-800 p-3 rounded-lg border border-white/5">
-                        <i class="fa-solid fa-droplet text-garage-accent mb-2"></i>
-                        <h3 class="text-xs text-slate-400 font-bold uppercase">Troca de Óleo</h3>
-                        <p class="font-tech text-lg">{{ lastOilKm ? lastOilKm.toLocaleString() : '---' }} km</p>
-                    </div>
-                    <div class="bg-garage-800 p-3 rounded-lg border border-white/5">
-                        <i class="fa-solid fa-money-bill text-green-400 mb-2"></i>
-                        <h3 class="text-xs text-slate-400 font-bold uppercase">Custo Total</h3>
-                        <p class="font-tech text-lg">R$ {{ totalCost.toLocaleString('pt-BR', {minimumFractionDigits: 0})
-                            }}</p>
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <h3 class="text-xs font-bold text-slate-500 uppercase px-2 mb-2">Serviços Recentes</h3>
-                    <div v-if="services.length === 0" class="px-2 text-sm text-slate-600 italic">Nenhum registro.</div>
-                    <ul class="space-y-1">
-                        <li v-for="s in recentServices" :key="s.id"
-                            class="px-3 py-2 rounded hover:bg-white/5 text-sm flex justify-between text-slate-300">
-                            <span>{{ s.type }}</span>
-                            <span class="font-tech text-garage-accent">{{ s.km.toLocaleString() }} km</span>
-                        </li>
-                    </ul>
-                </div>
-
+            <!-- Car Info -->
+            <div class="mt-4 bg-slate-700 p-3 rounded flex gap-4 items-center">
+                <i class="fa-solid fa-car text-3xl text-slate-400"></i>
+                <input v-model="carName"
+                    class="bg-transparent text-white font-bold outline-none placeholder-slate-500 w-full"
+                    placeholder="Meu Carro (Ex: Gol Prata)">
             </div>
+        </header>
 
-            <div class="p-4 border-t border-white/10 relative z-10 bg-garage-900">
-                <button @click="openForm()"
-                    class="w-full bg-garage-accent hover:bg-orange-500 text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 transition uppercase text-sm tracking-wider">
-                    <i class="fa-solid fa-plus"></i> Novo Registro
+        <!-- FORM -->
+        <div class="p-6 bg-slate-50 border-b">
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-3">Novo Registro</h3>
+            <div class="space-y-3">
+                <div class="flex gap-2">
+                    <select v-model="newLog.type" class="flex-grow p-3 rounded border bg-white text-sm">
+                        <option value="Óleo">Troca de Óleo</option>
+                        <option value="Pneus">Rodízio/Troca Pneus</option>
+                        <option value="Freios">Pastilhas/Freios</option>
+                        <option value="Revisão">Revisão Geral</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                    <input v-model="newLog.date" type="date" class="w-36 p-3 rounded border bg-white text-sm">
+                </div>
+                <div class="flex gap-2">
+                    <input v-model.number="newLog.km" type="number"
+                        class="flex-grow p-3 rounded border bg-white text-sm" placeholder="KM Atual">
+                    <input v-model.number="newLog.cost" type="number" step="0.01"
+                        class="flex-grow p-3 rounded border bg-white text-sm" placeholder="Valor R$">
+                </div>
+                <button @click="addLog"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow">
+                    Adicionar Registro
                 </button>
             </div>
-        </aside>
+        </div>
 
-        <!-- Main List -->
-        <main class="flex-1 flex flex-col h-full bg-[#f8fafc] relative overflow-hidden">
+        <!-- HISTORY -->
+        <div class="flex-grow p-6">
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Histórico de Serviços</h3>
 
-            <header class="p-4 md:p-6 border-b border-slate-200 bg-white flex justify-between items-center z-10">
-                <h2 class="font-bold text-garage-800 text-lg uppercase tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-list text-slate-400"></i> Histórico Completo
-                </h2>
-                <div class="flex gap-2">
-                    <select v-model="filterType"
-                        class="bg-slate-100 border border-slate-200 text-sm rounded-lg p-2 outline-none text-slate-600">
-                        <option value="all">Todos</option>
-                        <option v-for="t in serviceTypes" :value="t">{{ t }}</option>
-                    </select>
-                </div>
-            </header>
+            <div class="space-y-4 relative border-l-2 border-slate-200 ml-3 pl-6">
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-3">
-
-                <div v-if="filteredServices.length === 0" class="text-center py-20 opacity-40">
-                    <i class="fa-solid fa-car-on text-6xl mb-4 text-slate-300"></i>
-                    <p class="text-sm font-bold text-slate-400">Nenhum serviço encontrado.</p>
-                </div>
-
-                <div v-for="service in filteredServices" :key="service.id"
-                    class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center gap-4 group hover:shadow-md transition">
-
-                    <div
-                        class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0 border border-slate-100 group-hover:bg-garage-accent group-hover:text-white group-hover:border-garage-accent transition-colors">
-                        <i :class="getIcon(service.type)"></i>
+                <div v-for="(log, idx) in sortedLogs" :key="idx"
+                    class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 relative">
+                    <!-- Dot -->
+                    <div class="absolute -left-[33px] top-5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white">
                     </div>
 
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-bold text-garage-800">{{ service.type }}</h3>
-                            <span class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500">{{
-                                formatDate(service.date) }}</span>
-                        </div>
-                        <p class="text-sm text-slate-500 mt-1" v-if="service.notes">{{ service.notes }}</p>
-                        <div class="flex gap-4 mt-2 text-xs font-mono font-bold text-slate-400">
-                            <span class="flex items-center gap-1"><i class="fa-solid fa-gauge"></i> {{
-                                service.km.toLocaleString() }} km</span>
-                        </div>
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-slate-700">{{ log.type }}</span>
+                        <span class="text-slate-400 text-xs">{{ formatDate(log.date) }}</span>
                     </div>
 
-                    <div class="text-right flex flex-col items-end min-w-[100px]">
-                        <span class="font-tech font-bold text-xl text-garage-800">R$ {{
-                            service.cost.toLocaleString('pt-BR', {minimumFractionDigits: 2}) }}</span>
-                        <div class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition">
-                            <button @click="editService(service)"
-                                class="text-blue-500 hover:text-blue-700 text-sm p-1"><i
-                                    class="fa-solid fa-pen"></i></button>
-                            <button @click="deleteService(service)"
-                                class="text-red-400 hover:text-red-600 text-sm p-1"><i
-                                    class="fa-solid fa-trash"></i></button>
-                        </div>
+                    <div class="text-sm text-slate-600 mb-2">
+                        <i class="fa-solid fa-gauge-high mr-1"></i> {{ log.km }} km
                     </div>
 
+                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded">
+                        <span class="font-bold text-green-600">R$ {{ (log.cost||0).toFixed(2) }}</span>
+                        <button @click="logs.splice(logs.indexOf(log), 1)"
+                            class="text-xs text-red-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
 
-            </div>
-
-        </main>
-
-        <!-- Modal -->
-        <div v-if="showForm"
-            class="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-fadeInUp">
-                <div class="p-4 bg-garage-900 text-white flex justify-between items-center">
-                    <h3 class="font-bold uppercase tracking-wide">{{ isEditing ? 'Editar Serviço' : 'Novo Serviço' }}
-                    </h3>
-                    <button @click="closeForm" class="hover:text-garage-accent"><i
-                            class="fa-solid fa-times text-lg"></i></button>
+                <div v-if="logs.length === 0" class="text-sm text-slate-400 italic">
+                    Nenhum serviço registrado ainda.
                 </div>
 
-                <div class="p-6 space-y-4">
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data</label>
-                            <input type="date" v-model="form.date"
-                                class="w-full p-2 bg-slate-50 border border-slate-200 rounded outline-none focus:border-garage-accent transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Quilometragem</label>
-                            <input type="number" v-model.number="form.km"
-                                class="w-full p-2 bg-slate-50 border border-slate-200 rounded outline-none focus:border-garage-accent transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo de Serviço</label>
-                        <select v-model="form.type"
-                            class="w-full p-2 bg-slate-50 border border-slate-200 rounded outline-none focus:border-garage-accent transition">
-                            <option v-for="t in serviceTypes" :value="t">{{ t }}</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Custo (R$)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2 text-slate-400 text-sm">R$</span>
-                            <input type="number" v-model.number="form.cost"
-                                class="w-full p-2 pl-9 bg-slate-50 border border-slate-200 rounded outline-none focus:border-garage-accent transition"
-                                step="0.01">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Observações</label>
-                        <textarea v-model="form.notes" rows="3"
-                            class="w-full p-2 bg-slate-50 border border-slate-200 rounded outline-none focus:border-garage-accent transition"
-                            placeholder="Ex: Marca do óleo, oficina, etc."></textarea>
-                    </div>
-
-                    <button @click="saveService"
-                        class="w-full bg-garage-accent hover:bg-orange-500 text-white font-bold py-3 rounded shadow-md transition uppercase tracking-wider">
-                        Salvar
-                    </button>
-
-                </div>
             </div>
         </div>
 
@@ -237,120 +110,61 @@
 
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_KEY = 'plena_car_v1';
 
         createApp({
             setup() {
-                const serviceTypes = [
-                    'Troca de Óleo', 'Pneus', 'Freios', 'Filtros', 'Bateria', 'Suspensão', 'Revisão Geral', 'Funilaria', 'Combustível', 'Outro'
-                ];
+                const carName = ref('');
+                const logs = ref([]);
+                const newLog = ref({ type: 'Óleo', date: new Date().toISOString().split('T')[0], km: '', cost: '' });
 
-                const services = ref([]);
-                const filterType = ref('all');
+                const addLog = () => {
+                    if (!newLog.value.km) return alert("Informe a quilometragem!");
+                    logs.value.unshift({ ...newLog.value });
+                    newLog.value = { type: 'Óleo', date: new Date().toISOString().split('T')[0], km: '', cost: '' };
+                };
 
-                const showForm = ref(false);
-                const isEditing = ref(false);
-                const form = ref({ id: null, date: '', km: 0, type: 'Troca de Óleo', cost: 0, notes: '' });
+                const sortedLogs = computed(() => {
+                    return [...logs.value].sort((a, b) => b.km - a.km); // Sort by KM desc
+                });
+
+                const formatDate = (iso) => new Date(iso).toLocaleDateString('pt-BR');
+
+                // Backup
+                const backupData = () => {
+                    const data = { car: carName.value, logs: logs.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `carro_backup.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        const d = JSON.parse(v.target.result);
+                        logs.value = d.logs || [];
+                        carName.value = d.car || '';
+                        alert("Restaurado!");
+                    };
+                    r.readAsText(f);
+                };
 
                 onMounted(() => {
-                    const d = localStorage.getItem(DB_KEY);
-                    if (d) services.value = JSON.parse(d);
-                    else {
-                        // Demo
-                        services.value = [
-                            { id: 1, date: '2023-10-15', km: 45000, type: 'Troca de Óleo', cost: 250.00, notes: 'Óleo 5W30 Sintético' },
-                            { id: 2, date: '2023-12-01', km: 48500, type: 'Pneus', cost: 1200.00, notes: 'Troca dos 2 pneus dianteiros' }
-                        ];
+                    const d = localStorage.getItem('plena_car');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        logs.value = parsed.logs || [];
+                        carName.value = parsed.car || '';
                     }
-                    if (services.value.length === 0) openForm();
                 });
-
-                watch(services, () => {
-                    localStorage.setItem(DB_KEY, JSON.stringify(services.value));
+                watch([logs, carName], () => {
+                    localStorage.setItem('plena_car', JSON.stringify({ logs: logs.value, car: carName.value }));
                 }, { deep: true });
 
-                // Computed
-                const sortedServices = computed(() => {
-                    return [...services.value].sort((a, b) => b.km - a.km); // Decrescent KM
-                });
-
-                const filteredServices = computed(() => {
-                    if (filterType.value === 'all') return sortedServices.value;
-                    return sortedServices.value.filter(s => s.type === filterType.value);
-                });
-
-                const maxKm = computed(() => {
-                    if (services.value.length === 0) return 0;
-                    return Math.max(...services.value.map(s => s.km));
-                });
-
-                const totalCost = computed(() => {
-                    return services.value.reduce((acc, curr) => acc + (curr.cost || 0), 0);
-                });
-
-                const lastOilKm = computed(() => {
-                    const oils = services.value.filter(s => s.type === 'Troca de Óleo').sort((a, b) => b.km - a.km);
-                    return oils.length > 0 ? oils[0].km : null;
-                });
-
-                const recentServices = computed(() => sortedServices.value.slice(0, 5));
-
-                // Actions
-                const getIcon = (type) => {
-                    if (type.includes('Óleo')) return 'fa-solid fa-oil-can';
-                    if (type.includes('Pneus')) return 'fa-solid fa-dharmachakra';
-                    if (type.includes('Freios')) return 'fa-solid fa-ban'; // Disk brake kinda looks like ban?
-                    if (type.includes('Bateria')) return 'fa-solid fa-car-battery';
-                    if (type.includes('Revisão')) return 'fa-solid fa-check-double';
-                    return 'fa-solid fa-wrench';
-                };
-
-                const formatDate = (dateStr) => {
-                    if (!dateStr) return '';
-                    return new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR');
-                };
-
-                const openForm = () => {
-                    form.value = { id: null, date: new Date().toISOString().split('T')[0], km: maxKm.value, type: 'Troca de Óleo', cost: 0, notes: '' };
-                    isEditing.value = false;
-                    showForm.value = true;
-                };
-
-                const closeForm = () => showForm.value = false;
-
-                const editService = (s) => {
-                    form.value = JSON.parse(JSON.stringify(s));
-                    isEditing.value = true;
-                    showForm.value = true;
-                };
-
-                const saveService = () => {
-                    if (form.value.km <= 0) return alert('KM inválida');
-
-                    const newService = { ...form.value };
-
-                    if (isEditing.value) {
-                        const idx = services.value.findIndex(s => s.id === form.value.id);
-                        if (idx !== -1) services.value[idx] = newService;
-                    } else {
-                        newService.id = Date.now();
-                        services.value.push(newService);
-                    }
-                    closeForm();
-                };
-
-                const deleteService = (s) => {
-                    if (confirm('Apagar registro?')) {
-                        services.value = services.value.filter(service => service.id !== s.id);
-                    }
-                };
-
-                return {
-                    serviceTypes, services, filteredServices, filterType,
-                    maxKm, totalCost, lastOilKm, recentServices,
-                    showForm, isEditing, form,
-                    getIcon, formatDate, openForm, closeForm, editService, saveService, deleteService
-                };
+                return { carName, logs, newLog, addLog, sortedLogs, formatDate, backupData, restoreData };
             }
         }).mount('#app');
     </script>

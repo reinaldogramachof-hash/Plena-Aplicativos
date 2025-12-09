@@ -5,18 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora do Amor | Plena Apps</title>
-    <!-- LIBS -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Quicksand', sans-serif;
+            background-color: #ffe4e6;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        h1 {
+        .font-hand {
             font-family: 'Pacifico', cursive;
         }
 
@@ -24,162 +23,128 @@
             display: none;
         }
 
-        .heart-beat {
-            animation: heartbeat 1.5s infinite;
-        }
-
         @keyframes heartbeat {
             0% {
                 transform: scale(1);
             }
 
-            50% {
-                transform: scale(1.1);
+            15% {
+                transform: scale(1.3);
             }
 
-            100% {
+            30% {
                 transform: scale(1);
             }
+
+            45% {
+                transform: scale(1.15);
+            }
+
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-beat {
+            animation: heartbeat 1.5s infinite;
         }
     </style>
 </head>
 
-<body class="bg-pink-100 text-pink-900 overflow-hidden">
+<body class="pb-20 flex flex-col items-center justify-center min-h-screen">
 
     <div id="app" v-cloak
-        class="max-w-md mx-auto min-h-screen bg-white/50 backdrop-blur shadow-2xl flex flex-col items-center justify-center p-6 relative">
+        class="w-full max-w-md bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl flex flex-col items-center border border-pink-100">
 
-        <!-- BG HEARTS -->
-        <i class="fa-solid fa-heart text-pink-200 absolute top-10 left-10 text-6xl opacity-50 -rotate-12"></i>
-        <i class="fa-solid fa-heart text-pink-200 absolute bottom-20 right-10 text-8xl opacity-50 rotate-12"></i>
+        <h1 class="text-4xl text-pink-600 font-hand mb-6">Love Calc <i class="fa-solid fa-heart text-red-500"></i></h1>
 
-        <!-- TITLE -->
-        <h1 class="text-4xl text-pink-600 mb-8 drop-shadow-sm text-center">Calculadora do Amor</h1>
-
-        <!-- INPUTS -->
-        <div class="w-full space-y-4 relative z-10 bg-white p-6 rounded-3xl shadow-xl border border-pink-100"
-            v-if="state === 'input'">
-            <div class="text-center mb-4 text-sm text-pink-400 font-bold">Será que dá match? 🤔</div>
-
-            <div class="relative">
-                <i class="fa-solid fa-user absolute left-4 top-4 text-pink-300"></i>
-                <input v-model="name1" type="text" placeholder="Seu Nome"
-                    class="w-full bg-pink-50 rounded-xl py-3 pl-12 pr-4 border border-pink-100 focus:border-pink-500 outline-none text-pink-800 font-bold">
+        <div class="w-full space-y-4 relative z-10">
+            <div>
+                <label class="text-xs text-pink-400 font-bold uppercase ml-2">Seu Nome</label>
+                <input v-model="name1"
+                    class="w-full bg-pink-50 border-2 border-pink-100 rounded-full px-4 py-3 outline-none focus:border-pink-400 text-pink-600 font-bold"
+                    placeholder="Romeo">
             </div>
 
             <div class="flex justify-center -my-2 relative z-20">
-                <div class="bg-white rounded-full p-2 shadow-sm border border-pink-100">
-                    <i class="fa-solid fa-heart text-red-500 text-xl heart-beat"></i>
+                <div class="bg-white rounded-full p-2 shadow text-pink-300 font-bold text-xl">+</div>
+            </div>
+
+            <div>
+                <label class="text-xs text-pink-400 font-bold uppercase ml-2">Crush</label>
+                <input v-model="name2"
+                    class="w-full bg-pink-50 border-2 border-pink-100 rounded-full px-4 py-3 outline-none focus:border-pink-400 text-pink-600 font-bold"
+                    placeholder="Julieta">
+            </div>
+        </div>
+
+        <button @click="calculate"
+            class="mt-8 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-lg font-bold py-4 px-10 rounded-full shadow-lg transition transform hover:scale-105">
+            CALCULAR AMOR
+        </button>
+
+        <!-- RESULT MODAL -->
+        <div v-if="result !== null" class="fixed inset-0 bg-pink-900/40 z-50 flex items-center justify-center p-4">
+            <div
+                class="bg-white rounded-3xl p-8 text-center shadow-2xl max-w-xs w-full animate-fade-in relative overflow-hidden">
+                <button @click="result = null" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500"><i
+                        class="fa-solid fa-xmark"></i></button>
+
+                <h2 class="text-gray-400 text-sm uppercase font-bold mb-4">{{ name1 }} + {{ name2 }}</h2>
+
+                <div
+                    class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-pink-600 heart-beat py-2">
+                    {{ result }}%
                 </div>
+
+                <p class="text-pink-600 font-hand text-2xl my-4">{{ message }}</p>
+
+                <button @click="shareWhatsapp"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> Compartilhar
+                </button>
             </div>
-
-            <div class="relative">
-                <i class="fa-solid fa-user absolute left-4 top-4 text-pink-300"></i>
-                <input v-model="name2" type="text" placeholder="Nome do @Crush"
-                    class="w-full bg-pink-50 rounded-xl py-3 pl-12 pr-4 border border-pink-100 focus:border-pink-500 outline-none text-pink-800 font-bold">
-            </div>
-
-            <button @click="calculate" :disabled="!name1 || !name2"
-                class="w-full mt-4 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-4 rounded-xl shadow-lg transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                Calcular Compatibilidade
-            </button>
-        </div>
-
-        <!-- LOADING -->
-        <div v-else-if="state === 'calculating'" class="text-center z-10">
-            <div class="text-6xl mb-4 animate-bounce">❤️</div>
-            <p class="text-pink-600 font-bold animate-pulse">Analisando os astros...</p>
-        </div>
-
-        <!-- RESULT -->
-        <div v-else class="w-full z-10 text-center animate-fade-in-up">
-
-            <div class="bg-white p-8 rounded-full w-64 h-64 mx-auto flex flex-col items-center justify-center shadow-[0_0_50px_rgba(236,72,153,0.3)] border-4 mb-8"
-                :class="percentage > 70 ? 'border-green-400' : (percentage < 30 ? 'border-red-400' : 'border-yellow-400')">
-                <span
-                    class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-pink-500 to-red-600">{{
-                    percentage }}%</span>
-                <span class="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">Compatibilidade</span>
-            </div>
-
-            <h2 class="text-2xl font-bold text-pink-700 mb-2">{{ message.title }}</h2>
-            <p class="text-pink-500/80 mb-8 text-sm px-4">{{ message.desc }}</p>
-
-            <button @click="share"
-                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 mb-4 transition">
-                <i class="fa-brands fa-whatsapp text-xl"></i> Contar pro Crush
-            </button>
-
-            <button @click="reset" class="text-pink-400 text-sm font-bold underline">Testar outro casal</button>
-
         </div>
 
     </div>
 
     <script>
-        const { createApp, ref } = Vue;
+        const { createApp, ref, computed } = Vue;
 
         createApp({
             setup() {
-                const state = ref('input'); // input, calculating, result
                 const name1 = ref('');
                 const name2 = ref('');
-                const percentage = ref(0);
-                const message = ref({});
+                const result = ref(null);
 
                 const calculate = () => {
-                    state.value = 'calculating';
+                    if (!name1.value || !name2.value) return alert('Digite os dois nomes!');
 
-                    setTimeout(() => {
-                        // Deterministic algorithm based on string char codes
-                        // Ensures same names always get same result
-                        const str = (name1.value + name2.value).toLowerCase().replace(/\s/g, '');
-                        let hash = 0;
-                        for (let i = 0; i < str.length; i++) {
-                            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-                        }
+                    // Allow "admin" override or just consistent hashing
+                    // Simple hash: Sum of char codes % 101
+                    const combined = (name1.value + name2.value).toLowerCase().replace(/\s/g, '');
+                    let hash = 0;
+                    for (let i = 0; i < combined.length; i++) hash += combined.charCodeAt(i);
 
-                        // Normalized 0-100
-                        let p = Math.abs(hash % 101);
-
-                        // "Easter Eggs" logic or Adjustments
-                        if (p === 0) p = 12; // Avoid 0, too sad
-
-                        percentage.value = p;
-                        message.value = getMessage(p);
-                        state.value = 'result';
-                    }, 2000);
+                    // Pseudo-random but consistent per pair
+                    result.value = hash % 101;
                 };
 
-                const getMessage = (p) => {
-                    if (p >= 90) return { title: "Almas Gêmeas! 💍", desc: "Já podem marcar a data do casamento. É destino puro!" };
-                    if (p >= 70) return { title: "Casalzaço! 🔥", desc: "A química é forte e as estrelas aprovam." };
-                    if (p >= 40) return { title: "Tem potencial... 🤔", desc: "Com um pouco de esforço (e paciência), pode rolar." };
-                    if (p >= 20) return { title: "Friendzone? 😬", desc: "Talvez vocês funcionem melhor como amigos..." };
-                    return { title: "É Cilada, Bino! 🚨", desc: "Corre que é furada! O universo disse NÃO." };
+                const message = computed(() => {
+                    const r = result.value;
+                    if (r > 90) return "Almas Gêmeas! 🔥";
+                    if (r > 70) return "Amor Verdadeiro ❤️";
+                    if (r > 50) return "Pode dar certo... 😉";
+                    if (r > 30) return "Só amizade? Friendzone 😬";
+                    return "Corre que é cilada! 🏃";
+                });
+
+                const shareWhatsapp = () => {
+                    const text = `💘 *Calculadora do Amor*\n\n${name1.value} + ${name2.value} = *${result.value}%*\n${message.value}\n\nTeste o seu em: Plena Apps`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                const share = () => {
-                    let text = `💘 *CALCULADORA DO AMOR* 💘\n\n`;
-                    text += `👩‍❤️‍👨 ${name1.value} + ${name2.value}\n`;
-                    text += `📊 Resultado: *${percentage.value}%*\n\n`;
-                    text += `📢 *${message.value.title}*\n`;
-                    text += `_${message.value.desc}_\n\n`;
-                    text += `_Faça o teste você também!_`;
-
-                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-                    window.open(url, '_blank');
-                };
-
-                const reset = () => {
-                    state.value = 'input';
-                    name1.value = '';
-                    name2.value = '';
-                };
-
-                return {
-                    state, name1, name2, percentage, message, calculate, share, reset
-                };
+                return { name1, name2, result, calculate, message, shareWhatsapp };
             }
         }).mount('#app');
     </script>

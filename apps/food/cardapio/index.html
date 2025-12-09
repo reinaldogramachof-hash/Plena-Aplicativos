@@ -3,646 +3,310 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cardápio Digital | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Digital | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Dosis', 'sans-serif']
-                    },
-                    colors: {
-                        brand: {
-                            50: '#fff7ed',
-                            100: '#ffedd5',
-                            500: '#f97316',
-                            600: '#ea580c',
-                            700: '#c2410c',
-                        },
-                        secondary: {
-                            500: '#ef4444' // Red for appetite
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Open Sans', sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        h1,
+        h2,
+        h3,
+        .brand {
+            font-family: 'Oswald', sans-serif;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-
-        .font-display {
-            font-family: 'Dosis', sans-serif;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+<body class="pb-20">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-neutral-900 shadow-2xl flex flex-col relative">
 
-        <!-- Sidebar (Lojista / Config) -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/50">
-                    <i class="fa-solid fa-burger text-white text-sm"></i>
+        <!-- HEADER / COVER -->
+        <div class="h-48 bg-cover bg-center relative" :style="{ backgroundImage: 'url(' + coverImage + ')' }">
+            <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-bold brand text-yellow-500">{{ restaurantName || 'Sua Lanchonete' }}</h1>
+                    <p class="text-gray-300 text-sm"><i class="fa-solid fa-location-dot"></i> {{ address || 'Endereço do
+                        Local' }}</p>
                 </div>
-                <h1 class="font-display font-bold text-xl tracking-wide">Meu Cardápio</h1>
-            </div>
-
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a @click="currentView = 'menu'"
-                    :class="currentView === 'menu' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-store w-5 text-center"></i> <span>Ver Loja</span>
-                </a>
-
-                <div class="pt-4 pb-2 px-4 text-xs font-bold text-slate-500 uppercase">Área do Lojista</div>
-
-                <a @click="toggleAdmin"
-                    :class="isAdmin ? 'bg-slate-800 text-green-400' : 'text-slate-400 hover:bg-slate-800'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-user-lock w-5 text-center"></i>
-                    <span>{{ isAdmin ? 'Modo Edição (ON)' : 'Ativar Edição' }}</span>
-                </a>
-
-                <div v-if="isAdmin" class="space-y-2 animate-fade-in pl-2 border-l border-slate-800 ml-4 mt-2">
-                    <a @click="currentView = 'settings'"
-                        :class="currentView === 'settings' ? 'text-brand-400' : 'text-slate-400 hover:text-white'"
-                        class="flex items-center gap-3 px-4 py-2 text-sm transition cursor-pointer">
-                        <i class="fa-solid fa-cog w-4"></i> <span>Config. Loja</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                <button @click="backupData" class="hover:text-white underline">Backup</button> |
-                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
-                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
-
-            <!-- Mobile Header -->
-            <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0 sticky top-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white"><i
-                            class="fa-solid fa-burger text-xs"></i></div>
-                    <span class="font-display font-bold text-lg text-slate-800">{{ settings.storeName || 'Cardápio
-                        Digital' }}</span>
-                </div>
-                <button @click="cartOpen = true"
-                    class="relative w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600">
-                    <i class="fa-solid fa-shopping-bag"></i>
-                    <span v-if="cartCount > 0"
-                        class="absolute -top-1 -right-1 bg-brand-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-sm">{{
-                        cartCount }}</span>
-                </button>
-            </header>
-
-            <!-- Store Banner (Desktop) -->
-            <div v-if="currentView === 'menu'"
-                class="hidden md:block h-48 bg-gradient-to-r from-brand-600 to-secondary-500 relative shrink-0">
-                <div class="absolute inset-0 bg-black/20"></div>
-                <div class="absolute bottom-0 left-0 p-8 text-white">
-                    <h1 class="font-display font-bold text-4xl shadow-sm">{{ settings.storeName || 'Sua Loja Aqui' }}
-                    </h1>
-                    <p class="text-white/90 text-sm mt-2 flex items-center gap-2">
-                        <i class="fa-brands fa-whatsapp"></i> {{ settings.phone || '(00) 00000-0000' }}
-                        <span class="mx-2">•</span>
-                        <i class="fa-solid fa-clock"></i> {{ settings.hours || 'Aberto agora' }}
-                    </p>
-                </div>
-                <button v-if="!isAdmin" @click="toggleAdmin"
-                    class="absolute top-4 right-4 text-white/30 hover:text-white transition"><i
-                        class="fa-solid fa-lock"></i></button>
-            </div>
-
-            <!-- Categories Tabs -->
-            <div v-if="currentView === 'menu'"
-                class="bg-white border-b border-slate-200 px-4 pt-2 overflow-x-auto whitespace-nowrap shrink-0 sticky md:relative top-0 z-10">
-                <div class="flex gap-4">
-                    <button @click="activeCat = 'Todos'"
-                        :class="activeCat === 'Todos' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-800'"
-                        class="pb-3 px-2 font-bold transition">Todos</button>
-                    <button v-for="cat in categories" :key="cat" @click="activeCat = cat"
-                        :class="activeCat === cat ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-800'"
-                        class="pb-3 px-2 font-bold transition">{{ cat }}</button>
-                    <button v-if="isAdmin" @click="addCategory"
-                        class="pb-3 px-2 text-brand-600 font-bold opacity-50 hover:opacity-100">+ Cat</button>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth">
-
-                <!-- VIEW: MENU -->
-                <div v-if="currentView === 'menu'" class="max-w-5xl mx-auto pb-24">
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Add Product Card (Admin Only) -->
-                        <div v-if="isAdmin" @click="editProduct({})"
-                            class="border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center p-8 cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition group min-h-[160px]">
-                            <div
-                                class="w-12 h-12 rounded-full bg-slate-100 group-hover:bg-brand-100 flex items-center justify-center text-slate-400 group-hover:text-brand-600 mb-2 transition">
-                                <i class="fa-solid fa-plus text-xl"></i>
-                            </div>
-                            <span class="font-bold text-slate-400 group-hover:text-brand-600">Adicionar Produto</span>
-                        </div>
-
-                        <!-- Product Cards -->
-                        <div v-for="p in filteredProducts" :key="p.id"
-                            class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 hover:shadow-md transition group relative overflow-hidden">
-                            <!-- Admin Controls -->
-                            <div v-if="isAdmin"
-                                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition z-10 flex gap-1">
-                                <button @click.stop="editProduct(p)"
-                                    class="w-8 h-8 rounded bg-white shadow text-blue-500 hover:bg-blue-50 flex items-center justify-center"><i
-                                        class="fa-solid fa-pen"></i></button>
-                                <button @click.stop="deleteProduct(p.id)"
-                                    class="w-8 h-8 rounded bg-white shadow text-red-500 hover:bg-red-50 flex items-center justify-center"><i
-                                        class="fa-solid fa-trash"></i></button>
-                            </div>
-
-                            <!-- Image Placeholder -->
-                            <div
-                                class="w-24 h-24 bg-slate-100 rounded-xl shrink-0 flex items-center justify-center text-slate-300 overflow-hidden">
-                                <img v-if="p.image" :src="p.image" class="w-full h-full object-cover">
-                                <i v-else class="fa-solid fa-image text-2xl"></i>
-                            </div>
-
-                            <div class="flex-1 flex flex-col justify-between">
-                                <div>
-                                    <h3 class="font-bold text-slate-800 leading-tight">{{ p.name }}</h3>
-                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ p.desc }}</p>
-                                </div>
-                                <div class="flex justify-between items-end mt-2">
-                                    <span class="font-bold text-brand-600 text-lg">{{ formatCurrency(p.price) }}</span>
-                                    <button @click="addToCart(p)"
-                                        class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-brand-500 hover:text-white transition flex items-center justify-center active:scale-95 shadow-sm">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="filteredProducts.length === 0 && !isAdmin" class="text-center py-12 text-slate-400">
-                        <i class="fa-solid fa-utensils text-4xl mb-4 opacity-20"></i>
-                        <p>Nenhum produto nesta categoria.</p>
-                    </div>
-
-                </div>
-
-                <!-- VIEW: SETTINGS (Admin Only) -->
-                <div v-if="currentView === 'settings'" class="max-w-2xl mx-auto animate-fade-in">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-6 font-display">Configurações da Loja</h2>
-
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                        <div>
-                            <label class="label">Nome da Loja</label>
-                            <input v-model="settings.storeName" class="input" placeholder="Ex: Burger Kingo">
-                        </div>
-                        <div>
-                            <label class="label">WhatsApp para Pedidos (55 + DDD + Num)</label>
-                            <input v-model="settings.whatsapp" class="input" placeholder="Ex: 5511999999999">
-                            <p class="text-[10px] text-slate-400 mt-1">O número deve ser apenas dígitos, com código do
-                                país (55).</p>
-                        </div>
-                        <div>
-                            <label class="label">Telefone (Exibição)</label>
-                            <input v-model="settings.phone" class="input" placeholder="(11) 99999-9999">
-                        </div>
-                        <div>
-                            <label class="label">Horário de Funcionamento</label>
-                            <input v-model="settings.hours" class="input" placeholder="Ex: Seg a Sex, 18h às 23h">
-                        </div>
-                        <div>
-                            <label class="label">Chave PIX (Opcional)</label>
-                            <input v-model="settings.pix" class="input" placeholder="Ex: email@loja.com">
-                        </div>
-                        <button @click="currentView = 'menu'" class="w-full btn-primary py-3 rounded-xl mt-4">Salvar e
-                            Voltar</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Floating Cart Button (Desktop) -->
-            <div v-if="cartCount > 0 && currentView === 'menu' && !cartOpen"
-                class="hidden md:block absolute bottom-8 right-8 z-30 animate-bounce-small">
-                <button @click="cartOpen = true"
-                    class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-4 rounded-full shadow-lg shadow-brand-600/30 flex items-center gap-3 transition transform hover:scale-105">
-                    <div class="relative">
-                        <i class="fa-solid fa-shopping-bag text-xl"></i>
-                        <span
-                            class="absolute -top-2 -right-2 bg-white text-brand-600 text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">{{
-                            cartCount }}</span>
-                    </div>
-                    <span class="font-bold">Ver Carrinho • {{ formatCurrency(cartTotal) }}</span>
+                <!-- Admin Toggle -->
+                <button @click="adminMode = !adminMode"
+                    class="bg-black/50 p-2 rounded-full text-white/50 hover:text-white transition">
+                    <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
-
-        </main>
-
-        <!-- CART DRAWER (Overlay) -->
-        <div v-if="cartOpen" class="fixed inset-0 z-50 flex justify-end">
-            <!-- Backdrop -->
-            <div @click="cartOpen = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-            </div>
-
-            <!-- Drawer -->
-            <aside class="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-in-right">
-                <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                    <h2 class="text-xl font-bold font-display text-slate-800"><i
-                            class="fa-solid fa-shopping-cart text-brand-600 mr-2"></i> Seu Pedido</h2>
-                    <button @click="cartOpen = false"
-                        class="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-red-500 shadow-sm flex items-center justify-center"><i
-                            class="fa-solid fa-times"></i></button>
-                </div>
-
-                <div class="flex-1 overflow-y-auto p-4 space-y-4">
-                    <div v-if="cart.length === 0"
-                        class="h-full flex flex-col items-center justify-center text-slate-400">
-                        <i class="fa-solid fa-basket-shopping text-6xl mb-4 opacity-20"></i>
-                        <p>Seu carrinho está vazio.</p>
-                        <button @click="cartOpen = false" class="mt-4 text-brand-600 font-bold underline">Voltar ao
-                            cardápio</button>
-                    </div>
-
-                    <div v-for="(item, idx) in cart" :key="idx"
-                        class="bg-white border border-slate-100 p-4 rounded-xl flex gap-4 items-center shadow-sm">
-                        <div
-                            class="w-16 h-16 bg-slate-100 rounded-lg shrink-0 flex items-center justify-center text-slate-300 overflow-hidden">
-                            <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
-                            <i v-else class="fa-solid fa-image text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-slate-800 text-sm">{{ item.name }}</h4>
-                            <div class="text-brand-600 font-bold text-sm">{{ formatCurrency(item.price * item.qty) }}
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 bg-slate-50 rounded-lg p-1">
-                            <button @click="updateQty(idx, -1)"
-                                class="w-6 h-6 rounded bg-white shadow-sm text-slate-500 hover:text-red-500 font-bold flex items-center justify-center">-</button>
-                            <span class="text-sm font-bold w-4 text-center">{{ item.qty }}</span>
-                            <button @click="updateQty(idx, 1)"
-                                class="w-6 h-6 rounded bg-white shadow-sm text-slate-500 hover:text-green-500 font-bold flex items-center justify-center">+</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-if="cart.length > 0" class="p-6 bg-slate-50 border-t border-slate-200 space-y-4">
-                    <!-- Customer Info -->
-                    <button @click="showAddressForm = !showAddressForm"
-                        class="w-full flex justify-between items-center text-xs font-bold text-slate-500 uppercase hover:text-brand-600">
-                        <span><i class="fa-solid fa-map-marker-alt mr-1"></i> Dados de Entrega</span>
-                        <i :class="showAddressForm ? 'fa-chevron-up' : 'fa-chevron-down'" class="fa-solid"></i>
-                    </button>
-
-                    <div v-if="showAddressForm"
-                        class="space-y-3 animate-fade-in bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-                        <input v-model="customer.name" class="input py-2 text-sm" placeholder="Seu Nome">
-                        <input v-model="customer.address" class="input py-2 text-sm" placeholder="Endereço Completo">
-                        <select v-model="customer.payment" class="input py-2 text-sm">
-                            <option value="">Forma de Pagamento</option>
-                            <option value="PIX">PIX</option>
-                            <option value="Cartão">Cartão (Maquininha)</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                        </select>
-                        <input v-if="customer.payment === 'Dinheiro'" v-model="customer.change"
-                            class="input py-2 text-sm" placeholder="Troco para quanto?">
-                    </div>
-
-                    <div class="flex justify-between items-center pt-2">
-                        <span class="text-slate-500 text-sm">Subtotal</span>
-                        <span class="font-bold text-slate-800">{{ formatCurrency(cartTotal) }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xl font-bold">
-                        <span class="text-slate-800">Total</span>
-                        <span class="text-brand-600">{{ formatCurrency(cartTotal) }}</span>
-                    </div>
-
-                    <button @click="checkout"
-                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-500/30 transition flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>
-                        Enviar Pedido no WhatsApp
-                    </button>
-                    <p class="text-[10px] text-center text-slate-400">Ao clicar, você será redirecionado para o
-                        WhatsApp.</p>
-                </div>
-            </aside>
         </div>
 
-        <!-- PRODUCT EDITOR MODAL -->
-        <div v-if="prodModal"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-md rounded-2xl shadow-xl animate-fade-in p-6 space-y-4">
-                <h3 class="font-bold text-lg text-slate-800">{{ pForm.id ? 'Editar' : 'Novo' }} Produto</h3>
+        <!-- ADMIN PANEL -->
+        <div v-if="adminMode" class="bg-neutral-800 p-4 border-b border-neutral-700 animate-fade-in">
+            <h3 class="font-bold text-yellow-500 mb-2"><i class="fa-solid fa-user-shield"></i> Painel do Dono</h3>
 
-                <input v-model="pForm.name" class="input" placeholder="Nome do Produto">
-                <textarea v-model="pForm.desc" class="input resize-none h-20"
-                    placeholder="Descrição (Ingredientes, etc)"></textarea>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <input v-model="restaurantName" placeholder="Nome Restaurante"
+                    class="bg-neutral-700 p-2 rounded text-sm text-white border border-neutral-600">
+                <input v-model="address" placeholder="Endereço"
+                    class="bg-neutral-700 p-2 rounded text-sm text-white border border-neutral-600">
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="label">Preço (R$)</label>
-                        <input v-model.number="pForm.price" type="number" step="0.01" class="input">
+            <div class="bg-neutral-700 p-3 rounded mb-4">
+                <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Adicionar Item</h4>
+                <div class="flex gap-2 mb-2">
+                    <input v-model="newItem.name" placeholder="Nome (Ex: X-Bacon)"
+                        class="flex-grow bg-neutral-600 p-2 rounded text-sm text-white">
+                    <input v-model.number="newItem.price" placeholder="R$"
+                        class="w-16 bg-neutral-600 p-2 rounded text-sm text-white">
+                </div>
+                <div class="flex gap-2">
+                    <input v-model="newItem.desc" placeholder="Descrição"
+                        class="flex-grow bg-neutral-600 p-2 rounded text-sm text-white">
+                    <select v-model="newItem.cat" class="bg-neutral-600 p-2 rounded text-sm text-white w-24">
+                        <option value="Lanches">Lanches</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Sobres">Sobres</option>
+                    </select>
+                    <button @click="addItem" class="bg-green-600 px-3 rounded text-white"><i
+                            class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+
+            <div class="flex gap-2 justify-end">
+                <button @click="backupData"
+                    class="bg-blue-600 px-3 py-1 rounded text-xs font-bold hover:bg-blue-500">Backup</button>
+                <label class="bg-blue-600 px-3 py-1 rounded text-xs font-bold hover:bg-blue-500 cursor-pointer">
+                    Restaurar <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </div>
+        </div>
+
+        <!-- MENU TABS -->
+        <div class="sticky top-0 bg-neutral-900 z-10 p-2 flex gap-2 overflow-x-auto shadow-md">
+            <button v-for="cat in categories" :key="cat" @click="activeCat = cat"
+                :class="activeCat === cat ? 'bg-yellow-500 text-black' : 'bg-neutral-800 text-gray-400'"
+                class="px-4 py-2 rounded-full font-bold text-sm whitespace-nowrap transition">
+                {{ cat }}
+            </button>
+        </div>
+
+        <!-- MENU LIST -->
+        <div class="p-4 flex-grow space-y-4">
+            <div v-for="(item, idx) in filteredItems" :key="idx"
+                class="bg-neutral-800 p-4 rounded-xl flex justify-between items-center group">
+                <div class="flex-grow pr-4">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-lg text-white">{{ item.name }}</h3>
+                        <span class="text-xs bg-neutral-700 px-1 rounded text-gray-400">{{ item.cat }}</span>
                     </div>
-                    <div>
-                        <label class="label">Categoria</label>
-                        <select v-model="pForm.category" class="input">
-                            <option v-for="c in categories" :value="c">{{ c }}</option>
-                        </select>
+                    <p class="text-gray-400 text-sm leading-tight mt-1">{{ item.desc }}</p>
+                    <p class="text-yellow-500 font-bold mt-2">R$ {{ item.price.toFixed(2) }}</p>
+                </div>
+
+                <div v-if="adminMode" class="flex flex-col gap-2">
+                    <button @click="deleteItem(item)"
+                        class="bg-red-900/50 text-red-500 w-8 h-8 rounded flex items-center justify-center hover:bg-red-900"><i
+                            class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+                <div v-else>
+                    <button @click="addToCart(item)"
+                        class="bg-yellow-500 text-black w-10 h-10 rounded-full flex items-center justify-center shadow hover:bg-yellow-400 transition active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div v-if="filteredItems.length === 0" class="text-center text-gray-500 py-10 italic">
+                Nenhum item nesta categoria.
+            </div>
+        </div>
+
+        <!-- CART BUTTON (Floating) -->
+        <div v-if="!adminMode && cart.length > 0" class="fixed bottom-4 left-4 right-4 z-50 animate-bounce-in">
+            <button @click="showCart = true"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold p-4 rounded-xl shadow-2xl flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="bg-black/20 w-8 h-8 rounded-full flex items-center justify-center text-sm">{{ cartCount
+                        }}</div>
+                    <span>Ver Pedido</span>
+                </div>
+                <span>R$ {{ cartTotal.toFixed(2) }}</span>
+            </button>
+        </div>
+
+        <!-- CART MODAL -->
+        <div v-if="showCart" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col justify-end">
+            <div class="bg-white text-gray-900 rounded-t-3xl p-6 animate-slide-up h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="font-bold text-2xl brand px-2 border-l-4 border-yellow-500">Seu Pedido</h2>
+                    <button @click="showCart = false" class="text-gray-400 hover:text-black"><i
+                            class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+
+                <div class="flex-grow overflow-y-auto space-y-4 pr-2">
+                    <div v-for="(item, idx) in cart" :key="idx" class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold">{{ item.qty }}x {{ item.name }}</p>
+                            <p class="text-xs text-gray-500">R$ {{ (item.price * item.qty).toFixed(2) }}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button @click="item.qty > 1 ? item.qty-- : removeFromCart(idx)"
+                                class="w-8 h-8 bg-gray-200 rounded-full font-bold text-gray-600">-</button>
+                            <span class="w-4 text-center font-bold">{{ item.qty }}</span>
+                            <button @click="item.qty++"
+                                class="w-8 h-8 bg-gray-200 rounded-full font-bold text-gray-600">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="label">URL da Imagem</label>
-                    <input v-model="pForm.image" class="input" placeholder="https://...">
-                </div>
+                <div class="mt-6 border-t pt-4">
+                    <textarea v-model="obs" placeholder="Observações (ex: sem cebola, ponto da carne...)"
+                        class="w-full bg-gray-100 p-3 rounded mb-4 text-sm"></textarea>
 
-                <div class="pt-2 flex gap-3">
-                    <button @click="saveProduct" class="flex-1 btn-primary py-3 rounded-xl">Salvar</button>
-                    <button @click="prodModal = false"
-                        class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200">Cancelar</button>
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-gray-500 uppercase font-bold text-xs">Total</span>
+                        <span class="text-3xl font-bold text-green-600">R$ {{ cartTotal.toFixed(2) }}</span>
+                    </div>
+
+                    <button @click="sendOrder"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Pedido
+                    </button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <style>
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }
-
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            outline: none;
-            transition: all;
-            background: #f8fafc;
-            font-weight: 500;
-        }
-
-        .input:focus {
-            border-color: #f97316;
-            background: #fff;
-            ring: 2px solid #f97316;
-        }
-
-        .btn-primary {
-            background-color: #f97316;
-            color: white;
-            font-weight: 700;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #ea580c;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        .animate-slide-in-right {
-            animation: slideInRight 0.3s ease-out forwards;
-        }
-
-        .animate-bounce-small {
-            animation: bounceSmall 2s infinite;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-            }
-
-            to {
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes bounceSmall {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-    </style>
-
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_KEY = 'plena_cardapio_v1';
 
         createApp({
             setup() {
-                const currentView = ref('menu');
-                const isAdmin = ref(false);
+                // Config
+                const restaurantName = ref('Burger House');
+                const address = ref('Rua dos Sabores, 123');
+                const coverImage = ref('https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&q=80');
+                const adminMode = ref(false);
 
                 // Data
-                const settings = ref({ storeName: 'Sua Lanchonete', phone: '', whatsapp: '', hours: '', pix: '' });
-                const categories = ref(['Lanches', 'Bebidas', 'Porções', 'Sobremesas']);
-                const activeCat = ref('Todos');
-                const products = ref([]);
+                const items = ref([
+                    { id: 1, name: 'X-Burger Clássico', desc: 'Pão, carne artesanal 150g, queijo e molho especial.', price: 22.00, cat: 'Lanches' },
+                    { id: 2, name: 'X-Salada', desc: 'Pão, carne 150g, queijo, alface, tomate e maionese.', price: 24.00, cat: 'Lanches' },
+                    { id: 3, name: 'Coca-Cola Lata', desc: '350ml gelada.', price: 6.00, cat: 'Bebidas' },
+                    { id: 4, name: 'Batata Frita', desc: 'Porção individual crocante.', price: 12.00, cat: 'Lanches' }
+                ]);
+
+                const categories = ref(['Lanches', 'Bebidas', 'Sobres']);
+                const activeCat = ref('Lanches');
                 const cart = ref([]);
+                const showCart = ref(false);
+                const obs = ref('');
 
-                // UI State
-                const cartOpen = ref(false);
-                const showAddressForm = ref(true);
-                const prodModal = ref(false);
-                const pForm = ref({ id: null, name: '', desc: '', price: 0, category: 'Lanches', image: '' });
-
-                const customer = ref({ name: '', address: '', payment: '', change: '' });
-
-                // Persistence
-                onMounted(() => {
-                    const d = localStorage.getItem(DB_KEY);
-                    if (d) {
-                        const parsed = JSON.parse(d);
-                        settings.value = parsed.settings || settings.value;
-                        products.value = parsed.products || [];
-                        categories.value = parsed.categories || categories.value;
-                    } else {
-                        // Demo Data
-                        products.value = [
-                            { id: 1, name: 'X-Bacon Supremo', desc: 'Pão brioche, 2 burgers 150g, muito bacon e cheddar.', price: 32.90, category: 'Lanches', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=200' },
-                            { id: 2, name: 'Coca-Cola Lata', desc: '350ml gelada.', price: 6.00, category: 'Bebidas', image: '' },
-                            { id: 3, name: 'Batata Frita', desc: 'Porção individual crocante.', price: 12.00, category: 'Porções', image: '' }
-                        ];
-                    }
-                });
-
-                watch([products, settings, categories], () => {
-                    localStorage.setItem(DB_KEY, JSON.stringify({ settings: settings.value, products: products.value, categories: categories.value }));
-                }, { deep: true });
+                // Admin State
+                const newItem = ref({ name: '', desc: '', price: null, cat: 'Lanches' });
 
                 // Computed
-                const filteredProducts = computed(() => {
-                    if (activeCat.value === 'Todos') return products.value;
-                    return products.value.filter(p => p.category === activeCat.value);
-                });
-
-                const cartCount = computed(() => cart.value.reduce((acc, item) => acc + item.qty, 0));
-                const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + (item.price * item.qty), 0));
+                const filteredItems = computed(() => items.value.filter(i => i.cat === activeCat.value));
+                const cartTotal = computed(() => cart.value.reduce((acc, i) => acc + (i.price * i.qty), 0));
+                const cartCount = computed(() => cart.value.reduce((acc, i) => acc + i.qty, 0));
 
                 // Actions
-                const toggleAdmin = () => {
-                    if (isAdmin.value) isAdmin.value = false;
-                    else {
-                        const pwd = prompt('Senha de Administrador (Padrão: 0000):');
-                        if (pwd === '0000') isAdmin.value = true;
-                        else alert('Senha incorreta.');
-                    }
+                const addToCart = (item) => {
+                    const existing = cart.value.find(c => c.id === item.id);
+                    if (existing) existing.qty++;
+                    else cart.value.push({ ...item, qty: 1 });
                 };
 
-                const addCategory = () => {
-                    const c = prompt('Nome da nova categoria:');
-                    if (c && !categories.value.includes(c)) categories.value.push(c);
-                };
+                const removeFromCart = (idx) => cart.value.splice(idx, 1);
 
-                // Product Management
-                const editProduct = (p) => {
-                    pForm.value = { id: p.id || null, name: p.name || '', desc: p.desc || '', price: p.price || 0, category: p.category || categories.value[0], image: p.image || '' };
-                    prodModal.value = true;
-                };
-
-                const saveProduct = () => {
-                    if (!pForm.value.name || !pForm.value.price) return alert('Preencha nome e preço.');
-
-                    if (pForm.value.id) {
-                        const idx = products.value.findIndex(p => p.id === pForm.value.id);
-                        if (idx !== -1) products.value[idx] = pForm.value;
-                    } else {
-                        pForm.value.id = Date.now();
-                        products.value.push(pForm.value);
-                    }
-                    prodModal.value = false;
-                };
-
-                const deleteProduct = (id) => {
-                    if (confirm('Excluir produto?')) products.value = products.value.filter(p => p.id !== id);
-                };
-
-                // Cart
-                const addToCart = (p) => {
-                    const idx = cart.value.findIndex(i => i.id === p.id);
-                    if (idx !== -1) cart.value[idx].qty++;
-                    else cart.value.push({ ...p, qty: 1 });
-                    cartOpen.value = true;
-                };
-
-                const updateQty = (idx, delta) => {
-                    cart.value[idx].qty += delta;
-                    if (cart.value[idx].qty <= 0) cart.value.splice(idx, 1);
-                };
-
-                const checkout = () => {
-                    if (!customer.value.name || !customer.value.address) return alert('Por favor, informe Nome e Endereço.');
-
-                    let text = `🛒 *NOVO PEDIDO - ${settings.value.storeName}*\n`;
-                    text += `--------------------------------\n`;
-                    cart.value.forEach(i => {
-                        text += `• ${i.qty}x ${i.name} (${formatCurrency(i.price)})\n`;
+                const addItem = () => {
+                    if (!newItem.value.name || !newItem.value.price) return;
+                    items.value.push({
+                        id: Date.now(),
+                        name: newItem.value.name,
+                        desc: newItem.value.desc,
+                        price: parseFloat(newItem.value.price),
+                        cat: newItem.value.cat
                     });
-                    text += `--------------------------------\n`;
-                    text += `💰 *Total: ${formatCurrency(cartTotal.value)}*\n\n`;
-                    text += `👤 *Cliente:*\nNome: ${customer.value.name}\nEndereço: ${customer.value.address}\nPagamento: ${customer.value.payment}\n`;
-                    if (customer.value.change) text += `Troco para: ${customer.value.change}\n`;
-
-                    const num = settings.value.whatsapp ? settings.value.whatsapp.replace(/\D/g, '') : '';
-                    if (!num) alert('Configure o WhatsApp da loja no painel de Lojista primeiro!');
-                    else window.open(`https://wa.me/${num}?text=${encodeURIComponent(text)}`, '_blank');
+                    // Reset but keep cat
+                    newItem.value.name = ''; newItem.value.desc = ''; newItem.value.price = null;
                 };
 
-                // Helpers
-                const formatCurrency = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const deleteItem = (item) => {
+                    if (confirm("Remover item?")) {
+                        items.value = items.value.filter(i => i.id !== item.id);
+                    }
+                };
+
+                const sendOrder = () => {
+                    let text = `🍔 *Novo Pedido - ${restaurantName.value}*\n\n`;
+                    cart.value.forEach(i => {
+                        text += `▪️ ${i.qty}x ${i.name} - R$ ${(i.qty * i.price).toFixed(2)}\n`;
+                    });
+                    text += `\n📝 *Obs:* ${obs.value || 'Nenhuma'}\n`;
+                    text += `\n💰 *TOTAL: R$ ${cartTotal.value.toFixed(2)}*\n\n`;
+                    text += `_Endereço de entrega a combinar_`;
+
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
 
                 // Backup
                 const backupData = () => {
-                    const data = { settings: settings.value, products: products.value, categories: categories.value };
-                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const data = { config: { name: restaurantName.value, addr: address.value }, items: items.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = 'cardapio_backup.json';
+                    a.download = `backup_cardapio_${Date.now()}.json`;
                     a.click();
                 };
-                const triggerImport = () => document.getElementById('importFile').click();
-                const importData = (e) => {
+
+                const restoreData = (e) => {
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (ev) => {
-                        const d = JSON.parse(ev.target.result);
-                        if (d.settings) settings.value = d.settings;
-                        if (d.products) products.value = d.products;
-                        if (d.categories) categories.value = d.categories;
-                        location.reload();
-                    }
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            if (d.items) items.value = d.items;
+                            if (d.config) { restaurantName.value = d.config.name; address.value = d.config.addr; }
+                            alert("Cardápio Atualizado!");
+                        } catch (e) { alert("Erro!"); }
+                    };
                     r.readAsText(f);
                 };
 
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_menu');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        items.value = parsed.items || [];
+                        if (parsed.config) {
+                            restaurantName.value = parsed.config.name;
+                            address.value = parsed.config.addr;
+                        }
+                    }
+                });
+
+                watch([items, restaurantName, address], () => {
+                    localStorage.setItem('plena_menu', JSON.stringify({ items: items.value, config: { name: restaurantName.value, addr: address.value } }));
+                }, { deep: true });
+
                 return {
-                    currentView, isAdmin, settings, categories, activeCat, filteredProducts,
-                    toggleAdmin, addCategory, editProduct, saveProduct, deleteProduct,
-                    cart, cartOpen, cartCount, cartTotal, addToCart, updateQty,
-                    customer, showAddressForm, checkout,
-                    prodModal, pForm,
-                    formatCurrency, backupData, triggerImport, importData
+                    restaurantName, address, coverImage, adminMode, items, categories, activeCat, cart, showCart, obs,
+                    filteredItems, cartTotal, cartCount, newItem,
+                    addToCart, removeFromCart, addItem, deleteItem, sendOrder, backupData, restoreData
                 };
             }
         }).mount('#app');

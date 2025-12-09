@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDV Frente de Caixa | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <div id="app" v-cloak class="max-w-6xl mx-auto min-h-screen bg-gray-100 flex flex-col md:flex-row overflow-hidden">
+
+        <!-- SIDEBAR (Cart) - Mobile: Bottom Sheet / Desktop: Right Panel -->
+        <div class="flex-grow flex flex-col h-screen overflow-hidden">
+            <!-- HEADER -->
+            <header class="bg-blue-900 text-white p-4 shadow flex justify-between items-center shrink-0">
+                <h1 class="font-bold text-xl"><i class="fa-solid fa-cash-register mr-2"></i>PDV Simples</h1>
+                <div class="flex gap-2">
+                    <button @click="showReportModal = true"
+                        class="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm font-bold"><i
+                            class="fa-solid fa-file-invoice-dollar"></i> Fechar Caixa</button>
+                    <button @click="backupData" class="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded transition"
+                        title="Backup"><i class="fa-solid fa-download"></i></button>
+                    <label class="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded transition cursor-pointer"
+                        title="Restaurar">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
+                </div>
+            </header>
+
+            <!-- PRODUCTS GRID -->
+            <div class="flex-grow overflow-y-auto p-4">
+
+                <!-- Quick Add -->
+                <div class="bg-white p-3 rounded-xl shadow-sm mb-4 flex gap-2">
+                    <input v-model="quickName" @keyup.enter="focusPrice" type="text" placeholder="Nome do Produto"
+                        class="flex-grow p-2 border rounded outline-none focus:border-blue-500">
+                    <input ref="priceInput" v-model.number="quickPrice" @keyup.enter="addProductToCart" type="number"
+                        placeholder="R$" class="w-24 p-2 border rounded outline-none focus:border-blue-500">
+                    <button @click="addProductToCart"
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 rounded font-bold"><i
+                            class="fa-solid fa-plus"></i></button>
+                </div>
+
+                <!-- Catalog (Example Items) -->
+                <h3 class="font-bold text-gray-500 text-xs uppercase mb-2">Favoritos</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    <div v-for="item in catalog" :key="item.id" @click="addToCart(item)"
+                        class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md cursor-pointer border border-transparent hover:border-blue-500 transition text-center group">
+                        <div class="text-3xl mb-2 group-hover:scale-110 transition">{{ item.icon }}</div>
+                        <div class="font-bold text-gray-800 text-sm truncate">{{ item.name }}</div>
+                        <div class="text-blue-600 font-bold">R$ {{ item.price.toFixed(2) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHECKOUT SIDEBAR -->
+        <div
+            class="w-full md:w-96 bg-white shadow-2xl flex flex-col h-[50vh] md:h-screen border-t md:border-l border-gray-200 z-20">
+            <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+                <h2 class="font-bold text-gray-700"><i class="fa-solid fa-cart-shopping"></i> Carrinho</h2>
+                <button @click="clearCart" class="text-red-500 text-xs font-bold hover:underline">Limpar</button>
+            </div>
+
+            <!-- CART ITEMS -->
+            <div class="flex-grow overflow-y-auto p-4 space-y-2">
+                <div v-for="(item, idx) in cart" :key="idx"
+                    class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                    <div>
+                        <div class="font-bold text-gray-800 text-sm">{{ item.name }}</div>
+                        <div class="text-xs text-gray-500">{{ item.qty }}x R$ {{ item.price.toFixed(2) }}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-700">R$ {{ (item.price * item.qty).toFixed(2) }}</span>
+                        <button @click="removeFromCart(idx)" class="text-red-400 hover:text-red-600"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div v-if="cart.length === 0" class="text-center text-gray-400 py-10 italic text-sm">Carrinho vazio
+                </div>
+            </div>
+
+            <!-- TOTALS & PAY -->
+            <div class="p-6 bg-gray-50 border-t">
+                <div class="flex justify-between items-end mb-4">
+                    <span class="text-gray-500 font-bold uppercase text-xs">Total a Pagar</span>
+                    <span class="text-3xl font-bold text-blue-900">R$ {{ total.toFixed(2) }}</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button @click="paymentMethod='money'"
+                        :class="paymentMethod==='money'?'bg-green-100 border-green-500 text-green-700':'bg-white border-gray-200'"
+                        class="border p-2 rounded text-center text-sm font-bold">Dinheiro</button>
+                    <button @click="paymentMethod='card'"
+                        :class="paymentMethod==='card'?'bg-blue-100 border-blue-500 text-blue-700':'bg-white border-gray-200'"
+                        class="border p-2 rounded text-center text-sm font-bold">Cartão/Pix</button>
+                </div>
+
+                <button @click="finalizeSale"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition">
+                    FINALIZAR VENDA
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL: REPORT -->
+        <div v-if="showReportModal"
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Fechamento de Caixa</h2>
+                    <button @click="showReportModal = false"><i class="fa-solid fa-xmark text-gray-500"></i></button>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between border-b py-2">
+                        <span>Vendas Hoje:</span>
+                        <span class="font-bold">{{ dailySales.count }}</span>
+                    </div>
+                    <div class="flex justify-between border-b py-2 text-green-600">
+                        <span>Total Dinheiro:</span>
+                        <span class="font-bold">R$ {{ dailySales.money.toFixed(2) }}</span>
+                    </div>
+                    <div class="flex justify-between border-b py-2 text-blue-600">
+                        <span>Total Cartão/Pix:</span>
+                        <span class="font-bold">R$ {{ dailySales.card.toFixed(2) }}</span>
+                    </div>
+                    <div class="flex justify-between py-2 text-xl font-bold bg-gray-100 p-2 rounded">
+                        <span>TOTAL GERAL:</span>
+                        <span>R$ {{ dailySales.total.toFixed(2) }}</span>
+                    </div>
+                </div>
+
+                <button @click="shareReport"
+                    class="w-full bg-green-500 text-white font-bold py-3 rounded flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> Enviar Relatório
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const cart = ref([]);
+                const catalog = ref([
+                    { id: 1, name: 'Café', price: 5.00, icon: '☕' },
+                    { id: 2, name: 'Água', price: 3.00, icon: '💧' },
+                    { id: 3, name: 'Salgado', price: 7.50, icon: '🥟' },
+                    { id: 4, name: 'Doce', price: 4.00, icon: '🍩' },
+                    { id: 5, name: 'Refrigerante', price: 6.00, icon: '🥤' }
+                ]);
+
+                const quickName = ref('');
+                const quickPrice = ref(null);
+                const priceInput = ref(null);
+                const paymentMethod = ref('money');
+                const salesHistory = ref([]);
+                const showReportModal = ref(false);
+
+                // Computed
+                const total = computed(() => cart.value.reduce((acc, item) => acc + (item.price * item.qty), 0));
+
+                const dailySales = computed(() => {
+                    const today = new Date().toLocaleDateString();
+                    const todaysSales = salesHistory.value.filter(s => s.date === today);
+
+                    return {
+                        count: todaysSales.length,
+                        money: todaysSales.filter(s => s.method === 'money').reduce((a, s) => a + s.total, 0),
+                        card: todaysSales.filter(s => s.method === 'card').reduce((a, s) => a + s.total, 0),
+                        total: todaysSales.reduce((a, s) => a + s.total, 0)
+                    }
+                });
+
+                // Actions
+                const addToCart = (item) => {
+                    const existing = cart.value.find(i => i.name === item.name);
+                    if (existing) existing.qty++;
+                    else cart.value.push({ ...item, qty: 1 });
+                };
+
+                const addProductToCart = () => {
+                    if (!quickName.value || !quickPrice.value) return;
+                    addToCart({ name: quickName.value, price: parseFloat(quickPrice.value), qty: 1 });
+                    quickName.value = '';
+                    quickPrice.value = null;
+                };
+
+                const focusPrice = () => nextTick(() => priceInput.value.focus());
+
+                const removeFromCart = (idx) => cart.value.splice(idx, 1);
+                const clearCart = () => cart.value = [];
+
+                const finalizeSale = () => {
+                    if (cart.value.length === 0) return alert("Carrinho vazio!");
+
+                    salesHistory.value.push({
+                        id: Date.now(),
+                        date: new Date().toLocaleDateString(),
+                        time: new Date().toLocaleTimeString(),
+                        items: [...cart.value],
+                        total: total.value,
+                        method: paymentMethod.value
+                    });
+
+                    alert(`Venda Finalizada! Troco: R$ 0,00`);
+                    clearCart();
+                };
+
+                const shareReport = () => {
+                    const d = dailySales.value;
+                    const text = `📊 *FECHAMENTO DE CAIXA*\n📅 Data: ${new Date().toLocaleDateString()}\n\n` +
+                        `✅ Vendas: ${d.count}\n` +
+                        `💵 Dinheiro: R$ ${d.money.toFixed(2)}\n` +
+                        `💳 Cartão/Pix: R$ ${d.card.toFixed(2)}\n` +
+                        `-------------------\n` +
+                        `💰 *TOTAL: R$ ${d.total.toFixed(2)}*\n\n` +
+                        `_Gerado por PDV Plena Apps_`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify({ sales: salesHistory.value, catalog: catalog.value })], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_pdv_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            if (d.sales) salesHistory.value = d.sales;
+                            if (d.catalog) catalog.value = d.catalog;
+                            alert("Dados Restaurados!");
+                        } catch (er) { alert("Erro arquivo"); }
+                    };
+                    r.readAsText(f);
+                };
+
+                // Storage
+                onMounted(() => {
+                    const s = localStorage.getItem('plena_pdv_sales');
+                    if (s) salesHistory.value = JSON.parse(s);
+                    // Use default catalog if none stored (simple version)
+                });
+
+                watch(salesHistory, () => localStorage.setItem('plena_pdv_sales', JSON.stringify(salesHistory.value)), { deep: true });
+
+                return {
+                    cart, catalog, quickName, quickPrice, priceInput, paymentMethod, total, showReportModal, dailySales,
+                    addToCart, addProductToCart, focusPrice, removeFromCart, clearCart, finalizeSale, shareReport,
+                    backupData, restoreData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portaria Ágil | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #e5e7eb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen bg-white shadow-xl flex flex-col">
+
+        <header class="bg-blue-900 text-white p-6 shadow-md flex justify-between items-center">
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-building-user"></i> Portaria Ágil</h1>
+            <div class="flex gap-2">
+                <button @click="backupData" class="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded transition"
+                    title="Backup"><i class="fa-solid fa-download"></i></button>
+                <label class="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded transition cursor-pointer"
+                    title="Restaurar">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </div>
+        </header>
+
+        <div class="p-6 flex-grow flex flex-col md:flex-row gap-6">
+
+            <!-- REGISTER FORM -->
+            <div class="w-full md:w-1/3 bg-gray-50 p-6 rounded-xl border h-fit">
+                <h3 class="font-bold text-gray-700 mb-4">Novo Acesso</h3>
+
+                <div class="space-y-4">
+                    <input v-model="form.name" placeholder="Nome do Visitante"
+                        class="w-full p-2 border rounded outline-none focus:border-blue-500">
+                    <input v-model="form.doc" placeholder="RG / CPF"
+                        class="w-full p-2 border rounded outline-none focus:border-blue-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input v-model="form.dest" placeholder="Apto/Unidade"
+                            class="w-full p-2 border rounded outline-none focus:border-blue-500">
+                        <select v-model="form.type" class="w-full p-2 border rounded bg-white">
+                            <option value="Visitante">Visitante</option>
+                            <option value="Prestador">Prestador</option>
+                            <option value="Entrega">Entrega</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button @click="registerEntry"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 mt-6 rounded-lg shadow transition">
+                    REGISTRAR ENTRADA
+                </button>
+            </div>
+
+            <!-- LOG LIST -->
+            <div class="flex-grow">
+                <h3 class="font-bold text-gray-700 mb-4 flex justify-between items-center">
+                    Histórico de Acessos
+                    <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-500">Hoje</span>
+                </h3>
+
+                <div class="space-y-3 overflow-y-auto max-h-[600px] pr-2">
+                    <div v-for="(log, idx) in logs" :key="log.id"
+                        class="bg-white border rounded-lg p-4 shadow-sm flex justify-between items-center border-l-4"
+                        :class="log.exitTime ? 'border-gray-300 opacity-60' : 'border-green-500'">
+
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-800">{{ log.name }}</span>
+                                <span class="bg-gray-100 text-xs px-1 rounded border">{{ log.type }}</span>
+                            </div>
+                            <div class="text-sm text-gray-500">Destino: <span class="font-bold">{{ log.dest }}</span>
+                            </div>
+                            <div class="text-xs text-blue-600 mt-1"><i class="fa-solid fa-clock"></i> Entrou: {{
+                                log.entryTime }}</div>
+                            <div v-if="log.exitTime" class="text-xs text-gray-400"><i class="fa-solid fa-clock"></i>
+                                Saiu: {{ log.exitTime }}</div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <button v-if="!log.exitTime" @click="registerExit(log)"
+                                class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded text-xs font-bold transition">
+                                Sair
+                            </button>
+                            <button @click="notifyResident(log)" class="text-green-500 hover:text-green-600 px-2"
+                                title="Avisar Morador">
+                                <i class="fa-brands fa-whatsapp text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const logs = ref([]);
+                const form = ref({ name: '', doc: '', dest: '', type: 'Visitante' });
+
+                const registerEntry = () => {
+                    if (!form.value.name || !form.value.dest) return alert("Preencha Nome e Unidade");
+
+                    logs.value.unshift({
+                        id: Date.now(),
+                        name: form.value.name,
+                        doc: form.value.doc,
+                        dest: form.value.dest,
+                        type: form.value.type,
+                        entryTime: new Date().toLocaleTimeString(),
+                        exitTime: null,
+                        date: new Date().toLocaleDateString()
+                    });
+
+                    // Clear form but keep Type
+                    form.value.name = ''; form.value.doc = ''; form.value.dest = '';
+                };
+
+                const registerExit = (log) => {
+                    log.exitTime = new Date().toLocaleTimeString();
+                };
+
+                const notifyResident = (log) => {
+                    // In a real app we would have the phone number of the unit. Here we open generic share.
+                    const text = `🏢 *Portaria Ágil Informa*\n\n` +
+                        `👤 *${log.type}:* ${log.name}\n` +
+                        `📄 *Doc:* ${log.doc || 'Não inf.'}\n` +
+                        `🏠 *Indo para:* Unidade ${log.dest}\n` +
+                        `🕒 *Chegada:* ${log.entryTime}\n\n` +
+                        `_Favor autorizar/receber._`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(logs.value)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_portaria_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => { try { logs.value = JSON.parse(v.target.result); alert("Logs Restaurados!"); } catch (e) { alert("Erro!"); } };
+                    r.readAsText(f);
+                };
+
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_portaria');
+                    if (d) logs.value = JSON.parse(d);
+                });
+                watch(logs, () => localStorage.setItem('plena_portaria', JSON.stringify(logs.value)), { deep: true });
+
+                return {
+                    logs, form,
+                    registerEntry, registerExit, notifyResident, backupData, restoreData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

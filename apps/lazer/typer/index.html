@@ -3,259 +3,215 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Plena Typer | Teste de Velocidade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Digitação | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #323437;
-            color: #646669;
+            background-color: #22c55e;
             font-family: 'Roboto Mono', monospace;
         }
 
-        .active {
-            color: #e2b714;
-            border-left: 2px solid #e2b714;
-            animation: blink 1s infinite;
+        [v-cloak] {
+            display: none;
         }
 
-        .correct {
-            color: #d1d0c5;
+        .word-active {
+            background-color: #d1fae5;
+            color: #166534;
+            border-radius: 4px;
         }
 
-        .error {
-            color: #ca4754;
+        .word-error {
             text-decoration: underline;
-        }
-
-        .caret {
-            border-right: 2px solid #e2b714;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            50% {
-                border-color: transparent;
-            }
+            text-decoration-color: red;
         }
     </style>
 </head>
 
-<body class="h-screen flex flex-col items-center justify-center p-4">
+<body class="pb-20">
 
-    <div id="app" class="w-full max-w-4xl">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col p-6">
 
-        <!-- Header -->
-        <header class="flex justify-between items-end mb-12">
-            <h1 class="text-3xl font-bold text-[#d1d0c5] flex items-center gap-3">
-                <i class="fa-solid fa-keyboard text-[#e2b714]"></i> PlenaTyper
-            </h1>
-            <div class="flex gap-4 text-sm font-bold">
-                <button v-for="t in [15, 30, 60]" :key="t" @click="setTime(t)"
-                    :class="timeLimit === t ? 'text-[#e2b714]' : 'hover:text-[#d1d0c5] transition'">
-                    {{ t }}s
-                </button>
+        <header class="flex justify-between items-end mb-8 border-b-2 border-gray-100 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Typer<span class="text-green-500">Pro</span></h1>
+                <div class="text-xs text-gray-400">Teste sua velocidade</div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400 uppercase">Recorde</div>
+                <div class="text-xl font-bold text-green-600">{{ bestWpm }} WPM</div>
             </div>
         </header>
 
-        <!-- Game Area -->
-        <div v-if="!finished" class="relative">
+        <!-- GAME -->
+        <div v-if="gameState === 'playing' || gameState === 'ready'" class="flex-grow flex flex-col">
 
-            <!-- Timer -->
-            <div class="absolute -top-10 left-0 text-2xl font-bold text-[#e2b714]">
-                {{ timeLeft }}
+            <div class="flex justify-between items-center mb-4 text-gray-500 font-bold">
+                <div class="text-3xl">{{ timeLeft }}s</div>
+                <div class="text-sm bg-gray-100 px-3 py-1 rounded-full cursor-help" title="Palavras por Minuto">WPM: {{
+                    currentWpm }}</div>
             </div>
 
-            <!-- Words Display -->
-            <div class="text-2xl leading-relaxed select-none h-32 overflow-hidden relative"
+            <!-- WORD DISPLAY -->
+            <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-100 mb-6 text-lg leading-relaxed h-48 overflow-hidden relative"
                 @click="$refs.input.focus()">
-                <div :style="{ marginTop: -currentRow * 40 + 'px' }" class="transition-all duration-300">
-                    <span v-for="(word, wIdx) in wordsList" :key="wIdx" class="mr-3 inline-block p-1 rounded"
-                        :class="{ 'bg-white/5': currentWordIndex === wIdx }">
-                        <span v-for="(char, cIdx) in word" :key="cIdx" :class="getCharClass(wIdx, cIdx)">{{ char
-                            }}</span>
+                <div class="flex flex-wrap gap-2 transition-all duration-300"
+                    :style="{ transform: `translateY(-${lineOffset}px)` }">
+                    <span v-for="(word, idx) in words" :key="idx" :class="{
+                              'word-active': idx === currentWordIdx,
+                              'text-green-500': idx < currentWordIdx && wordResults[idx] === true,
+                              'text-red-500 line-through': idx < currentWordIdx && wordResults[idx] === false,
+                              'text-gray-300': idx > currentWordIdx
+                          }" class="px-1 transition-colors">
+                        {{ word }}
                     </span>
                 </div>
+                <!-- Fader for bottom of box -->
+                <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 to-transparent"></div>
             </div>
 
-            <!-- Focus Overlay -->
-            <div v-if="!focused" @click="$refs.input.focus()"
-                class="absolute inset-0 flex items-center justify-center bg-[#323437]/90 cursor-pointer z-10 transition">
-                <span class="text-xl text-[#d1d0c5]"><i class="fa-solid fa-arrow-pointer"></i> Clique aqui para
-                    focar</span>
-            </div>
+            <input ref="input" v-model="userInput" @input="checkInput" @keyup.space="finishWord"
+                :disabled="gameState==='finished'"
+                class="w-full border-b-4 border-green-500 bg-transparent text-2xl outline-none py-2 text-center font-bold text-gray-700 placeholder-gray-200"
+                placeholder="Digite aqui..." autofocus>
+            <p class="text-center text-xs text-gray-400 mt-2">Pressione ESPAÇO para avançar</p>
 
-            <!-- Hidden Input -->
-            <input ref="input" type="text" v-model="userInput" @input="processInput" @focus="focused = true"
-                @blur="focused = false" class="opacity-0 absolute top-0 left-0 w-full h-full cursor-default">
-
-            <!-- Restart Hint -->
-            <div class="mt-12 text-center opacity-50 text-sm">
-                <span class="bg-[#2c2e31] px-2 py-1 rounded border border-[#646669]">Tab</span> para reiniciar
-            </div>
+            <button v-if="gameState === 'ready'" @click="startGame"
+                class="mt-8 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg border-b-4 border-green-700 active:border-0 active:mt-9">
+                COMEÇAR
+            </button>
 
         </div>
 
-        <!-- Result Screen -->
-        <div v-else class="text-center animate-fade-in-up">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-                <div class="text-left">
-                    <div class="text-4xl font-bold text-[#e2b714] mb-1">{{ wpm }}</div>
-                    <div class="text-sm">WPM</div>
+        <!-- RESULTS -->
+        <div v-if="gameState === 'finished'" class="flex-grow flex flex-col justify-center text-center animate-fade-in">
+            <div class="text-6xl font-bold text-gray-800 mb-2">{{ finalWpm }}</div>
+            <div class="text-green-500 font-bold uppercase tracking-widest mb-8">WPM</div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-gray-700">{{ accuracy }}%</div>
+                    <div class="text-xs text-gray-400">Precisão</div>
                 </div>
-                <div class="text-left">
-                    <div class="text-4xl font-bold text-[#d1d0c5] mb-1">{{ accuracy }}%</div>
-                    <div class="text-sm">Precisão</div>
-                </div>
-                <div class="text-left">
-                    <div class="text-4xl font-bold text-[#d1d0c5] mb-1">{{ correctChars }}/<span
-                            class="text-[#ca4754]">{{ errorChars }}</span></div>
-                    <div class="text-sm">Chars (Certo/Errado)</div>
-                </div>
-                <div class="text-left">
-                    <div class="text-4xl font-bold text-[#d1d0c5] mb-1">{{ timeLimit }}s</div>
-                    <div class="text-sm">Tempo</div>
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-green-600">{{ correctWords }}</div>
+                    <div class="text-xs text-gray-400">Acertos</div>
                 </div>
             </div>
 
             <button @click="resetGame"
-                class="bg-[#e2b714] hover:bg-[#d1a60a] text-[#323437] px-8 py-3 rounded text-xl font-bold transition">
-                <i class="fa-solid fa-rotate-right mr-2"></i> Tentar Novamente
+                class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 rounded-xl shadow-lg mb-3">
+                <i class="fa-solid fa-rotate-right"></i> Tentar Novamente
+            </button>
+            <button @click="share"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg">
+                <i class="fa-brands fa-whatsapp"></i> Desafiar Amigos
             </button>
         </div>
 
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, nextTick } = Vue;
 
         createApp({
             setup() {
-                const wordsDB = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "curabitur", "vel", "hendrerit", "libero", "eleifend", "blandit", "nunc", "ornare", "odio", "ut", "orci", "gravida", "imperdiet", "nullam", "purus", "lacinia", "a", "pretium", "quis", "congue", "praesent", "sagittis", "laoreet", "auctor", "mauris", "non", "velit", "eros", "dictum", "proin", "accumsan", "sapien", "nec", "massa", "volutpat", "venenatis", "sed", "eu", "molestie", "lacus", "quisque", "porttitor", "ligula", "dui", "mollis", "tempus", "at", "magna", "vestibulum", "turpis", "ac", "diam", "tincidunt", "id", "condimentum", "enim", "sodales", "in", "hac", "habitasse", "platea", "dictumst", "aenean", "neque", "fusce", "augue", "leo", "eget", "semper", "mattis", "tortor", "scelerisque", "nulla", "interdum", "tellus", "malesuada", "rhoncus", "porta", "sem", "aliquet", "et", "nam", "suspendisse", "potenti", "vivamus", "luctus", "fringilla", "erat", "donec", "justo", "vehicula", "ultricies", "varius", "ante", "primis", "faucibus", "ultrices", "posuere", "cubilia", "curae", "etiam", "cursus", "aliquam", "quam", "dapibus", "nisl", "feugiat", "egestas", "class", "aptent", "taciti", "sociosqu", "ad", "litora", "torquent", "per", "conubia", "nostra", "inceptos", "himenaeos", "phasellus", "nibh", "pulvinar", "vitae", "urna", "iaculis", "lobortis", "nisi", "viverra", "arcu", "morbi", "pellentesque", "metus", "commodo", "ut", "facilisis", "felis", "tristique", "ullamcorper", "placerat", "aenean", "convallis", "sollicitudin", "integer", "rutrum", "duis", "est", "etiam", "bibendum", "donec", "pharetra", "vulputate", "maecenas", "mi", "fermentum", "consequat", "suscipit", "aliquam", "habitant", "senectus", "netus", "fames", "quisque", "euismod", "curabitur", "lectus", "elementum", "tempor", "risus", "cras"];
+                const wordList = ["gato", "casa", "vida", "amor", "tempo", "jogo", "mesa", "livro", "carro", "fogo", "agua", "terra", "ar", "luz", "som", "cor", "flor", "sol", "lua", "mar", "rio", "voce", "mim", "ele", "ela", "nos", "bom", "mau", "sim", "nao", "hoje", "agora", "sempre", "nunca", "talvez", "quem", "que", "onde", "como", "quando", "fazer", "dizer", "ver", "ir", "vir", "ter", "ser", "estar", "poder", "querer", "saber", "dar", "ler", "rir", "paz", "fe", "dor", "fim", "ola", "rei", "pai", "mae", "tio", "avo", "filho", "irmao", "amigo", "feliz", "triste", "alto", "baixo", "grande", "pequeno", "novo", "velho", "belo", "feio", "plena", "apps", "web", "site", "net", "app", "code", "java", "html", "css", "vue"];
 
-                const timeLimit = ref(30);
-                const timeLeft = ref(30);
-                const isRunning = ref(false);
-                const finished = ref(false);
-                const focused = ref(false);
-                const interval = ref(null);
-
-                const wordsList = ref([]);
+                const words = ref([]);
+                const currentWordIdx = ref(0);
                 const userInput = ref('');
-                const currentWordIndex = ref(0);
-                const currentRow = ref(0); // For scrolling
+                const wordResults = ref([]); // true/false
+                const gameState = ref('ready'); // ready, playing, finished
+                const timeLeft = ref(60);
+                const timer = ref(null);
+                const bestWpm = ref(0);
 
-                // Stats
-                const correctChars = ref(0);
-                const errorChars = ref(0);
-                const wpm = ref(0);
-                const accuracy = ref(0);
+                const lineOffset = computed(() => {
+                    // Simple logic to scroll lines: every 5 words roughly equals a line break visually? 
+                    // Better: actually calculating line height. For now, approximate:
+                    return Math.floor(currentWordIdx.value / 6) * 40;
+                });
 
-                const setTime = (t) => {
-                    timeLimit.value = t;
-                    resetGame();
-                };
-
-                const resetGame = () => {
-                    clearInterval(interval.value);
-                    isRunning.value = false;
-                    finished.value = false;
-                    timeLeft.value = timeLimit.value;
-                    userInput.value = '';
-                    currentWordIndex.value = 0;
-                    correctChars.value = 0;
-                    errorChars.value = 0;
-                    // Generate words (100 is enough buffer)
-                    wordsList.value = Array.from({ length: 100 }, () => wordsDB[Math.floor(Math.random() * wordsDB.length)]);
+                const shuffle = () => {
+                    words.value = [];
+                    for (let i = 0; i < 100; i++) words.value.push(wordList[Math.floor(Math.random() * wordList.length)]);
                 };
 
                 const startGame = () => {
-                    if (isRunning.value) return;
-                    isRunning.value = true;
-                    interval.value = setInterval(() => {
+                    shuffle();
+                    currentWordIdx.value = 0;
+                    userInput.value = '';
+                    wordResults.value = [];
+                    timeLeft.value = 60;
+                    gameState.value = 'playing';
+                    nextTick(() => document.querySelector('input').focus());
+
+                    timer.value = setInterval(() => {
                         timeLeft.value--;
-                        if (timeLeft.value <= 0) endGame();
+                        if (timeLeft.value <= 0) finishGame();
                     }, 1000);
                 };
 
-                const endGame = () => {
-                    clearInterval(interval.value);
-                    finished.value = true;
-                    isRunning.value = false;
+                const finishWord = () => {
+                    const target = words.value[currentWordIdx.value];
+                    const typed = userInput.value.trim();
 
-                    // Calc WPM (Chars / 5) / (Time / 60)
-                    const minutes = timeLimit.value / 60;
-                    wpm.value = Math.round((correctChars.value / 5) / minutes);
+                    if (!typed) return; // Ignore empty spaces
 
-                    const totalChars = correctChars.value + errorChars.value;
-                    accuracy.value = totalChars > 0 ? Math.round((correctChars.value / totalChars) * 100) : 0;
+                    wordResults.value.push(typed === target);
+                    currentWordIdx.value++;
+                    userInput.value = '';
                 };
 
-                const processInput = (e) => {
-                    if (!isRunning.value && !finished.value) startGame();
+                // Real-time check for typo styling? Not needed for simple version, finishWord handles validation.
+                // Could add class active error if typed doesnt startWith target.
 
-                    const val = userInput.value;
-
-                    // Handle Space (Next word)
-                    if (val.endsWith(' ')) {
-                        const word = wordsList.value[currentWordIndex.value];
-                        const inputClippped = val.trim();
-
-                        // Check logic (very simple stats update)
-                        // In a real app we would lock the result of this word
-                        // For now we just move on
-
-                        // Check chars logic for stats:
-                        for (let i = 0; i < inputClippped.length; i++) {
-                            if (inputClippped[i] === word[i]) correctChars.value++;
-                            else errorChars.value++;
-                        }
-                        // Plus the space
-                        correctChars.value++;
-
-                        currentWordIndex.value++;
-                        userInput.value = '';
-
-                        // Scroll logic (approx)
-                        if (currentWordIndex.value > 0 && currentWordIndex.value % 10 === 0) {
-                            // currentRow.value++;
-                        }
+                const finishGame = () => {
+                    clearInterval(timer.value);
+                    gameState.value = 'finished';
+                    if (finalWpm.value > bestWpm.value) {
+                        bestWpm.value = finalWpm.value;
+                        localStorage.setItem('plena_typer_score', bestWpm.value);
                     }
                 };
 
-                const getCharClass = (wIdx, cIdx) => {
-                    if (wIdx > currentWordIndex.value) return ''; // Future
-                    const word = wordsList.value[wIdx];
-
-                    if (wIdx === currentWordIndex.value) {
-                        // Current typing
-                        if (cIdx >= userInput.value.length) return ''; // Not typed yet
-                        return userInput.value[cIdx] === word[cIdx] ? 'correct' : 'error';
-                    } else {
-                        // Past word (For simplicitly assuming correct in this view logic, 
-                        // real logic would need state memory per word)
-                        return 'text-white/50';
-                    }
+                const resetGame = () => {
+                    gameState.value = 'ready';
+                    timeLeft.value = 60;
                 };
 
-                // Hotkey restart
-                window.addEventListener('keydown', (e) => {
-                    if (e.key === 'Tab') {
-                        e.preventDefault();
-                        resetGame();
-                    }
+                const correctWords = computed(() => wordResults.value.filter(r => r).length);
+
+                const currentWpm = computed(() => {
+                    const elapsed = 60 - timeLeft.value;
+                    if (elapsed === 0) return 0;
+                    return Math.round((correctWords.value / elapsed) * 60);
                 });
 
-                onMounted(resetGame);
+                const finalWpm = computed(() => correctWords.value); // Since it is always 60s game, WPM = Correct Count
 
-                return {
-                    timeLimit, timeLeft, isRunning, finished, focused,
-                    wordsList, userInput, currentWordIndex, currentRow,
-                    wpm, accuracy, correctChars, errorChars,
-                    setTime, resetGame, processInput, getCharClass
+                const accuracy = computed(() => {
+                    if (wordResults.value.length === 0) return 0;
+                    return Math.round((correctWords.value / wordResults.value.length) * 100);
+                });
+
+                const share = () => {
+                    const msg = `⌨️ *Desafio TyperPro*\n\nMinha velocidade: *${finalWpm.value} WPM*!\nPrecisão: ${accuracy.value}%\n\nVocê consegue me vencer? Tente em Plena Apps.`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
                 };
+
+                onMounted(() => {
+                    shuffle();
+                    const s = localStorage.getItem('plena_typer_score');
+                    if (s) bestWpm.value = parseInt(s);
+                });
+
+                return { words, currentWordIdx, userInput, gameState, timeLeft, startGame, finishWord, finishGame, resetGame, correctWords, currentWpm, finalWpm, accuracy, share, bestWpm, lineOffset, wordResults };
             }
         }).mount('#app');
     </script>

@@ -3,443 +3,237 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OS Express | Gestão Inteligente</title>
-
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Express | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Técnica -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Roboto:wght@400;700&display=swap"
         rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
         }
 
-        /* Transition Classes */
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: opacity 0.2s ease;
+        .font-mono {
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        .fade-enter-from,
-        .fade-leave-to {
-            opacity: 0;
+        [v-cloak] {
+            display: none;
         }
 
-        .slide-enter-active,
-        .slide-leave-active {
-            transition: transform 0.3s ease;
-        }
+        /* Print Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
 
-        .slide-enter-from,
-        .slide-leave-to {
-            transform: translateX(100%);
-        }
+            body {
+                background: white;
+            }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            .print-border {
+                border: 1px solid #000;
+            }
         }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+<body class="pb-20">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Sidebar (Desktop) -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
-                    <i class="fa-solid fa-layer-group text-white text-sm"></i>
-                </div>
-                <h1 class="font-bold text-lg tracking-tight">OS Express</h1>
-            </div>
-
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a @click="currentView = 'dashboard'"
-                    :class="currentView === 'dashboard' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                    <span>Visão Geral</span>
-                </a>
-                <a @click="currentView = 'list'"
-                    :class="currentView === 'list' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-list-check w-5 text-center"></i>
-                    <span>Ordens de Serviço</span>
-                </a>
-                <a @click="openNewOS"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition cursor-pointer font-bold mt-4 border border-dashed border-emerald-500/30">
-                    <i class="fa-solid fa-plus w-5 text-center"></i>
-                    <span>Nova OS</span>
-                </a>
-            </nav>
-
-            <div class="p-4 border-t border-slate-800">
-                <button
-                    class="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition">
-                    <i class="fa-solid fa-cog w-5 text-center"></i>
-                    <span>Configurações</span>
+        <!-- HEADER (No Print) -->
+        <header class="bg-blue-800 text-white p-4 shadow mb-4 no-print flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-clipboard-list"></i> OS Express
+            </h1>
+            <div class="flex gap-2">
+                <button @click="backupData" class="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm transition"
+                    title="Backup JSON">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                </button>
+                <label class="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm transition cursor-pointer"
+                    title="Restaurar JSON">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+                <button @click="printOS"
+                    class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold px-4 py-1 rounded text-sm">
+                    <i class="fa-solid fa-print"></i> Imprimir
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+        <!-- FORMULÁRIO -->
+        <div class="p-8 flex-grow no-print" v-if="!printing">
 
-            <!-- Mobile Header -->
-            <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white">
-                        <i class="fa-solid fa-layer-group text-xs"></i>
-                    </div>
-                    <span class="font-bold text-slate-800">OS Express</span>
-                </div>
-                <button @click="mobileMenuOpen = !mobileMenuOpen"
-                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-lg transition">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-            </header>
-
-            <!-- Mobile Menu Dropdown -->
-            <transition name="fade">
-                <div v-if="mobileMenuOpen"
-                    class="absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl z-30 p-4 md:hidden flex flex-col gap-2">
-                    <a @click="currentView = 'dashboard'; mobileMenuOpen = false"
-                        class="p-3 rounded-lg hover:bg-slate-50 flex items-center gap-3 font-medium text-slate-700">
-                        <i class="fa-solid fa-chart-pie text-brand-600 w-6"></i> Visão Geral
-                    </a>
-                    <a @click="currentView = 'list'; mobileMenuOpen = false"
-                        class="p-3 rounded-lg hover:bg-slate-50 flex items-center gap-3 font-medium text-slate-700">
-                        <i class="fa-solid fa-list-check text-brand-600 w-6"></i> Lista de OS
-                    </a>
-                    <a @click="openNewOS(); mobileMenuOpen = false"
-                        class="p-3 rounded-lg bg-brand-50 text-brand-700 flex items-center gap-3 font-bold">
-                        <i class="fa-solid fa-plus w-6"></i> Nova OS
-                    </a>
-                </div>
-            </transition>
-
-            <!-- Scrollable View Area -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-8">
-
-                <!-- VIEW: Dashboard -->
-                <div v-if="currentView === 'dashboard'" class="max-w-6xl mx-auto space-y-8 animate-fade-in">
-
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-800">Bem-vindo(a)</h2>
-                            <p class="text-slate-500">Resumo das atividades hoje.</p>
-                        </div>
-                        <div
-                            class="text-sm text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm inline-flex items-center gap-2 self-start md:self-auto">
-                            <i class="fa-regular fa-calendar"></i> {{ currentDate }}
-                        </div>
-                    </div>
-
-                    <!-- KPI Cards -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div
-                            class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
-                            <div class="flex items-center justify-between mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
-                                    <i class="fa-solid fa-clock"></i>
-                                </div>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendentes</span>
-                            </div>
-                            <div class="text-3xl font-bold text-slate-800">{{ countStatus('pending') }}</div>
-                        </div>
-
-                        <div
-                            class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
-                            <div class="flex items-center justify-between mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                                    <i class="fa-solid fa-screwdriver-wrench"></i>
-                                </div>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Em
-                                    Análise</span>
-                            </div>
-                            <div class="text-3xl font-bold text-slate-800">{{ countStatus('progress') }}</div>
-                        </div>
-
-                        <div
-                            class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
-                            <div class="flex items-center justify-between mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                                    <i class="fa-solid fa-check-circle"></i>
-                                </div>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Prontos</span>
-                            </div>
-                            <div class="text-3xl font-bold text-slate-800">{{ countStatus('done') }}</div>
-                        </div>
-
-                        <div
-                            class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
-                            <div class="flex items-center justify-between mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                                    <i class="fa-solid fa-wallet"></i>
-                                </div>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Receita</span>
-                            </div>
-                            <div class="text-2xl font-bold text-slate-800">R$ {{ formatMoney(totalRevenue) }}</div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Action -->
-                    <button @click="openNewOS"
-                        class="w-full bg-brand-600 hover:bg-brand-700 text-white p-6 rounded-2xl shadow-xl shadow-brand-500/20 flex items-center justify-between group transition">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition">
-                                <i class="fa-solid fa-plus text-xl"></i>
-                            </div>
-                            <div class="text-left">
-                                <h3 class="font-bold text-lg">Nova Ordem de Serviço</h3>
-                                <p class="text-brand-100 text-sm">Registrar entrada de novo aparelho</p>
-                            </div>
-                        </div>
-                        <i
-                            class="fa-solid fa-chevron-right opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition"></i>
-                    </button>
-
-                    <!-- Recent Table -->
-                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-slate-50 flex justify-between items-center">
-                            <h3 class="font-bold text-slate-800">Recentes</h3>
-                            <button @click="currentView = 'list'"
-                                class="text-sm text-brand-600 font-medium hover:underline">Ver tudo</button>
-                        </div>
-                        <div class="divide-y divide-slate-50">
-                            <div v-for="os in recentOS" :key="os.id"
-                                class="p-4 hover:bg-slate-50 cursor-pointer transition flex items-center justify-between"
-                                @click="editOS(os)">
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="bg-slate-100 w-10 h-10 rounded-lg flex items-center justify-center text-slate-500 font-bold text-xs">
-                                        #{{ String(os.id).slice(-3) }}
-                                    </div>
-                                    <div>
-                                        <div class="font-bold text-slate-800 text-sm">{{ os.client }}</div>
-                                        <div class="text-xs text-slate-500">{{ os.device }}</div>
-                                    </div>
-                                </div>
-                                <span :class="statusBadge(os.status).class"
-                                    class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">
-                                    {{ statusBadge(os.status).label }}
-                                </span>
-                            </div>
-                            <div v-if="osList.length === 0" class="p-8 text-center text-slate-400">
-                                Nenhum registro encontrado.
-                            </div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Cliente -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-400 text-xs uppercase mb-3">Dados do Cliente</h3>
+                    <div class="space-y-3">
+                        <input v-model="os.client" type="text" placeholder="Nome do Cliente"
+                            class="w-full p-2 border rounded">
+                        <input v-model="os.phone" type="text" placeholder="Telefone/WhatsApp"
+                            class="w-full p-2 border rounded">
+                        <input v-model="os.device" type="text" placeholder="Equipamento/Veículo"
+                            class="w-full p-2 border rounded">
                     </div>
                 </div>
 
-                <!-- VIEW: List -->
-                <div v-if="currentView === 'list'" class="max-w-5xl mx-auto h-full flex flex-col">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                        <h2 class="text-2xl font-bold text-slate-800 self-start md:self-center">Todas as OS</h2>
-                        <input v-model="searchQuery" type="text" placeholder="Buscar por nome, aparelho ou ID..."
-                            class="w-full md:w-80 px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition shadow-sm">
-                    </div>
-
-                    <div class="space-y-3 pb-20">
-                        <div v-for="os in filteredList" :key="os.id" @click="editOS(os)"
-                            class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col md:flex-row md:items-center justify-between gap-4 group">
-
-                            <div class="flex items-start md:items-center gap-4">
-                                <div
-                                    class="bg-slate-100 w-12 h-12 rounded-xl flex items-center justify-center text-slate-600 font-bold shrink-0">
-                                    {{ os.id }}
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-slate-800 text-lg group-hover:text-brand-600 transition">
-                                        {{ os.client }}</h3>
-                                    <div class="text-slate-500 text-sm flex flex-wrap items-center gap-x-3">
-                                        <span><i class="fa-solid fa-mobile-screen text-slate-300 mr-1"></i> {{ os.device
-                                            }}</span>
-                                        <span class="hidden md:inline text-slate-300">•</span>
-                                        <span><i class="fa-regular fa-calendar text-slate-300 mr-1"></i> {{ os.date
-                                            }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto border-t md:border-t-0 border-slate-50 pt-3 md:pt-0">
-                                <div class="font-bold text-slate-800">
-                                    <div v-if="os.price > 0">R$ {{ formatMoney(os.price) }}</div>
-                                    <div v-else
-                                        class="text-slate-400 text-xs font-normal bg-slate-100 px-2 py-1 rounded">A
-                                        orçar</div>
-                                </div>
-                                <span :class="statusBadge(os.status).class"
-                                    class="px-3 py-1 rounded-full text-[10px] font-bold uppercase min-w-[80px] text-center">
-                                    {{ statusBadge(os.status).label }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div v-if="filteredList.length === 0" class="text-center py-20">
-                            <i class="fa-solid fa-ghost text-4xl text-slate-200 mb-3"></i>
-                            <p class="text-slate-400">Nenhum resultado encontrado.</p>
-                        </div>
+                <!-- Serviço -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-400 text-xs uppercase mb-3">Detalhes do Serviço</h3>
+                    <div class="space-y-3">
+                        <textarea v-model="os.problem" rows="2" placeholder="Defeito Relatado"
+                            class="w-full p-2 border rounded"></textarea>
+                        <textarea v-model="os.solution" rows="2" placeholder="Serviço Realizado / Solução"
+                            class="w-full p-2 border rounded"></textarea>
                     </div>
                 </div>
-
             </div>
 
-        </main>
-
-        <!-- OS Modal (Editor) -->
-        <transition name="slide">
-            <div v-if="modal.show"
-                class="fixed inset-y-0 right-0 w-full md:w-[500px] bg-white shadow-2xl z-50 flex flex-col">
-
-                <!-- Modal Header -->
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-                    <h2 class="font-bold text-xl text-slate-800">{{ modal.isNew ? 'Nova OS' : 'Editar OS #' +
-                        modal.data.id }}</h2>
-                    <button @click="closeModal"
-                        class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
+            <!-- Valores -->
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 mb-8">
+                <div class="flex flex-wrap gap-4 justify-end items-end">
+                    <div class="w-32">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Peças (R$)</label>
+                        <input v-model.number="os.parts" type="number"
+                            class="w-full p-2 border rounded text-right font-mono" step="0.01">
+                    </div>
+                    <div class="w-32">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mão de Obra (R$)</label>
+                        <input v-model.number="os.labor" type="number"
+                            class="w-full p-2 border rounded text-right font-mono" step="0.01">
+                    </div>
+                    <div class="w-32">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Desconto (R$)</label>
+                        <input v-model.number="os.discount" type="number"
+                            class="w-full p-2 border rounded text-right font-mono text-red-500" step="0.01">
+                    </div>
+                    <div class="text-right ml-4">
+                        <div class="text-xs text-gray-500 font-bold uppercase">Total Geral</div>
+                        <div class="text-3xl font-bold text-blue-800 font-mono">R$ {{ totalFormatted }}</div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Modal Body -->
-                <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
-
-                    <!-- Status Section (Only if editing) -->
-                    <div v-if="!modal.isNew" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Status
-                            Atual</label>
-                        <div class="flex flex-wrap gap-2">
-                            <button v-for="st in ['pending', 'progress', 'done', 'paid']" :key="st"
-                                @click="modal.data.status = st"
-                                :class="modal.data.status === st ? statusBadge(st).class + ' ring-2 ring-offset-2 ring-slate-200' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'"
-                                class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition">
-                                {{ statusBadge(st).label }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Client Info -->
-                    <div class="space-y-4">
-                        <div class="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-2">
-                            <i class="fa-regular fa-user text-brand-600"></i> Cliente
-                        </div>
-                        <input v-model="modal.data.client" type="text" placeholder="Nome do Cliente *"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition">
-                        <input v-model="modal.data.phone" type="tel" placeholder="(00) 00000-0000"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition">
-                    </div>
-
-                    <!-- Device Info -->
-                    <div class="space-y-4">
-                        <div class="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-2">
-                            <i class="fa-solid fa-mobile-screen text-orange-500"></i> Aparelho
-                        </div>
-                        <input v-model="modal.data.device" type="text" placeholder="Modelo / Marca *"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition">
-                        <input v-model="modal.data.serial" type="text" placeholder="IMEI ou Serial (Opcional)"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition">
-                        <textarea v-model="modal.data.problem" rows="3" placeholder="Descrição do defeito..."
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition"></textarea>
-                    </div>
-
-                    <!-- Service & Price -->
-                    <div class="space-y-4">
-                        <div class="font-bold text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-2">
-                            <i class="fa-solid fa-receipt text-green-600"></i> Serviço & Valor
-                        </div>
-                        <textarea v-model="modal.data.notes" rows="2"
-                            placeholder="Serviço realizado / Peças utilizadas..."
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none transition"></textarea>
-
-                        <div class="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
-                            <span class="font-bold text-slate-600">Total R$:</span>
-                            <input v-model="modal.data.price" type="number" step="0.01"
-                                class="flex-1 text-right font-bold text-xl text-green-600 focus:outline-none border-b border-transparent focus:border-slate-300 transition"
-                                placeholder="0,00">
-                        </div>
-                    </div>
-
+            <!-- Ações -->
+            <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
+                <div class="text-sm text-gray-500">
+                    ID da OS: <span class="font-mono font-bold">#{{ os.id }}</span>
                 </div>
-
-                <!-- Modal Footer -->
-                <div class="p-4 bg-white border-t border-slate-100 flex gap-3 shrink-0">
-                    <button v-if="!modal.isNew" @click="deleteOS"
-                        class="px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <div class="flex-1 md:hidden"></div> <!-- Spacer mobile -->
-                    <button @click="closeModal"
-                        class="px-6 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition ml-auto">Cancelar</button>
+                <div class="flex gap-2">
+                    <button @click="resetOS"
+                        class="text-gray-500 hover:text-red-500 px-4 py-2 font-bold text-sm">Limpar</button>
                     <button @click="saveOS"
-                        class="px-8 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition transform active:scale-95">
-                        Salvar
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold shadow">
+                        Salvar Nova
+                    </button>
+                    <button @click="shareWhatsapp"
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded font-bold shadow flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp"></i> Enviar
                     </button>
                 </div>
             </div>
-        </transition>
 
-        <!-- Overlay -->
-        <div v-if="modal.show || mobileMenuOpen" @click="closeModal(); mobileMenuOpen = false"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 transition-opacity"></div>
+            <!-- Histórico Recente -->
+            <div class="mt-8">
+                <h3 class="font-bold text-gray-700 mb-4">Histórico Recente</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3">ID</th>
+                                <th class="px-4 py-3">Cliente</th>
+                                <th class="px-4 py-3">Equipamento</th>
+                                <th class="px-4 py-3">Valor</th>
+                                <th class="px-4 py-3">Data</th>
+                                <th class="px-4 py-3">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in history" :key="item.id" class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-3 font-mono">#{{ item.id }}</td>
+                                <td class="px-4 py-3">{{ item.client }}</td>
+                                <td class="px-4 py-3">{{ item.device }}</td>
+                                <td class="px-4 py-3 font-bold text-blue-600">{{"R$ " + item.total.toFixed(2) }}</td>
+                                <td class="px-4 py-3">{{ item.date }}</td>
+                                <td class="px-4 py-3">
+                                    <button @click="loadOS(item)"
+                                        class="text-blue-500 font-bold hover:underline">Ver</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PRINT TEMPLATE (Hidden unless printing) -->
+        <div v-show="printing" class="p-8 text-sm">
+            <div class="border-2 border-black p-6 rounded mb-4">
+                <div class="flex justify-between items-center border-b-2 border-black pb-4 mb-4">
+                    <div>
+                        <h1 class="text-2xl font-bold">ORDEM DE SERVIÇO</h1>
+                        <p class="font-mono">Nº: {{ os.id }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold">Sua Assistência Técnica</p>
+                        <p>Data: {{ os.date || new Date().toLocaleDateString() }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="font-bold uppercase text-xs">Cliente</p>
+                        <p>{{ os.client }}</p>
+                        <p>{{ os.phone }}</p>
+                    </div>
+                    <div>
+                        <p class="font-bold uppercase text-xs">Equipamento</p>
+                        <p>{{ os.device }}</p>
+                    </div>
+                </div>
+
+                <div class="border border-black p-2 mb-4">
+                    <p class="font-bold uppercase text-xs mb-1">Defeito Relatado</p>
+                    <p>{{ os.problem }}</p>
+                </div>
+                <div class="border border-black p-2 mb-4">
+                    <p class="font-bold uppercase text-xs mb-1">Serviço Realizado</p>
+                    <p>{{ os.solution }}</p>
+                </div>
+
+                <div class="flex justify-end mt-8">
+                    <div class="w-48">
+                        <div class="flex justify-between mb-1"><span>Peças:</span> <span>R$ {{ (os.parts||0).toFixed(2)
+                                }}</span></div>
+                        <div class="flex justify-between mb-1"><span>Mão de Obra:</span> <span>R$ {{
+                                (os.labor||0).toFixed(2) }}</span></div>
+                        <div class="flex justify-between mb-2 text-red-600" v-if="os.discount"><span>Desconto:</span>
+                            <span>- R$ {{ (os.discount||0).toFixed(2) }}</span></div>
+                        <div class="flex justify-between border-t border-black pt-2 font-bold text-lg">
+                            <span>TOTAL:</span> <span>R$ {{ totalFormatted }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center text-xs border-t border-black pt-4">
+                    <p>Garantia de 90 dias para mão de obra. Equipamentos não retirados em 30 dias serão vendidos.</p>
+                </div>
+                <!-- Print Buttons (Hide inside print) -->
+                <div class="mt-8 text-center no-print">
+                    <button @click="window.print()" class="bg-black text-white px-4 py-2 font-bold mr-2">Confirmar
+                        Impressão</button>
+                    <button @click="printing = false" class="bg-gray-300 px-4 py-2 font-bold">Cancelar</button>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -448,154 +242,104 @@
 
         createApp({
             setup() {
-                const currentView = ref('dashboard');
-                const osList = ref([]);
-                const searchQuery = ref('');
-                const mobileMenuOpen = ref(false);
+                const printing = ref(false);
+                const history = ref([]);
 
-                // Modal State
-                const modal = ref({
-                    show: false,
-                    isNew: true,
-                    data: {}
+                // DATA
+                const os = ref({
+                    id: Date.now().toString().slice(-6),
+                    date: new Date().toLocaleDateString(),
+                    client: "",
+                    phone: "",
+                    device: "",
+                    problem: "",
+                    solution: "",
+                    parts: 0,
+                    labor: 0,
+                    discount: 0
                 });
 
-                // Default Empty OS
-                const emptyOS = {
-                    id: null,
-                    client: '',
-                    phone: '',
-                    device: '',
-                    serial: '',
-                    problem: '',
-                    notes: '',
-                    status: 'pending',
-                    price: 0,
-                    date: ''
-                };
+                const total = computed(() => {
+                    return (os.value.parts || 0) + (os.value.labor || 0) - (os.value.discount || 0);
+                });
 
-                // Helper: Date
-                const getToday = () => {
-                    return new Date().toLocaleDateString('pt-BR');
-                };
+                const totalFormatted = computed(() => total.value.toFixed(2));
 
-                const currentDate = ref(getToday());
-
-                // --- Methods ---
-
-                const openNewOS = () => {
-                    modal.value.isNew = true;
-                    modal.value.data = { ...emptyOS, date: getToday() };
-                    modal.value.show = true;
-                    mobileMenuOpen.value = false;
-                };
-
-                const editOS = (os) => {
-                    modal.value.isNew = false;
-                    modal.value.data = JSON.parse(JSON.stringify(os)); // Deep copy
-                    modal.value.show = true;
-                };
-
-                const closeModal = () => {
-                    modal.value.show = false;
+                const resetOS = () => {
+                    os.value = {
+                        id: Date.now().toString().slice(-6),
+                        date: new Date().toLocaleDateString(),
+                        client: "",
+                        phone: "",
+                        device: "",
+                        problem: "",
+                        solution: "",
+                        parts: 0,
+                        labor: 0,
+                        discount: 0
+                    };
                 };
 
                 const saveOS = () => {
-                    const data = modal.value.data;
-
-                    // Validation
-                    if (!data.client || !data.device) {
-                        alert('Por favor, preencha o nome do cliente e o aparelho.');
-                        return;
-                    }
-
-                    if (modal.value.isNew) {
-                        // Create ID
-                        const nextId = osList.value.length > 0 ? Math.max(...osList.value.map(o => o.id)) + 1 : 1001;
-                        data.id = nextId;
-                        osList.value.unshift(data); // Add to top
-                    } else {
-                        // Update
-                        const idx = osList.value.findIndex(o => o.id === data.id);
-                        if (idx !== -1) osList.value[idx] = data;
-                    }
-
-                    saveToLocal();
-                    closeModal();
+                    const newOS = { ...os.value, total: total.value };
+                    history.value.unshift(newOS);
+                    resetOS();
+                    alert("OS Salva no Histórico!");
                 };
 
-                const deleteOS = () => {
-                    if (confirm('Tem certeza que deseja excluir esta OS?')) {
-                        osList.value = osList.value.filter(o => o.id !== modal.value.data.id);
-                        saveToLocal();
-                        closeModal();
-                    }
+                const loadOS = (item) => {
+                    os.value = { ...item };
+                    window.scrollTo(0, 0);
                 };
 
-                // --- Storage ---
-                const saveToLocal = () => {
-                    localStorage.setItem('os-express-v3', JSON.stringify(osList.value));
+                const shareWhatsapp = () => {
+                    const text = `📋 *Ordem de Serviço #${os.value.id}*\n` +
+                        `Olá ${os.value.client},\n\n` +
+                        `*Equipamento:* ${os.value.device}\n` +
+                        `*Serviço:* ${os.value.solution}\n` +
+                        `*Valor Total:* R$ ${totalFormatted.value}\n\n` +
+                        `Qualquer dúvida estamos à disposição!`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                const loadFromLocal = () => {
-                    const saved = localStorage.getItem('os-express-v3');
-                    if (saved) {
-                        osList.value = JSON.parse(saved);
-                    } else {
-                        // Mock Data for first run
-                        osList.value = [
-                            { id: 1003, client: 'Mariana Silva', device: 'iPhone 13', status: 'done', price: 450, date: '08/12/2025', problem: 'Troca de tela', notes: 'Tela Premium instalada', phone: '', serial: '' },
-                            { id: 1002, client: 'João Souza', device: 'Samsung S21', status: 'progress', price: 0, date: '07/12/2025', problem: 'Não liga', notes: 'Analisando placa', phone: '', serial: '' },
-                            { id: 1001, client: 'Pedro Santos', device: 'Notebook Dell', status: 'pending', price: 0, date: '06/12/2025', problem: 'Lentidão e formatação', notes: '', phone: '', serial: '' },
-                        ];
-                    }
+                const printOS = () => {
+                    printing.value = true;
+                    // Auto print triggers via button inside the print view to avoid stuck UI
                 };
 
-                onMounted(() => {
-                    loadFromLocal();
-                });
+                // BACKUP
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(history.value)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_os_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+                    a.click();
+                };
 
-                // --- Computed ---
-
-                const countStatus = (st) => osList.value.filter(o => o.status === st).length;
-
-                const totalRevenue = computed(() => {
-                    return osList.value
-                        .filter(o => o.status === 'done' || o.status === 'paid')
-                        .reduce((acc, o) => acc + Number(o.price || 0), 0);
-                });
-
-                const recentOS = computed(() => osList.value.slice(0, 5));
-
-                const filteredList = computed(() => {
-                    if (!searchQuery.value) return osList.value;
-                    const q = searchQuery.value.toLowerCase();
-                    return osList.value.filter(o =>
-                        o.client.toLowerCase().includes(q) ||
-                        String(o.id).includes(q) ||
-                        o.device.toLowerCase().includes(q)
-                    );
-                });
-
-                // --- UI Helpers ---
-
-                const formatMoney = (val) => Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-                const statusBadge = (st) => {
-                    const map = {
-                        pending: { label: 'Pendente', class: 'bg-orange-100 text-orange-600' },
-                        progress: { label: 'Andamento', class: 'bg-blue-100 text-blue-600' },
-                        done: { label: 'Pronto', class: 'bg-green-100 text-green-600' },
-                        paid: { label: 'Pago', class: 'bg-indigo-100 text-indigo-600' }
+                const restoreData = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        try {
+                            history.value = JSON.parse(ev.target.result);
+                            alert("Histórico restaurado!");
+                        } catch (err) { alert("Arquivo inválido"); }
                     };
-                    return map[st] || { label: st, class: 'bg-slate-100 text-slate-600' };
+                    reader.readAsText(file);
                 };
+
+                // PERSIST
+                onMounted(() => {
+                    const h = localStorage.getItem('plena_os_history');
+                    if (h) history.value = JSON.parse(h);
+                });
+                watch(history, () => localStorage.setItem('plena_os_history', JSON.stringify(history.value)), { deep: true });
 
                 return {
-                    currentView, osList, searchQuery, mobileMenuOpen, modal,
-                    openNewOS, editOS, closeModal, saveOS, deleteOS,
-                    countStatus, totalRevenue, recentOS, filteredList,
-                    formatMoney, statusBadge, currentDate
+                    os, printing, history, totalFormatted,
+                    resetOS, saveOS, loadOS, shareWhatsapp, printOS,
+                    backupData, restoreData
                 };
             }
         }).mount('#app');

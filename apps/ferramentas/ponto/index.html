@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto Simples | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
+
+        <header class="bg-gray-800 text-white p-6 shadow-md rounded-b-3xl mb-6">
+            <h1 class="text-2xl font-bold mb-2"><i class="fa-solid fa-clock"></i> Ponto Simples</h1>
+            <div class="flex justify-between items-end">
+                <div class="text-4xl font-mono">{{ currentTime }}</div>
+                <div class="flex gap-2">
+                    <button @click="backupData" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition"
+                        title="Backup"><i class="fa-solid fa-download text-xs"></i></button>
+                    <label class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition cursor-pointer"
+                        title="Restaurar">
+                        <i class="fa-solid fa-upload text-xs"></i>
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
+                </div>
+            </div>
+            <p class="text-gray-400 text-sm mt-1">{{ currentDate }}</p>
+        </header>
+
+        <!-- ACTION BUTTONS -->
+        <div class="px-6 mb-8 grid grid-cols-2 gap-4">
+            <button @click="registerLog('entrada')"
+                class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
+                <i class="fa-solid fa-right-to-bracket text-2xl"></i> Entrada
+            </button>
+            <button @click="registerLog('saida_almoco')"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
+                <i class="fa-solid fa-utensils text-2xl"></i> Almoço
+            </button>
+            <button @click="registerLog('volta_almoco')"
+                class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
+                <i class="fa-solid fa-person-walking-arrow-loop-left text-2xl"></i> Volta
+            </button>
+            <button @click="registerLog('saida')"
+                class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
+                <i class="fa-solid fa-right-from-bracket text-2xl"></i> Saída
+            </button>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="px-6 flex-grow">
+            <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex justify-between">
+                Registros de Hoje
+                <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-500">{{ todayLogs.length }} regs</span>
+            </h3>
+
+            <div class="space-y-3">
+                <div v-for="(log, idx) in todayLogs" :key="idx"
+                    class="flex justify-between items-center bg-gray-50 p-3 rounded hover:bg-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-8 rounded-full" :class="getColor(log.type)"></div>
+                        <div>
+                            <p class="font-bold text-gray-800 uppercase text-sm">{{ getLabel(log.type) }}</p>
+                            <p class="text-xs text-gray-400">{{ log.date }}</p>
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-xl text-gray-700">{{ log.time }}</span>
+                </div>
+                <div v-if="todayLogs.length === 0" class="text-center text-gray-400 italic py-4">Nenhum ponto registrado
+                    hoje.</div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="p-6">
+            <button @click="shareWhatsapp"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Espelho de Ponto
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const logs = ref([]);
+                const currentTime = ref('');
+                const currentDate = ref('');
+
+                const interval = setInterval(() => {
+                    const now = new Date();
+                    currentTime.value = now.toLocaleTimeString();
+                    currentDate.value = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                }, 1000);
+                onUnmounted(() => clearInterval(interval));
+
+                // Computed
+                const todayLogs = computed(() => {
+                    const today = new Date().toLocaleDateString();
+                    return logs.value.filter(l => l.date === today).reverse(); // Newest first
+                });
+
+                // Actions
+                const registerLog = (type) => {
+                    if (confirm(`Registrar ${getLabel(type)}?`)) {
+                        logs.value.push({
+                            type: type,
+                            date: new Date().toLocaleDateString(),
+                            time: new Date().toLocaleTimeString(),
+                            timestamp: Date.now()
+                        });
+                    }
+                };
+
+                const getLabel = (t) => {
+                    const m = { entrada: 'Entrada', saida_almoco: 'Saída Almoço', volta_almoco: 'Volta Almoço', saida: 'Saída' };
+                    return m[t];
+                };
+
+                const getColor = (t) => {
+                    const m = { entrada: 'bg-green-500', saida_almoco: 'bg-yellow-500', volta_almoco: 'bg-orange-500', saida: 'bg-red-500' };
+                    return m[t];
+                };
+
+                const shareWhatsapp = () => {
+                    let text = `🕐 *Registro de Ponto - ${new Date().toLocaleDateString()}*\n\n`;
+
+                    // Sort by time for report
+                    const sorted = [...todayLogs.value].reverse();
+
+                    sorted.forEach(l => {
+                        text += `${l.time} - ${getLabel(l.type)}\n`;
+                    });
+
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(logs.value)], { type: "application/json" });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `backup_ponto_${Date.now()}.json`;
+                    a.click();
+                };
+
+                const restoreData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (v) => { try { logs.value = JSON.parse(v.target.result); alert("Ponto Restaurado!"); } catch (e) { alert("Erro!"); } };
+                    r.readAsText(f);
+                };
+
+                // Storage
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_ponto');
+                    if (d) logs.value = JSON.parse(d);
+                });
+                watch(logs, () => localStorage.setItem('plena_ponto', JSON.stringify(logs.value)), { deep: true });
+
+                return {
+                    logs, currentTime, currentDate, todayLogs,
+                    registerLog, getLabel, getColor, shareWhatsapp, backupData, restoreData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

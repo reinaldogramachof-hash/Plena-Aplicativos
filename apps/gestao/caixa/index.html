@@ -3,416 +3,254 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fluxo de Caixa | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de Caixa | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #f1f5f9;
         }
 
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: opacity 0.2s ease;
+        [v-cloak] {
+            display: none;
         }
 
-        .fade-enter-from,
-        .fade-leave-to {
-            opacity: 0;
+        .bar-container {
+            height: 100px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        .bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s;
         }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+<body class="pb-20">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Sidebar -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
-                    <i class="fa-solid fa-cash-register text-white text-sm"></i>
+        <!-- HEADER -->
+        <header class="bg-indigo-900 text-white p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold"><i class="fa-solid fa-money-bill-trend-up mr-2"></i>Fluxo de Caixa</h1>
+                <div class="flex gap-2">
+                    <button @click="backupData" class="bg-indigo-800 p-2 rounded hover:bg-indigo-700 transition"><i
+                            class="fa-solid fa-download"></i></button>
+                    <label class="bg-indigo-800 p-2 rounded hover:bg-indigo-700 transition cursor-pointer">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
                 </div>
-                <h1 class="font-bold text-lg tracking-tight">Fluxo de Caixa</h1>
             </div>
 
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a @click="currentView = 'today'"
-                    :class="currentView === 'today' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-calendar-day w-5 text-center"></i> <span>Mov. Hoje</span>
-                </a>
-                <a @click="currentView = 'history'"
-                    :class="currentView === 'history' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i> <span>Histórico</span>
-                </a>
-
-                <div class="mt-8 px-4">
-                    <div class="text-xs font-bold text-slate-500 uppercase mb-4">Saldo Atual</div>
-                    <div :class="totalBalance >= 0 ? 'text-green-400' : 'text-red-400'" class="text-2xl font-bold">
-                        R$ {{ formatMoney(totalBalance) }}
-                    </div>
+            <!-- DASHBOARD SUMMARY -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-indigo-800/50 p-4 rounded-xl backdrop-blur-sm">
+                    <p class="text-indigo-200 text-xs uppercase font-bold">Entradas</p>
+                    <p class="text-2xl font-bold text-green-400">+ R$ {{ totals.in.toFixed(2) }}</p>
                 </div>
-            </nav>
-
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                <button @click="backupData" class="hover:text-white underline">Backup</button> |
-                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
-                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+                <div class="bg-indigo-800/50 p-4 rounded-xl backdrop-blur-sm">
+                    <p class="text-indigo-200 text-xs uppercase font-bold">Saídas</p>
+                    <p class="text-2xl font-bold text-red-400">- R$ {{ totals.out.toFixed(2) }}</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-lg transform scale-105 border-2"
+                    :class="totals.balance >= 0 ? 'border-green-500' : 'border-red-500'">
+                    <p class="text-gray-400 text-xs uppercase font-bold">Saldo Atual</p>
+                    <p class="text-2xl font-bold" :class="totals.balance >= 0 ? 'text-green-600' : 'text-red-600'">R$ {{
+                        totals.balance.toFixed(2) }}</p>
+                </div>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
-            <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
-                            class="fa-solid fa-cash-register text-xs"></i></div>
-                    <span class="font-bold text-slate-800">Fluxo de Caixa</span>
+        <!-- CONTENT -->
+        <div class="p-6 flex-grow">
+
+            <!-- FORM -->
+            <div class="bg-white border rounded-xl p-4 shadow-sm mb-8 flex gap-4 flex-wrap items-end">
+                <div class="flex-grow min-w-[200px]">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Descrição</label>
+                    <input v-model="desc" type="text" placeholder="Ex: Venda, Aluguel..."
+                        class="w-full border rounded p-2 outline-none focus:border-indigo-500">
                 </div>
-                <button @click="mobileMenuOpen = !mobileMenuOpen"
-                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-lg"><i
-                        class="fa-solid fa-bars text-lg"></i></button>
-            </header>
-
-            <transition name="fade">
-                <div v-if="mobileMenuOpen"
-                    class="absolute top-16 inset-x-0 bg-white shadow-xl z-30 p-4 md:hidden flex flex-col gap-2 border-b border-slate-200">
-                    <a @click="currentView = 'today'; mobileMenuOpen = false"
-                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
-                            class="fa-solid fa-calendar-day text-brand-600"></i> Movimento Hoje</a>
-                    <a @click="currentView = 'history'; mobileMenuOpen = false"
-                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
-                            class="fa-solid fa-clock-rotate-left text-brand-600"></i> Histórico</a>
+                <div class="w-32">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Valor (R$)</label>
+                    <input v-model.number="amount" type="number"
+                        class="w-full border rounded p-2 outline-none focus:border-indigo-500 font-mono" step="0.01">
                 </div>
-            </transition>
+                <div class="w-32">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Tipo</label>
+                    <select v-model="type" class="w-full border rounded p-2 bg-white">
+                        <option value="in">Entrada</option>
+                        <option value="out">Saída</option>
+                    </select>
+                </div>
+                <button @click="addTransaction"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-bold shadow transition">
+                    Adicionar
+                </button>
+            </div>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
-
-                <!-- VIEW: TODAY -->
-                <div v-if="currentView === 'today'" class="max-w-4xl mx-auto animate-fade-in pb-24">
-                    <!-- Quick Actions -->
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <button @click="openModal('in')"
-                            class="bg-green-500 hover:bg-green-600 text-white p-6 rounded-2xl shadow-lg shadow-green-500/30 transition transform hover:-translate-y-1 text-left relative overflow-hidden group">
+            <!-- VISUAL CHART (Simple CSS Bar Chart) -->
+            <div class="mb-8" v-if="transactions.length > 0">
+                <h3 class="font-bold text-gray-400 text-xs uppercase mb-4">Fluxo Recente (Últimos 10)</h3>
+                <div class="flex items-end h-32 gap-2 border-b border-gray-200 pb-2">
+                    <div v-for="(t, idx) in chartData" :key="idx"
+                        class="flex-1 flex flex-col justify-end group relative cursor-pointer">
+                        <div class="w-full rounded-t transition-all duration-500 hover:opacity-80 relative"
+                            :style="{ height: t.percent + '%', minHeight: '4px' }"
+                            :class="t.type === 'in' ? 'bg-green-400' : 'bg-red-400'">
+                            <!-- Tooltip -->
                             <div
-                                class="absolute right-[-10px] bottom-[-10px] text-green-600/30 text-6xl group-hover:scale-110 transition">
-                                <i class="fa-solid fa-arrow-up"></i></div>
-                            <div class="text-sm font-bold uppercase opacity-80 mb-1">Nova Entrada</div>
-                            <div class="text-2xl font-bold">+ Receita</div>
-                        </button>
-                        <button @click="openModal('out')"
-                            class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-2xl shadow-lg shadow-red-500/30 transition transform hover:-translate-y-1 text-left relative overflow-hidden group">
-                            <div
-                                class="absolute right-[-10px] bottom-[-10px] text-red-600/30 text-6xl group-hover:scale-110 transition">
-                                <i class="fa-solid fa-arrow-down"></i></div>
-                            <div class="text-sm font-bold uppercase opacity-80 mb-1">Nova Saída</div>
-                            <div class="text-2xl font-bold">- Despesa</div>
-                        </button>
-                    </div>
-
-                    <!-- Daily Summary Charts (Simple Bars) -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
-                        <h3 class="font-bold text-slate-800 mb-4">Resumo do Dia</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
-                                    <span>Entradas</span>
-                                    <span>R$ {{ formatMoney(todayIn) }}</span>
-                                </div>
-                                <div class="h-4 bg-slate-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-green-500 rounded-full"
-                                        :style="{ width: getPercentage(todayIn) + '%' }"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
-                                    <span>Saídas</span>
-                                    <span>R$ {{ formatMoney(todayOut) }}</span>
-                                </div>
-                                <div class="h-4 bg-slate-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-red-500 rounded-full"
-                                        :style="{ width: getPercentage(todayOut) + '%' }"></div>
-                                </div>
-                            </div>
-                            <div class="pt-4 mt-4 border-t border-slate-100 flex justify-between items-center">
-                                <span class="font-bold text-slate-500">Saldo do Dia</span>
-                                <span :class="todayBalance >= 0 ? 'text-green-600' : 'text-red-500'"
-                                    class="font-bold text-xl">R$ {{ formatMoney(todayBalance) }}</span>
+                                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black text-white text-xs p-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10">
+                                R$ {{ t.amount }}
                             </div>
                         </div>
                     </div>
-
-                    <!-- Recent Transactions -->
-                    <h3 class="font-bold text-slate-800 mb-4">Movimentações Recentes</h3>
-                    <div class="space-y-3">
-                        <div v-for="t in sortedTransactions.slice(0, 10)" :key="t.id"
-                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between group">
-                            <div class="flex items-center gap-4">
-                                <div :class="t.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
-                                    class="w-10 h-10 rounded-full flex items-center justify-center">
-                                    <i :class="t.type === 'in' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-800">{{ t.description }}</div>
-                                    <div class="text-xs text-slate-500">{{ formatDate(t.date) }} • {{ t.category }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div :class="t.type === 'in' ? 'text-green-600' : 'text-red-600'" class="font-bold">
-                                    {{ t.type === 'in' ? '+' : '-' }} R$ {{ formatMoney(t.value) }}
-                                </div>
-                                <button @click="deleteTransaction(t.id)"
-                                    class="text-slate-300 hover:text-red-500 text-xs mt-1 md:opacity-0 group-hover:opacity-100 transition">Excluir</button>
-                            </div>
-                        </div>
-                        <div v-if="transactions.length === 0" class="text-center py-10 text-slate-400">Nenhuma
-                            movimentação hoje.</div>
-                    </div>
-                </div>
-
-                <!-- VIEW: HISTORY -->
-                <div v-if="currentView === 'history'" class="max-w-4xl mx-auto animate-fade-in">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Histórico Completo</h2>
-                    <div class="space-y-3">
-                        <div v-for="t in sortedTransactions" :key="t.id"
-                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div :class="t.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
-                                    class="w-10 h-10 rounded-full flex items-center justify-center">
-                                    <i :class="t.type === 'in' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-800">{{ t.description }}</div>
-                                    <div class="text-xs text-slate-500">{{ formatDate(t.date) }} • {{ t.category }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div :class="t.type === 'in' ? 'text-green-600' : 'text-red-600'" class="font-bold">
-                                {{ t.type === 'in' ? '+' : '-' }} R$ {{ formatMoney(t.value) }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- Modal -->
-        <div v-if="modal.show"
-            class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4 md:p-0">
-            <div
-                class="bg-white w-full md:max-w-md rounded-t-2xl md:rounded-2xl shadow-xl overflow-hidden animate-fade-in">
-                <div :class="modal.type === 'in' ? 'bg-green-500' : 'bg-red-500'"
-                    class="p-6 text-white text-center relarive">
-                    <h3 class="font-bold text-xl">{{ modal.type === 'in' ? 'Nova Entrada' : 'Nova Saída' }}</h3>
-                    <button @click="closeModal" class="absolute top-4 right-4 text-white/70 hover:text-white"><i
-                            class="fa-solid fa-times text-xl"></i></button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="label">Valor (R$)</label>
-                        <input v-model="modal.data.value" type="number" step="0.01"
-                            class="input text-2xl font-bold text-slate-700" placeholder="0,00" autofocus>
-                    </div>
-                    <div>
-                        <label class="label">Descrição</label>
-                        <input v-model="modal.data.description" type="text" class="input"
-                            placeholder="Ex: Venda Balcão">
-                    </div>
-                    <div>
-                        <label class="label">Categoria</label>
-                        <select v-model="modal.data.category" class="input">
-                            <option v-if="modal.type === 'in'" value="Vendas">Vendas</option>
-                            <option v-if="modal.type === 'in'" value="Serviços">Serviços</option>
-                            <option v-if="modal.type === 'in'" value="Outros">Outros</option>
-
-                            <option v-if="modal.type === 'out'" value="Fornecedores">Fornecedores</option>
-                            <option v-if="modal.type === 'out'" value="Aluguel/Contas">Aluguel/Contas</option>
-                            <option v-if="modal.type === 'out'" value="Pessoal">Pessoal</option>
-                            <option v-if="modal.type === 'out'" value="Outros">Outros</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label">Data</label>
-                        <input v-model="modal.data.date" type="date" class="input">
-                    </div>
-                    <button @click="saveTransaction"
-                        :class="modal.type === 'in' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
-                        class="w-full py-4 rounded-xl text-white font-bold shadow-lg transition transform active:scale-95 mt-4">
-                        Confirmar Lançamento
-                    </button>
                 </div>
             </div>
+
+            <!-- LIST -->
+            <div class="bg-white border rounded-xl shadow-sm overflow-hidden">
+                <div v-for="(t, idx) in transactions" :key="idx"
+                    class="p-4 border-b last:border-0 flex justify-between items-center hover:bg-gray-50 group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                            :class="t.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'">
+                            <i class="fa-solid" :class="t.type === 'in' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800">{{ t.desc }}</p>
+                            <p class="text-xs text-gray-400">{{ t.date }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold font-mono text-lg"
+                            :class="t.type === 'in' ? 'text-green-600' : 'text-red-600'">
+                            {{ t.type === 'in' ? '+' : '-' }} R$ {{ t.amount.toFixed(2) }}
+                        </p>
+                        <button @click="removeTransaction(idx)"
+                            class="text-xs text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">Excluir</button>
+                    </div>
+                </div>
+                <div v-if="transactions.length === 0" class="p-8 text-center text-gray-400 italic">Nenhuma movimentação
+                    registrada.</div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            class="p-4 bg-white border-t flex justify-center sticky bottom-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <button @click="shareReport"
+                class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-bold shadow-xl flex items-center gap-2 transform transition hover:scale-105">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Enviar Relatório
+            </button>
         </div>
 
     </div>
 
-    <style>
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }
-
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            outline: none;
-            transition: all;
-            background: #f8fafc;
-        }
-
-        .input:focus {
-            border-color: #cbd5e1;
-            background: #fff;
-            ring: 2px solid #cbd5e1;
-        }
-    </style>
-
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_KEY = 'plena_caixa_v1';
 
         createApp({
             setup() {
-                const currentView = ref('today');
-                const mobileMenuOpen = ref(false);
                 const transactions = ref([]);
-                const modal = ref({ show: false, type: 'in', data: {} });
+                const desc = ref("");
+                const amount = ref(null);
+                const type = ref("in");
 
-                // Persistence
-                const load = () => {
-                    const d = localStorage.getItem(DB_KEY);
-                    if (d) transactions.value = JSON.parse(d);
-                };
-                const save = () => localStorage.setItem(DB_KEY, JSON.stringify(transactions.value));
-                watch(transactions, save, { deep: true });
-                onMounted(load);
-
-                // Computed
-                const todayDate = new Date().toISOString().split('T')[0];
-
-                const sortedTransactions = computed(() => [...transactions.value].sort((a, b) => b.id - a.id));
-
-                const todayTransactions = computed(() => transactions.value.filter(t => t.date === todayDate));
-
-                const todayIn = computed(() => todayTransactions.value.filter(t => t.type === 'in').reduce((acc, t) => acc + t.value, 0));
-                const todayOut = computed(() => todayTransactions.value.filter(t => t.type === 'out').reduce((acc, t) => acc + t.value, 0));
-                const todayBalance = computed(() => todayIn.value - todayOut.value);
-
-                const totalIn = computed(() => transactions.value.filter(t => t.type === 'in').reduce((acc, t) => acc + t.value, 0));
-                const totalOut = computed(() => transactions.value.filter(t => t.type === 'out').reduce((acc, t) => acc + t.value, 0));
-                const totalBalance = computed(() => totalIn.value - totalOut.value);
-
-                const getPercentage = (val) => {
-                    const max = Math.max(todayIn.value, todayOut.value) || 1;
-                    return (val / max) * 100;
-                };
-
-                // Methods
-                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                const formatDate = (d) => d ? d.split('-').reverse().join('/') : '';
-
-                const openModal = (type) => {
-                    modal.value.type = type;
-                    modal.value.data = { value: '', description: '', category: type === 'in' ? 'Vendas' : 'Fornecedores', date: todayDate };
-                    modal.value.show = true;
-                };
-                const closeModal = () => modal.value.show = false;
-
-                const saveTransaction = () => {
-                    if (!modal.value.data.value || !modal.value.data.description) return alert('Preencha valor e descrição.');
-                    transactions.value.push({
-                        id: Date.now(),
-                        type: modal.value.type,
-                        ...modal.value.data,
-                        value: Number(modal.value.data.value)
+                // COMPUTED
+                const totals = computed(() => {
+                    const t = { in: 0, out: 0, balance: 0 };
+                    transactions.value.forEach(tr => {
+                        if (tr.type === 'in') t.in += tr.amount;
+                        else t.out += tr.amount;
                     });
-                    closeModal();
+                    t.balance = t.in - t.out;
+                    return t;
+                });
+
+                const chartData = computed(() => {
+                    // Get last 10
+                    const recent = transactions.value.slice(0, 15).reverse(); // create a copy reversed since list is newest first
+                    if (recent.length === 0) return [];
+                    const maxVal = Math.max(...recent.map(r => r.amount));
+                    return recent.map(r => ({
+                        type: r.type,
+                        amount: r.amount,
+                        percent: (r.amount / maxVal) * 100
+                    }));
+                });
+
+                // ACTIONS
+                const addTransaction = () => {
+                    if (!desc.value || !amount.value) return;
+                    transactions.value.unshift({
+                        desc: desc.value,
+                        amount: parseFloat(amount.value),
+                        type: type.value,
+                        date: new Date().toLocaleDateString()
+                    });
+                    desc.value = "";
+                    amount.value = null;
                 };
 
-                const deleteTransaction = (id) => {
-                    if (confirm('Excluir lançamento?')) {
-                        transactions.value = transactions.value.filter(t => t.id !== id);
-                    }
+                const removeTransaction = (idx) => {
+                    if (confirm('Apagar registro?')) transactions.value.splice(idx, 1);
                 };
 
-                // Backup
+                const shareReport = () => {
+                    const text = `💰 *Fluxo de Caixa*\n\n` +
+                        `✅ Entradas: R$ ${totals.value.in.toFixed(2)}\n` +
+                        `🔻 Saídas: R$ ${totals.value.out.toFixed(2)}\n` +
+                        `-------------------\n` +
+                        `💵 *SALDO: R$ ${totals.value.balance.toFixed(2)}*\n\n` +
+                        `_Gerado por Plena Apps_`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // BACKUP
                 const backupData = () => {
-                    const blob = new Blob([localStorage.getItem(DB_KEY)], { type: 'application/json' });
+                    const blob = new Blob([JSON.stringify(transactions.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = 'fluxocaixa_backup.json';
+                    a.download = `backup_caixa_${Date.now()}.json`;
                     a.click();
                 };
-                const triggerImport = () => document.getElementById('importFile').click();
-                const importData = (e) => {
+
+                const restoreData = (e) => {
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (ev) => {
-                        localStorage.setItem(DB_KEY, ev.target.result);
-                        location.reload();
-                    }
+                    r.onload = (v) => {
+                        try {
+                            transactions.value = JSON.parse(v.target.result);
+                            alert("Restaurado!");
+                        } catch (er) { alert("Erro arquivo"); }
+                    };
                     r.readAsText(f);
                 };
 
+                // STORAGE
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_caixa');
+                    if (d) transactions.value = JSON.parse(d);
+                });
+
+                watch(transactions, () => localStorage.setItem('plena_caixa', JSON.stringify(transactions.value)), { deep: true });
+
                 return {
-                    currentView, mobileMenuOpen, modal, transactions, sortedTransactions,
-                    todayIn, todayOut, todayBalance, totalBalance, getPercentage,
-                    formatMoney, formatDate,
-                    openModal, closeModal, saveTransaction, deleteTransaction,
-                    backupData, triggerImport, importData
+                    transactions, desc, amount, type, totals, chartData,
+                    addTransaction, removeTransaction, shareReport, backupData, restoreData
                 };
             }
         }).mount('#app');

@@ -8,11 +8,10 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto Slab', serif;
-            background-color: #ecfccb;
+            background-color: #f0fdf4;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         [v-cloak] {
@@ -21,86 +20,102 @@
     </style>
 </head>
 
-<body class="min-h-screen pb-20">
+<body class="pb-20">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- HEADER -->
-        <header class="bg-lime-600 text-white p-6 shadow-lg z-10 rounded-b-3xl">
-            <h1 class="text-2xl font-bold"><i class="fa-solid fa-leaf mr-2"></i> Jardim Pro</h1>
-            <p class="text-lime-200 text-sm">Calculadora & Agenda</p>
+        <header class="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold"><i class="fa-solid fa-leaf"></i> Jardim Pro</h1>
+                <div class="flex gap-2">
+                    <button @click="reset" class="text-green-200 hover:text-white" title="Novo Orçamento"><i
+                            class="fa-solid fa-plus-circle text-xl"></i></button>
+                </div>
+            </div>
+            <p class="text-green-100 text-sm mt-1">Orçamentos de Jardinagem</p>
         </header>
 
-        <!-- TABS -->
-        <div class="px-4 mt-6">
-            <div class="flex bg-gray-100 p-1 rounded-xl">
-                <button @click="tab = 'calc'" :class="tab==='calc' ? 'bg-white shadow text-lime-700' : 'text-gray-400'"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">Orçamento</button>
-                <button @click="tab = 'clients'"
-                    :class="tab==='clients' ? 'bg-white shadow text-lime-700' : 'text-gray-400'"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">Clientes</button>
+        <div class="p-6 space-y-6">
+
+            <!-- AREA -->
+            <div>
+                <h3 class="font-bold text-green-800 text-sm uppercase mb-2">1. Área do Jardim</h3>
+                <div class="flex gap-3 items-center">
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-500">Comp. (m)</label>
+                        <input v-model.number="length" type="number"
+                            class="w-full border rounded p-3 outline-none focus:border-green-500 bg-green-50"
+                            placeholder="0">
+                    </div>
+                    <span class="text-gray-400 font-bold">X</span>
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-500">Larg. (m)</label>
+                        <input v-model.number="width" type="number"
+                            class="w-full border rounded p-3 outline-none focus:border-green-500 bg-green-50"
+                            placeholder="0">
+                    </div>
+                </div>
+                <div class="mt-2 text-right text-sm text-green-600 font-bold">
+                    Área Total: {{ area }} m²
+                </div>
             </div>
-        </div>
 
-        <div class="p-6">
+            <!-- SERVICES -->
+            <div>
+                <h3 class="font-bold text-green-800 text-sm uppercase mb-2">2. Serviços</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-green-50 transition"
+                        :class="{'border-green-500 bg-green-50': services.grass}">
+                        <input type="checkbox" v-model="services.grass"
+                            class="w-5 h-5 text-green-600 accent-green-600 mr-3">
+                        <span class="flex-grow font-bold text-gray-700">Corte de Grama</span>
+                        <input v-if="services.grass" v-model.number="prices.grass"
+                            class="w-20 text-right p-1 text-sm border-b border-green-300 bg-transparent outline-none"
+                            placeholder="R$/m²">
+                    </label>
 
-            <!-- CALCULATOR -->
-            <div v-if="tab === 'calc'" class="space-y-6 animate-fade-in">
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-green-50 transition"
+                        :class="{'border-green-500 bg-green-50': services.pruning}">
+                        <input type="checkbox" v-model="services.pruning"
+                            class="w-5 h-5 text-green-600 accent-green-600 mr-3">
+                        <span class="flex-grow font-bold text-gray-700">Poda de Arbustos</span>
+                        <input v-if="services.pruning" v-model.number="prices.pruning"
+                            class="w-20 text-right p-1 text-sm border-b border-green-300 bg-transparent outline-none"
+                            placeholder="Total R$">
+                    </label>
 
-                <div class="bg-white border border-lime-100 p-4 rounded-xl shadow-sm">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Tipo de Serviço</label>
-                    <select v-model="serviceType"
-                        class="w-full bg-lime-50 border border-lime-200 rounded-lg p-3 outline-none font-bold text-lime-800">
-                        <option value="m2">Corte de Grama (por m²)</option>
-                        <option value="hour">Limpeza/Poda (por Hora)</option>
-                        <option value="fixed">Valor Fixo (Empreitada)</option>
-                    </select>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-green-50 transition"
+                        :class="{'border-green-500 bg-green-50': services.cleaning}">
+                        <input type="checkbox" v-model="services.cleaning"
+                            class="w-5 h-5 text-green-600 accent-green-600 mr-3">
+                        <span class="flex-grow font-bold text-gray-700">Limpeza / Descarte</span>
+                        <input v-if="services.cleaning" v-model.number="prices.cleaning"
+                            class="w-20 text-right p-1 text-sm border-b border-green-300 bg-transparent outline-none"
+                            placeholder="Total R$">
+                    </label>
+                </div>
+            </div>
+
+            <!-- TOTAL -->
+            <div class="bg-gray-800 text-white p-6 rounded-2xl shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-400 text-sm uppercase font-bold">Total Estimado</span>
+                    <span class="text-3xl font-bold text-green-400">R$ {{ total.toFixed(2) }}</span>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ serviceType === 'm2' ?
-                            'Área (m²)' : (serviceType === 'hour' ? 'Horas' : 'Qtd.') }}</label>
-                        <input v-model="qty" type="number"
-                            class="w-full bg-white border border-gray-200 rounded-lg p-3 text-center font-bold text-xl outline-none focus:border-lime-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Valor Unit.</label>
-                        <input v-model="price" type="number"
-                            class="w-full bg-white border border-gray-200 rounded-lg p-3 text-center font-bold text-xl outline-none focus:border-lime-500">
-                    </div>
+                <div class="space-y-1 text-xs text-gray-400 border-t border-gray-700 pt-3">
+                    <div v-if="services.grass" class="flex justify-between"><span>Corte ({{area}}m² x
+                            {{prices.grass}})</span> <span>{{ (area * prices.grass).toFixed(2) }}</span></div>
+                    <div v-if="services.pruning" class="flex justify-between"><span>Poda</span> <span>{{
+                            prices.pruning.toFixed(2) }}</span></div>
+                    <div v-if="services.cleaning" class="flex justify-between"><span>Limpeza</span> <span>{{
+                            prices.cleaning.toFixed(2) }}</span></div>
                 </div>
 
-                <div class="bg-lime-50 rounded-xl p-6 text-center border border-lime-200 mt-4">
-                    <div class="text-xs text-lime-600 font-bold uppercase mb-1">Total Estimado</div>
-                    <div class="text-4xl font-bold text-lime-700">R$ {{ total.toFixed(2) }}</div>
-                </div>
-
-                <button @click="saveToClient"
-                    class="w-full bg-lime-600 hover:bg-lime-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-save"></i> Salvar na Agenda
-                </button>
                 <button @click="shareQuote"
-                    class="w-full bg-white text-lime-600 border-2 border-lime-600 font-bold py-3 rounded-xl hover:bg-lime-50 flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-whatsapp"></i> Enviar Zap
+                    class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> Enviar Orçamento
                 </button>
-            </div>
-
-            <!-- CLIENTS LIST -->
-            <div v-if="tab === 'clients'" class="space-y-4 animate-fade-in">
-                <div v-if="clients.length === 0" class="text-center text-gray-300 py-10">
-                    Nenhum serviço salvo ainda.
-                </div>
-
-                <div v-for="(c, idx) in clients" :key="idx"
-                    class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-gray-800">R$ {{ c.total.toFixed(2) }}</div>
-                        <div class="text-xs text-gray-400">{{ c.date }} • {{ c.type }}</div>
-                    </div>
-                    <button @click="clients.splice(idx, 1)" class="text-red-300 hover:text-red-500"><i
-                            class="fa-solid fa-trash"></i></button>
-                </div>
             </div>
 
         </div>
@@ -112,49 +127,49 @@
 
         createApp({
             setup() {
-                const tab = ref('calc');
-                const serviceType = ref('m2');
-                const qty = ref(100); // default 100m2
-                const price = ref(2.50); // default R$2.50/m2
-                const clients = ref([]);
+                const length = ref(null);
+                const width = ref(null);
+
+                const services = ref({ grass: false, pruning: false, cleaning: false });
+                const prices = ref({ grass: 2.50, pruning: 50.00, cleaning: 30.00 }); // Default values
+
+                const area = computed(() => (length.value || 0) * (width.value || 0));
 
                 const total = computed(() => {
-                    return (parseFloat(qty.value) || 0) * (parseFloat(price.value) || 0);
+                    let sum = 0;
+                    if (services.value.grass) sum += area.value * (prices.value.grass || 0);
+                    if (services.value.pruning) sum += (prices.value.pruning || 0);
+                    if (services.value.cleaning) sum += (prices.value.cleaning || 0);
+                    return sum;
                 });
+
+                const reset = () => {
+                    length.value = null;
+                    width.value = null;
+                    services.value = { grass: false, pruning: false, cleaning: false };
+                };
 
                 const shareQuote = () => {
-                    let desc = "";
-                    if (serviceType.value === 'm2') desc = `Corte de Grama (${qty.value}m²)`;
-                    if (serviceType.value === 'hour') desc = `Diária/Horas de Manutenção (${qty.value}h)`;
-                    if (serviceType.value === 'fixed') desc = `Serviço de Jardinagem`;
+                    if (total.value === 0) return alert("Selecione serviços e preencha a área!");
 
-                    const text = `🌿 *Orçamento Jardim* 🌿\n\nServiço: ${desc}\nValor Total: *R$ ${total.value.toFixed(2)}*\n\nPodemos agendar?`;
-                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-                    window.open(url, '_blank');
+                    let text = `🍃 *Orçamento de Jardinagem*\n\n`;
+                    text += `📏 Área: *${area.value.toFixed(1)} m²*\n\n`;
+                    if (services.value.grass) text += `✅ Corte de Grama: R$ ${(area.value * prices.value.grass).toFixed(2)}\n`;
+                    if (services.value.pruning) text += `✅ Poda: R$ ${prices.value.pruning.toFixed(2)}\n`;
+                    if (services.value.cleaning) text += `✅ Limpeza: R$ ${prices.value.cleaning.toFixed(2)}\n`;
+                    text += `\n💰 *Total: R$ ${total.value.toFixed(2)}*\n\nGerado por Plena Apps`;
+
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                const saveToClient = () => {
-                    clients.value.unshift({
-                        total: total.value,
-                        date: new Date().toLocaleDateString('pt-BR'),
-                        type: serviceType.value
-                    });
-                    alert("Salvo!");
-                    tab.value = 'clients';
-                };
-
+                // Persist prices preferences
                 onMounted(() => {
-                    const saved = localStorage.getItem('plena_jardim');
-                    if (saved) try { clients.value = JSON.parse(saved); } catch (e) { }
+                    const d = localStorage.getItem('plena_jardim_prices');
+                    if (d) prices.value = JSON.parse(d);
                 });
+                watch(prices, () => localStorage.setItem('plena_jardim_prices', JSON.stringify(prices.value)), { deep: true });
 
-                watch(clients, () => {
-                    localStorage.setItem('plena_jardim', JSON.stringify(clients.value));
-                }, { deep: true });
-
-                return {
-                    tab, serviceType, qty, price, total, clients, shareQuote, saveToClient
-                };
+                return { length, width, area, services, prices, total, reset, shareQuote };
             }
         }).mount('#app');
     </script>

@@ -4,224 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moto Lucro | Plena Transportes</title>
-    <!-- LIBS -->
+    <title>Moto Lucro | Plena Apps</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Rajdhani', sans-serif;
+            background-color: #18181b;
+            color: #e4e4e7;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         [v-cloak] {
             display: none;
         }
 
-        .neon-text {
-            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        input {
+            color-scheme: dark;
         }
     </style>
 </head>
 
-<body class="bg-slate-900 text-slate-100">
+<body class="pb-20">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-slate-800 shadow-2xl flex flex-col relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen flex flex-col">
 
-        <!-- HEADER -->
-        <header class="bg-slate-900 border-b border-slate-700 p-6 sticky top-0 z-50">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold italic flex items-center gap-2 text-yellow-400">
-                    <i class="fa-solid fa-motorcycle"></i> MOTO LUCRO
-                </h1>
-                <button @click="showSettings" class="text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-gear text-xl"></i>
-                </button>
-            </div>
-
-            <!-- GOAL PROGRESS -->
-            <div class="relative pt-2">
-                <div class="flex justify-between text-sm font-bold mb-1">
-                    <span class="text-slate-400">Meta: R$ {{ dailyGoal }}</span>
-                    <span :class="profit >= dailyGoal ? 'text-green-400' : 'text-slate-200'">{{ progressPercentage
-                        }}%</span>
+        <header class="bg-red-700 text-white p-6 shadow-lg rounded-b-3xl mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold italic uppercase"><i class="fa-solid fa-motorcycle"></i> Moto Lucro
+                    </h1>
+                    <p class="text-red-200 text-xs">Parceiro do Motoboy</p>
                 </div>
-                <div class="h-4 bg-slate-700 rounded-full overflow-hidden">
-                    <div :style="{ width: progressPercentage + '%' }"
-                        class="h-full bg-gradient-to-r from-yellow-500 to-orange-600 transition-all duration-500 relative">
-                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
-                    </div>
+                <!-- Oil Gauge -->
+                <div class="text-center bg-black/20 p-2 rounded-lg" :class="oilStatusColor">
+                    <div class="text-[10px] uppercase font-bold">Próx. Óleo</div>
+                    <div class="font-mono font-bold">{{ kmToOil }} km</div>
                 </div>
             </div>
         </header>
 
-        <!-- MAIN CONTENT -->
-        <main class="flex-grow p-4 overflow-y-auto pb-24">
+        <!-- OPERATIONS -->
+        <div class="px-6 space-y-6">
 
-            <!-- DASHBOARD -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <!-- PROFIT CARD -->
-                <div
-                    class="col-span-2 bg-slate-700 p-6 rounded-2xl border border-slate-600 text-center relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition"></div>
-                    <span class="text-slate-400 text-sm font-bold uppercase tracking-widest">Lucro Líquido</span>
-                    <div :class="profit >= 0 ? 'text-green-400' : 'text-red-400'"
-                        class="text-5xl font-bold mt-2 neon-text">
-                        R$ {{ profit.toFixed(2) }}
-                    </div>
-                    <div class="mt-4 flex justify-center gap-6 text-sm">
-                        <div class="text-green-300">
-                            <i class="fa-solid fa-arrow-up"></i> R$ {{ totalRevenue }}
-                        </div>
-                        <div class="text-red-300">
-                            <i class="fa-solid fa-arrow-down"></i> R$ {{ totalExpenses }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- QUICK ACTIONS -->
-                <button @click="openModal('run')"
-                    class="bg-green-600 hover:bg-green-500 text-white p-4 rounded-xl font-bold flex flex-col items-center gap-2 shadow-lg active:scale-95 transition border-b-4 border-green-800">
-                    <i class="fa-solid fa-plus-circle text-2xl"></i>
-                    Nova Corrida
-                </button>
-                <button @click="openModal('expense')"
-                    class="bg-red-600 hover:bg-red-500 text-white p-4 rounded-xl font-bold flex flex-col items-center gap-2 shadow-lg active:scale-95 transition border-b-4 border-red-800">
-                    <i class="fa-solid fa-gas-pump text-2xl"></i>
-                    Gasto/Gas
-                </button>
-            </div>
-
-            <!-- HISTORY LIST -->
-            <h2 class="font-bold text-slate-400 text-sm uppercase mb-3 px-1">Histórico de Hoje</h2>
-
-            <div v-if="history.length === 0" class="text-center py-8 opacity-50">
-                <i class="fa-solid fa-road text-4xl mb-2 text-slate-600"></i>
-                <p>Nenhuma atividade hoje.</p>
-            </div>
-
-            <div class="space-y-3">
-                <div v-for="item in sortedHistory" :key="item.id"
-                    :class="item.type === 'run' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'"
-                    class="bg-slate-700 p-4 rounded-lg flex justify-between items-center shadow-sm">
-
-                    <div class="flex items-center gap-3">
-                        <div :class="item.type === 'run' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
-                            class="w-10 h-10 rounded-full flex items-center justify-center">
-                            <i :class="getIcon(item)" class="fa-solid"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-lg leading-tight">{{ item.description || getLabel(item) }}</div>
-                            <div class="text-xs text-slate-400">{{ formatTime(item.timestamp) }} • {{ item.km ? item.km
-                                + ' km' : '' }}</div>
-                        </div>
-                    </div>
-
-                    <div class="text-right">
-                        <div :class="item.type === 'run' ? 'text-green-400' : 'text-red-400'" class="font-bold text-lg">
-                            {{ item.type === 'run' ? '+' : '-' }} R$ {{ item.amount }}
-                        </div>
-                        <button @click="deleteItem(item.id)" class="text-xs text-slate-600 hover:text-red-500 p-1">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-
+            <!-- Quick Add -->
+            <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-lg">
+                <h3 class="text-sm font-bold text-zinc-400 mb-4 uppercase">Corrida Rápida</h3>
+                <div class="flex gap-2">
+                    <input v-model.number="quickValue" type="number" step="0.50"
+                        class="flex-grow bg-zinc-900 border border-zinc-600 rounded p-3 text-white font-bold text-lg focus:border-red-500 outline-none"
+                        placeholder="R$ 0,00">
+                    <button @click="addRide"
+                        class="bg-red-600 hover:bg-red-500 text-white px-6 rounded font-bold text-xl">+</button>
                 </div>
             </div>
 
-        </main>
+            <!-- Today Stats -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 text-center">
+                    <div class="text-xs text-zinc-500 uppercase">Ganhos Hoje</div>
+                    <div class="text-2xl font-bold text-green-500">R$ {{ todayTotal.toFixed(2) }}</div>
+                    <div class="text-xs text-zinc-400 mt-1">{{ todaysRides.length }} corridas</div>
+                </div>
 
-        <!-- FOOTER SUMMARY -->
-        <div class="bg-slate-900 border-t border-slate-700 p-4 flex gap-2">
-            <div class="flex-grow text-xs text-slate-500 font-bold flex flex-col justify-center">
-                <span>Total KM: {{ totalKm }}</span>
-                <span>Média/KM: R$ {{ averagePerKm }}</span>
+                <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 space-y-2">
+                    <div class="text-xs text-zinc-500 uppercase">Odômetro</div>
+                    <input v-model.number="currentKm" @change="updateOil" type="number"
+                        class="w-full bg-zinc-900 text-center text-white font-mono p-1 rounded border border-zinc-600 focus:border-red-500 outline-none"
+                        placeholder="KM Atual">
+                </div>
             </div>
-            <button @click="shareReport"
-                class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2">
-                <i class="fa-brands fa-whatsapp"></i> Relatório
-            </button>
-        </div>
 
-        <!-- MODAL -->
-        <div v-if="showModal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
-            <div
-                class="bg-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 relative z-10 animate-slide-up border border-slate-600">
+            <!-- Maintenance Config -->
+            <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                <div class="flex justify-between items-center mb-2 cursor-pointer" @click="showMaint = !showMaint">
+                    <h3 class="text-sm font-bold text-zinc-400 uppercase"><i class="fa-solid fa-wrench"></i> Config
+                        Manutenção</h3>
+                    <i class="fa-solid" :class="showMaint ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                </div>
 
-                <h3 class="text-xl font-bold mb-6 text-white flex items-center gap-2">
-                    <i :class="modalType === 'run' ? 'fa-motorcycle text-green-400' : 'fa-gas-pump text-red-400'"
-                        class="fa-solid"></i>
-                    {{ modalType === 'run' ? 'Registrar Corrida' : 'Registrar Gasto' }}
-                </h3>
-
-                <div class="space-y-4">
+                <div v-if="showMaint" class="space-y-3 animate-fade-in border-t border-zinc-700 pt-3">
                     <div>
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Valor (R$)</label>
-                        <input v-model="form.amount" type="number"
-                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-4 text-2xl font-bold text-white focus:outline-none focus:border-yellow-500"
-                            placeholder="0.00" autoFocus>
+                        <label class="text-xs text-zinc-500">Trocar Óleo a cada (km):</label>
+                        <input v-model.number="oilInterval"
+                            class="w-full bg-zinc-900 border border-zinc-600 rounded p-2 text-sm text-white">
                     </div>
-
-                    <div v-if="modalType === 'run'">
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Distância (KM)</label>
-                        <input v-model="form.km" type="number"
-                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white"
-                            placeholder="0">
-                    </div>
-
-                    <div v-if="modalType === 'expense'">
-                        <label class="block text-sm font-bold text-slate-400 mb-1">Tipo</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button @click="form.description = 'Gasolina'"
-                                :class="form.description === 'Gasolina' ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-300'"
-                                class="p-2 rounded font-bold text-sm">Gasolina</button>
-                            <button @click="form.description = 'Óleo'"
-                                :class="form.description === 'Óleo' ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-300'"
-                                class="p-2 rounded font-bold text-sm">Óleo</button>
-                            <button @click="form.description = 'Lanche'"
-                                :class="form.description === 'Lanche' ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-300'"
-                                class="p-2 rounded font-bold text-sm">Lanche</button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions for Runs -->
-                    <div v-if="modalType === 'run'" class="flex gap-2 text-xs font-bold">
-                        <button @click="setAmount(5)"
-                            class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-slate-300">+R$5</button>
-                        <button @click="setAmount(10)"
-                            class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-slate-300">+R$10</button>
-                        <button @click="setAmount(15)"
-                            class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-slate-300">+R$15</button>
+                    <div>
+                        <label class="text-xs text-zinc-500">Última troca (km):</label>
+                        <input v-model.number="lastOilKm"
+                            class="w-full bg-zinc-900 border border-zinc-600 rounded p-2 text-sm text-white">
                     </div>
                 </div>
-
-                <div class="mt-6 flex gap-3">
-                    <button @click="closeModal"
-                        class="flex-1 bg-slate-700 text-slate-300 font-bold py-3 rounded-xl">Cancelar</button>
-                    <button @click="saveEntry" :class="modalType === 'run' ? 'bg-green-600' : 'bg-red-600'"
-                        class="flex-[2] text-white font-bold py-3 rounded-xl shadow-lg">Confirmar</button>
-                </div>
-
             </div>
-        </div>
 
-        <!-- SETTINGS MODAL -->
-        <div v-if="isSettingsOpen" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="isSettingsOpen = false"></div>
-            <div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 relative z-10 border border-slate-600">
-                <h3 class="text-xl font-bold mb-4 text-white">Configurações</h3>
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-slate-400 mb-1">Meta Diária (R$)</label>
-                    <input v-model="dailyGoal" @change="saveData" type="number"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white">
-                </div>
-                <button @click="resetDay"
-                    class="w-full bg-red-500/10 text-red-400 font-bold py-3 rounded-xl hover:bg-red-500/20 border border-red-500/30">
-                    <i class="fa-solid fa-refresh"></i> Iniciar Novo Dia
-                </button>
-            </div>
+            <button @click="resetDay"
+                class="w-full text-zinc-500 hover:text-red-400 text-xs uppercase font-bold text-center py-2">
+                Começar Novo Dia
+            </button>
+
         </div>
 
     </div>
@@ -231,126 +111,69 @@
 
         createApp({
             setup() {
-                const showModal = ref(false);
-                const isSettingsOpen = ref(false);
-                const modalType = ref('run'); // run | expense
-                const dailyGoal = ref(200);
-                const history = ref([]);
+                const quickValue = ref('');
+                const todaysRides = ref([]);
 
-                const form = ref({ amount: '', km: '', description: '' });
+                const currentKm = ref(0);
+                const lastOilKm = ref(0);
+                const oilInterval = ref(1000); // Standard moto interval often 1000-3000
+                const showMaint = ref(false);
 
-                // --- PERSISTENCE ---
-                const saveData = () => {
-                    localStorage.setItem('moto_lucro_data', JSON.stringify({
-                        history: history.value,
-                        goal: dailyGoal.value
-                    }));
+                const todayTotal = computed(() => todaysRides.value.reduce((a, b) => a + b, 0));
+
+                const addRide = () => {
+                    if (!quickValue.value) return;
+                    todaysRides.value.unshift(quickValue.value);
+                    quickValue.value = '';
                 };
 
-                const loadData = () => {
-                    const saved = localStorage.getItem('moto_lucro_data');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        history.value = data.history || [];
-                        dailyGoal.value = data.goal || 200;
-                    }
-                };
-
-                onMounted(() => loadData());
-                watch([history, dailyGoal], saveData, { deep: true });
-
-                // --- COMPUTED ---
-                const sortedHistory = computed(() => {
-                    return [...history.value].sort((a, b) => b.timestamp - a.timestamp);
+                const kmToOil = computed(() => {
+                    const nextChange = lastOilKm.value + oilInterval.value;
+                    const remaining = nextChange - currentKm.value;
+                    return remaining > 0 ? remaining : 0;
                 });
 
-                const totalRevenue = computed(() => {
-                    return history.value.filter(i => i.type === 'run').reduce((sum, i) => sum + Number(i.amount), 0).toFixed(2);
+                const oilStatusColor = computed(() => {
+                    if (kmToOil.value <= 100) return 'text-red-500 animate-pulse';
+                    if (kmToOil.value <= 300) return 'text-yellow-500';
+                    return 'text-green-500';
                 });
 
-                const totalExpenses = computed(() => {
-                    return history.value.filter(i => i.type === 'expense').reduce((sum, i) => sum + Number(i.amount), 0).toFixed(2);
-                });
-
-                const profit = computed(() => totalRevenue.value - totalExpenses.value);
-
-                const progressPercentage = computed(() => {
-                    if (dailyGoal.value <= 0) return 0;
-                    return Math.min(100, Math.floor((profit.value / dailyGoal.value) * 100));
-                });
-
-                const totalKm = computed(() => {
-                    return history.value.filter(i => i.type === 'run').reduce((sum, i) => sum + Number(i.km || 0), 0);
-                });
-
-                const averagePerKm = computed(() => {
-                    if (totalKm.value === 0) return '0.00';
-                    return (profit.value / totalKm.value).toFixed(2);
-                });
-
-
-                // --- ACTIONS ---
-                const openModal = (type) => {
-                    modalType.value = type;
-                    form.value = { amount: '', km: '', description: type === 'expense' ? 'Gasolina' : '' };
-                    showModal.value = true;
-                };
-
-                const closeModal = () => showModal.value = false;
-                const showSettings = () => isSettingsOpen.value = true;
-
-                const setAmount = (val) => {
-                    form.value.amount = (Number(form.value.amount || 0) + val).toString();
-                };
-
-                const saveEntry = () => {
-                    if (!form.value.amount) return alert('Digite o valor!');
-
-                    history.value.push({
-                        id: Date.now(),
-                        type: modalType.value,
-                        amount: Number(form.value.amount).toFixed(2),
-                        km: form.value.km,
-                        description: form.value.description,
-                        timestamp: Date.now()
-                    });
-                    closeModal();
-                };
-
-                const deleteItem = (id) => {
-                    if (confirm('Apagar registro?')) {
-                        history.value = history.value.filter(i => i.id !== id);
-                    }
+                const updateOil = () => {
+                    // Just triggers reactivity for KM Watcher
                 };
 
                 const resetDay = () => {
-                    if (confirm("Vai zerar tudo de hoje. Certeza?")) {
-                        history.value = [];
-                        isSettingsOpen.value = false;
+                    if (confirm("Zerar ganhos de hoje? (O KM será mantido)")) {
+                        todaysRides.value = [];
                     }
                 };
 
-                // --- UTILS ---
-                const getIcon = (item) => {
-                    if (item.type === 'run') return 'fa-motorcycle';
-                    if (item.description === 'Gasolina') return 'fa-gas-pump';
-                    if (item.description === 'Lanche') return 'fa-hamburger';
-                    return 'fa-wrench';
-                };
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_moto');
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        todaysRides.value = parsed.rides || [];
+                        currentKm.value = parsed.km || 0;
+                        lastOilKm.value = parsed.lastOil || 0;
+                        oilInterval.value = parsed.interval || 1000;
+                    }
+                });
 
-                const getLabel = (item) => {
-                    return item.type === 'run' ? 'Corrida' : 'Gasto';
-                };
-
-                const formatTime = (ts) => {
-                    return new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                };
+                watch([todaysRides, currentKm, lastOilKm, oilInterval], () => {
+                    localStorage.setItem('plena_moto', JSON.stringify({
+                        rides: todaysRides.value,
+                        km: currentKm.value,
+                        lastOil: lastOilKm.value,
+                        interval: oilInterval.value
+                    }));
+                }, { deep: true });
 
                 return {
-                    showModal, isSettingsOpen, modalType, dailyGoal, form, history,
-                    sortedHistory, profit, totalRevenue, totalExpenses, progressPercentage, totalKm, averagePerKm,
-                    openModal, closeModal, showSettings, saveEntry, deleteItem, resetDay, setAmount,
-                    getIcon, getLabel, formatTime, saveData
+                    quickValue, todaysRides, todayTotal,
+                    currentKm, lastOilKm, oilInterval, showMaint,
+                    addRide, kmToOil, oilStatusColor, updateOil, resetDay
                 };
             }
         }).mount('#app');

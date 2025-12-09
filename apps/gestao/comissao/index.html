@@ -3,479 +3,177 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor de Comissões | Plena Aplicativos</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calc Comissões | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#fdf4ff',
-                            100: '#fae8ff',
-                            500: '#d946ef',
-                            600: '#c026d3',
-                            700: '#a21caf',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #f0fdf4;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+<body class="pb-20">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
 
-        <!-- Sidebar -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
-                    <i class="fa-solid fa-hand-holding-dollar text-white text-sm"></i>
+        <header class="bg-green-600 text-white p-6 shadow-md">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold"><i class="fa-solid fa-hand-holding-dollar"></i> Comissões</h1>
+                <div class="flex gap-3 text-green-200">
+                    <button @click="backupData" class="hover:text-white"><i class="fa-solid fa-download"></i></button>
+                    <label class="cursor-pointer hover:text-white"><i class="fa-solid fa-upload"></i><input type="file"
+                            @change="restoreData" class="hidden" accept=".json"></label>
                 </div>
-                <h1 class="font-bold text-lg tracking-tight">Comissões</h1>
+            </div>
+            <p class="text-green-100 text-xs">Gestão de Vendas e Metas</p>
+        </header>
+
+        <div class="p-6 space-y-6">
+
+            <!-- CONFIG -->
+            <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                <h3 class="font-bold text-green-800 text-xs uppercase mb-3">Configuração</h3>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-500 font-bold">META (R$)</label>
+                        <input v-model.number="config.goal" type="number"
+                            class="w-full border-b border-green-300 bg-transparent py-1 font-bold text-green-700 outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-gray-500 font-bold">COMISSÃO (%)</label>
+                        <input v-model.number="config.rate" type="number"
+                            class="w-full border-b border-green-300 bg-transparent py-1 font-bold text-green-700 outline-none">
+                    </div>
+                </div>
             </div>
 
-            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <a @click="currentView = 'dashboard'"
-                    :class="currentView === 'dashboard' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Visão Geral</span>
-                </a>
-                <a @click="currentView = 'sales'"
-                    :class="currentView === 'sales' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-receipt w-5 text-center"></i> <span>Vendas</span>
-                </a>
-                <a @click="currentView = 'team'"
-                    :class="currentView === 'team' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
-                    <i class="fa-solid fa-users w-5 text-center"></i> <span>Vendedores</span>
-                </a>
-            </nav>
-
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
-                <button @click="backupData" class="hover:text-white underline">Backup</button> |
-                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
-                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
-            <!-- Mobile Header -->
-            <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
-                            class="fa-solid fa-hand-holding-dollar text-xs"></i></div>
-                    <span class="font-bold text-slate-800">Comissões</span>
-                </div>
-                <div class="text-xs font-bold text-slate-400">v3.0</div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
-
-                <!-- VIEW: DASHBOARD -->
-                <div v-if="currentView === 'dashboard'" class="max-w-5xl mx-auto animate-fade-in">
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-1">Painel de Controle</h2>
-                        <p class="text-slate-500">Resumo de desempenho e pagamentos.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Vendas Totais</div>
-                            <div class="text-3xl font-extrabold text-slate-800">R$ {{ formatMoney(totalSales) }}</div>
-                            <div class="text-xs text-green-500 mt-2 font-bold"><i class="fa-solid fa-arrow-up"></i>
-                                Acumulado</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Comissões a Pagar</div>
-                            <div class="text-3xl font-extrabold text-brand-600">R$ {{ formatMoney(totalCommissions) }}
-                            </div>
-                            <div class="text-xs text-brand-600/70 mt-2 font-bold">Média: {{ avgMarkap.toFixed(1) }}%
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Top Vendedor</div>
-                            <div class="text-xl font-extrabold text-slate-800 truncate">{{ topSeller ? topSeller.name :
-                                'N/A' }}</div>
-                            <div class="text-xs text-slate-400 mt-2" v-if="topSeller">
-                                R$ {{ formatMoney(topSeller.totalSold) }} em vendas
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 class="font-bold text-slate-800 mb-4">Desempenho por Vendedor</h3>
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <table class="w-full">
-                            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
-                                <tr>
-                                    <th class="p-4 text-left">Vendedor</th>
-                                    <th class="p-4 text-right">Total Vendido</th>
-                                    <th class="p-4 text-center">%</th>
-                                    <th class="p-4 text-right">Comissão</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <tr v-for="seller in sellersWithStats" :key="seller.id">
-                                    <td class="p-4 font-bold text-slate-700">{{ seller.name }}</td>
-                                    <td class="p-4 text-right text-slate-600">R$ {{ formatMoney(seller.totalSold) }}
-                                    </td>
-                                    <td class="p-4 text-center"><span
-                                            class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">{{
-                                            seller.rate }}%</span></td>
-                                    <td class="p-4 text-right font-bold text-brand-600">R$ {{
-                                        formatMoney(seller.totalComm) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- VIEW: SALES -->
-                <div v-if="currentView === 'sales'" class="max-w-4xl mx-auto animate-fade-in">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-slate-800">Registro de Vendas</h2>
-                        <button @click="openSaleModal"
-                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
-                                class="fa-solid fa-plus mr-2"></i> Nova Venda</button>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div v-for="s in salesList.slice().reverse()" :key="s.id"
-                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
-                            <div>
-                                <div class="font-bold text-slate-800 text-lg">R$ {{ formatMoney(s.value) }}</div>
-                                <div class="text-xs text-slate-500 flex items-center gap-2">
-                                    <span class="bg-slate-100 px-2 py-0.5 rounded font-bold text-slate-600"><i
-                                            class="fa-solid fa-user text-xs mr-1"></i> {{ getSellerName(s.sellerId)
-                                        }}</span>
-                                    <span>{{ formatDate(s.date) }}</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold text-brand-600">+ R$ {{ formatMoney(s.commission) }}</div>
-                                <button @click="deleteSale(s.id)"
-                                    class="text-slate-300 hover:text-red-500 text-xs mt-1 transition">Excluir</button>
-                            </div>
-                        </div>
-                        <div v-if="salesList.length === 0" class="text-center py-20 text-slate-400">Nenhuma venda
-                            registrada.</div>
-                    </div>
-                </div>
-
-                <!-- VIEW: TEAM -->
-                <div v-if="currentView === 'team'" class="max-w-4xl mx-auto animate-fade-in">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-slate-800">Equipe de Vendas</h2>
-                        <button @click="openTeamModal()"
-                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
-                                class="fa-solid fa-plus mr-2"></i> Adicionar</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div v-for="s in sellers" :key="s.id"
-                            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                            <div>
-                                <h3 class="font-bold text-lg text-slate-800">{{ s.name }}</h3>
-                                <div class="text-sm text-slate-500">Comissão Base: <span
-                                        class="font-bold text-brand-600">{{ s.rate }}%</span></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button @click="openTeamModal(s)"
-                                    class="w-8 h-8 rounded-lg bg-slate-50 text-blue-500 hover:bg-blue-50 transition flex items-center justify-center"><i
-                                        class="fa-solid fa-pen"></i></button>
-                                <button @click="deleteSeller(s.id)"
-                                    class="w-8 h-8 rounded-lg bg-slate-50 text-red-500 hover:bg-red-50 transition flex items-center justify-center"><i
-                                        class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- Sale Modal -->
-        <div v-if="modals.sale"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-fade-in">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-lg">Nova Venda</h3>
-                    <button @click="modals.sale = false" class="text-slate-400 hover:text-slate-600"><i
-                            class="fa-solid fa-times"></i></button>
-                </div>
-                <div class="p-6 space-y-4">
+            <!-- DASHBOARD -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-4 relative overflow-hidden">
+                <div class="flex justify-between items-end mb-2">
                     <div>
-                        <label class="label">Vendedor</label>
-                        <select v-model="saleForm.sellerId" class="input">
-                            <option v-for="s in sellers" :key="s.id" :value="s.id">{{ s.name }} ({{ s.rate }}%)</option>
-                        </select>
+                        <div class="text-xs text-gray-400 uppercase">Total Vendido</div>
+                        <div class="text-2xl font-bold text-gray-800">R$ {{ totalSales.toFixed(2) }}</div>
                     </div>
-                    <div>
-                        <label class="label">Valor da Venda (R$)</label>
-                        <input v-model="saleForm.value" type="number" step="0.01"
-                            class="input text-xl font-bold text-brand-600" placeholder="0.00">
+                    <div class="text-right">
+                        <div class="text-xs text-gray-400 uppercase">A Receber</div>
+                        <div class="text-xl font-bold text-green-600">R$ {{ totalCommission.toFixed(2) }}</div>
                     </div>
-                    <div>
-                        <label class="label">Data</label>
-                        <input v-model="saleForm.date" type="date" class="input">
-                    </div>
-                    <button @click="saveSale" class="w-full btn-primary py-3 rounded-xl mt-2">Registrar Venda</button>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-100 rounded-full h-2 mt-2">
+                    <div class="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                        :style="{width: progress + '%'}"></div>
+                </div>
+                <div class="text-[10px] text-gray-400 text-center mt-1">{{ progress.toFixed(0) }}% da Meta</div>
+            </div>
+
+            <!-- NEW SALE -->
+            <div>
+                <h3 class="font-bold text-gray-700 mb-2">Nova Venda</h3>
+                <div class="flex gap-2">
+                    <input v-model="form.desc"
+                        class="flex-[2] border p-3 rounded-l-lg outline-none focus:border-green-500"
+                        placeholder="Cliente/Produto">
+                    <input v-model.number="form.value" type="number"
+                        class="flex-1 border p-3 outline-none focus:border-green-500" placeholder="R$ Value">
+                    <button @click="addSale"
+                        class="bg-green-600 hover:bg-green-500 text-white px-4 rounded-r-lg font-bold"><i
+                            class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
+
+            <!-- HISTORY -->
+            <div>
+                <h3 class="font-bold text-gray-700 mb-2">Histórico</h3>
+                <div class="space-y-2 max-h-60 overflow-y-auto">
+                    <div v-for="(sale, idx) in sales" :key="idx"
+                        class="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-100">
+                        <div>
+                            <div class="font-bold text-sm text-gray-700">{{ sale.desc }}</div>
+                            <div class="text-[10px] text-gray-400">{{ formatDate(sale.date) }}</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-gray-600">R$ {{ sale.value.toFixed(2) }}</span>
+                            <button @click="sales.splice(idx,1)" class="text-red-300 hover:text-red-500 text-xs"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div v-if="sales.length===0" class="text-center text-sm text-gray-400 py-4">Sem vendas registradas.
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Team Modal -->
-        <div v-if="modals.team"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-fade-in">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-lg">{{ teamForm.id ? 'Editar' : 'Novo' }} Vendedor</h3>
-                    <button @click="modals.team = false" class="text-slate-400 hover:text-slate-600"><i
-                            class="fa-solid fa-times"></i></button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="label">Nome</label>
-                        <input v-model="teamForm.name" type="text" class="input" placeholder="Ex: Maria Souza">
-                    </div>
-                    <div>
-                        <label class="label">Comissão (%)</label>
-                        <input v-model="teamForm.rate" type="number" step="0.1" class="input" placeholder="Ex: 5">
-                    </div>
-                    <button @click="saveSeller" class="w-full btn-primary py-3 rounded-xl mt-2">Salvar</button>
-                </div>
-            </div>
-        </div>
+        <button @click="share"
+            class="mx-6 mb-6 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl shadow">
+            <i class="fa-brands fa-whatsapp"></i> Enviar Relatório
+        </button>
 
     </div>
 
-    <style>
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }
-
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            outline: none;
-            transition: all;
-            background: #f8fafc;
-            font-weight: 500;
-        }
-
-        .input:focus {
-            border-color: #d946ef;
-            background: #fff;
-            ring: 2px solid #d946ef;
-        }
-
-        .btn-primary {
-            background-color: #c026d3;
-            color: white;
-            font-weight: 700;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #a21caf;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
-
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_KEY_SELLERS = 'plena_comissao_sellers_v1';
-        const DB_KEY_SALES = 'plena_comissao_sales_v1';
 
         createApp({
             setup() {
-                const currentView = ref('dashboard');
+                const config = ref({ goal: 10000, rate: 5 });
+                const form = ref({ desc: '', value: '' });
+                const sales = ref([]);
 
-                // Data
-                const sellers = ref([]);
-                const salesList = ref([]);
+                const addSale = () => {
+                    if (!form.value.desc || !form.value.value) return;
+                    sales.value.unshift({ ...form.value, date: Date.now() });
+                    form.value = { desc: '', value: '' };
+                };
 
-                const modals = ref({ sale: false, team: false });
-                const saleForm = ref({ sellerId: '', value: '', date: '' });
-                const teamForm = ref({ id: null, name: '', rate: '' });
+                const totalSales = computed(() => sales.value.reduce((a, b) => a + Number(b.value), 0));
 
-                // Persistence
-                onMounted(() => {
-                    const s = localStorage.getItem(DB_KEY_SELLERS);
-                    if (s) sellers.value = JSON.parse(s);
-                    else sellers.value = [{ id: 1, name: 'Vendedor Padrão', rate: 10 }]; // Seed
-
-                    const sl = localStorage.getItem(DB_KEY_SALES);
-                    if (sl) salesList.value = JSON.parse(sl);
+                const totalCommission = computed(() => {
+                    // Simple flat rate logic. Could be tiered in future.
+                    return totalSales.value * (config.value.rate / 100);
                 });
 
-                watch(sellers, () => localStorage.setItem(DB_KEY_SELLERS, JSON.stringify(sellers.value)), { deep: true });
-                watch(salesList, () => localStorage.setItem(DB_KEY_SALES, JSON.stringify(salesList.value)), { deep: true });
-
-                // Computed
-                const totalSales = computed(() => salesList.value.reduce((acc, s) => acc + s.value, 0));
-                const totalCommissions = computed(() => salesList.value.reduce((acc, s) => acc + s.commission, 0));
-                const avgMarkap = computed(() => totalSales.value ? (totalCommissions.value / totalSales.value) * 100 : 0);
-
-                const sellersWithStats = computed(() => {
-                    return sellers.value.map(seller => {
-                        const mySales = salesList.value.filter(s => s.sellerId === seller.id);
-                        return {
-                            ...seller,
-                            totalSold: mySales.reduce((acc, s) => acc + s.value, 0),
-                            totalComm: mySales.reduce((acc, s) => acc + s.commission, 0)
-                        };
-                    }).sort((a, b) => b.totalSold - a.totalSold);
+                const progress = computed(() => {
+                    if (config.value.goal <= 0) return 0;
+                    return Math.min((totalSales.value / config.value.goal) * 100, 100);
                 });
 
-                const topSeller = computed(() => sellersWithStats.value.length > 0 ? sellersWithStats.value[0] : null);
+                const formatDate = (ts) => new Date(ts).toLocaleDateString('pt-BR');
 
-                // Methods
-                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString('pt-BR') : '';
-                const getSellerName = (id) => {
-                    const s = sellers.value.find(x => x.id === id);
-                    return s ? s.name : 'Desconhecido';
-                };
-
-                // Team Logic
-                const openTeamModal = (s = null) => {
-                    if (s) teamForm.value = { ...s };
-                    else teamForm.value = { id: null, name: '', rate: '' };
-                    modals.value.team = true;
-                };
-
-                const saveSeller = () => {
-                    if (!teamForm.value.name || !teamForm.value.rate) return alert('Preencha os campos');
-                    if (teamForm.value.id) {
-                        const idx = sellers.value.findIndex(s => s.id === teamForm.value.id);
-                        if (idx !== -1) sellers.value[idx] = { ...teamForm.value, rate: Number(teamForm.value.rate) };
-                    } else {
-                        sellers.value.push({ id: Date.now(), ...teamForm.value, rate: Number(teamForm.value.rate) });
-                    }
-                    modals.value.team = false;
-                };
-
-                const deleteSeller = (id) => {
-                    if (salesList.value.some(s => s.sellerId === id)) return alert('Não é possível excluir vendedor com vendas registradas.');
-                    if (confirm('Excluir este vendedor?')) sellers.value = sellers.value.filter(s => s.id !== id);
-                };
-
-                // Sale Logic
-                const openSaleModal = () => {
-                    if (sellers.value.length === 0) return alert('Cadastre um vendedor primeiro!');
-                    saleForm.value = { sellerId: sellers.value[0].id, value: '', date: new Date().toISOString().split('T')[0] };
-                    modals.value.sale = true;
-                };
-
-                const saveSale = () => {
-                    if (!saleForm.value.value || !saleForm.value.sellerId) return alert('Preencha os campos');
-                    const seller = sellers.value.find(s => s.id === saleForm.value.sellerId);
-                    const val = Number(saleForm.value.value);
-                    const comm = (val * seller.rate) / 100;
-
-                    salesList.value.push({
-                        id: Date.now(),
-                        sellerId: seller.id,
-                        value: val,
-                        date: saleForm.value.date,
-                        commission: comm
-                    });
-                    modals.value.sale = false;
-                };
-
-                const deleteSale = (id) => {
-                    if (confirm('Apagar registro de venda?')) salesList.value = salesList.value.filter(s => s.id !== id);
+                const share = () => {
+                    const text = `💰 *Relatório de Vendas*\n\nTotal Vendido: R$ ${totalSales.value.toFixed(2)}\nComissão (${config.value.rate}%): *R$ ${totalCommission.value.toFixed(2)}*\nMeta: ${progress.value.toFixed(0)}%\n\nGerado via Plena Apps`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
                 // Backup
                 const backupData = () => {
-                    const data = { sellers: sellers.value, sales: salesList.value };
-                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'comissoes_backup.json';
-                    a.click();
+                    const data = { config: config.value, sales: sales.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sales_report.json`; a.click();
                 };
-                const triggerImport = () => document.getElementById('importFile').click();
-                const importData = (e) => {
-                    const f = e.target.files[0];
-                    if (!f) return;
+                const restoreData = (e) => {
+                    const f = e.target.files[0]; if (!f) return;
                     const r = new FileReader();
-                    r.onload = (ev) => {
-                        const data = JSON.parse(ev.target.result);
-                        if (data.sellers) sellers.value = data.sellers;
-                        if (data.sales) salesList.value = data.sales;
-                        location.reload();
-                    }
+                    r.onload = (v) => { const d = JSON.parse(v.target.result); config.value = d.config; sales.value = d.sales; alert("Dados restaurados!"); };
                     r.readAsText(f);
                 };
 
-                return {
-                    currentView, modals, saleForm, teamForm,
-                    sellers, salesList, totalSales, totalCommissions, avgMarkap, sellersWithStats, topSeller,
-                    formatMoney, formatDate, getSellerName,
-                    openTeamModal, saveSeller, deleteSeller,
-                    openSaleModal, saveSale, deleteSale,
-                    backupData, triggerImport, importData
-                };
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_commission');
+                    if (d) { const p = JSON.parse(d); if (p.config) config.value = p.config; if (p.sales) sales.value = p.sales; }
+                });
+                watch([config, sales], () => localStorage.setItem('plena_commission', JSON.stringify({ config: config.value, sales: sales.value })), { deep: true });
+
+                return { config, form, sales, addSale, totalSales, totalCommission, progress, formatDate, share, backupData, restoreData };
             }
         }).mount('#app');
     </script>

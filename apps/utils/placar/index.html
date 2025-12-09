@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar Universal | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen flex flex-col items-center justify-center p-4">
+
+        <!-- SCOREBOARD -->
+        <div class="w-full flex justify-between items-center mb-8 gap-4">
+
+            <!-- TEAM A -->
+            <div class="flex-1 flex flex-col items-center">
+                <input v-model="teamA"
+                    class="bg-transparent text-center text-red-500 font-bold text-xl w-full mb-2 outline-none uppercase"
+                    placeholder="TIME A">
+                <div class="bg-red-900/20 border-4 border-red-600 rounded-2xl w-full aspect-square flex items-center justify-center relative overflow-hidden group hover:bg-red-900/30 transition cursor-pointer"
+                    @click="scoreA++">
+                    <div class="text-8xl font-bold font-mono z-10">{{ scoreA }}</div>
+                    <div
+                        class="absolute inset-0 flex flex-col justify-between p-2 opacity-0 group-hover:opacity-100 transition z-20">
+                        <button @click.stop="scoreA++" class="bg-red-600 text-white rounded h-8 w-full"><i
+                                class="fa-solid fa-plus"></i></button>
+                        <button @click.stop="scoreA > 0 ? scoreA-- : null"
+                            class="bg-red-900 text-white rounded h-8 w-full"><i class="fa-solid fa-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-gray-600 font-bold text-2xl">X</div>
+
+            <!-- TEAM B -->
+            <div class="flex-1 flex flex-col items-center">
+                <input v-model="teamB"
+                    class="bg-transparent text-center text-blue-500 font-bold text-xl w-full mb-2 outline-none uppercase"
+                    placeholder="TIME B">
+                <div class="bg-blue-900/20 border-4 border-blue-600 rounded-2xl w-full aspect-square flex items-center justify-center relative overflow-hidden group hover:bg-blue-900/30 transition cursor-pointer"
+                    @click="scoreB++">
+                    <div class="text-8xl font-bold font-mono z-10">{{ scoreB }}</div>
+                    <div
+                        class="absolute inset-0 flex flex-col justify-between p-2 opacity-0 group-hover:opacity-100 transition z-20">
+                        <button @click.stop="scoreB++" class="bg-blue-600 text-white rounded h-8 w-full"><i
+                                class="fa-solid fa-plus"></i></button>
+                        <button @click.stop="scoreB > 0 ? scoreB-- : null"
+                            class="bg-blue-900 text-white rounded h-8 w-full"><i class="fa-solid fa-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SETS / PERIODS -->
+        <div class="flex gap-4 mb-8">
+            <div class="text-center">
+                <div class="text-xs text-gray-500 uppercase">Sets/Tempos</div>
+                <div class="flex gap-2 text-2xl font-bold font-mono">
+                    <span class="text-red-400">{{ setsA }}</span>
+                    <span class="text-gray-600">:</span>
+                    <span class="text-blue-400">{{ setsB }}</span>
+                </div>
+            </div>
+            <div class="flex gap-2 items-center">
+                <button @click="setsA++"
+                    class="w-8 h-8 rounded bg-red-900 text-red-400 font-bold border border-red-700">+1</button>
+                <button @click="setsB++"
+                    class="w-8 h-8 rounded bg-blue-900 text-blue-400 font-bold border border-blue-700">+1</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 w-full">
+            <button @click="resetScore" class="bg-gray-800 hover:bg-gray-700 text-gray-300 py-4 rounded-xl font-bold"><i
+                    class="fa-solid fa-eraser"></i> Zerar Placar</button>
+            <button @click="share" class="bg-green-600 hover:bg-green-500 text-white py-4 rounded-xl font-bold"><i
+                    class="fa-brands fa-whatsapp"></i> Compartilhar</button>
+            <button @click="resetAll"
+                class="bg-red-900/50 hover:bg-red-900 text-red-400 py-3 rounded-xl col-span-2 text-sm"><i
+                    class="fa-solid fa-rotate-right"></i> Reiniciar Partida Completa</button>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, watch, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const teamA = ref('Time A');
+                const teamB = ref('Time B');
+                const scoreA = ref(0);
+                const scoreB = ref(0);
+                const setsA = ref(0);
+                const setsB = ref(0);
+
+                const resetScore = () => { scoreA.value = 0; scoreB.value = 0; };
+                const resetAll = () => {
+                    if (confirm("Reiniciar tudo?")) {
+                        scoreA.value = 0; scoreB.value = 0;
+                        setsA.value = 0; setsB.value = 0;
+                    }
+                };
+
+                const share = () => {
+                    const text = `🏆 *Placar Final*\n\n🔴 *${teamA.value}*: ${scoreA.value} (${setsA.value})\n🔵 *${teamB.value}*: ${scoreB.value} (${setsB.value})\n\nApp Placar Universal`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                };
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_placar');
+                    if (d) {
+                        const p = JSON.parse(d);
+                        teamA.value = p.ta; teamB.value = p.tb;
+                        scoreA.value = p.sa; scoreB.value = p.sb;
+                        setsA.value = p.seta; setsB.value = p.setb;
+                    }
+                });
+                watch([teamA, teamB, scoreA, scoreB, setsA, setsB], () => {
+                    localStorage.setItem('plena_placar', JSON.stringify({
+                        ta: teamA.value, tb: teamB.value,
+                        sa: scoreA.value, sb: scoreB.value,
+                        seta: setsA.value, setb: setsB.value
+                    }));
+                });
+
+                return { teamA, teamB, scoreA, scoreB, setsA, setsB, resetScore, resetAll, share };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
