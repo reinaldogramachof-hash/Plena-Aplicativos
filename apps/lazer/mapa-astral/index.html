@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Mapa Astral | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        h1,
+        h2,
+        .mystic-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .stars-bg {
+            background-image: radial-gradient(white 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 stars-bg">
+
+    <div id="app" v-cloak class="w-full max-w-md">
+
+        <!-- FORM -->
+        <div v-if="!result"
+            class="bg-indigo-950/80 backdrop-blur-md p-8 rounded-3xl border border-indigo-500/30 shadow-2xl">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-star-of-david text-4xl text-purple-400 mb-4 animate-pulse"></i>
+                <h1
+                    class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                    Mapa Astral</h1>
+                <p class="text-indigo-200 text-sm mt-2">Descubra os astros que regem você.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">Nome</label>
+                    <input v-model="name" type="text"
+                        class="w-full bg-indigo-900/50 border border-indigo-700 rounded-xl p-3 outline-none focus:border-purple-500 text-white placeholder-indigo-500/50"
+                        placeholder="Seu nome">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">Nascimento</label>
+                        <input v-model="birthDate" type="date"
+                            class="w-full bg-indigo-900/50 border border-indigo-700 rounded-xl p-3 outline-none focus:border-purple-500 text-white">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">Horário</label>
+                        <input v-model="birthTime" type="time"
+                            class="w-full bg-indigo-900/50 border border-indigo-700 rounded-xl p-3 outline-none focus:border-purple-500 text-white">
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900/30 p-3 rounded-lg text-xs text-indigo-300 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5"></i>
+                    <span>Este é um cálculo simplificado (Sol e Ascendente aproximado). Para um mapa completo, consulte
+                        um astrólogo.</span>
+                </div>
+
+                <button @click="calculateChart"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95 mt-4">
+                    Revelar Mapa
+                </button>
+            </div>
+        </div>
+
+        <!-- RESULT CARD -->
+        <div v-else class="relative">
+            <div id="astral-card"
+                class="bg-gradient-to-bl from-indigo-900 to-black p-8 rounded-3xl border border-white/10 shadow-2xl text-center relative overflow-hidden">
+                <!-- Decorative Circle -->
+                <div
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/5 rounded-full">
+                </div>
+
+                <div class="relative z-10">
+                    <p class="text-xs uppercase tracking-[0.3em] text-purple-400 mb-6">Mapa Astral de</p>
+                    <h2
+                        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200 mb-8">
+                        {{ name }}</h2>
+
+                    <div class="space-y-6">
+                        <!-- SUN -->
+                        <div class="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10">
+                            <div class="text-xs font-bold text-yellow-400 uppercase mb-1"><i
+                                    class="fa-solid fa-sun mr-1"></i> Sol (Essência)</div>
+                            <div class="text-2xl mystic-font">{{ signs[chart.sun].name }}</div>
+                            <div class="text-[10px] text-gray-400 mt-1">{{ signs[chart.sun].desc }}</div>
+                        </div>
+
+                        <!-- ASCENDANT -->
+                        <div class="bg-white/5 p-4 rounded-xl backdrop-blur-sm border border-white/10">
+                            <div class="text-xs font-bold text-blue-400 uppercase mb-1"><i
+                                    class="fa-solid fa-arrow-up mr-1"></i> Ascendente (Máscara)</div>
+                            <div class="text-2xl mystic-font">{{ signs[chart.asc].name }}</div>
+                            <div class="text-[10px] text-gray-400 mt-1">Como o mundo te vê</div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center text-xs text-gray-500">
+                        <span>Plena Apps</span>
+                        <span>{{ formatDate(birthDate) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button @click="result = false"
+                    class="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-bold backdrop-blur-sm transition">
+                    Voltar
+                </button>
+                <button @click="share"
+                    class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> Compartilhar
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const name = ref("");
+                const birthDate = ref("");
+                const birthTime = ref("");
+                const result = ref(false);
+                const chart = ref({ sun: 0, asc: 0 });
+
+                const signs = [
+                    { name: "Áries", date: "03-21", desc: "Corajoso e determinado" },
+                    { name: "Touro", date: "04-20", desc: "Confiável e paciente" },
+                    { name: "Gêmeos", date: "05-21", desc: "Curioso e adaptável" },
+                    { name: "Câncer", date: "06-21", desc: "Intuitivo e protetor" },
+                    { name: "Leão", date: "07-23", desc: "Criativo e apaixonado" },
+                    { name: "Virgem", date: "08-23", desc: "Analítico e gentil" },
+                    { name: "Libra", date: "09-23", desc: "Diplomático e justo" },
+                    { name: "Escorpião", date: "10-23", desc: "Intenso e engenhoso" },
+                    { name: "Sagitário", date: "11-22", desc: "Otimista e livre" },
+                    { name: "Capricórnio", date: "12-22", desc: "Disciplinado e sério" },
+                    { name: "Aquário", date: "01-20", desc: "Original e independente" },
+                    { name: "Peixes", date: "02-19", desc: "Compassivo e artístico" }
+                ];
+
+                const getSign = (date) => {
+                    const [y, m, d] = date.split('-').map(Number);
+                    // Standard dates approximation
+                    // Aries starts 03-21. 
+                    // Indices: 0=Aries, 1=Taurus... 11=Pisces
+                    // Let's keep it simple: Compare MD
+                    const md = m * 100 + d;
+
+                    if (md >= 321 && md <= 419) return 0; // Aries
+                    if (md >= 420 && md <= 520) return 1; // Taurus
+                    if (md >= 521 && md <= 620) return 2; // Gemini
+                    if (md >= 621 && md <= 722) return 3; // Cancer
+                    if (md >= 723 && md <= 822) return 4; // Leo
+                    if (md >= 823 && md <= 922) return 5; // Virgo
+                    if (md >= 923 && md <= 1022) return 6; // Libra
+                    if (md >= 1023 && md <= 1121) return 7; // Scorpio
+                    if (md >= 1122 && md <= 1221) return 8; // Sagittarius
+                    if (md >= 1222 || md <= 119) return 9; // Capricorn
+                    if (md >= 120 && md <= 218) return 10; // Aquarius
+                    return 11; // Pisces
+                };
+
+                const calculateChart = () => {
+                    if (!name.value || !birthDate.value) return alert("Preencha os dados!");
+
+                    const sunIdx = getSign(birthDate.value);
+
+                    // Simplified Ascendant Calculation
+                    // Rule of thumb: Ascendant changes every ~2 hours.
+                    // Sun rises approx 6am. At 6am, Asc is roughly same as Sun (very roughly).
+                    // We will use a basic offset logic.
+                    // 06:00 = Sun Sign. +1 sign every 2 hours.
+
+                    const hour = birthTime.value ? parseInt(birthTime.value.split(':')[0]) : 12; // Default to noon if no time
+                    const sunrise = 6;
+                    const diffHours = hour - sunrise;
+                    const signOffset = Math.floor(diffHours / 2);
+
+                    let ascIdx = (sunIdx + signOffset) % 12;
+                    if (ascIdx < 0) ascIdx += 12;
+
+                    chart.value = { sun: sunIdx, asc: ascIdx };
+                    result.value = true;
+                };
+
+                const formatDate = (d) => d.split('-').reverse().join('/');
+
+                const share = () => {
+                    const t = `✨ *Meu Mapa Astral* ✨\n\n👤 *${name.value}*\n☀️ Sol: ${signs[chart.value.sun].name}\n⬆️ Ascendente: ${signs[chart.value.asc].name}\n\n_Descubra o seu no App Plena!_`;
+                    const url = `https://wa.me/?text=${encodeURIComponent(t)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    name, birthDate, birthTime, result, calculateChart, chart, signs, formatDate, share
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

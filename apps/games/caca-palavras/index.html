@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caça Palavras | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+            touch-action: none;
+        }
+
+        /* Green/Nature Vibe */
+        [v-cloak] {
+            display: none;
+        }
+
+        .cell-selected {
+            background-color: #fcd34d !important;
+            color: #78350f !important;
+            transform: scale(1.1);
+        }
+
+        .cell-found {
+            background-color: #86efac !important;
+            color: #14532d !important;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <div id="app" v-cloak class="flex-grow flex flex-col max-w-lg mx-auto w-full p-4">
+
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-green-700">Caça Palavras</h1>
+
+            <div
+                class="mt-4 flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-green-100">
+                <select v-model="currentTheme" @change="resetGame"
+                    class="bg-gray-100 rounded-lg p-2 text-sm font-bold text-gray-700 outline-none">
+                    <option v-for="(t, k) in themeData" :value="k">{{ t.name }}</option>
+                </select>
+                <div class="text-sm font-bold text-green-600">
+                    {{ foundWords.length }} / {{ currentWords.length }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Grid -->
+        <div class="flex-grow flex items-center justify-center mb-6">
+            <div class="grid gap-1 bg-white p-2 rounded-xl shadow-lg border-b-4 border-green-200 select-none"
+                :style="{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }" @touchstart.prevent="startSelection"
+                @touchmove.prevent="moveSelection" @touchend.prevent="endSelection" @mousedown="startSelectionMouse"
+                @mouseenter="moveSelectionMouse" @mouseup="endSelectionMouse">
+
+                <div v-for="(cell, idx) in grid" :key="idx"
+                    class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-lg font-bold uppercase rounded cursor-pointer transition-transform duration-75 text-gray-700"
+                    :class="getCellClass(idx)" :data-idx="idx">
+                    {{ cell.char }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Word List -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-green-100 mb-4">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 text-center">Palavras para
+                encontrar</h3>
+            <div class="flex flex-wrap justify-center gap-2">
+                <span v-for="word in currentWords" :key="word"
+                    class="px-3 py-1 rounded-full text-sm font-bold transition duration-300 border"
+                    :class="foundWords.includes(word) ? 'bg-green-100 text-green-600 border-green-200 line-through opacity-50' : 'bg-gray-100 text-gray-600 border-gray-200'">
+                    {{ word }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Success Overlay -->
+        <div v-if="gameWon"
+            class="fixed inset-0 bg-green-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-3xl p-8 text-center shadow-2xl animate-bounce-in max-w-sm w-full">
+                <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                <h2 class="text-3xl font-bold text-green-800 mb-2">Parabéns!</h2>
+                <p class="text-gray-600 mb-6">Você encontrou todas as palavras do tema <b>{{
+                        themeData[currentTheme].name }}</b>.</p>
+                <button @click="resetGame"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95">
+                    Jogar Novamente
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const gridSize = 10;
+                const themeData = {
+                    animals: { name: "Animais", words: ["GATO", "CACHORRO", "PATO", "LEAO", "PEIXE", "URSO"] },
+                    colors: { name: "Cores", words: ["AZUL", "VERDE", "ROXO", "PRETO", "ROS", "CINZA"] },
+                    fruit: { name: "Frutas", words: ["UVA", "BANANA", "PERA", "MACA", "FIGO", "LIMAO"] },
+                    tech: { name: "Tech", words: ["MOUSE", "WIFI", "DADOS", "CLOUD", "APP", "CODE"] }
+                };
+
+                const currentTheme = ref("animals");
+                const grid = ref([]);
+                const currentWords = ref([]); // Words placed in grid
+                const foundWords = ref([]);
+
+                // Selection State
+                const selecting = ref(false);
+                const selectionStart = ref(null);
+                const selectionCurrent = ref(null);
+                const selectedIndices = ref([]);
+
+                const getCellClass = (idx) => {
+                    const classes = [];
+                    // Check if part of a found word
+                    for (const word of foundWords.value) {
+                        // Find saved indices for this word (simplified: we re-check logic or store found indices. Storing indices is better)
+                        // But for simplicity/robustness without complex state, we'll check against stored 'foundIndices' or just style from a property on cell object
+                    }
+                    if (grid.value[idx].found) classes.push('cell-found');
+                    if (selectedIndices.value.includes(idx)) classes.push('cell-selected');
+                    else classes.push('bg-gray-50');
+                    return classes;
+                };
+
+                const generateGrid = () => {
+                    // Reset
+                    grid.value = Array(gridSize * gridSize).fill(null).map(() => ({ char: '', found: false }));
+                    foundWords.value = [];
+                    currentWords.value = [...themeData[currentTheme.value].words];
+
+                    // Simple logic to place words horizontally or vertically
+                    // In a real robust app, this would check collisions and do retries.
+                    // Here we will do a best effort placement for demo.
+
+                    const directions = [[0, 1], [1, 0], [1, 1]]; // R, D, DR
+
+                    for (let word of currentWords.value) {
+                        let placed = false;
+                        let attempts = 0;
+                        while (!placed && attempts < 100) {
+                            attempts++;
+                            const dir = directions[Math.floor(Math.random() * directions.length)];
+                            const startR = Math.floor(Math.random() * gridSize);
+                            const startC = Math.floor(Math.random() * gridSize);
+
+                            // Check fit
+                            let fits = true;
+                            for (let i = 0; i < word.length; i++) {
+                                const r = startR + dir[0] * i;
+                                const c = startC + dir[1] * i;
+                                if (r >= gridSize || c >= gridSize || (grid.value[r * gridSize + c].char !== '' && grid.value[r * gridSize + c].char !== word[i])) {
+                                    fits = false; break;
+                                }
+                            }
+
+                            if (fits) {
+                                for (let i = 0; i < word.length; i++) {
+                                    const r = startR + dir[0] * i;
+                                    const c = startC + dir[1] * i;
+                                    grid.value[r * gridSize + c].char = word[i];
+                                }
+                                placed = true;
+                            }
+                        }
+                    }
+
+                    // Fill Empty
+                    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    for (let i = 0; i < grid.value.length; i++) {
+                        if (grid.value[i].char === '') {
+                            grid.value[i].char = alpha[Math.floor(Math.random() * alpha.length)];
+                        }
+                    }
+                };
+
+                // Input Handling Logic (Unified for Mouse/Touch roughly)
+                const getIndexFromEvent = (e) => {
+                    const el = document.elementFromPoint(
+                        e.type.includes('touch') ? e.touches[0].clientX : e.clientX,
+                        e.type.includes('touch') ? e.touches[0].clientY : e.clientY
+                    );
+                    if (el && el.dataset.idx) return parseInt(el.dataset.idx);
+                    return null;
+                };
+
+                const updateSelection = (start, end) => {
+                    // Calculate line between start and end (Bresenham's like or simplified)
+                    // Only allow horizontal, vertical, diagonal
+                    const r1 = Math.floor(start / gridSize), c1 = start % gridSize;
+                    const r2 = Math.floor(end / gridSize), c2 = end % gridSize;
+
+                    const dr = r2 - r1;
+                    const dc = c2 - c1;
+
+                    // Check if aligned
+                    if (dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc)) {
+                        // Valid line
+                        const len = Math.max(Math.abs(dr), Math.abs(dc));
+                        const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+                        const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+                        const newSel = [];
+                        for (let i = 0; i <= len; i++) {
+                            newSel.push((r1 + i * stepR) * gridSize + (c1 + i * stepC));
+                        }
+                        selectedIndices.value = newSel;
+                    }
+                };
+
+                const startSelection = (e) => {
+                    const idx = getIndexFromEvent(e);
+                    if (idx !== null) {
+                        selecting.value = true;
+                        selectionStart.value = idx;
+                        selectedIndices.value = [idx];
+                    }
+                };
+                const moveSelection = (e) => {
+                    if (!selecting.value) return;
+                    const idx = getIndexFromEvent(e);
+                    if (idx !== null) {
+                        updateSelection(selectionStart.value, idx);
+                    }
+                };
+                const endSelection = () => {
+                    if (!selecting.value) return;
+                    selecting.value = false;
+                    checkWord();
+                    selectedIndices.value = [];
+                };
+
+                // Mouse Wrappers
+                const startSelectionMouse = (e) => {
+                    selecting.value = true;
+                    const idx = parseInt(e.target.dataset.idx);
+                    if (!isNaN(idx)) {
+                        selectionStart.value = idx;
+                        selectedIndices.value = [idx];
+                    }
+                };
+                const moveSelectionMouse = (e) => {
+                    if (!selecting.value) return;
+                    const idx = parseInt(e.target.dataset.idx);
+                    if (!isNaN(idx)) updateSelection(selectionStart.value, idx);
+                };
+                const endSelectionMouse = () => endSelection();
+
+
+                const checkWord = () => {
+                    const word = selectedIndices.value.map(idx => grid.value[idx].char).join("");
+                    const reverseWord = word.split("").reverse().join("");
+
+                    let found = null;
+                    if (currentWords.value.includes(word) && !foundWords.value.includes(word)) found = word;
+                    if (currentWords.value.includes(reverseWord) && !foundWords.value.includes(reverseWord)) found = reverseWord;
+
+                    if (found) {
+                        foundWords.value.push(found);
+                        // Mark grid permanently
+                        selectedIndices.value.forEach(idx => grid.value[idx].found = true);
+                    }
+                };
+
+                const resetGame = () => {
+                    generateGrid();
+                };
+
+                const gameWon = computed(() => foundWords.value.length === currentWords.value.length && currentWords.value.length > 0);
+
+                onMounted(generateGrid);
+
+                return {
+                    gridSize, themeData, currentTheme, grid, currentWords, foundWords,
+                    selectedIndices, startSelection, moveSelection, endSelection,
+                    startSelectionMouse, moveSelectionMouse, endSelectionMouse, getCellClass,
+                    gameWon, resetGame
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

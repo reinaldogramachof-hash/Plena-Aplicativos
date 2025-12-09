@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Lunar | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #0b0c15;
+            color: white;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .moon-glow {
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div id="app" v-cloak class="w-full max-w-sm text-center">
+
+        <header class="mb-10">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">{{ todayDate }}</div>
+            <h1 class="text-3xl font-bold uppercase">Hoje</h1>
+        </header>
+
+        <!-- MOON VISUAL -->
+        <div
+            class="relative w-48 h-48 mx-auto mb-10 rounded-full bg-gray-900 moon-glow border border-gray-800 flex items-center justify-center overflow-hidden">
+            <!-- Simplified Representation -->
+            <div class="absolute inset-0 bg-gray-200 rounded-full transition-all duration-1000"
+                :style="{ transform: `translateX(${moonOffset}%)` }">
+                <!-- Shadow overlay logic is complex for css only, using simplified icon approach below instead for clarity -->
+            </div>
+            <!-- Replacement Icon based on Phase -->
+            <div class="absolute inset-0 bg-[#0b0c15] flex items-center justify-center">
+                <i class="text-9xl text-gray-200" :class="phaseData.icon"></i>
+            </div>
+        </div>
+
+        <!-- PHASE INFO -->
+        <div class="mb-12">
+            <h2 class="text-4xl font-bold mb-2">{{ phaseData.name }}</h2>
+            <div class="text-sm text-gray-400">Iluminação: {{ phaseData.illum }}%</div>
+        </div>
+
+        <!-- TIPS -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                <i class="fa-solid fa-scissors mb-2 text-purple-400 text-xl"></i>
+                <h3 class="font-bold text-sm mb-1">Cabelo</h3>
+                <p class="text-xs text-gray-500">{{ phaseData.hair }}</p>
+            </div>
+            <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                <i class="fa-solid fa-briefcase mb-2 text-blue-400 text-xl"></i>
+                <h3 class="font-bold text-sm mb-1">Negócios</h3>
+                <p class="text-xs text-gray-500">{{ phaseData.biz }}</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const today = new Date();
+                const todayDate = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                // Moon Phase Logic (Approximate)
+                // Cycle: 29.53 days. Known New Moon: Jan 6 2000
+                const getMoonPhase = (date) => {
+                    const knownNewMoon = new Date('2000-01-06T18:14:00').getTime();
+                    const now = date.getTime();
+                    const diff = now - knownNewMoon;
+                    const days = diff / (1000 * 60 * 60 * 24);
+                    const cycle = 29.53058867;
+                    const currentCycle = days % cycle;
+                    return currentCycle; // 0 to ~29.5
+                };
+
+                const age = getMoonPhase(today);
+
+                const phaseData = computed(() => {
+                    // 0-1: New, 1-7: Waxing Cresc, 7-8: First Quarter, 8-14: Waxing Gibb, 14-16: Full
+                    // Simplified:
+                    if (age < 1 || age > 28.5) return { name: "Lua Nova", icon: "fa-regular fa-circle", illum: "0-2", hair: "Fortalecer a raiz", biz: "Planejar novos projetos" };
+                    if (age < 7) return { name: "Lua Crescente", icon: "fa-solid fa-moon", illum: "10-40", hair: "Crescer rápido", biz: "Lançar ideias" };
+                    if (age < 8) return { name: "Quarto Crescente", icon: "fa-solid fa-circle-half-stroke", illum: "50", hair: "Crescer rápido", biz: "Ação e movimento" };
+                    if (age < 14) return { name: "Crescente Gibosa", icon: "fa-solid fa-circle", illum: "60-90", hair: "Volume e brilho", biz: "Refinar detalhes" };
+                    if (age < 16) return { name: "Lua Cheia", icon: "fa-regular fa-lightbulb", illum: "100", hair: "Volume máximo", biz: "Divulgar e vender" };
+                    if (age < 22) return { name: "Minguante Gibosa", icon: "fa-solid fa-circle", illum: "90-60", hair: "Manter o corte", biz: "Analisar resultados" };
+                    if (age < 23) return { name: "Quarto Minguante", icon: "fa-solid fa-circle-half-stroke", illum: "50", hair: "Reduzir volume", biz: "Resolver pendências" };
+                    return { name: "Lua Minguante", icon: "fa-solid fa-moon", illum: "40-10", hair: "Enfraquecer fios", biz: "Limpeza e encerramento" };
+                });
+
+                return {
+                    todayDate, phaseData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

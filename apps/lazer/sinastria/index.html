@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match dos Signos | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Lato:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background: #fff1f2;
+            color: #4a044e;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Abril Fatface', cursive;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak
+        class="w-full max-w-sm bg-white rounded-[2rem] shadow-xl overflow-hidden border-4 border-pink-200">
+
+        <!-- Header -->
+        <div class="bg-pink-500 text-white p-6 text-center">
+            <h1 class="text-3xl">Match Astral</h1>
+            <p class="text-pink-100 text-sm">Os astros aprovam?</p>
+        </div>
+
+        <div class="p-6">
+
+            <!-- Selector -->
+            <div class="flex justify-between items-center gap-2 mb-8">
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-pink-400 uppercase mb-1">Você</label>
+                    <select v-model="sign1"
+                        class="w-full bg-pink-50 border border-pink-200 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
+                        <option v-for="s in signs" :value="s.value">{{ s.icon }} {{ s.name }}</option>
+                    </select>
+                </div>
+                <div class="text-pink-300 text-xl font-bold mt-4">+</div>
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-pink-400 uppercase mb-1">Crush</label>
+                    <select v-model="sign2"
+                        class="w-full bg-pink-50 border border-pink-200 rounded-lg p-2 text-sm outline-none focus:border-pink-500">
+                        <option v-for="s in signs" :value="s.value">{{ s.icon }} {{ s.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Heart Button -->
+            <div class="text-center mb-8">
+                <button @click="calculateMatch"
+                    class="bg-pink-500 hover:bg-pink-600 text-white w-20 h-20 rounded-full shadow-lg text-3xl transition transform active:scale-95 flex items-center justify-center mx-auto">
+                    💘
+                </button>
+            </div>
+
+            <!-- Result -->
+            <div v-if="result" class="bg-pink-50 rounded-xl p-6 text-center animate-pulse-once">
+                <div class="text-5xl font-bold text-pink-600 mb-2">{{ result.score }}%</div>
+                <h3 class="text-xl font-bold mb-2">{{ result.title }}</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    {{ result.text }}
+                </p>
+
+                <div class="mt-4 pt-4 border-t border-pink-200 grid grid-cols-2 gap-2 text-xs font-bold text-pink-400">
+                    <div>Elemento {{ getElement(sign1) }} <br>+<br> Elemento {{ getElement(sign2) }}</div>
+                    <div>Combinação <br> {{ result.vibe }}</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const signs = [
+                    { name: "Áries", value: "fire", icon: "♈" },
+                    { name: "Touro", value: "earth", icon: "♉" },
+                    { name: "Gêmeos", value: "air", icon: "♊" },
+                    { name: "Câncer", value: "water", icon: "♋" },
+                    { name: "Leão", value: "fire", icon: "♌" },
+                    { name: "Virgem", value: "earth", icon: "♍" },
+                    { name: "Libra", value: "air", icon: "♎" },
+                    { name: "Escorpião", value: "water", icon: "♏" },
+                    { name: "Sagitário", value: "fire", icon: "♐" },
+                    { name: "Capricórnio", value: "earth", icon: "♑" },
+                    { name: "Aquário", value: "air", icon: "♒" },
+                    { name: "Peixes", value: "water", icon: "♓" }
+                ];
+
+                const sign1 = ref("fire");
+                const sign2 = ref("air");
+                const result = ref(null);
+
+                const getElement = (val) => {
+                    if (val === 'fire') return 'Fogo 🔥';
+                    if (val === 'earth') return 'Terra 🌿';
+                    if (val === 'air') return 'Ar 🌪️';
+                    if (val === 'water') return 'Água 💧';
+                };
+
+                const calculateMatch = () => {
+                    const s1 = sign1.value;
+                    const s2 = sign2.value;
+
+                    // Logic based on Elements
+                    let score = 50;
+                    let title = "Amizade Sincera";
+                    let text = "Vocês podem se dar bem, mas exigirá paciência.";
+                    let vibe = "Neutra";
+
+                    if (s1 === s2) {
+                        score = 90; title = "Espelho da Alma"; text = "Vocês se entendem sem falar nada. Cuidado só com a teimosia em dobro!"; vibe = "Intensa";
+                    }
+                    else if ((s1 === 'fire' && s2 === 'air') || (s1 === 'air' && s2 === 'fire')) {
+                        score = 95; title = "Explosão de Paixão"; text = "O Ar alimenta o Fogo. Uma relação dinâmica e cheia de aventuras."; vibe = "Perfeita";
+                    }
+                    else if ((s1 === 'earth' && s2 === 'water') || (s1 === 'water' && s2 === 'earth')) {
+                        score = 95; title = "Jardim Florido"; text = "A Água nutre a Terra. Uma relação fértil, segura e carinhosa."; vibe = "Perfeita";
+                    }
+                    else if ((s1 === 'fire' && s2 === 'water') || (s1 === 'water' && s2 === 'fire')) {
+                        score = 30; title = "Vapor Quente"; text = "Água apaga Fogo. Muita emoção, mas difícil de manter a estabilidade."; vibe = "Desafiador";
+                    }
+                    else if ((s1 === 'earth' && s2 === 'air') || (s1 === 'air' && s2 === 'earth')) {
+                        score = 40; title = "Tempestade de Areia"; text = "Mundos diferentes. Um é prático, o outro idealista. Exige conversa."; vibe = "Complexa";
+                    }
+                    else {
+                        score = 70; title = "Equilíbrio Possível"; text = "Com respeito às diferenças, podem construir algo legal."; vibe = "Boa";
+                    }
+
+                    result.value = { score, title, text, vibe };
+                };
+
+                return {
+                    signs, sign1, sign2, result, calculateMatch, getElement
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
