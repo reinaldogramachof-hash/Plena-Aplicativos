@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora de Saúde | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdfa;
+            color: #134e4a;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #99f6e4;
+            border-radius: 4px;
+        }
+
+        .gender-select.active {
+            background-color: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar Input -->
+        <aside class="w-full md:w-[450px] bg-white border-r border-teal-100 z-10 flex flex-col h-full shadow-xl">
+            <div class="p-6 border-b border-teal-50 flex items-center gap-3 bg-teal-50/50">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
+                    <i class="fa-solid fa-heart-pulse text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-teal-900 tracking-tight">Saúde <span
+                            class="text-teal-500">Total</span></h1>
+                    <p class="text-xs text-teal-600">IMC & Metabolismo Basal</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+
+                <!-- Gender -->
+                <div class="space-y-2">
+                    <label class="label">Sexo</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="form.gender = 'male'" :class="{active: form.gender === 'male'}"
+                            class="gender-select py-4 rounded-2xl border-2 border-teal-100 font-bold text-teal-800 transition flex flex-col items-center gap-2 hover:border-teal-300">
+                            <i class="fa-solid fa-mars text-2xl"></i> Homem
+                        </button>
+                        <button @click="form.gender = 'female'" :class="{active: form.gender === 'female'}"
+                            class="gender-select py-4 rounded-2xl border-2 border-teal-100 font-bold text-teal-800 transition flex flex-col items-center gap-2 hover:border-teal-300">
+                            <i class="fa-solid fa-venus text-2xl"></i> Mulher
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Measurements -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="label">Peso (kg)</label>
+                        <div class="relative">
+                            <input v-model.number="form.weight" type="number"
+                                class="input text-center font-bold text-lg" placeholder="0">
+                            <button @click="adjust('weight', -1)"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-minus-circle"></i></button>
+                            <button @click="adjust('weight', 1)"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-plus-circle"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="label">Altura (cm)</label>
+                        <div class="relative">
+                            <input v-model.number="form.height" type="number"
+                                class="input text-center font-bold text-lg" placeholder="0">
+                            <button @click="adjust('height', -1)"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-minus-circle"></i></button>
+                            <button @click="adjust('height', 1)"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-plus-circle"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="label">Idade (anos)</label>
+                        <div class="relative">
+                            <input v-model.number="form.age" type="number" class="input text-center font-bold text-lg"
+                                placeholder="0">
+                            <button @click="adjust('age', -1)"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-minus-circle"></i></button>
+                            <button @click="adjust('age', 1)"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-teal-300 hover:text-teal-600"><i
+                                    class="fa-solid fa-plus-circle"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity -->
+                <div class="space-y-2">
+                    <label class="label">Nível de Atividade</label>
+                    <select v-model="form.activity" class="input text-sm">
+                        <option value="1.2">Sedentário (Pouco ou nenhum exercício)</option>
+                        <option value="1.375">Levemente Ativo (1-3 dias/semana)</option>
+                        <option value="1.55">Moderadamente Ativo (3-5 dias/semana)</option>
+                        <option value="1.725">Muito Ativo (6-7 dias/semana)</option>
+                        <option value="1.9">Extremamente Ativo (Atleta/Trabalho Físico)</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="p-6 border-t border-teal-100 bg-white">
+                <button @click="calculate"
+                    class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-xl shadow-teal-600/30 transition flex items-center justify-center gap-2 transform hover:scale-[1.02]">
+                    <i class="fa-solid fa-calculator"></i> CALCULAR AGORA
+                </button>
+            </div>
+        </aside>
+
+        <!-- Results Area -->
+        <main
+            class="flex-1 bg-teal-50/50 flex flex-col items-center justify-start p-6 md:p-10 overflow-y-auto relative">
+
+            <div v-if="result" class="w-full max-w-4xl space-y-8 animate-slide-up">
+
+                <!-- Top Row -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- IMC Card -->
+                    <div class="bg-white rounded-3xl p-6 shadow-xl border border-teal-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-teal-900"><i
+                                class="fa-solid fa-weight-scale text-9xl"></i></div>
+                        <h2 class="font-bold text-teal-900 mb-6 flex items-center gap-2"><i
+                                class="fa-solid fa-weight-scale"></i> Seu IMC</h2>
+
+                        <div class="flex items-center justify-center mb-6 relative">
+                            <!-- Simple Gauge CSS -->
+                            <div class="w-48 h-48 rounded-full border-[1.5rem] border-slate-100 relative flex items-center justify-center"
+                                :class="imcColorBorder">
+                                <div class="text-center z-10">
+                                    <div class="text-4xl font-black text-slate-800">{{ result.imc }}</div>
+                                    <div class="text-xs font-bold uppercase tracking-widest mt-1" :class="imcColorText">
+                                        {{ result.imcStatus }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-500 text-center">
+                            Peso Ideal estimado: <span class="font-bold text-slate-700">{{ result.idealMin }}kg - {{
+                                result.idealMax }}kg</span>
+                        </div>
+                    </div>
+
+                    <!-- TMB Card -->
+                    <div class="bg-white rounded-3xl p-6 shadow-xl border border-teal-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-orange-900"><i
+                                class="fa-solid fa-fire text-9xl"></i></div>
+                        <h2 class="font-bold text-teal-900 mb-4 flex items-center gap-2"><i
+                                class="fa-solid fa-fire"></i> Metabolismo Basal</h2>
+
+                        <div class="mb-6">
+                            <p class="text-sm text-slate-500 mb-1">Calorias que seu corpo queima <strong
+                                    class="text-slate-700">em repouso</strong>:</p>
+                            <div class="text-3xl font-black text-slate-800">{{ result.tmb }} <span
+                                    class="text-base font-normal text-slate-400">kcal/dia</span></div>
+                        </div>
+
+                        <div class="mb-6">
+                            <p class="text-sm text-slate-500 mb-1">Gasto Calórico Total (com atividade):</p>
+                            <div class="text-4xl font-black text-orange-500">{{ result.tdee }} <span
+                                    class="text-base font-normal text-orange-300">kcal/dia</span></div>
+                        </div>
+
+                        <p class="text-[10px] text-slate-400">Baseado na fórmula de Mifflin-St Jeor, considerada a mais
+                            precisa.</p>
+                    </div>
+                </div>
+
+                <!-- Diet Goals Row -->
+                <div>
+                    <h3 class="font-bold text-teal-900 mb-4 flex items-center gap-2 text-lg"><i
+                            class="fa-solid fa-bullseye"></i> Metas Calóricas Diárias</h3>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <!-- Lose -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-yellow-300 transition group hover:shadow-md cursor-help"
+                            title="Déficit calórico saudável (-500kcal)">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-arrow-trend-down"></i></div>
+                                <div class="text-sm font-bold text-slate-600">Perder Peso</div>
+                            </div>
+                            <div
+                                class="text-2xl font-black text-yellow-500 group-hover:scale-110 transition origin-left">
+                                {{ result.goalLose }} <span class="text-xs text-slate-400">kcal</span></div>
+                            <p class="text-[10px] text-slate-400 mt-2">Perda moderada (~0.5kg/semana)</p>
+                        </div>
+
+                        <!-- Maintain -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-teal-300 transition group hover:shadow-md cursor-help"
+                            title="Manutenção do peso atual">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-anchor"></i></div>
+                                <div class="text-sm font-bold text-slate-600">Manter Peso</div>
+                            </div>
+                            <div class="text-2xl font-black text-teal-500 group-hover:scale-110 transition origin-left">
+                                {{ result.goalMaintain }} <span class="text-xs text-slate-400">kcal</span></div>
+                            <p class="text-[10px] text-slate-400 mt-2">Consumir o gasto total diário</p>
+                        </div>
+
+                        <!-- Gain -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-300 transition group hover:shadow-md cursor-help"
+                            title="Superávit calórico (+500kcal)">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-dumbbell"></i></div>
+                                <div class="text-sm font-bold text-slate-600">Ganhar Massa</div>
+                            </div>
+                            <div class="text-2xl font-black text-blue-500 group-hover:scale-110 transition origin-left">
+                                {{ result.goalGain }} <span class="text-xs text-slate-400">kcal</span></div>
+                            <p class="text-[10px] text-slate-400 mt-2">Hipertrofia c/ treino adequado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Macros (Simple) -->
+                <div class="bg-indigo-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-800 rounded-full opacity-50"></div>
+                    <h3 class="font-bold mb-4 relative z-10">Sugestão de Macronutrientes (Dieta Equilibrada)</h3>
+                    <div class="grid grid-cols-3 gap-6 relative z-10">
+                        <div class="text-center">
+                            <div class="text-xs opacity-70 uppercase tracking-widest mb-1">Proteína</div>
+                            <div class="text-2xl font-bold">25%</div>
+                        </div>
+                        <div class="text-center border-l border-indigo-700">
+                            <div class="text-xs opacity-70 uppercase tracking-widest mb-1">Carboidratos</div>
+                            <div class="text-2xl font-bold">50%</div>
+                        </div>
+                        <div class="text-center border-l border-indigo-700">
+                            <div class="text-xs opacity-70 uppercase tracking-widest mb-1">Gordura</div>
+                            <div class="text-2xl font-bold">25%</div>
+                        </div>
+                    </div>
+                    <p class="text-center text-[10px] opacity-50 mt-6">*Valores de referência para população geral.
+                        Atletas podem requerer mais proteínas.</p>
+                </div>
+
+            </div>
+
+            <div v-else class="flex-1 flex flex-col items-center justify-center text-center opacity-40">
+                <i class="fa-solid fa-heart-circle-check text-8xl mb-4 text-teal-300 animate-pulse"></i>
+                <h2 class="text-2xl font-bold text-teal-900">Preencha seus dados</h2>
+                <p class="text-teal-700">Descubra seu IMC e necessidades calóricas hoje.</p>
+            </div>
+
+        </main>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #115e59;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 2px solid #ccfbf1;
+            outline: none;
+            transition: all;
+            background: #fff;
+            color: #115e59;
+        }
+
+        .input:focus {
+            border-color: #14b8a6;
+            background: #f0fdfa;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_saude_v1';
+
+        createApp({
+            setup() {
+                const form = ref({
+                    gender: 'male',
+                    weight: 70,
+                    height: 170,
+                    age: 30,
+                    activity: '1.375'
+                });
+
+                const result = ref(null);
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) form.value = JSON.parse(d);
+                });
+
+                watch(form, () => {
+                    // Auto calculate on basic changes if we wanted, but button is better for explicit action
+                    // Saving state
+                    localStorage.setItem(DB_KEY, JSON.stringify(form.value));
+                }, { deep: true });
+
+                const adjust = (field, val) => {
+                    form.value[field] += val;
+                };
+
+                const calculate = () => {
+                    const { weight, height, age, gender, activity } = form.value;
+                    if (!weight || !height || !age) return;
+
+                    // 1. IMC
+                    const hM = height / 100;
+                    const imc = weight / (hM * hM);
+                    let imcStatus = '';
+                    let imcColor = 'slate';
+
+                    if (imc < 18.5) { imcStatus = 'Abaixo do Peso'; imcColor = 'text-yellow-500'; }
+                    else if (imc < 24.9) { imcStatus = 'Peso Normal'; imcColor = 'text-green-500'; }
+                    else if (imc < 29.9) { imcStatus = 'Sobrepeso'; imcColor = 'text-orange-500'; }
+                    else if (imc < 34.9) { imcStatus = 'Obesidade I'; imcColor = 'text-red-500'; }
+                    else if (imc < 39.9) { imcStatus = 'Obesidade II'; imcColor = 'text-red-600'; }
+                    else { imcStatus = 'Obesidade III'; imcColor = 'text-red-700'; }
+
+                    // Ideal Weight Range (Reverse IMC 18.5 - 24.9)
+                    const minW = (18.5 * hM * hM).toFixed(1);
+                    const maxW = (24.9 * hM * hM).toFixed(1);
+
+                    // 2. TMB (Mifflin-St Jeor)
+                    let tmb = 0;
+                    if (gender === 'male') {
+                        tmb = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+                    } else {
+                        tmb = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+                    }
+
+                    // 3. TDEE
+                    const tdee = tmb * parseFloat(activity);
+
+                    result.value = {
+                        imc: imc.toFixed(1),
+                        imcStatus,
+                        imcColor,
+                        idealMin: minW,
+                        idealMax: maxW,
+                        tmb: Math.round(tmb),
+                        tdee: Math.round(tdee),
+                        goalLose: Math.round(tdee - 500),
+                        goalMaintain: Math.round(tdee),
+                        goalGain: Math.round(tdee + 500)
+                    };
+                };
+
+                const imcColorGet = computed(() => {
+                    if (!result.value) return '';
+                    if (result.value.imc < 18.5) return 'yellow';
+                    if (result.value.imc < 24.9) return 'green';
+                    if (result.value.imc < 29.9) return 'orange';
+                    return 'red';
+                });
+
+                const imcColorBorder = computed(() => {
+                    const c = imcColorGet.value;
+                    if (!c) return '';
+                    return `border-${c}-500`;
+                });
+
+                const imcColorText = computed(() => {
+                    const c = imcColorGet.value;
+                    if (!c) return '';
+                    return `text-${c}-500`;
+                });
+
+                return {
+                    form, result,
+                    adjust, calculate, imcColorBorder, imcColorText
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

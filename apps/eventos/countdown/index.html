@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meus Eventos | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .slide-up-enter-active,
+        .slide-up-leave-active {
+            transition: all 0.3s ease-out;
+        }
+
+        .slide-up-enter-from,
+        .slide-up-leave-to {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app"
+        class="flex-1 flex h-full w-full relative max-w-lg mx-auto md:max-w-4xl shadow-2xl bg-slate-50 overflow-hidden md:rounded-xl md:border-x border-slate-200">
+
+        <!-- List View -->
+        <div class="flex-1 flex flex-col h-full relative z-10"
+            :class="activeEvent ? 'hidden md:flex md:w-1/3 md:border-r border-slate-200' : 'w-full'">
+
+            <header class="p-6 bg-white border-b border-slate-100 flex justify-between items-center z-20 shadow-sm">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Meus<span
+                            class="text-indigo-600">Dias</span></h1>
+                    <p class="text-xs text-slate-400 font-medium">{{ events.length }} eventos cadastrados</p>
+                </div>
+                <button @click="openForm"
+                    class="w-10 h-10 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 hover:scale-105 transition flex items-center justify-center">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                <div v-if="events.length === 0" class="text-center py-20 opacity-40">
+                    <i class="fa-regular fa-calendar-plus text-5xl mb-3 text-slate-400"></i>
+                    <p class="text-sm font-bold text-slate-500">Nenhum evento ainda.</p>
+                </div>
+
+                <div v-for="evt in sortedEvents" :key="evt.id" @click="selectEvent(evt)"
+                    class="relative overflow-hidden rounded-2xl h-36 shadow-lg transform transition hover:scale-[1.02] cursor-pointer group">
+
+                    <!-- Bg Gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-br" :class="evt.theme"></div>
+
+                    <!-- Content -->
+                    <div class="absolute inset-0 p-5 flex flex-col justify-between text-white">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-xl leading-tight shadow-sm">{{ evt.title }}</h3>
+                            <i :class="evt.type === 'past' ? 'fa-solid fa-clock-rotate-left' : 'fa-solid fa-hourglass-start'"
+                                class="opacity-50"></i>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-widest opacity-80 mb-1 font-bold">{{
+                                formatDate(evt.date) }}</p>
+                            <div class="font-mono text-2xl font-bold tracking-tight">
+                                {{ getTimeSummary(evt) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Detail View (Overlay on mobile, Split on desktop) -->
+        <div v-if="activeEvent"
+            class="absolute inset-0 md:static md:flex-1 z-30 flex flex-col items-center justify-center text-white transition-all duration-300"
+            :class="activeEvent.theme + ' bg-gradient-to-br'">
+
+            <div class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-10">
+                <button @click="activeEvent = null"
+                    class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/30 transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="flex gap-2">
+                    <button @click="editEvent(activeEvent)"
+                        class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/30 transition">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click="deleteEvent(activeEvent)"
+                        class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-red-500/50 hover:border-red-400 transition">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center p-8 w-full max-w-md animate-pulse">
+                <!-- Main Countdown -->
+                <p class="text-sm uppercase tracking-[0.2em] opacity-80 mb-4 font-bold">
+                    {{ activeEvent.type === 'past' ? 'PASSARAM-SE' : 'FALTAM' }}
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 md:gap-8 mb-8">
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-center aspect-square">
+                        <span class="text-5xl md:text-6xl font-bold font-mono">{{ timeLeft.days }}</span>
+                        <span class="text-xs uppercase tracking-widest opacity-70">Dias</span>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-center aspect-square">
+                        <span class="text-5xl md:text-6xl font-bold font-mono">{{ timeLeft.hours }}</span>
+                        <span class="text-xs uppercase tracking-widest opacity-70">Horas</span>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-center aspect-square">
+                        <span class="text-5xl md:text-6xl font-bold font-mono">{{ timeLeft.minutes }}</span>
+                        <span class="text-xs uppercase tracking-widest opacity-70">Minutos</span>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-center aspect-square">
+                        <span class="text-5xl md:text-6xl font-bold font-mono">{{ timeLeft.seconds }}</span>
+                        <span class="text-xs uppercase tracking-widest opacity-70">Segundos</span>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-extrabold leading-tight mb-2">{{ activeEvent.title }}</h2>
+                <p class="opacity-70 font-medium">{{ formatDate(activeEvent.date) }}</p>
+            </div>
+
+            <div class="absolute bottom-8 opacity-40 text-xs">Atualizado em tempo real</div>
+
+        </div>
+
+        <!-- Form Modal -->
+        <transition name="slide-up">
+            <div v-if="showForm"
+                class="absolute inset-0 z-50 bg-white md:m-10 md:rounded-2xl md:shadow-2xl flex flex-col">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h2 class="text-xl font-bold text-slate-800">{{ isEditing ? 'Editar Evento' : 'Novo Evento' }}</h2>
+                    <button @click="closeForm" class="text-slate-400 hover:text-slate-800"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+
+                <div class="flex-1 p-6 space-y-6 overflow-y-auto">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Título</label>
+                        <input v-model="form.title"
+                            class="w-full text-lg font-bold border-b-2 border-slate-200 focus:border-indigo-600 outline-none p-2 bg-transparent transition"
+                            placeholder="Ex: Viagem para Paris">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Data e Hora</label>
+                        <input type="datetime-local" v-model="form.date"
+                            class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-600 font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Tema</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button v-for="t in themes" :key="t.val" @click="form.theme = t.val"
+                                class="h-12 rounded-lg border-2 transition transform hover:scale-105"
+                                :class="[t.val, form.theme === t.val ? 'border-indigo-600 scale-105 shadow-md' : 'border-transparent']">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 border-t border-slate-100 bg-slate-50">
+                    <button @click="saveEvent"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-xl transition transform active:scale-95">
+                        Salvar Evento
+                    </button>
+                </div>
+
+            </div>
+        </transition>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+        const DB_KEY = 'plena_countdown_v1';
+
+        createApp({
+            setup() {
+                const events = ref([]);
+                const activeEvent = ref(null);
+                const showForm = ref(false);
+                const isEditing = ref(false);
+                const form = ref({ id: null, title: '', date: '', theme: 'from-blue-500 to-cyan-500' });
+
+                const timeLeft = ref({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                let timerInterval = null;
+
+                const themes = [
+                    { val: 'from-blue-500 to-cyan-500' },
+                    { val: 'from-purple-500 to-pink-500' },
+                    { val: 'from-orange-400 to-red-500' },
+                    { val: 'from-green-400 to-emerald-600' },
+                    { val: 'from-indigo-900 to-slate-900' },
+                    { val: 'from-rose-400 to-red-500' },
+                    { val: 'from-amber-200 to-yellow-500' },
+                    { val: 'from-teal-400 to-yellow-200' }
+                ];
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) events.value = JSON.parse(d);
+                    else {
+                        // Demo
+                        const nextYear = new Date().getFullYear() + 1;
+                        events.value = [
+                            { id: 1, title: 'Ano Novo', date: `${nextYear}-01-01T00:00`, theme: 'from-purple-500 to-pink-500', type: 'future' }
+                        ];
+                    }
+                    startTimer();
+                });
+
+                watch(events, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(events.value));
+                    // Re-evaluate types in case dates changed
+                    events.value.forEach(updateEventType);
+                }, { deep: true });
+
+                const sortedEvents = computed(() => {
+                    return [...events.value].sort((a, b) => new Date(a.date) - new Date(b.date));
+                });
+
+                function updateEventType(evt) {
+                    const now = new Date();
+                    const target = new Date(evt.date);
+                    evt.type = target > now ? 'future' : 'past';
+                }
+
+                function calculateTime() {
+                    if (!activeEvent.value) return;
+
+                    const now = new Date().getTime();
+                    const target = new Date(activeEvent.value.date).getTime();
+                    let distance = activeEvent.value.type === 'future' ? target - now : now - target;
+
+                    if (distance < 0) {
+                        // Switched from future to past or vice versa during active view
+                        updateEventType(activeEvent.value);
+                        distance = Math.abs(distance);
+                    }
+
+                    timeLeft.value = {
+                        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+                    };
+                }
+
+                function startTimer() {
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(calculateTime, 1000);
+                    calculateTime(); // initial
+                }
+
+                // Helpers
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return '';
+                    return new Date(dateStr).toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
+                };
+
+                const getTimeSummary = (evt) => {
+                    const now = new Date();
+                    const target = new Date(evt.date);
+                    const diff = Math.abs(target - now);
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    return days + (days === 1 ? ' dia' : ' dias');
+                };
+
+                // Actions
+                const selectEvent = (evt) => {
+                    activeEvent.value = evt;
+                    calculateTime();
+                };
+
+                const openForm = () => {
+                    form.value = { id: null, title: '', date: '', theme: 'from-blue-500 to-cyan-500' };
+                    isEditing.value = false;
+                    showForm.value = true;
+                };
+
+                const closeForm = () => showForm.value = false;
+
+                const editEvent = (evt) => {
+                    form.value = JSON.parse(JSON.stringify(evt));
+                    isEditing.value = true;
+                    showForm.value = true;
+                };
+
+                const saveEvent = () => {
+                    if (!form.value.title || !form.value.date) return alert('Preencha os dados');
+
+                    const newEvt = { ...form.value };
+                    updateEventType(newEvt);
+
+                    if (isEditing.value) {
+                        const idx = events.value.findIndex(e => e.id === form.value.id);
+                        if (idx !== -1) {
+                            events.value[idx] = newEvt;
+                            if (activeEvent.value && activeEvent.value.id === newEvt.id) activeEvent.value = newEvt;
+                        }
+                    } else {
+                        newEvt.id = Date.now();
+                        events.value.push(newEvt);
+                    }
+                    closeForm();
+                };
+
+                const deleteEvent = (evt) => {
+                    if (confirm('Apagar este evento?')) {
+                        events.value = events.value.filter(e => e.id !== evt.id);
+                        activeEvent.value = null;
+                    }
+                };
+
+                return {
+                    events, sortedEvents, activeEvent, showForm, isEditing, form, themes,
+                    timeLeft,
+                    selectEvent, openForm, closeForm, editEvent, saveEvent, deleteEvent,
+                    formatDate, getTimeSummary
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

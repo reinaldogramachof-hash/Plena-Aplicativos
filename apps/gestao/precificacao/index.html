@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Precificação Inteligente | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-calculator text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Precificação</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'list'"
+                    :class="currentView === 'list' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-tags w-5 text-center"></i> <span>Meus Produtos</span>
+                </a>
+                <a @click="createNew"
+                    :class="currentView === 'editor' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-plus w-5 text-center"></i> <span>Novo Cálculo</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-calculator text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Precificação</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: LIST -->
+                <div v-if="currentView === 'list'" class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Produtos Calculados</h2>
+                        <button @click="createNew"
+                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
+                                class="fa-solid fa-plus mr-2"></i> Novo</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div v-for="p in products" :key="p.id"
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition group relative overflow-hidden">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-800 line-clamp-1">{{ p.name }}</h3>
+                                    <div class="text-xs text-slate-500">Custo: R$ {{ formatMoney(p.totalCost) }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-extrabold text-brand-600">R$ {{ formatMoney(p.finalPrice)
+                                        }}</div>
+                                    <div
+                                        class="text-xs font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded inline-block">
+                                        Lucro: {{ p.margin }}%</div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-100 pt-4 flex gap-2">
+                                <button @click="editProduct(p)"
+                                    class="flex-1 py-2 rounded-lg bg-slate-50 text-slate-600 font-bold text-xs hover:bg-slate-100 transition"><i
+                                        class="fa-solid fa-pen mr-1"></i> Editar</button>
+                                <button @click="deleteProduct(p.id)"
+                                    class="px-3 py-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+
+                        <div v-if="products.length === 0"
+                            class="col-span-full py-20 text-center text-slate-400 flex flex-col items-center">
+                            <i class="fa-solid fa-calculator text-4xl mb-4 opacity-30"></i>
+                            <p>Nenhum cálculo salvo ainda.</p>
+                            <button @click="createNew" class="mt-4 text-brand-600 font-bold underline">Começar
+                                agora</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: EDITOR -->
+                <div v-if="currentView === 'editor'" class="h-full flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+
+                    <!-- Left: Inputs -->
+                    <div class="flex-1 space-y-6 overflow-y-auto">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i
+                                    class="fa-solid fa-tag text-brand-600"></i> Informações Básicas</h3>
+                            <div><label class="label">Nome do Produto</label><input v-model="form.name" class="input"
+                                    placeholder="Ex: Bolo de Chocolate"></div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2"><i
+                                        class="fa-solid fa-layer-group text-brand-600"></i> Custos Variáveis
+                                    (Matéria-prima)</h3>
+                                <button @click="addCost"
+                                    class="text-xs font-bold text-brand-600 hover:text-brand-700 uppercase"><i
+                                        class="fa-solid fa-plus"></i> Adicionar</button>
+                            </div>
+                            <div class="space-y-3">
+                                <div v-for="(item, idx) in form.costs" :key="idx" class="flex gap-2 items-center">
+                                    <div class="flex-1"><input v-model="item.desc" class="input py-2"
+                                            placeholder="Item (ex: Farinha)"></div>
+                                    <div class="w-32 relative">
+                                        <span class="absolute left-3 top-2 text-slate-400 text-xs font-bold">R$</span>
+                                        <input v-model="item.val" type="number" step="0.01" class="input py-2 pl-8"
+                                            placeholder="0.00">
+                                    </div>
+                                    <button @click="removeCost(idx)" class="text-slate-300 hover:text-red-500 px-2"><i
+                                            class="fa-solid fa-times"></i></button>
+                                </div>
+                                <div v-if="form.costs.length === 0"
+                                    class="text-sm text-slate-400 italic text-center py-2">Adicione os custos de
+                                    produção...</div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Custo Total
+                                    Matéria-prima</span>
+                                <span class="font-bold text-slate-800">R$ {{ formatMoney(calculatedTotalCost) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i
+                                    class="fa-solid fa-chart-line text-brand-600"></i> Margens e Custos Fixos</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="label">Custos Fixos / Impostos (%)</label>
+                                    <div class="relative"><input v-model="form.fixedRate" type="number"
+                                            class="input pr-8"><span
+                                            class="absolute right-3 top-3 text-slate-400 font-bold">%</span></div>
+                                    <p class="text-[10px] text-slate-400 mt-1">Aluguel, Luz, MEI, Taxa Maquininha...</p>
+                                </div>
+                                <div>
+                                    <label class="label">Margem de Lucro Desejada (%)</label>
+                                    <div class="relative"><input v-model="form.margin" type="number"
+                                            class="input pr-8 text-brand-600 font-bold"><span
+                                            class="absolute right-3 top-3 text-slate-400 font-bold">%</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Action -->
+                        <div class="lg:hidden pb-10">
+                            <button @click="saveProduct"
+                                class="w-full py-4 bg-brand-600 text-white font-bold rounded-xl shadow-lg">Salvar
+                                Cálculo</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Result Preview (Sticky on Desktop) -->
+                    <div class="lg:w-96 shrink-0">
+                        <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-8">
+                            <h2 class="text-xl font-bold mb-6 text-center opacity-90">Análise de Preço</h2>
+
+                            <div class="space-y-4 mb-8">
+                                <div class="flex justify-between items-center text-sm opacity-80">
+                                    <span>(+) Custos Produção</span>
+                                    <span>R$ {{ formatMoney(calculatedTotalCost) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm opacity-80">
+                                    <span>(+) Custos Fixos/Extras ({{ form.fixedRate }}%)</span>
+                                    <span>R$ {{ formatMoney(calculatedFixedVal) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm font-bold text-green-400">
+                                    <span>(+) Seu Lucro ({{ form.margin }}%)</span>
+                                    <span>R$ {{ formatMoney(calculatedProfitVal) }}</span>
+                                </div>
+                                <div class="h-px bg-slate-700 my-2"></div>
+                                <div class="flex justify-between items-center text-lg font-bold">
+                                    <span>Preço de Venda Sugerido</span>
+                                </div>
+                                <div
+                                    class="text-4xl font-extrabold text-center text-brand-400 mt-2 bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/5">
+                                    R$ {{ formatMoney(calculatedSalePrice) }}
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <button @click="currentView='list'"
+                                    class="py-3 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancelar</button>
+                                <button @click="saveProduct"
+                                    class="py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold shadow-lg shadow-brand-600/30 transition transform active:scale-95">Salvar</button>
+                            </div>
+                        </div>
+
+                        <!-- Tips card -->
+                        <div
+                            class="mt-4 bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-xs text-yellow-800 leading-relaxed lg:block hidden">
+                            <p class="font-bold mb-1"><i class="fa-solid fa-lightbulb mr-1"></i> Dica:</p>
+                            Não se esqueça de incluir embalagens e etiquetas nos custos variáveis. Para taxas de cartão,
+                            some à % de custos fixos.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #14b8a6;
+            background: #fff;
+            ring: 2px solid #14b8a6;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_precificacao_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('list');
+
+                // Data
+                const products = ref([]);
+                const form = ref({
+                    id: null,
+                    name: '',
+                    costs: [{ desc: '', val: '' }],
+                    fixedRate: 20, // Default 20%
+                    margin: 30 // Default 30%
+                });
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) products.value = JSON.parse(d);
+                });
+                watch(products, () => localStorage.setItem(DB_KEY, JSON.stringify(products.value)), { deep: true });
+
+                // Calculations
+                const calculatedTotalCost = computed(() => {
+                    return form.value.costs.reduce((acc, item) => acc + Number(item.val || 0), 0);
+                });
+
+                // Formula: Price = Cost / (1 - (Fixed% + Profit%)/100 )
+                // BUT user often thinks: Cost + (Price * Fixed%) + (Price * Profit%) = Price
+                // Price - Price(Fixed + Profit) = Cost
+                // Price (1 - Rates) = Cost
+                // Price = Cost / (1 - Rates)
+                const calculatedSalePrice = computed(() => {
+                    const cost = calculatedTotalCost.value;
+                    if (cost === 0) return 0;
+
+                    const totalRates = (Number(form.value.fixedRate) + Number(form.value.margin)) / 100;
+                    if (totalRates >= 1) return 0; // Infinite price if rates >= 100%
+
+                    return cost / (1 - totalRates);
+                });
+
+                const calculatedFixedVal = computed(() => calculatedSalePrice.value * (Number(form.value.fixedRate) / 100));
+                const calculatedProfitVal = computed(() => calculatedSalePrice.value * (Number(form.value.margin) / 100));
+
+                // Methods
+                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+                const createNew = () => {
+                    form.value = { id: null, name: '', costs: [{ desc: '', val: '' }], fixedRate: 20, margin: 30 };
+                    currentView.value = 'editor';
+                };
+
+                const editProduct = (p) => {
+                    form.value = JSON.parse(JSON.stringify(p)); // Deep copy
+                    currentView.value = 'editor';
+                };
+
+                const saveProduct = () => {
+                    if (!form.value.name) return alert('Dê um nome ao produto');
+                    if (calculatedTotalCost.value <= 0) return alert('Adicione custos variáveis');
+
+                    const productData = {
+                        ...form.value,
+                        totalCost: calculatedTotalCost.value,
+                        finalPrice: calculatedSalePrice.value
+                    };
+
+                    if (form.value.id) {
+                        const idx = products.value.findIndex(p => p.id === form.value.id);
+                        if (idx !== -1) products.value[idx] = productData;
+                    } else {
+                        productData.id = Date.now();
+                        products.value.unshift(productData);
+                    }
+                    currentView.value = 'list';
+                };
+
+                const deleteProduct = (id) => {
+                    if (confirm('Excluir cálculo?')) products.value = products.value.filter(p => p.id !== id);
+                };
+
+                const addCost = () => form.value.costs.push({ desc: '', val: '' });
+                const removeCost = (i) => form.value.costs.splice(i, 1);
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(products.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'precificacao_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        products.value = JSON.parse(ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, form, products,
+                    calculatedTotalCost, calculatedSalePrice, calculatedFixedVal, calculatedProfitVal,
+                    formatMoney,
+                    createNew, editProduct, saveProduct, deleteProduct,
+                    addCost, removeCost,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

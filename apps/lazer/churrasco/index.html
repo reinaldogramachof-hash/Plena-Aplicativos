@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Churrasco Mestre | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Rye', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .coal-bg {
+            background-color: #1c1917;
+        }
+
+        /* Stone 900 */
+        .fire-text {
+            background: -webkit-linear-gradient(#fca5a5, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-stone-100 text-stone-800">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-stone-50 shadow-2xl flex flex-col relative">
+
+        <!-- HEADER -->
+        <header class="coal-bg text-white p-6 pb-20 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30">
+            </div>
+            <div class="relative z-10 text-center">
+                <h1 class="text-4xl fire-text drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-2">Churrasco Mestre</h1>
+                <p class="text-stone-400 text-xs uppercase tracking-widest font-bold">Calculadora Oficial do FDS</p>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow px-5 -mt-16 relative z-20 pb-24 overflow-y-auto">
+
+            <!-- PEOPLE CARD -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-stone-200 mb-6">
+                <h3 class="font-bold text-stone-700 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-users text-orange-500"></i> Quem vai?
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Homens</span>
+                        <div class="flex items-center gap-3 bg-stone-100 rounded-full p-1">
+                            <button @click="people.men > 0 ? people.men-- : null"
+                                class="w-8 h-8 rounded-full bg-white shadow text-stone-600 font-bold hover:bg-red-100">-</button>
+                            <span class="w-6 text-center font-bold text-lg">{{ people.men }}</span>
+                            <button @click="people.men++"
+                                class="w-8 h-8 rounded-full bg-orange-500 shadow text-white font-bold hover:bg-orange-600">+</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Mulheres</span>
+                        <div class="flex items-center gap-3 bg-stone-100 rounded-full p-1">
+                            <button @click="people.women > 0 ? people.women-- : null"
+                                class="w-8 h-8 rounded-full bg-white shadow text-stone-600 font-bold hover:bg-red-100">-</button>
+                            <span class="w-6 text-center font-bold text-lg">{{ people.women }}</span>
+                            <button @click="people.women++"
+                                class="w-8 h-8 rounded-full bg-orange-500 shadow text-white font-bold hover:bg-orange-600">+</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Crianças</span>
+                        <div class="flex items-center gap-3 bg-stone-100 rounded-full p-1">
+                            <button @click="people.kids > 0 ? people.kids-- : null"
+                                class="w-8 h-8 rounded-full bg-white shadow text-stone-600 font-bold hover:bg-red-100">-</button>
+                            <span class="w-6 text-center font-bold text-lg">{{ people.kids }}</span>
+                            <button @click="people.kids++"
+                                class="w-8 h-8 rounded-full bg-orange-500 shadow text-white font-bold hover:bg-orange-600">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS LIST -->
+            <div v-if="isValid" class="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
+                <h3 class="font-bold text-stone-700 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list text-red-500"></i> Lista de Compras
+                </h3>
+
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span class="text-stone-500">Carne (Boi/Porco/Frango)</span>
+                        <span class="font-bold text-lg">{{ results.meat }} kg</span>
+                    </li>
+                    <li class="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span class="text-stone-500">Linguiça</span>
+                        <span class="font-bold text-lg">{{ results.sausage }} kg</span>
+                    </li>
+                    <li class="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span class="text-stone-500">Cerveja (Latas)</span>
+                        <span class="font-bold text-lg text-amber-600">{{ results.beer }} un</span>
+                    </li>
+                    <li class="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span class="text-stone-500">Refrigerante (2L)</span>
+                        <span class="font-bold text-lg">{{ results.soda }} garrafas</span>
+                    </li>
+                    <li class="flex justify-between items-center pb-2">
+                        <span class="text-stone-500">Carvão</span>
+                        <span class="font-bold text-lg">{{ results.coal }} kg</span>
+                    </li>
+                </ul>
+
+            </div>
+            <div v-else class="text-center py-8 opacity-50">
+                <p>Adicione pessoas para calcular!</p>
+            </div>
+
+        </main>
+
+        <!-- FOOTER ACTIONS -->
+        <footer class="bg-white p-4 border-t sticky bottom-0 z-50">
+            <button @click="shareList" :disabled="!isValid"
+                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-stone-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg transition">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Lista no Grupo
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const people = ref({
+                    men: 0,
+                    women: 0,
+                    kids: 0
+                });
+
+                const isValid = computed(() => (people.value.men + people.value.women + people.value.kids) > 0);
+
+                const results = computed(() => {
+                    const { men, women, kids } = people.value;
+
+                    // Rules:
+                    // Meat: Man 400g, Woman 300g, Kid 150g
+                    // Sausage: Man 150g, Woman 100g, Kid 50g
+                    // Beer: Man 6 cans, Woman 4 cans (Kids 0)
+                    // Soda: Man/Woman 400ml, Kid 600ml
+                    // Coal: 1kg per 1kg of meat (roughly)
+
+                    const totalMeat = (men * 0.4) + (women * 0.3) + (kids * 0.15);
+                    const totalSausage = (men * 0.15) + (women * 0.1) + (kids * 0.05);
+                    const totalBeer = (men * 6) + (women * 4);
+                    const totalSodaLiters = ((men + women) * 0.4) + (kids * 0.6);
+                    const totalSodaBottles = Math.ceil(totalSodaLiters / 2);
+                    const totalCoal = Math.ceil(totalMeat + totalSausage); // 1kg coal per kg meat
+
+                    return {
+                        meat: totalMeat.toFixed(1),
+                        sausage: totalSausage.toFixed(1),
+                        beer: Math.ceil(totalBeer),
+                        soda: totalSodaBottles,
+                        coal: totalCoal
+                    };
+                });
+
+                const shareList = () => {
+                    if (!isValid.value) return;
+
+                    let text = `*🔥 CHURRASCO MESTRE - LISTA 🔥*\n\n`;
+                    text += `👥 *Galera:* ${people.value.men}H, ${people.value.women}M, ${people.value.kids}C\n\n`;
+                    text += `🛒 *COMPRAR:*\n`;
+                    text += `🥩 Carne: ${results.value.meat} kg\n`;
+                    text += `🌭 Linguiça: ${results.value.sausage} kg\n`;
+                    text += `🍺 Cerveja: ${results.value.beer} latas\n`;
+                    text += `🥤 Refri: ${results.value.soda} garrafas (2L)\n`;
+                    text += `🌑 Carvão: ${results.value.coal} kg\n\n`;
+                    text += `_Bora dividir? Manda o PIX!_`;
+
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    people, isValid, results, shareList
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

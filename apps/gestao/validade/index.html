@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle de Validade | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-hourglass-half text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Validade</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'list'; filterStatus = 'all'"
+                    :class="currentView === 'list' && filterStatus === 'all' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-list w-5 text-center"></i> <span>Todos os Itens</span>
+                </a>
+                <a @click="currentView = 'list'; filterStatus = 'critical'"
+                    :class="currentView === 'list' && filterStatus === 'critical' ? 'bg-red-500 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i> <span>Vencendo (&lt;5d)</span>
+                </a>
+                <a @click="currentView = 'list'; filterStatus = 'expired'"
+                    :class="currentView === 'list' && filterStatus === 'expired' ? 'bg-slate-700 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-skull w-5 text-center"></i> <span>Vencidos</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-hourglass-half text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Controle de Validade</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: LIST -->
+                <div v-if="currentView === 'list'" class="max-w-5xl mx-auto">
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Total</div>
+                            <div class="text-2xl font-black text-slate-800">{{ stats.total }}</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl shadow-sm border border-green-100">
+                            <div class="text-xs font-bold text-green-600 uppercase">OK (&gt;15d)</div>
+                            <div class="text-2xl font-black text-green-700">{{ stats.ok }}</div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-xl shadow-sm border border-yellow-100">
+                            <div class="text-xs font-bold text-yellow-600 uppercase">Atenção (&lt;15d)</div>
+                            <div class="text-2xl font-black text-yellow-700">{{ stats.warning }}</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-100">
+                            <div class="text-xs font-bold text-red-600 uppercase">Crítico (&lt;5d)</div>
+                            <div class="text-2xl font-black text-red-700">{{ stats.critical }}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex lg:flex-row flex-col lg:justify-between lg:items-center gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">
+                            <span v-if="filterStatus === 'all'">Todos os Itens</span>
+                            <span v-if="filterStatus === 'critical'" class="text-red-600">Itens Críticos</span>
+                            <span v-if="filterStatus === 'expired'" class="text-slate-600">Itens Vencidos</span>
+                        </h2>
+                        <div class="flex gap-2">
+                            <div class="relative flex-1 lg:w-64">
+                                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                                <input v-model="searchQuery"
+                                    class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-200 outline-none focus:border-brand-500 font-medium text-sm"
+                                    placeholder="Buscar produto...">
+                            </div>
+                            <button @click="openModal()"
+                                class="bg-brand-600 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:bg-brand-700 transition flex items-center gap-2"><i
+                                    class="fa-solid fa-plus"></i> <span
+                                    class="hidden md:inline">Adicionar</span></button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 text-xs text-slate-500 uppercase font-bold hidden md:table-header-group">
+                                <tr>
+                                    <th class="p-4">Produto / Lote</th>
+                                    <th class="p-4">Vencimento</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="item in filteredItems" :key="item.id"
+                                    class="group hover:bg-slate-50 transition flex flex-col md:table-row relative">
+                                    <td class="p-4">
+                                        <div class="font-bold text-slate-800">{{ item.name }}</div>
+                                        <div class="text-xs text-slate-500">Lote: {{ item.batch || 'S/N' }} • Qtd: {{
+                                            item.qty }}</div>
+                                    </td>
+                                    <td class="p-4 flex justify-between md:table-cell">
+                                        <span class="md:hidden text-xs font-bold text-slate-400 uppercase">Vence
+                                            em:</span>
+                                        <div class="font-medium text-slate-700">{{ formatDate(item.date) }}</div>
+                                    </td>
+                                    <td class="p-4 flex justify-between md:table-cell">
+                                        <span
+                                            class="md:hidden text-xs font-bold text-slate-400 uppercase">Status:</span>
+                                        <span :class="getStatusClasses(item)"
+                                            class="px-2 py-1 rounded text-xs font-bold uppercase inline-block w-fit">
+                                            {{ getStatusLabel(item) }}
+                                        </span>
+                                    </td>
+                                    <td
+                                        class="p-4 text-center flex justify-end gap-2 md:table-cell border-t md:border-t-0 border-slate-100">
+                                        <button @click="openModal(item)"
+                                            class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"><i
+                                                class="fa-solid fa-pen text-xs"></i></button>
+                                        <button @click="deleteItem(item.id)"
+                                            class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition"><i
+                                                class="fa-solid fa-trash text-xs"></i></button>
+                                    </td>
+                                </tr>
+                                <tr v-if="filteredItems.length === 0">
+                                    <td colspan="4" class="p-12 text-center text-slate-400">
+                                        <i class="fa-solid fa-box-open text-4xl mb-3 opacity-30"></i>
+                                        <p>Nenhum item encontrado nesta categoria.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Add/Edit Modal -->
+        <div v-if="modal.show"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-fade-in">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-lg">{{ modal.id ? 'Editar' : 'Novo' }} Item</h3>
+                    <button @click="modal.show = false" class="text-slate-400 hover:text-slate-600"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="label">Nome do Produto</label>
+                        <input v-model="form.name" type="text" class="input" placeholder="Ex: Queijo Mussarela">
+                    </div>
+                    <div>
+                        <label class="label">Lote (Opcional)</label>
+                        <input v-model="form.batch" type="text" class="input" placeholder="Lote 1234">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Quantidade</label>
+                            <input v-model="form.qty" type="number" class="input" placeholder="10">
+                        </div>
+                        <div>
+                            <label class="label">Vencimento</label>
+                            <input v-model="form.date" type="date" class="input">
+                        </div>
+                    </div>
+                    <button @click="saveItem" class="w-full btn-primary py-3 rounded-xl mt-2">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #ef4444;
+            background: #fff;
+            ring: 2px solid #ef4444;
+        }
+
+        .btn-primary {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_validade_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('list');
+                const items = ref([]);
+                const searchQuery = ref('');
+                const filterStatus = ref('all');
+
+                const modal = ref({ show: false, id: null });
+                const form = ref({ name: '', batch: '', date: '', qty: '' });
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) items.value = JSON.parse(d);
+                    else items.value = [ // Seed
+                        { id: 1, name: 'Leite Integral Lote A', batch: '2023-A', date: new Date(Date.now() + 86400000 * 20).toISOString().split('T')[0], qty: 50 },
+                        { id: 2, name: 'Iogurte Morango', batch: 'IOG-001', date: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0], qty: 12 },
+                        { id: 3, name: 'Queijo Prato', batch: 'QPJ-99', date: new Date(Date.now() - 86400000).toISOString().split('T')[0], qty: 5 },
+                    ];
+                });
+                watch(items, () => localStorage.setItem(DB_KEY, JSON.stringify(items.value)), { deep: true });
+
+                // Methods to calc days
+                const getDaysDiff = (dateStr) => {
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    const target = new Date(dateStr);
+                    target.setHours(0, 0, 0, 0); // normalize timezone issues simply
+                    // Add timezone offset correction if needed but simpler logic:
+                    // new Date('YYYY-MM-DD') in JS is UTC, but local usage usually desired.
+                    // Let's use simple diff
+                    const displayDate = new Date(dateStr + 'T00:00:00');
+                    const diffTime = displayDate - now;
+                    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                };
+
+                // Computed
+                const processedItems = computed(() => {
+                    return items.value.map(i => ({
+                        ...i,
+                        days: getDaysDiff(i.date)
+                    })).sort((a, b) => a.days - b.days);
+                });
+
+                const filteredItems = computed(() => {
+                    let list = processedItems.value;
+
+                    if (searchQuery.value) {
+                        const q = searchQuery.value.toLowerCase();
+                        list = list.filter(i => i.name.toLowerCase().includes(q) || i.batch.toLowerCase().includes(q));
+                    }
+
+                    if (filterStatus.value === 'critical') list = list.filter(i => i.days <= 5 && i.days >= 0);
+                    if (filterStatus.value === 'expired') list = list.filter(i => i.days < 0);
+
+                    return list;
+                });
+
+                const stats = computed(() => {
+                    return {
+                        total: items.value.length,
+                        ok: processedItems.value.filter(i => i.days > 15).length,
+                        warning: processedItems.value.filter(i => i.days <= 15 && i.days > 5).length,
+                        critical: processedItems.value.filter(i => i.days <= 5 && i.days >= 0).length + processedItems.value.filter(i => i.days < 0).length
+                    }
+                });
+
+                // Helpers
+                const formatDate = (d) => d.split('-').reverse().join('/');
+                const getStatusLabel = (item) => {
+                    if (item.days < 0) return `Vencido há ${Math.abs(item.days)}d`;
+                    if (item.days === 0) return 'Vence Hoje!';
+                    if (item.days <= 5) return `Crítico: ${item.days}d`;
+                    if (item.days <= 15) return `Atenção: ${item.days}d`;
+                    return `Em dia (${item.days}d)`;
+                };
+                const getStatusClasses = (item) => {
+                    if (item.days < 0) return 'bg-slate-800 text-white';
+                    if (item.days <= 5) return 'bg-red-100 text-red-600 animate-pulse';
+                    if (item.days <= 15) return 'bg-yellow-100 text-yellow-600';
+                    return 'bg-green-100 text-green-600';
+                };
+
+                // Actions
+                const openModal = (item = null) => {
+                    if (item) {
+                        form.value = { ...item };
+                        modal.value.id = item.id;
+                    } else {
+                        form.value = { name: '', batch: '', date: '', qty: '' };
+                        modal.value.id = null;
+                    }
+                    modal.value.show = true;
+                };
+
+                const saveItem = () => {
+                    if (!form.value.name || !form.value.date) return alert('Preencha nome e vencimento');
+
+                    if (modal.value.id) {
+                        const idx = items.value.findIndex(i => i.id === modal.value.id);
+                        if (idx !== -1) items.value[idx] = { ...form.value, id: modal.value.id };
+                    } else {
+                        items.value.push({ id: Date.now(), ...form.value });
+                    }
+                    modal.value.show = false;
+                };
+
+                const deleteItem = (id) => {
+                    if (confirm('Remover este item?')) items.value = items.value.filter(i => i.id !== id);
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(items.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'validade_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        items.value = JSON.parse(ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, filterStatus, searchQuery,
+                    filteredItems, stats,
+                    modal, form,
+                    formatDate, getStatusLabel, getStatusClasses,
+                    openModal, saveItem, deleteItem,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

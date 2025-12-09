@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agenda Beauty | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #fdf2f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-pink-900 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-white text-pink-900 border-r border-pink-100 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-pink-50">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-calendar-check text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Agenda Beauty</h1>
+            </div>
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'calendar'"
+                    :class="currentView === 'calendar' ? 'bg-brand-50 text-brand-700 font-bold' : 'text-slate-500 hover:bg-slate-50'"
+                    class="nav-item">
+                    <i class="fa-regular fa-calendar w-5 text-center"></i> <span>Agenda</span>
+                </a>
+                <a @click="currentView = 'clients'"
+                    :class="currentView === 'clients' ? 'bg-brand-50 text-brand-700 font-bold' : 'text-slate-500 hover:bg-slate-50'"
+                    class="nav-item">
+                    <i class="fa-solid fa-users w-5 text-center"></i> <span>Clientes</span>
+                </a>
+                <a @click="openSchedule()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-full bg-brand-600 text-white hover:bg-brand-700 transition cursor-pointer font-bold mt-4 shadow-lg shadow-brand-500/30 justify-center">
+                    <i class="fa-solid fa-plus"></i> <span>Agendar</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-pink-50 text-xs text-slate-400 text-center">
+                <button @click="backupData" class="hover:text-brand-600 underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-brand-600 underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+            <header
+                class="md:hidden h-16 bg-white border-b border-pink-100 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center text-white"><i
+                            class="fa-solid fa-calendar-check text-xs"></i></div>
+                    <span class="font-bold text-pink-900">Agenda Beauty</span>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full"><i
+                        class="fa-solid fa-bars text-lg"></i></button>
+            </header>
+
+            <transition name="fade">
+                <div v-if="mobileMenuOpen"
+                    class="absolute top-16 inset-x-0 bg-white shadow-xl z-30 p-4 md:hidden flex flex-col gap-2 border-b border-pink-100">
+                    <a @click="currentView = 'calendar'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-pink-50 rounded-lg flex items-center gap-3 font-medium text-pink-800"><i
+                            class="fa-regular fa-calendar text-brand-600"></i> Agenda</a>
+                    <a @click="currentView = 'clients'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-pink-50 rounded-lg flex items-center gap-3 font-medium text-pink-800"><i
+                            class="fa-solid fa-users text-brand-600"></i> Clientes</a>
+                    <a @click="openSchedule(); mobileMenuOpen = false"
+                        class="p-3 bg-brand-600 text-white rounded-lg flex items-center gap-3 font-bold"><i
+                            class="fa-solid fa-plus"></i> Agendar</a>
+                </div>
+            </transition>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+                <!-- VIEW: CALENDAR -->
+                <div v-if="currentView === 'calendar'" class="max-w-6xl mx-auto h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex gap-2 bg-white p-1 rounded-full shadow-sm">
+                            <button @click="dayOffset = 0"
+                                class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition"
+                                :class="dayOffset === 0 ? 'bg-brand-600 text-white' : 'text-slate-500 hover:bg-slate-50'">Hoje</button>
+                            <button @click="dayOffset = 1"
+                                class="px-4 py-1.5 rounded-full text-xs font-bold uppercase transition"
+                                :class="dayOffset === 1 ? 'bg-brand-600 text-white' : 'text-slate-500 hover:bg-slate-50'">Amanhã</button>
+                        </div>
+                        <div class="text-lg font-bold text-pink-900">{{ currentDisplayDate }}</div>
+                    </div>
+
+                    <div
+                        class="flex-1 bg-white rounded-2xl shadow-sm border border-pink-100 overflow-hidden flex flex-col relative">
+                        <!-- Time Slots -->
+                        <div class="flex-1 overflow-y-auto">
+                            <div v-for="hour in hours" :key="hour"
+                                class="border-b border-slate-50 min-h-[80px] flex group hover:bg-slate-50">
+                                <div
+                                    class="w-20 border-r border-slate-50 flex items-center justify-center text-xs font-bold text-slate-400">
+                                    {{ hour }}
+                                </div>
+                                <div class="flex-1 p-2 relative">
+                                    <div v-for="apt in getAppointmentsForHour(hour)" :key="apt.id"
+                                        @click="editSchedule(apt)"
+                                        class="absolute inset-x-2 top-1 bottom-1 bg-pink-100 border-l-4 border-brand-500 rounded p-2 cursor-pointer hover:shadow-md transition z-10 flex justify-between items-center">
+                                        <div>
+                                            <div class="font-bold text-pink-900 text-sm">{{ apt.client }}</div>
+                                            <div class="text-xs text-pink-600">{{ apt.service }}</div>
+                                        </div>
+                                        <div class="text-xs font-bold text-slate-500 bg-white/50 px-2 py-1 rounded">{{
+                                            apt.professional }}</div>
+                                    </div>
+                                    <button v-if="getAppointmentsForHour(hour).length === 0" @click="openSchedule(hour)"
+                                        class="w-full h-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-brand-300 hover:text-brand-500 transition">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: CLIENTS -->
+                <div v-if="currentView === 'clients'" class="max-w-4xl mx-auto animate-fade-in">
+                    <h2 class="text-2xl font-bold text-pink-900 mb-6 font-display">Meus Clientes</h2>
+                    <div class="bg-white rounded-xl shadow-sm border border-pink-100 overflow-hidden">
+                        <div v-for="c in uniqueClients" :key="c"
+                            class="p-4 border-b border-slate-50 flex justify-between items-center">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold">
+                                    {{ c.charAt(0) }}
+                                </div>
+                                <div class="font-bold text-slate-700">{{ c }}</div>
+                            </div>
+                            <button
+                                class="text-xs font-bold text-brand-600 border border-brand-200 px-3 py-1 rounded-full hover:bg-brand-50">Ver
+                                Histórico</button>
+                        </div>
+                        <div v-if="uniqueClients.length === 0" class="p-8 text-center text-slate-400">Nenhum cliente
+                            registrado.</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Modal -->
+        <div v-if="modal.show"
+            class="fixed inset-0 bg-pink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-pink-50 flex justify-between items-center bg-pink-50/50">
+                    <h3 class="font-bold text-lg text-pink-900">{{ modal.id ? 'Editar Agendamento' : 'Novo Agendamento'
+                        }}</h3>
+                    <button @click="closeModal"
+                        class="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-slate-600 flex items-center justify-center shadow-sm"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="label">Horário</label>
+                        <select v-model="modal.data.time" class="input">
+                            <option v-for="h in hours" :key="h" :value="h">{{ h }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">Cliente</label>
+                        <input v-model="modal.data.client" type="text" placeholder="Nome do Cliente" class="input">
+                    </div>
+                    <div>
+                        <label class="label">Serviço</label>
+                        <input v-model="modal.data.service" type="text" placeholder="Ex: Corte, Manicure..."
+                            class="input">
+                    </div>
+                    <div>
+                        <label class="label">Profissional</label>
+                        <input v-model="modal.data.professional" type="text" placeholder="Nome do Profissional"
+                            class="input">
+                    </div>
+                </div>
+                <div class="p-4 bg-pink-50/50 border-t border-pink-50 flex gap-3">
+                    <button v-if="modal.id" @click="deleteApt"
+                        class="px-4 py-2 text-red-400 font-bold hover:bg-red-50 rounded-lg"><i
+                            class="fa-solid fa-trash"></i></button>
+                    <div class="flex-1"></div>
+                    <button @click="closeModal"
+                        class="px-4 py-2 text-slate-500 font-bold hover:text-slate-700">Cancelar</button>
+                    <button @click="saveApt"
+                        class="px-6 py-2 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 shadow-lg shadow-brand-500/30">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 99px;
+            transition: all;
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #db2777;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.05em;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #fbcfe8;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+
+        .input:focus {
+            border-color: #db2777;
+            ring: 2px solid #db2777;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_agenda_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('calendar');
+                const mobileMenuOpen = ref(false);
+                const appointments = ref([]);
+                const dayOffset = ref(0); // 0 = today, 1 = tomorrow
+                const modal = ref({ show: false, id: null, data: {} });
+
+                const hours = [
+                    '08:00', '09:00', '10:00', '11:00', '12:00',
+                    '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
+                ];
+
+                // Persistence
+                const load = () => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) appointments.value = JSON.parse(d);
+                    else {
+                        // Mock
+                        const today = new Date().toISOString().split('T')[0];
+                        appointments.value = [
+                            { id: 1, date: today, time: '10:00', client: 'Ana Clara', service: 'Corte e Escova', professional: 'Mariana' }
+                        ];
+                    }
+                };
+                const save = () => localStorage.setItem(DB_KEY, JSON.stringify(appointments.value));
+                watch(appointments, save, { deep: true });
+                onMounted(load);
+
+                // Computed
+                const targetDate = computed(() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + dayOffset.value);
+                    return d.toISOString().split('T')[0];
+                });
+
+                const currentDisplayDate = computed(() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + dayOffset.value);
+                    return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+                });
+
+                const getAppointmentsForHour = (h) => {
+                    return appointments.value.filter(a => a.date === targetDate.value && a.time === h);
+                };
+
+                const uniqueClients = computed(() => [...new Set(appointments.value.map(a => a.client))].sort());
+
+                // Actions
+                const openSchedule = (h = '09:00') => {
+                    modal.value.id = null;
+                    modal.value.data = { date: targetDate.value, time: h, client: '', service: '', professional: '' };
+                    modal.value.show = true;
+                };
+
+                const editSchedule = (apt) => {
+                    modal.value.id = apt.id;
+                    modal.value.data = { ...apt };
+                    modal.value.show = true;
+                };
+
+                const closeModal = () => modal.value.show = false;
+
+                const saveApt = () => {
+                    if (!modal.value.data.client) return alert('Nome do cliente obrigatório');
+
+                    // Simple collision check (optional)
+                    const conflict = appointments.value.find(a => a.date === modal.value.data.date && a.time === modal.value.data.time && a.id !== modal.value.id);
+                    if (conflict) {
+                        if (!confirm('Já existe um agendamento neste horário. Deseja adicionar mesmo assim?')) return;
+                    }
+
+                    if (modal.value.id) {
+                        const idx = appointments.value.findIndex(a => a.id === modal.value.id);
+                        if (idx !== -1) appointments.value[idx] = modal.value.data;
+                    } else {
+                        appointments.value.push({ id: Date.now(), ...modal.value.data });
+                    }
+                    closeModal();
+                };
+
+                const deleteApt = () => {
+                    if (confirm('Cancelar agendamento?')) {
+                        appointments.value = appointments.value.filter(a => a.id !== modal.value.id);
+                        closeModal();
+                    }
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([localStorage.getItem(DB_KEY)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'agenda_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        localStorage.setItem(DB_KEY, ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, mobileMenuOpen, hours, dayOffset, currentDisplayDate,
+                    getAppointmentsForHour, uniqueClients, modal,
+                    openSchedule, editSchedule, closeModal, saveApt, deleteApt,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

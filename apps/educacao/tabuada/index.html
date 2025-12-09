@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tabuada Divertida | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Fredoka', 'cursive'] },
+                    colors: {
+                        kid: { blue: '#3b82f6', yellow: '#fbbf24', green: '#22c55e', red: '#ef4444', purple: '#a855f7' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f0f9ff;
+            font-family: 'Fredoka', cursive;
+            user-select: none;
+        }
+
+        .bubbly-btn {
+            transition: transform 0.1s;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .bubbly-btn:active {
+            transform: translateY(2px);
+            border-bottom: 0px solid transparent;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body
+    class="h-screen overflow-hidden flex flex-col items-center justify-center p-4 bg-gradient-to-b from-blue-100 to-purple-100">
+
+    <div id="app"
+        class="w-full max-w-4xl h-full md:h-[600px] flex flex-col md:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-white ring-4 ring-blue-200">
+
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-full md:w-64 bg-kid-blue md:h-full p-4 flex md:flex-col items-center justify-between md:justify-start gap-4 z-10">
+            <div class="text-white text-center md:mb-8">
+                <i class="fa-solid fa-shapes text-4xl mb-2 drop-shadow-md"></i>
+                <h1 class="text-2xl font-bold drop-shadow-md leading-none">Tabuada<br><span
+                        class="text-kid-yellow">Divertida</span></h1>
+            </div>
+
+            <div class="flex md:flex-col gap-2 w-full">
+                <button @click="mode = 'study'"
+                    :class="mode === 'study' ? 'bg-white text-kid-blue border-b-4 border-blue-200' : 'bg-blue-400 text-white border-blue-600'"
+                    class="bubbly-btn flex-1 py-3 rounded-2xl font-bold text-lg shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-book-open"></i> Estudar
+                </button>
+                <button @click="startQuizMode"
+                    :class="mode === 'quiz' ? 'bg-white text-kid-purple border-b-4 border-purple-200' : 'bg-purple-400 text-white border-purple-600'"
+                    class="bubbly-btn flex-1 py-3 rounded-2xl font-bold text-lg shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i> Jogar
+                </button>
+            </div>
+
+            <div class="hidden md:block mt-auto text-white/50 text-xs text-center">
+                Aprenda brincando! 🚀
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 relative overflow-hidden bg-pattern">
+
+            <!-- STUDY MODE -->
+            <transition name="fade" mode="out-in">
+                <div v-if="mode === 'study'" class="h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+
+                    <h2 class="text-2xl font-bold text-slate-700 mb-4 text-center">Escolha um número para estudar:</h2>
+
+                    <div class="grid grid-cols-5 gap-3 max-w-lg mx-auto mb-8">
+                        <button v-for="n in 10" :key="n" @click="currentTable = n"
+                            :class="currentTable === n ? 'bg-kid-yellow text-white scale-110 rotate-3' : 'bg-white text-slate-600 hover:bg-slate-50'"
+                            class="aspect-square rounded-2xl shadow-md font-bold text-2xl transition transform border-2 border-slate-100 flex items-center justify-center">
+                            {{ n }}
+                        </button>
+                    </div>
+
+                    <div
+                        class="flex-1 overflow-y-auto bg-white rounded-3xl p-6 shadow-inner border border-slate-100 max-w-lg mx-auto w-full">
+                        <div v-for="i in 10" :key="i"
+                            class="flex justify-between items-center text-xl md:text-2xl py-2 border-b border-dashed border-slate-200 last:border-0 font-bold text-slate-600">
+                            <span>{{ currentTable }} <i class="fa-solid fa-xmark text-sm text-slate-300 mx-2"></i> {{ i
+                                }}</span>
+                            <span class="text-kid-blue">= {{ currentTable * i }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUIZ MODE -->
+                <div v-else-if="mode === 'quiz'" class="h-full flex flex-col items-center justify-center p-4">
+
+                    <!-- Score Header -->
+                    <div class="absolute top-4 right-4 flex gap-4">
+                        <div class="bg-white px-4 py-2 rounded-full shadow font-bold text-kid-green"><i
+                                class="fa-solid fa-check"></i> {{ quiz.score }}</div>
+                        <div class="bg-white px-4 py-2 rounded-full shadow font-bold text-kid-red"><i
+                                class="fa-solid fa-xmark"></i> {{ quiz.errors }}</div>
+                    </div>
+
+                    <div v-if="!quiz.finished" class="w-full max-w-md text-center">
+                        <div class="mb-8 relative">
+                            <span class="text-slate-400 font-bold uppercase tracking-widest text-sm">Pergunta {{
+                                quiz.current + 1 }} / {{ quiz.total }}</span>
+                        </div>
+
+                        <div
+                            class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-kid-purple mb-8 transform scale-100 transition">
+                            <h2
+                                class="text-6xl md:text-7xl font-bold text-kid-purple flex items-center justify-center gap-4">
+                                {{ quiz.q.a }} <i class="fa-solid fa-xmark text-4xl opacity-50"></i> {{ quiz.q.b }}
+                            </h2>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button v-for="opt in quiz.options" :key="opt" @click="answer(opt)"
+                                class="bubbly-btn bg-white text-slate-700 hover:text-white hover:bg-kid-green border-2 border-slate-200 py-6 rounded-2xl text-3xl font-bold shadow-lg transition">
+                                {{ opt }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Finished Screen -->
+                    <div v-else class="text-center animate-bounce-in">
+                        <div class="text-8xl mb-4">{{ quiz.score > 7 ? '🏆' : '👍' }}</div>
+                        <h2 class="text-4xl font-bold text-kid-purple mb-2">Fim de Jogo!</h2>
+                        <p class="text-xl text-slate-500 mb-8">Você acertou <strong class="text-kid-blue">{{ quiz.score
+                                }}</strong> de {{ quiz.total }}!</p>
+
+                        <button @click="startQuizMode"
+                            class="bubbly-btn bg-kid-yellow text-white py-4 px-10 rounded-full text-2xl font-bold shadow-xl flex items-center gap-3 mx-auto">
+                            <i class="fa-solid fa-rotate-right"></i> Jogar de Novo
+                        </button>
+                    </div>
+
+                </div>
+            </transition>
+
+        </main>
+    </div>
+
+    <!-- Background Pattern CSS -->
+    <style>
+        .bg-pattern {
+            background-color: #ffffff;
+            opacity: 1;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px), radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const mode = ref('study');
+                const currentTable = ref(2);
+
+                const quiz = ref({
+                    total: 10,
+                    current: 0,
+                    score: 0,
+                    errors: 0,
+                    finished: false,
+                    q: { a: 1, b: 1 },
+                    options: []
+                });
+
+                const startQuizMode = () => {
+                    mode.value = 'quiz';
+                    quiz.value = {
+                        total: 10,
+                        current: 0,
+                        score: 0,
+                        errors: 0,
+                        finished: false,
+                        q: { a: 1, b: 1 },
+                        options: []
+                    };
+                    nextQuestion();
+                };
+
+                const nextQuestion = () => {
+                    if (quiz.value.current >= quiz.value.total) {
+                        quiz.value.finished = true;
+                        if (quiz.value.score >= 7) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                        return;
+                    }
+
+                    // Generate Question
+                    const a = Math.floor(Math.random() * 9) + 2; // 2 to 10
+                    const b = Math.floor(Math.random() * 9) + 2;
+                    const correct = a * b;
+
+                    // Generate Options
+                    const opts = new Set([correct]);
+                    while (opts.size < 4) {
+                        // Smart wrong answers (close to real)
+                        let wrong = correct + Math.floor(Math.random() * 10) - 5;
+                        if (wrong > 0 && wrong !== correct) opts.add(wrong);
+                    }
+
+                    quiz.value.q = { a, b };
+                    quiz.value.options = Array.from(opts).sort(() => Math.random() - 0.5);
+                };
+
+                const answer = (val) => {
+                    const correct = quiz.value.q.a * quiz.value.q.b;
+
+                    if (val === correct) {
+                        quiz.value.score++;
+                        // Sound effect could go here
+                    } else {
+                        quiz.value.errors++;
+                        // Vibrate
+                        if (navigator.vibrate) navigator.vibrate(200);
+                    }
+
+                    quiz.value.current++;
+                    nextQuestion();
+                };
+
+                return {
+                    mode, currentTable, quiz,
+                    startQuizMode, answer
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

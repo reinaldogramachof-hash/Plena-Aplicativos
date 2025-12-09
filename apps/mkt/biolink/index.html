@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bio Link Creator | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* Device Preview Frame */
+        .phone-frame {
+            border: 12px solid #1e293b;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #1e293b;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 20;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- EDITOR PANEL (Left) -->
+        <aside class="flex-1 flex flex-col bg-white border-r border-slate-200 z-10 max-w-xl shadow-xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+                        <i class="fa-solid fa-link text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl text-slate-800 tracking-tight">Bio Link <span
+                                class="text-purple-600">Creator</span></h1>
+                        <p class="text-xs text-slate-400">Crie sua página de links</p>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <button
+                        class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition">
+                        <i class="fa-solid fa-ellipsis-v"></i>
+                    </button>
+                    <div
+                        class="absolute right-0 top-10 bg-white border border-slate-200 rounded-xl shadow-xl p-2 hidden group-hover:block min-w-[160px] z-50">
+                        <button @click="backupData"
+                            class="w-full text-left px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded"><i
+                                class="fa-solid fa-download mr-2"></i>Backup JSON</button>
+                        <label
+                            class="w-full text-left px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded cursor-pointer block">
+                            <i class="fa-solid fa-upload mr-2"></i>Restaurar <input type="file" class="hidden"
+                                @change="importData">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+
+                <!-- Section: Profile -->
+                <section class="space-y-4">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-circle"></i> Perfil
+                    </h2>
+                    <div class="grid gap-4">
+                        <div class="flex gap-4">
+                            <div class="shrink-0">
+                                <template v-if="profile.image">
+                                    <div class="w-20 h-20 rounded-full bg-slate-100 bg-cover bg-center border-2 border-purple-100 relative group cursor-pointer overflow-hidden"
+                                        :style="{ backgroundImage: `url(${profile.image})` }">
+                                        <div @click="removeImage"
+                                            class="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition">
+                                            <i class="fa-solid fa-trash"></i></div>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <button @click="promptImage"
+                                        class="w-20 h-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-purple-500 hover:border-purple-300 transition">
+                                        <i class="fa-solid fa-camera text-xl"></i>
+                                    </button>
+                                </template>
+                            </div>
+                            <div class="flex-1 space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Nome de Exibição</label>
+                                    <input v-model="profile.name" class="input" placeholder="@seunome">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Bio / Descrição</label>
+                                    <input v-model="profile.bio" class="input" placeholder="Empreendedor, Criador...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Links -->
+                <section class="space-y-4">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul"></i> Botões
+                    </h2>
+
+                    <div class="space-y-3">
+                        <div v-for="(link, idx) in links" :key="idx"
+                            class="bg-slate-50 p-4 rounded-xl border border-slate-200 group hover:border-purple-300 transition relative">
+                            <div class="grid gap-3">
+                                <div class="flex gap-2">
+                                    <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shrink-0 cursor-pointer hover:text-purple-500"
+                                        @click="changeIcon(idx)">
+                                        <i :class="link.icon || 'fa-solid fa-link'"></i>
+                                    </div>
+                                    <input v-model="link.label" class="input flex-1 font-bold"
+                                        placeholder="Título (ex: WhatsApp)">
+                                </div>
+                                <input v-model="link.url" class="input" placeholder="https://...">
+                            </div>
+                            <button @click="removeLink(idx)"
+                                class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs shadow-md opacity-0 group-hover:opacity-100 transition"><i
+                                    class="fa-solid fa-times"></i></button>
+
+                            <div
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-25 hover:!opacity-100">
+                                <button v-if="idx > 0" @click="moveLink(idx, -1)"
+                                    class="w-6 h-6 bg-slate-200 rounded text-xs"><i
+                                        class="fa-solid fa-chevron-up"></i></button>
+                                <button v-if="idx < links.length - 1" @click="moveLink(idx, 1)"
+                                    class="w-6 h-6 bg-slate-200 rounded text-xs"><i
+                                        class="fa-solid fa-chevron-down"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="addLink"
+                        class="w-full py-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 font-bold hover:border-purple-500 hover:text-purple-600 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Adicionar Botão
+                    </button>
+                </section>
+
+                <!-- Section: Customization -->
+                <section class="space-y-4">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-paint-roller"></i> Aparência
+                    </h2>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Tema de Cores</label>
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            <button v-for="t in themes" :key="t.id" @click="currentTheme = t"
+                                :class="{'ring-2 ring-purple-500 ring-offset-2': currentTheme.id === t.id}"
+                                class="w-12 h-12 rounded-full shrink-0 shadow-sm border border-slate-200"
+                                :style="{ background: t.bgPreview }"></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-2">Estilo dos Botões</label>
+                            <select v-model="buttonStyle" class="input">
+                                <option value="rounded-xl">Arredondado</option>
+                                <option value="rounded-full">Pílula</option>
+                                <option value="rounded-none">Quadrado</option>
+                                <option value="shadow-lg">Sombreado</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="p-6 border-t border-slate-200 bg-white">
+                <button @click="downloadHTML"
+                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/20 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Baixar Página HTML
+                </button>
+            </div>
+        </aside>
+
+        <!-- PREVIEW PANEL (Right) -->
+        <main class="hidden md:flex flex-1 bg-slate-100 items-center justify-center p-8 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10"
+                style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;">
+            </div>
+
+            <div class="phone-frame w-[375px] h-[750px] shadow-2xl animate-float">
+                <div class="phone-notch"></div>
+
+                <!-- THE ACTUAL BIO PAGE CONTENT -->
+                <div class="h-full w-full overflow-y-auto" :style="pageStyle">
+                    <div class="min-h-full p-8 pt-16 flex flex-col items-center">
+
+                        <!-- Profile -->
+                        <div class="mb-8 text-center w-full">
+                            <div class="w-24 h-24 rounded-full mx-auto mb-4 bg-slate-200 bg-cover bg-center border-4 border-white/20 shadow-xl"
+                                :style="{ backgroundImage: `url(${profile.image || 'https://via.placeholder.com/150'})` }">
+                            </div>
+                            <h1 class="text-xl font-bold mb-1" :style="{ color: currentTheme.textColor }">{{
+                                profile.name || '@seu.nome' }}</h1>
+                            <p class="text-sm opacity-90" :style="{ color: currentTheme.textColor }">{{ profile.bio ||
+                                'Sua biografia incrível vai aqui.' }}</p>
+                        </div>
+
+                        <!-- Links -->
+                        <div class="w-full space-y-4 flex-1">
+                            <a v-for="(link, idx) in links" :key="idx" :href="link.url" target="_blank"
+                                class="block w-full py-4 px-6 text-center font-bold transition transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden"
+                                :class="buttonStyle" :style="buttonCss">
+                                <i v-if="link.icon" :class="link.icon"></i>
+                                <span>{{ link.label }}</span>
+                            </a>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-8 pt-8 pb-4 opacity-50 text-[10px] text-center font-bold uppercase tracking-widest"
+                            :style="{ color: currentTheme.textColor }">
+                            Feito com Plena
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Common Styles -->
+    <style>
+        .input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            font-size: 0.9rem;
+        }
+
+        .input:focus {
+            border-color: #a855f7;
+            border-left-width: 4px;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_biolink_v1';
+
+        createApp({
+            setup() {
+                // State
+                const profile = ref({ name: 'Minha Loja', bio: 'Peça pelo WhatsApp 👇', image: '' });
+                const links = ref([
+                    { label: 'Fazer Pedido', url: 'https://wa.me/', icon: 'fa-brands fa-whatsapp' },
+                    { label: 'Instagram', url: 'https://instagram.com/', icon: 'fa-brands fa-instagram' },
+                    { label: 'Localização', url: 'https://maps.google.com/', icon: 'fa-solid fa-map-pin' }
+                ]);
+                const buttonStyle = ref('rounded-xl');
+
+                // Themes
+                const themes = [
+                    { id: 'slate', name: 'Clean Slate', bgPreview: '#f1f5f9', bg: '#f1f5f9', text: '#1e293b', btnBg: '#ffffff', btnText: '#1e293b', type: 'solid' },
+                    { id: 'dark', name: 'Midnight', bgPreview: '#0f172a', bg: '#0f172a', text: '#f8fafc', btnBg: '#1e293b', btnText: '#ffffff', type: 'solid' },
+                    { id: 'purple', name: 'Neon Purple', bgPreview: 'linear-gradient(to bottom right, #581c87, #db2777)', bg: 'linear-gradient(to bottom right, #581c87, #db2777)', text: 'white', btnBg: 'rgba(255,255,255,0.2)', btnText: 'white', type: 'gradient' },
+                    { id: 'sunset', name: 'Sunset', bgPreview: 'linear-gradient(to top, #f97316, #facc15)', bg: 'linear-gradient(to top, #f97316, #facc15)', text: 'white', btnBg: 'white', btnText: '#c2410c', type: 'gradient' },
+                    { id: 'forest', name: 'Forest', bgPreview: '#064e3b', bg: '#064e3b', text: '#ecfdf5', btnBg: '#34d399', btnText: '#064e3b', type: 'solid' },
+                ];
+                const currentTheme = ref(themes[0]);
+
+                // Computes
+                const pageStyle = computed(() => ({
+                    background: currentTheme.value.bg,
+                    color: currentTheme.value.text
+                }));
+
+                const buttonCss = computed(() => ({
+                    backgroundColor: currentTheme.value.btnBg,
+                    color: currentTheme.value.btnText,
+                    backdropFilter: currentTheme.value.type === 'gradient' ? 'blur(10px)' : 'none',
+                    border: currentTheme.value.type === 'gradient' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(0,0,0,0.05)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }));
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        profile.value = parsed.profile || profile.value;
+                        links.value = parsed.links || links.value;
+                        buttonStyle.value = parsed.buttonStyle || buttonStyle.value;
+                        if (parsed.themeId) {
+                            const found = themes.find(t => t.id === parsed.themeId);
+                            if (found) currentTheme.value = found;
+                        }
+                    }
+                });
+
+                watch([profile, links, buttonStyle, currentTheme], () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify({
+                        profile: profile.value,
+                        links: links.value,
+                        buttonStyle: buttonStyle.value,
+                        themeId: currentTheme.value.id
+                    }));
+                }, { deep: true });
+
+                // Actions
+                const addLink = () => links.value.push({ label: 'Novo Link', url: '', icon: 'fa-solid fa-link' });
+                const removeLink = (i) => links.value.splice(i, 1);
+                const moveLink = (i, dir) => {
+                    const temp = links.value[i];
+                    links.value[i] = links.value[i + dir];
+                    links.value[i + dir] = temp;
+                };
+
+                const promptImage = () => {
+                    const url = prompt('Cole a URL da sua imagem (ou use uma do Google Imagens):');
+                    if (url) profile.value.image = url;
+                };
+                const removeImage = () => profile.value.image = '';
+
+                const changeIcon = (i) => {
+                    const newIcon = prompt('Digite a classe do ícone FontAwesome (ex: fa-brands fa-facebook):', links.value[i].icon);
+                    if (newIcon) links.value[i].icon = newIcon;
+                };
+
+                // Backup/Restore
+                const backupData = () => {
+                    const data = { profile: profile.value, links: links.value, bs: buttonStyle.value, t: currentTheme.value.id };
+                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'biolink_backup.json';
+                    a.click();
+                };
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const d = JSON.parse(ev.target.result);
+                        if (d.profile) profile.value = d.profile;
+                        if (d.links) links.value = d.links;
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                // THE MAGIC EXPORT
+                const downloadHTML = () => {
+                    const htmlContent = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${profile.value.name}</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body style="background: ${currentTheme.value.bg}; color: ${currentTheme.value.text}; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 3rem 1.5rem;">
+    <div style="width: 100%; max-width: 480px; text-align: center;">
+        <div style="background-image: url('${profile.value.image || 'https://via.placeholder.com/150'}'); width: 96px; height: 96px; border-radius: 999px; background-size: cover; background-position: center; margin: 0 auto 1.5rem auto; border: 4px solid rgba(255,255,255,0.3); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);"></div>
+        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: ${currentTheme.value.textColor || 'inherit'}">${profile.value.name}</h1>
+        <p style="opacity: 0.9; margin-bottom: 2rem;">${profile.value.bio}</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            ${links.value.map(l => `
+            <a href="${l.url}" target="_blank" class="${buttonStyle.value}" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 1rem; font-weight: 700; text-decoration: none; transition: transform 0.2s; background: ${currentTheme.value.btnBg}; color: ${currentTheme.value.btnText}; border: ${currentTheme.value.type === 'gradient' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(0,0,0,0.05)'}; backdrop-filter: ${currentTheme.value.type === 'gradient' ? 'blur(10px)' : 'none'}; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <i class="${l.icon}"></i> <span>${l.label}</span>
+            </a>
+            `).join('')}
+        </div>
+        
+        <div style="margin-top: 3rem; opacity: 0.5; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em;">Criado com Plena</div>
+    </div>
+</body>
+</html>`;
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'meu-site.html';
+                    a.click();
+                };
+
+                return {
+                    profile, links, themes, currentTheme, buttonStyle,
+                    pageStyle, buttonCss,
+                    addLink, removeLink, moveLink, promptImage, removeImage, changeIcon,
+                    backupData, importData, downloadHTML
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

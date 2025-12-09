@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Editor Texto | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Merriweather', 'serif'] },
+                    colors: {
+                        editor: { 50: '#f9fafb', 100: '#f3f4f6', 800: '#1f2937', 900: '#111827' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .editor-area {
+            min-height: 100%;
+            outline: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app"
+        class="flex-1 flex h-full w-full relative bg-white shadow-2xl md:my-4 md:mx-4 md:rounded-2xl overflow-hidden border border-gray-200">
+
+        <!-- Sidebar Tools -->
+        <aside class="w-full md:w-64 bg-gray-50 border-r border-gray-200 z-10 flex flex-col h-full">
+            <div class="p-5 border-b border-gray-200 flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-pen-nib text-sm"></i>
+                </div>
+                <h1 class="font-bold text-gray-800 tracking-tight">Texto<span class="text-blue-600">Pro</span></h1>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+
+                <!-- Format Tools -->
+                <div>
+                    <label
+                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Formatação</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button @click="transform('uppercase')" class="tool-btn"><i class="fa-solid fa-font"></i>
+                            MAIÚSC.</button>
+                        <button @click="transform('lowercase')" class="tool-btn"><i
+                                class="fa-solid fa-font text-xs"></i> minúsc.</button>
+                        <button @click="transform('capitalize')" class="tool-btn"><i
+                                class="fa-solid fa-text-height"></i> Título</button>
+                        <button @click="transform('inverse')" class="tool-btn"><i class="fa-solid fa-right-left"></i>
+                            iNVERSO</button>
+                    </div>
+                </div>
+
+                <!-- Clean Tools -->
+                <div>
+                    <label
+                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Limpeza</label>
+                    <div class="space-y-2">
+                        <button @click="transform('noAccents')" class="tool-btn w-full justify-start px-3"><i
+                                class="fa-solid fa-bolt text-yellow-500 w-5"></i> Remover Acentos</button>
+                        <button @click="transform('trimLines')" class="tool-btn w-full justify-start px-3"><i
+                                class="fa-solid fa-bars-staggered text-blue-500 w-5"></i> Remover Linhas Vazias</button>
+                        <button @click="transform('trimSpaces')" class="tool-btn w-full justify-start px-3"><i
+                                class="fa-solid fa-compress text-green-500 w-5"></i> Espaços Extras</button>
+                    </div>
+                </div>
+
+                <!-- Meta Tools -->
+                <div>
+                    <label
+                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Ações</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button @click="copy"
+                            class="tool-btn bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100"><i
+                                class="fa-regular fa-copy"></i> Copiar</button>
+                        <button @click="clear"
+                            class="tool-btn bg-red-50 text-red-500 border-red-100 hover:bg-red-100"><i
+                                class="fa-solid fa-trash"></i> Limpar</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Stats Mobile (Hidden on Desktop usually, but let's show condensed) -->
+            <div class="p-4 bg-white border-t border-gray-200 md:hidden">
+                <div class="flex justify-between text-xs font-bold text-gray-500">
+                    <span>{{ stats.chars }} Caracteres</span>
+                    <span>{{ stats.words }} Palavras</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Editor -->
+        <main class="flex-1 flex flex-col relative h-full bg-white">
+
+            <!-- Top Stats Bar (Desktop) -->
+            <div
+                class="hidden md:flex items-center justify-between px-6 py-3 border-b border-gray-100 bg-white text-xs font-medium text-gray-500 select-none">
+                <div class="flex gap-6">
+                    <span class="hover:text-blue-600 transition cursor-help"
+                        title="Total de caracteres com espaços"><strong class="text-gray-800 text-sm">{{ stats.chars
+                            }}</strong> caracteres</span>
+                    <span class="hover:text-blue-600 transition cursor-help" title="Total de palavras"><strong
+                            class="text-gray-800 text-sm">{{ stats.words }}</strong> palavras</span>
+                    <span class="hover:text-blue-600 transition cursor-help" title="Total de linhas"><strong
+                            class="text-gray-800 text-sm">{{ stats.lines }}</strong> linhas</span>
+                </div>
+                <div class="text-[10px] uppercase tracking-wider opacity-50">Editor de Texto Simples</div>
+            </div>
+
+            <!-- Text Area -->
+            <textarea v-model="text"
+                class="flex-1 w-full p-6 md:p-8 resize-none outline-none font-serif text-gray-700 text-lg leading-relaxed placeholder-gray-300"
+                placeholder="Digite ou cole seu texto aqui para começar..."></textarea>
+
+            <!-- Floating Copy Button (Mobile) -->
+            <button @click="copy"
+                class="md:hidden absolute bottom-4 right-4 bg-blue-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-xl hover:scale-110 transition z-20">
+                <i class="fa-regular fa-copy"></i>
+            </button>
+
+            <!-- Notification Toast -->
+            <div v-if="notification"
+                class="absolute top-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl flex items-center gap-2 animate-fade-in-down z-50">
+                <i class="fa-solid fa-circle-check text-green-400"></i> {{ notification }}
+            </div>
+
+        </main>
+
+    </div>
+
+    <style>
+        .tool-btn {
+            @apply py-2.5 px-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition flex items-center justify-center gap-2 shadow-sm;
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, watch } = Vue;
+
+        createApp({
+            setup() {
+                const text = ref('');
+                const notification = ref('');
+                let timeout = null;
+
+                const showNotify = (msg) => {
+                    notification.value = msg;
+                    if (timeout) clearTimeout(timeout);
+                    timeout = setTimeout(() => notification.value = '', 2000);
+                };
+
+                const stats = computed(() => {
+                    const t = text.value;
+                    return {
+                        chars: t.length,
+                        words: t.trim() === '' ? 0 : t.trim().split(/\s+/).length,
+                        lines: t === '' ? 0 : t.split(/\r\n|\r|\n/).length
+                    };
+                });
+
+                const transform = (type) => {
+                    let res = text.value;
+                    if (!res) return;
+
+                    switch (type) {
+                        case 'uppercase': res = res.toUpperCase(); break;
+                        case 'lowercase': res = res.toLowerCase(); break;
+                        case 'capitalize':
+                            res = res.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+                            break;
+                        case 'inverse':
+                            res = res.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('');
+                            break;
+                        case 'noAccents':
+                            res = res.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            break;
+                        case 'trimLines':
+                            res = res.replace(/^\s*[\r\n]/gm, "");
+                            break;
+                        case 'trimSpaces':
+                            res = res.replace(/[ \t]+/g, ' ').trim();
+                            break;
+                    }
+                    text.value = res;
+                    showNotify('Texto atualizado!');
+                };
+
+                const copy = () => {
+                    if (!text.value) return;
+                    navigator.clipboard.writeText(text.value).then(() => {
+                        showNotify('Copiado para a área de transferência!');
+                    });
+                };
+
+                const clear = () => {
+                    if (confirm('Limpar todo o texto?')) {
+                        text.value = '';
+                        showNotify('Limpado!');
+                    }
+                };
+
+                return {
+                    text, stats, notification,
+                    transform, copy, clear
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fluxo de Caixa | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-cash-register text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Fluxo de Caixa</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'today'"
+                    :class="currentView === 'today' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-calendar-day w-5 text-center"></i> <span>Mov. Hoje</span>
+                </a>
+                <a @click="currentView = 'history'"
+                    :class="currentView === 'history' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i> <span>Histórico</span>
+                </a>
+
+                <div class="mt-8 px-4">
+                    <div class="text-xs font-bold text-slate-500 uppercase mb-4">Saldo Atual</div>
+                    <div :class="totalBalance >= 0 ? 'text-green-400' : 'text-red-400'" class="text-2xl font-bold">
+                        R$ {{ formatMoney(totalBalance) }}
+                    </div>
+                </div>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-cash-register text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Fluxo de Caixa</span>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-lg"><i
+                        class="fa-solid fa-bars text-lg"></i></button>
+            </header>
+
+            <transition name="fade">
+                <div v-if="mobileMenuOpen"
+                    class="absolute top-16 inset-x-0 bg-white shadow-xl z-30 p-4 md:hidden flex flex-col gap-2 border-b border-slate-200">
+                    <a @click="currentView = 'today'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-calendar-day text-brand-600"></i> Movimento Hoje</a>
+                    <a @click="currentView = 'history'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-clock-rotate-left text-brand-600"></i> Histórico</a>
+                </div>
+            </transition>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: TODAY -->
+                <div v-if="currentView === 'today'" class="max-w-4xl mx-auto animate-fade-in pb-24">
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <button @click="openModal('in')"
+                            class="bg-green-500 hover:bg-green-600 text-white p-6 rounded-2xl shadow-lg shadow-green-500/30 transition transform hover:-translate-y-1 text-left relative overflow-hidden group">
+                            <div
+                                class="absolute right-[-10px] bottom-[-10px] text-green-600/30 text-6xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-arrow-up"></i></div>
+                            <div class="text-sm font-bold uppercase opacity-80 mb-1">Nova Entrada</div>
+                            <div class="text-2xl font-bold">+ Receita</div>
+                        </button>
+                        <button @click="openModal('out')"
+                            class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-2xl shadow-lg shadow-red-500/30 transition transform hover:-translate-y-1 text-left relative overflow-hidden group">
+                            <div
+                                class="absolute right-[-10px] bottom-[-10px] text-red-600/30 text-6xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-arrow-down"></i></div>
+                            <div class="text-sm font-bold uppercase opacity-80 mb-1">Nova Saída</div>
+                            <div class="text-2xl font-bold">- Despesa</div>
+                        </button>
+                    </div>
+
+                    <!-- Daily Summary Charts (Simple Bars) -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
+                        <h3 class="font-bold text-slate-800 mb-4">Resumo do Dia</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                                    <span>Entradas</span>
+                                    <span>R$ {{ formatMoney(todayIn) }}</span>
+                                </div>
+                                <div class="h-4 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-500 rounded-full"
+                                        :style="{ width: getPercentage(todayIn) + '%' }"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                                    <span>Saídas</span>
+                                    <span>R$ {{ formatMoney(todayOut) }}</span>
+                                </div>
+                                <div class="h-4 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-red-500 rounded-full"
+                                        :style="{ width: getPercentage(todayOut) + '%' }"></div>
+                                </div>
+                            </div>
+                            <div class="pt-4 mt-4 border-t border-slate-100 flex justify-between items-center">
+                                <span class="font-bold text-slate-500">Saldo do Dia</span>
+                                <span :class="todayBalance >= 0 ? 'text-green-600' : 'text-red-500'"
+                                    class="font-bold text-xl">R$ {{ formatMoney(todayBalance) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <h3 class="font-bold text-slate-800 mb-4">Movimentações Recentes</h3>
+                    <div class="space-y-3">
+                        <div v-for="t in sortedTransactions.slice(0, 10)" :key="t.id"
+                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between group">
+                            <div class="flex items-center gap-4">
+                                <div :class="t.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                                    class="w-10 h-10 rounded-full flex items-center justify-center">
+                                    <i :class="t.type === 'in' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">{{ t.description }}</div>
+                                    <div class="text-xs text-slate-500">{{ formatDate(t.date) }} • {{ t.category }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div :class="t.type === 'in' ? 'text-green-600' : 'text-red-600'" class="font-bold">
+                                    {{ t.type === 'in' ? '+' : '-' }} R$ {{ formatMoney(t.value) }}
+                                </div>
+                                <button @click="deleteTransaction(t.id)"
+                                    class="text-slate-300 hover:text-red-500 text-xs mt-1 md:opacity-0 group-hover:opacity-100 transition">Excluir</button>
+                            </div>
+                        </div>
+                        <div v-if="transactions.length === 0" class="text-center py-10 text-slate-400">Nenhuma
+                            movimentação hoje.</div>
+                    </div>
+                </div>
+
+                <!-- VIEW: HISTORY -->
+                <div v-if="currentView === 'history'" class="max-w-4xl mx-auto animate-fade-in">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Histórico Completo</h2>
+                    <div class="space-y-3">
+                        <div v-for="t in sortedTransactions" :key="t.id"
+                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div :class="t.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                                    class="w-10 h-10 rounded-full flex items-center justify-center">
+                                    <i :class="t.type === 'in' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">{{ t.description }}</div>
+                                    <div class="text-xs text-slate-500">{{ formatDate(t.date) }} • {{ t.category }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div :class="t.type === 'in' ? 'text-green-600' : 'text-red-600'" class="font-bold">
+                                {{ t.type === 'in' ? '+' : '-' }} R$ {{ formatMoney(t.value) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Modal -->
+        <div v-if="modal.show"
+            class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4 md:p-0">
+            <div
+                class="bg-white w-full md:max-w-md rounded-t-2xl md:rounded-2xl shadow-xl overflow-hidden animate-fade-in">
+                <div :class="modal.type === 'in' ? 'bg-green-500' : 'bg-red-500'"
+                    class="p-6 text-white text-center relarive">
+                    <h3 class="font-bold text-xl">{{ modal.type === 'in' ? 'Nova Entrada' : 'Nova Saída' }}</h3>
+                    <button @click="closeModal" class="absolute top-4 right-4 text-white/70 hover:text-white"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="label">Valor (R$)</label>
+                        <input v-model="modal.data.value" type="number" step="0.01"
+                            class="input text-2xl font-bold text-slate-700" placeholder="0,00" autofocus>
+                    </div>
+                    <div>
+                        <label class="label">Descrição</label>
+                        <input v-model="modal.data.description" type="text" class="input"
+                            placeholder="Ex: Venda Balcão">
+                    </div>
+                    <div>
+                        <label class="label">Categoria</label>
+                        <select v-model="modal.data.category" class="input">
+                            <option v-if="modal.type === 'in'" value="Vendas">Vendas</option>
+                            <option v-if="modal.type === 'in'" value="Serviços">Serviços</option>
+                            <option v-if="modal.type === 'in'" value="Outros">Outros</option>
+
+                            <option v-if="modal.type === 'out'" value="Fornecedores">Fornecedores</option>
+                            <option v-if="modal.type === 'out'" value="Aluguel/Contas">Aluguel/Contas</option>
+                            <option v-if="modal.type === 'out'" value="Pessoal">Pessoal</option>
+                            <option v-if="modal.type === 'out'" value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">Data</label>
+                        <input v-model="modal.data.date" type="date" class="input">
+                    </div>
+                    <button @click="saveTransaction"
+                        :class="modal.type === 'in' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'"
+                        class="w-full py-4 rounded-xl text-white font-bold shadow-lg transition transform active:scale-95 mt-4">
+                        Confirmar Lançamento
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+        }
+
+        .input:focus {
+            border-color: #cbd5e1;
+            background: #fff;
+            ring: 2px solid #cbd5e1;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_caixa_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('today');
+                const mobileMenuOpen = ref(false);
+                const transactions = ref([]);
+                const modal = ref({ show: false, type: 'in', data: {} });
+
+                // Persistence
+                const load = () => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) transactions.value = JSON.parse(d);
+                };
+                const save = () => localStorage.setItem(DB_KEY, JSON.stringify(transactions.value));
+                watch(transactions, save, { deep: true });
+                onMounted(load);
+
+                // Computed
+                const todayDate = new Date().toISOString().split('T')[0];
+
+                const sortedTransactions = computed(() => [...transactions.value].sort((a, b) => b.id - a.id));
+
+                const todayTransactions = computed(() => transactions.value.filter(t => t.date === todayDate));
+
+                const todayIn = computed(() => todayTransactions.value.filter(t => t.type === 'in').reduce((acc, t) => acc + t.value, 0));
+                const todayOut = computed(() => todayTransactions.value.filter(t => t.type === 'out').reduce((acc, t) => acc + t.value, 0));
+                const todayBalance = computed(() => todayIn.value - todayOut.value);
+
+                const totalIn = computed(() => transactions.value.filter(t => t.type === 'in').reduce((acc, t) => acc + t.value, 0));
+                const totalOut = computed(() => transactions.value.filter(t => t.type === 'out').reduce((acc, t) => acc + t.value, 0));
+                const totalBalance = computed(() => totalIn.value - totalOut.value);
+
+                const getPercentage = (val) => {
+                    const max = Math.max(todayIn.value, todayOut.value) || 1;
+                    return (val / max) * 100;
+                };
+
+                // Methods
+                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                const formatDate = (d) => d ? d.split('-').reverse().join('/') : '';
+
+                const openModal = (type) => {
+                    modal.value.type = type;
+                    modal.value.data = { value: '', description: '', category: type === 'in' ? 'Vendas' : 'Fornecedores', date: todayDate };
+                    modal.value.show = true;
+                };
+                const closeModal = () => modal.value.show = false;
+
+                const saveTransaction = () => {
+                    if (!modal.value.data.value || !modal.value.data.description) return alert('Preencha valor e descrição.');
+                    transactions.value.push({
+                        id: Date.now(),
+                        type: modal.value.type,
+                        ...modal.value.data,
+                        value: Number(modal.value.data.value)
+                    });
+                    closeModal();
+                };
+
+                const deleteTransaction = (id) => {
+                    if (confirm('Excluir lançamento?')) {
+                        transactions.value = transactions.value.filter(t => t.id !== id);
+                    }
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([localStorage.getItem(DB_KEY)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'fluxocaixa_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        localStorage.setItem(DB_KEY, ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, mobileMenuOpen, modal, transactions, sortedTransactions,
+                    todayIn, todayOut, todayBalance, totalBalance, getPercentage,
+                    formatMoney, formatDate,
+                    openModal, closeModal, saveTransaction, deleteTransaction,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

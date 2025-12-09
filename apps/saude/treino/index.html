@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ficha de Treino | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Teko', 'sans-serif'] },
+                    colors: {
+                        gym: { 900: '#1a1a1a', 800: '#2d2d2d', accent: '#cbff00' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #f3f4f6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .input-dark {
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            color: white;
+        }
+
+        .input-dark:focus {
+            border-color: #cbff00;
+            ring: 1px solid #cbff00;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar Rosters -->
+        <aside class="w-full md:w-80 bg-gym-900 border-r border-[#333] z-10 flex flex-col h-full shadow-2xl">
+            <div class="p-5 border-b border-[#333] flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gym-accent rounded-lg flex items-center justify-center text-gym-900 shadow-[0_0_15px_rgba(203,255,0,0.3)]">
+                    <i class="fa-solid fa-dumbbell text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-white tracking-tight font-display text-3xl mt-1">Ficha<span
+                            class="text-gym-accent">PRO</span></h1>
+                </div>
+
+                <!-- Options -->
+                <div class="ml-auto relative group">
+                    <button class="text-[#666] hover:text-white p-2"><i class="fa-solid fa-ellipsis-v"></i></button>
+                    <div
+                        class="absolute right-0 top-8 bg-[#2d2d2d] border border-[#444] rounded-lg shadow-xl hidden group-hover:block z-50 w-40">
+                        <button @click="backupData"
+                            class="w-full text-left px-4 py-3 text-xs font-bold text-[#ccc] hover:bg-[#333]">Backup
+                            Dados</button>
+                        <label
+                            class="w-full text-left px-4 py-3 text-xs font-bold text-[#ccc] hover:bg-[#333] block cursor-pointer">
+                            Restaurar <input type="file" class="hidden" @change="importData">
+                        </label>
+                        <button @click="resetAll"
+                            class="w-full text-left px-4 py-3 text-xs font-bold text-red-400 hover:bg-[#333]">Limpar
+                            Tudo</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                <div v-for="(routine, idx) in routines" :key="routine.id" @click="selectRoutine(idx)"
+                    class="p-4 rounded-xl cursor-pointer transition border border-transparent group relative"
+                    :class="currentRoutineIdx === idx ? 'bg-gym-800 border-gym-accent' : 'hover:bg-[#252525]'">
+
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="font-bold text-white uppercase tracking-wider"
+                            :class="currentRoutineIdx === idx ? 'text-gym-accent' : ''">{{ routine.name }}</h3>
+                        <span class="text-xs text-[#666] font-mono bg-[#1a1a1a] px-2 py-0.5 rounded">{{
+                            routine.exercises.length }} Exer.</span>
+                    </div>
+                    <p class="text-[10px] text-[#888] truncate">{{ getSummary(routine) }}</p>
+
+                    <button @click.stop="removeRoutine(idx)" v-if="routines.length > 1"
+                        class="absolute top-2 right-2 text-[#444] hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+
+                <button @click="addRoutine"
+                    class="w-full py-4 border-2 border-dashed border-[#333] rounded-xl text-[#666] hover:border-[#555] hover:text-white transition font-bold uppercase text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Novo Treino
+                </button>
+            </div>
+
+            <div class="p-4 border-t border-[#333]">
+                <button @click="printRoutine"
+                    class="w-full bg-[#333] hover:bg-white hover:text-gym-900 text-white font-bold py-3 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir Ficha
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 bg-black flex flex-col h-full relative overflow-hidden" v-if="currentRoutine">
+
+            <!-- Header -->
+            <div
+                class="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-b from-[#1a1a1a] to-transparent">
+                <div>
+                    <input v-model="currentRoutine.name"
+                        class="bg-transparent text-4xl font-display font-bold text-white outline-none border-b border-transparent focus:border-gym-accent placeholder-[#333] w-full md:w-auto uppercase"
+                        placeholder="NOME DO TREINO">
+                    <p class="text-[#666] text-sm mt-1">Edite o nome acima • Adicione exercícios abaixo</p>
+                </div>
+                <button @click="addExercise"
+                    class="bg-gym-accent text-gym-900 font-bold px-6 py-3 rounded-full hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(203,255,0,0.2)] flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> ADD EXERCÍCIO
+                </button>
+            </div>
+
+            <!-- List -->
+            <div class="flex-1 overflow-y-auto px-4 md:px-8 pb-20 space-y-3">
+                <div v-for="(ex, idx) in currentRoutine.exercises" :key="idx"
+                    class="bg-[#1f1f1f] border border-[#333] rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center group hover:border-[#555] transition">
+
+                    <!-- Drag/Index -->
+                    <div class="text-[#333] font-black text-2xl select-none w-8 text-center">{{ idx + 1 }}</div>
+
+                    <!-- Name -->
+                    <div class="flex-1 w-full">
+                        <input v-model="ex.name"
+                            class="w-full bg-transparent text-lg font-bold text-white outline-none placeholder-[#444]"
+                            placeholder="Nome do Exercício (Ex: Supino)">
+                        <input v-model="ex.obs"
+                            class="w-full bg-transparent text-xs text-[#888] outline-none placeholder-[#333]"
+                            placeholder="Observações (Ex: Pegada fechada)">
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                        <div class="bg-[#2a2a2a] rounded-lg p-2 min-w-[70px]">
+                            <label class="block text-[9px] text-[#666] uppercase font-bold text-center">Séries</label>
+                            <input v-model="ex.sets"
+                                class="w-full bg-transparent text-center font-bold text-white outline-none"
+                                placeholder="3">
+                        </div>
+                        <div class="bg-[#2a2a2a] rounded-lg p-2 min-w-[70px]">
+                            <label class="block text-[9px] text-[#666] uppercase font-bold text-center">Reps</label>
+                            <input v-model="ex.reps"
+                                class="w-full bg-transparent text-center font-bold text-white outline-none"
+                                placeholder="12">
+                        </div>
+                        <div class="bg-[#2a2a2a] rounded-lg p-2 min-w-[80px] border border-gym-accent/10">
+                            <label class="block text-[9px] text-gym-accent uppercase font-bold text-center">Carga
+                                (kg)</label>
+                            <input v-model="ex.weight"
+                                class="w-full bg-transparent text-center font-bold text-gym-accent outline-none"
+                                placeholder="0">
+                        </div>
+                        <div class="bg-[#2a2a2a] rounded-lg p-2 min-w-[80px] cursor-pointer hover:bg-[#333] transition group-timer"
+                            @click="startTimer(ex.rest)">
+                            <label
+                                class="block text-[9px] text-[#666] uppercase font-bold text-center group-hover:text-white cursor-pointer">Descanso</label>
+                            <div class="flex items-center justify-center gap-1 text-[#ccc] font-mono text-sm">
+                                <i class="fa-regular fa-clock text-xs"></i>
+                                <input v-model="ex.rest"
+                                    class="w-8 bg-transparent text-center outline-none cursor-pointer"
+                                    placeholder="60">s
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <button @click="removeExercise(idx)"
+                        class="text-[#333] hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition px-2"><i
+                            class="fa-solid fa-times"></i></button>
+
+                </div>
+
+                <div v-if="currentRoutine.exercises.length === 0" class="text-center py-20 opacity-20">
+                    <i class="fa-solid fa-dumbbell text-8xl mb-4"></i>
+                    <p class="text-xl uppercase font-bold">Sem Exercícios</p>
+                    <p>Adicione exercícios para montar seu treino</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Timer Overlay -->
+        <div v-if="timerActive"
+            class="absolute inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center flex-col animate-fade-in"
+            @click="stopTimer">
+            <div class="text-gym-accent font-black text-[12rem] leading-none font-mono tabular-nums animate-pulse-slow">
+                {{ timeLeft }}</div>
+            <p class="text-white uppercase tracking-[0.5em] text-xl mt-4">Descansando</p>
+            <p class="text-[#666] text-xs mt-8">Toque para cancelar</p>
+
+            <div class="w-full max-w-md h-2 bg-[#333] rounded-full mt-8 overflow-hidden mx-4">
+                <div class="h-full bg-gym-accent transition-all duration-1000 ease-linear"
+                    :style="{width: (timeLeft / initialTime) * 100 + '%'}"></div>
+            </div>
+
+            <!-- Add Seconds Buttons -->
+            <div class="flex gap-4 mt-8">
+                <button @click.stop="timeLeft += 10"
+                    class="bg-[#333] text-white px-4 py-2 rounded-full hover:bg-[#444]">+10s</button>
+                <button @click.stop="timeLeft += 30"
+                    class="bg-[#333] text-white px-4 py-2 rounded-full hover:bg-[#444]">+30s</button>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .animate-pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            aside {
+                display: none;
+            }
+
+            main {
+                background: white;
+                overflow: visible;
+                height: auto;
+                display: block;
+            }
+
+            input {
+                border: none;
+                background: transparent;
+                color: black !important;
+            }
+
+            .bg-\[\#1f1f1f\] {
+                background: transparent;
+                border-bottom: 1px solid #ddd;
+                border-radius: 0;
+                padding: 10px 0;
+            }
+
+            .text-white {
+                color: black !important;
+            }
+
+            .text-gym-accent {
+                color: black !important;
+            }
+
+            .bg-gym-accent {
+                background: #eee !important;
+                color: black !important;
+            }
+
+            .group-timer,
+            button {
+                display: none;
+            }
+
+            input::placeholder {
+                color: transparent;
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_treino_v1';
+
+        createApp({
+            setup() {
+                // State
+                const routines = ref([
+                    {
+                        id: 1, name: 'Treino A (Peito/Tríceps)', exercises: [
+                            { name: 'Supino Reto', sets: '4', reps: '8-10', weight: '20', rest: '90', obs: '' },
+                            { name: 'Supino Inclinado Halter', sets: '3', reps: '10-12', weight: '16', rest: '60', obs: 'Banco 30°' },
+                            { name: 'Tríceps Corda', sets: '3', reps: '12-15', weight: '35', rest: '45', obs: 'Foco na extensão' }
+                        ]
+                    },
+                    { id: 2, name: 'Treino B (Costas/Bíceps)', exercises: [] },
+                    { id: 3, name: 'Treino C (Pernas/Ombro)', exercises: [] }
+                ]);
+
+                const currentRoutineIdx = ref(0);
+                const timerActive = ref(false);
+                const timeLeft = ref(0);
+                const initialTime = ref(0);
+                let timerInterval = null;
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        try { routines.value = JSON.parse(d); } catch (e) { }
+                    }
+                });
+
+                watch(routines, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(routines.value));
+                }, { deep: true });
+
+                const currentRoutine = computed(() => routines.value[currentRoutineIdx.value]);
+
+                // Actions
+                const selectRoutine = (idx) => currentRoutineIdx.value = idx;
+
+                const addRoutine = () => {
+                    routines.value.push({
+                        id: Date.now(),
+                        name: `Treino ${String.fromCharCode(65 + routines.value.length)}`,
+                        exercises: []
+                    });
+                    currentRoutineIdx.value = routines.value.length - 1;
+                };
+
+                const removeRoutine = (idx) => {
+                    if (confirm('Apagar todo este treino?')) {
+                        routines.value.splice(idx, 1);
+                        if (currentRoutineIdx.value >= routines.value.length) currentRoutineIdx.value = Math.max(0, routines.value.length - 1);
+                    }
+                };
+
+                const addExercise = () => {
+                    currentRoutine.value.exercises.push({ name: '', sets: '3', reps: '10', weight: '', rest: '60', obs: '' });
+                };
+
+                const removeExercise = (idx) => {
+                    currentRoutine.value.exercises.splice(idx, 1);
+                };
+
+                const getSummary = (routine) => {
+                    if (!routine.exercises.length) return 'Vazio';
+                    return routine.exercises.slice(0, 3).map(e => e.name).join(', ') + (routine.exercises.length > 3 ? '...' : '');
+                };
+
+                // Timer
+                const startTimer = (seconds) => {
+                    const s = parseInt(seconds) || 60;
+                    timeLeft.value = s;
+                    initialTime.value = s;
+                    timerActive.value = true;
+
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        timeLeft.value--;
+                        if (timeLeft.value <= 0) {
+                            // Play sound or vibrate
+                            try { navigator.vibrate([200, 100, 200]); } catch (e) { }
+                            stopTimer();
+                        }
+                    }, 1000);
+                };
+
+                const stopTimer = () => {
+                    timerActive.value = false;
+                    clearInterval(timerInterval);
+                };
+
+                // Utils
+                const printRoutine = () => window.print();
+
+                const resetAll = () => {
+                    if (confirm('Resetar todos os treinos para o padrão?')) {
+                        routines.value = [{ id: 1, name: 'Treino A', exercises: [] }];
+                        currentRoutineIdx.value = 0;
+                    }
+                };
+
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(routines.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'treinos_backup.json';
+                    a.click();
+                };
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        routines.value = JSON.parse(ev.target.result);
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    routines, currentRoutineIdx, currentRoutine,
+                    selectRoutine, addRoutine, removeRoutine,
+                    addExercise, removeExercise, getSummary,
+                    timerActive, timeLeft, initialTime, startTimer, stopTimer,
+                    printRoutine, resetAll, backupData, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

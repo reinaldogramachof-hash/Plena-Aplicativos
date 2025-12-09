@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia 365 | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #fce7f3;
+        }
+
+        /* Pink/Cloud pastel base */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Cinzel', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-white text-gray-800">
+
+    <div id="app" v-cloak class="max-w-2xl mx-auto min-h-screen flex flex-col shadow-2xl">
+
+        <!-- HEADER HERO -->
+        <header class="bg-[#8b5cf6] text-white p-6 pb-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 opacity-10 text-9xl -mr-10 -mt-10"><i class="fa-solid fa-book-bible"></i>
+            </div>
+
+            <div class="relative z-10 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-bold">Bíblia 365</h1>
+                    <p class="text-purple-200 text-sm">Seu progresso de leitura anual</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-4xl font-bold">{{ overallProgress }}%</div>
+                    <div class="text-xs text-purple-200 uppercase tracking-widest">Concluído</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="absolute bottom-0 left-0 w-full h-2 bg-purple-900/30">
+                <div class="h-full bg-yellow-400 transition-all duration-1000"
+                    :style="{ width: overallProgress + '%' }"></div>
+            </div>
+        </header>
+
+        <!-- BOOK FILTER -->
+        <div class="flex border-b border-gray-100 sticky top-0 bg-white z-20">
+            <button @click="testament = 'all'"
+                :class="testament === 'all' ? 'text-purple-600 border-b-2 border-purple-600 font-bold' : 'text-gray-400'"
+                class="flex-1 py-4 text-xs uppercase tracking-widest transition">Todos</button>
+            <button @click="testament = 'vt'"
+                :class="testament === 'vt' ? 'text-purple-600 border-b-2 border-purple-600 font-bold' : 'text-gray-400'"
+                class="flex-1 py-4 text-xs uppercase tracking-widest transition">Velho Test.</button>
+            <button @click="testament = 'nt'"
+                :class="testament === 'nt' ? 'text-purple-600 border-b-2 border-purple-600 font-bold' : 'text-gray-400'"
+                class="flex-1 py-4 text-xs uppercase tracking-widest transition">Novo Test.</button>
+        </div>
+
+        <!-- BOOKS LIST -->
+        <main class="flex-grow p-4 space-y-4 bg-gray-50 custom-scroll overflow-y-auto">
+
+            <div v-for="book in filteredBooks" :key="book.name"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+
+                <!-- Book Header -->
+                <div @click="toggleExpand(book)"
+                    class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-8 rounded-full" :class="getBookColor(book)"></div>
+                        <h3 class="font-bold text-lg">{{ book.name }}</h3>
+                        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{{ book.chapters }}
+                            cap.</span>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="text-xs font-bold"
+                            :class="isBookComplete(book) ? 'text-green-500' : 'text-gray-400'">
+                            {{ getBookProgress(book) }}%
+                        </div>
+                        <i class="fa-solid fa-chevron-down transition text-gray-300 transform"
+                            :class="book.expanded ? 'rotate-180' : ''"></i>
+                    </div>
+                </div>
+
+                <!-- Chapters Grid -->
+                <div v-show="book.expanded" class="p-4 pt-0 border-t border-gray-50 bg-gray-50/50">
+
+                    <div v-if="book.chapters > 50" class="mb-2 text-xs text-blue-500 font-bold cursor-pointer"
+                        @click="checkAllChapters(book)">
+                        Marcar Todos como Lidos (Atalho)
+                    </div>
+
+                    <div class="grid grid-cols-6 sm:grid-cols-8 gap-2 mt-4">
+                        <button v-for="ch in book.chapters" :key="ch" @click="toggleChapter(book.name, ch)"
+                            class="aspect-square rounded flex items-center justify-center text-xs font-bold transition border"
+                            :class="isChapterRead(book.name, ch) ? 'bg-green-500 text-white border-green-600 shadow-sm' : 'bg-white text-gray-400 border-gray-200 hover:border-purple-300'">
+                            {{ ch }}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const testament = ref('all');
+                // Mock Structure (Simplified for demo, full bible has 66 books)
+                const booksStruct = [
+                    { name: "Gênesis", chapters: 50, type: 'vt' },
+                    { name: "Êxodo", chapters: 40, type: 'vt' },
+                    { name: "Salmos", chapters: 150, type: 'vt' },
+                    { name: "Provérbios", chapters: 31, type: 'vt' },
+                    { name: "Mateus", chapters: 28, type: 'nt' },
+                    { name: "Marcos", chapters: 16, type: 'nt' },
+                    { name: "Lucas", chapters: 24, type: 'nt' },
+                    { name: "João", chapters: 21, type: 'nt' },
+                    { name: "Atos", chapters: 28, type: 'nt' },
+                    { name: "Romanos", chapters: 16, type: 'nt' },
+                    { name: "Apocalipse", chapters: 22, type: 'nt' }
+                ];
+
+                const books = ref(booksStruct.map(b => ({ ...b, expanded: false })));
+                const progressData = ref({}); // "Genesis-1": true
+
+                const filteredBooks = computed(() => {
+                    if (testament.value === 'all') return books.value;
+                    return books.value.filter(b => b.type === testament.value);
+                });
+
+                const getBookColor = (book) => book.type === 'vt' ? 'bg-yellow-500' : 'bg-purple-500';
+
+                const toggleExpand = (book) => {
+                    // Close others (accordion style optional, keeping multi-open for utility)
+                    book.expanded = !book.expanded;
+                };
+
+                const toggleChapter = (bookName, chapter) => {
+                    const key = `${bookName}-${chapter}`;
+                    if (progressData.value[key]) {
+                        delete progressData.value[key];
+                    } else {
+                        progressData.value[key] = true;
+                    }
+                };
+
+                const isChapterRead = (bookName, chapter) => !!progressData.value[`${bookName}-${chapter}`];
+
+                const getBookProgress = (book) => {
+                    let count = 0;
+                    for (let i = 1; i <= book.chapters; i++) {
+                        if (progressData.value[`${book.name}-${i}`]) count++;
+                    }
+                    return Math.round((count / book.chapters) * 100);
+                };
+
+                const isBookComplete = (book) => getBookProgress(book) === 100;
+
+                const overallProgress = computed(() => {
+                    const totalChapters = books.value.reduce((acc, b) => acc + b.chapters, 0);
+                    const readChapters = Object.keys(progressData.value).length;
+                    if (totalChapters === 0) return 0;
+                    return Math.round((readChapters / totalChapters) * 100);
+                });
+
+                const checkAllChapters = (book) => {
+                    if (confirm(`Marcar todos os ${book.chapters} capítulos de ${book.name} como lidos?`)) {
+                        for (let i = 1; i <= book.chapters; i++) {
+                            progressData.value[`${book.name}-${i}`] = true;
+                        }
+                    }
+                };
+
+                onMounted(() => {
+                    const saved = localStorage.getItem('plena_biblia365');
+                    if (saved) try { progressData.value = JSON.parse(saved); } catch (e) { }
+                });
+
+                watch(progressData, () => {
+                    localStorage.setItem('plena_biblia365', JSON.stringify(progressData.value));
+                }, { deep: true });
+
+                return {
+                    testament, filteredBooks, toggleExpand, toggleChapter, isChapterRead,
+                    getBookColor, getBookProgress, isBookComplete, overallProgress, checkAllChapters
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

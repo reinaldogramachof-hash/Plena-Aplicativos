@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pelada Manager | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background: #064e3b;
+            color: white;
+        }
+
+        .field-texture {
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #065f46 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #065f46 20px);
+            background-size: 20px 20px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen field-texture">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-black/30 backdrop-blur shadow-2xl flex flex-col">
+
+        <!-- HEADER -->
+        <header class="p-4 bg-emerald-900 border-b border-emerald-700 flex justify-between items-center shadow-lg">
+            <h1 class="text-xl font-bold text-yellow-400 italic"><i class="fa-solid fa-futbol mr-2"></i>PELADA MANAGER
+            </h1>
+            <div class="text-xs font-mono text-emerald-200">{{ timeDisplay }}</div>
+        </header>
+
+        <!-- TABS -->
+        <div class="flex border-b border-emerald-700 bg-emerald-800">
+            <button @click="tab = 'times'" :class="tab === 'times' ? 'bg-emerald-600 text-white' : 'text-emerald-400'"
+                class="flex-1 py-3 font-bold text-sm uppercase transition">
+                <i class="fa-solid fa-users"></i> Times
+            </button>
+            <button @click="tab = 'cronometro'"
+                :class="tab === 'cronometro' ? 'bg-emerald-600 text-white' : 'text-emerald-400'"
+                class="flex-1 py-3 font-bold text-sm uppercase transition">
+                <i class="fa-solid fa-stopwatch"></i> Relógio
+            </button>
+            <button @click="tab = 'financeiro'"
+                :class="tab === 'financeiro' ? 'bg-emerald-600 text-white' : 'text-emerald-400'"
+                class="flex-1 py-3 font-bold text-sm uppercase transition">
+                <i class="fa-solid fa-money-bill-wave"></i> Rateio
+            </button>
+        </div>
+
+        <!-- CONTENT -->
+        <main class="flex-grow p-4 overflow-y-auto">
+
+            <!-- TIMES TAB -->
+            <div v-if="tab === 'times'" class="space-y-4">
+
+                <!-- Input Players -->
+                <div class="bg-emerald-800 p-4 rounded-xl border border-emerald-700 shadow-lg">
+                    <label class="text-xs font-bold uppercase text-emerald-400 mb-2 block">Adicionar Jogadores</label>
+                    <div class="flex gap-2">
+                        <input v-model="newPlayer" @keyup.enter="addPlayer" type="text" placeholder="Nome do Craque"
+                            class="flex-grow bg-emerald-900/50 border border-emerald-600 rounded px-3 py-2 outline-none focus:border-yellow-400">
+                        <button @click="addPlayer"
+                            class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 rounded font-bold transition">+</button>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                        <span v-for="(p, i) in players" :key="i"
+                            class="bg-emerald-700 text-xs px-2 py-1 rounded flex items-center gap-1">
+                            {{ p }} <button @click="players.splice(i,1)"
+                                class="text-emerald-300 hover:text-white">&times;</button>
+                        </span>
+                        <span v-if="players.length === 0"
+                            class="text-xs text-emerald-500 italic w-full text-center">Lista vazia. Adicione a
+                            galera.</span>
+                    </div>
+                </div>
+
+                <!-- Action Draw -->
+                <button @click="drawTeams" :disabled="players.length < 2"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold uppercase shadow-lg tracking-wider disabled:opacity-50">
+                    SORTEAR TIMES
+                </button>
+
+                <!-- Result -->
+                <div v-if="teams.length > 0" class="grid grid-cols-2 gap-4 animate-fade-in-up">
+                    <div class="bg-white text-black p-3 rounded-xl shadow-lg border-t-4 border-blue-600">
+                        <h3 class="font-bold text-center mb-2 uppercase text-sm bg-blue-100 rounded py-1">Time A
+                            (Coletes)</h3>
+                        <ul class="text-sm space-y-1">
+                            <li v-for="p in teams[0]" :key="p" class="border-b border-gray-100 pb-1">{{ p }}</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white text-black p-3 rounded-xl shadow-lg border-t-4 border-red-600">
+                        <h3 class="font-bold text-center mb-2 uppercase text-sm bg-red-100 rounded py-1">Time B (Sem)
+                        </h3>
+                        <ul class="text-sm space-y-1">
+                            <li v-for="p in teams[1]" :key="p" class="border-b border-gray-100 pb-1">{{ p }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CRONOMETRO TAB -->
+            <div v-if="tab === 'cronometro'" class="text-center py-10">
+                <div
+                    class="w-64 h-64 mx-auto rounded-full border-8 border-emerald-500 flex items-center justify-center bg-black/40 mb-8 relative">
+                    <span class="text-5xl font-mono font-bold">{{ formatTime(elapsed) }}</span>
+                    <div v-if="running" class="absolute inset-0 rounded-full border-t-4 border-yellow-400 animate-spin">
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button @click="toggleTimer"
+                        class="w-16 h-16 rounded-full flex items-center justify-center text-xl shadow-lg transition transform active:scale-95"
+                        :class="running ? 'bg-yellow-500 text-black' : 'bg-green-600 text-white'">
+                        <i :class="running ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+                    </button>
+                    <button @click="resetTimer"
+                        class="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center text-xl shadow-lg transition transform active:scale-95">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <button @click="whistle"
+                        class="w-16 h-16 rounded-full bg-slate-700 text-white flex items-center justify-center text-xl shadow-lg transition transform active:scale-95">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FINANCEIRO TAB -->
+            <div v-if="tab === 'financeiro'" class="space-y-6">
+                <div class="bg-emerald-800 p-6 rounded-xl shadow-lg border border-emerald-600">
+                    <h2 class="text-center font-bold text-emerald-300 mb-4 uppercase">Calculadora de Rateio</h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-emerald-400 block mb-1">Valor da Quadra (R$)</label>
+                            <input v-model.number="courtCost" type="number"
+                                class="w-full bg-emerald-900 border border-emerald-600 rounded p-2 text-center text-xl font-mono">
+                        </div>
+
+                        <div class="flex justify-between items-center bg-emerald-900/50 p-3 rounded">
+                            <span class="text-sm">Jogadores Pagantes:</span>
+                            <div class="flex items-center gap-3">
+                                <button @click="payers > 1 ? payers-- : null"
+                                    class="w-8 h-8 bg-emerald-700 rounded font-bold">-</button>
+                                <span class="font-bold text-lg">{{ payers }}</span>
+                                <button @click="payers++" class="w-8 h-8 bg-emerald-700 rounded font-bold">+</button>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-emerald-600 pt-4 text-center">
+                            <p class="text-xs text-emerald-400 mb-1">Valor por pessoa:</p>
+                            <div class="text-4xl font-bold text-yellow-400 font-mono">R$ {{ (courtCost / (payers ||
+                                1)).toFixed(2) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="shareCost"
+                    class="w-full bg-green-500 hover:bg-green-400 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Cobrar Galera
+                </button>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                const tab = ref('times');
+                const timeDisplay = ref('');
+
+                // Clock header
+                setInterval(() => {
+                    const now = new Date();
+                    timeDisplay.value = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                }, 1000);
+
+                // --- TEAMS LOGIC ---
+                const newPlayer = ref('');
+                const players = ref([]);
+                const teams = ref([]);
+
+                const addPlayer = () => {
+                    if (newPlayer.value.trim()) {
+                        players.value.push(newPlayer.value.trim());
+                        newPlayer.value = '';
+                    }
+                };
+
+                const drawTeams = () => {
+                    // Fisher-Yates Shuffle
+                    let p = [...players.value];
+                    for (let i = p.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [p[i], p[j]] = [p[j], p[i]];
+                    }
+
+                    const mid = Math.ceil(p.length / 2);
+                    teams.value = [
+                        p.slice(0, mid),
+                        p.slice(mid)
+                    ];
+                };
+
+                // --- TIMER LOGIC ---
+                const elapsed = ref(0);
+                const running = ref(false);
+                let interval = null;
+
+                const toggleTimer = () => {
+                    if (running.value) {
+                        clearInterval(interval);
+                        running.value = false;
+                    } else {
+                        running.value = true;
+                        interval = setInterval(() => elapsed.value++, 1000);
+                    }
+                };
+
+                const resetTimer = () => {
+                    clearInterval(interval);
+                    running.value = false;
+                    elapsed.value = 0;
+                };
+
+                const formatTime = (s) => {
+                    const m = Math.floor(s / 60).toString().padStart(2, '0');
+                    const sec = (s % 60).toString().padStart(2, '0');
+                    return `${m}:${sec}`;
+                };
+
+                const whistle = () => {
+                    // Simple beep logic or visual feedback
+                    alert('APIIIIIIITOOOO! 📢');
+                };
+
+                // --- FINANCE LOGIC ---
+                const courtCost = ref(150);
+                const payers = ref(10);
+
+                const shareCost = () => {
+                    const val = (courtCost.value / payers.value).toFixed(2);
+                    let text = `⚽ *PELADA MANAGER* ⚽\n\n`;
+                    text += `💰 *Valor da Quadra:* R$ ${courtCost.value}\n`;
+                    text += `👥 *Jogadores:* ${payers.value}\n`;
+                    text += `💸 *VALOR POR PESSOA:* R$ ${val}\n\n`;
+                    text += `_Favor fazer o PIX!_`;
+
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    tab, timeDisplay, newPlayer, players, teams, addPlayer, drawTeams,
+                    elapsed, running, toggleTimer, resetTimer, formatTime, whistle,
+                    courtCost, payers, shareCost
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

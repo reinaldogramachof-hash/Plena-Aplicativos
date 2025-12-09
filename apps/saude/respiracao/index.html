@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respiração Guiada | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #ecfeff;
+            color: #164e63;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        /* Breathing Animation Classes */
+        .circle-container {
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .circle {
+            background-color: #a5f3fc;
+            /* Cyan-200 */
+            border-radius: 50%;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .instruction-text {
+            position: absolute;
+            z-index: 20;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0e7490;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <div id="app" v-cloak class="flex-grow flex flex-col items-center justify-center p-6 relative overflow-hidden">
+
+        <!-- Background Elements -->
+        <div
+            class="absolute top-0 left-0 w-64 h-64 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob">
+        </div>
+        <div
+            class="absolute top-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute bottom-0 left-20 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000">
+        </div>
+
+        <!-- HEADER -->
+        <header v-if="!isRunning" class="text-center mb-10 z-10 max-w-md">
+            <h1 class="text-3xl font-bold mb-2">Respire Fundo</h1>
+            <p class="text-cyan-800/60 mb-8">Escolha uma técnica para acalmar a mente e o corpo.</p>
+
+            <div class="space-y-4">
+                <button @click="startBreathing('relax')"
+                    class="w-full bg-white hover:bg-cyan-50 p-6 rounded-2xl shadow-sm border border-cyan-100 flex items-center gap-4 transition group">
+                    <div
+                        class="bg-cyan-100 text-cyan-600 w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition">
+                        🌙</div>
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg">Relaxamento (4-7-8)</h3>
+                        <p class="text-xs text-cyan-600/70">Ideal para dormir e reduzir ansiedade.</p>
+                    </div>
+                </button>
+
+                <button @click="startBreathing('focus')"
+                    class="w-full bg-white hover:bg-cyan-50 p-6 rounded-2xl shadow-sm border border-cyan-100 flex items-center gap-4 transition group">
+                    <div
+                        class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition">
+                        🎯</div>
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg">Foco (Quadrada)</h3>
+                        <p class="text-xs text-cyan-600/70">Para concentração e clareza mental.</p>
+                    </div>
+                </button>
+            </div>
+        </header>
+
+        <!-- BREATHING INTERFACE -->
+        <div v-else class="flex flex-col items-center z-10">
+
+            <div class="circle-container mb-8">
+                <!-- Outer Ring -->
+                <div class="w-full h-full border-4 border-cyan-100 rounded-full absolute"></div>
+
+                <!-- Animated Circle -->
+                <div class="circle" :style="animationStyle"></div>
+
+                <!-- Text -->
+                <div class="instruction-text">{{ currentInstruction }}</div>
+            </div>
+
+            <div class="text-center">
+                <h2 class="text-xl font-bold mb-1">{{ activeTechnique.name }}</h2>
+                <div class="text-sm text-cyan-600/50 mb-8">Ciclos restantes: {{ cycles }}</div>
+
+                <button @click="stopBreathing"
+                    class="bg-white text-cyan-600 px-8 py-2 rounded-full font-bold border border-cyan-200 hover:bg-cyan-50 transition shadow-sm">
+                    Encerrar
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const isRunning = ref(false);
+                const activeMode = ref(null);
+                const currentInstruction = ref('Prepare-se...');
+                const scale = ref(1); // 0.5 to 1.0
+                const cycles = ref(0);
+
+                let timeoutId = null;
+
+                const techniques = {
+                    relax: {
+                        name: 'Técnica 4-7-8',
+                        steps: [
+                            { text: 'Inspire', duration: 4000, scale: 1.0 },
+                            { text: 'Segure', duration: 7000, scale: 1.0 },
+                            { text: 'Expire', duration: 8000, scale: 0.4 }
+                        ]
+                    },
+                    focus: {
+                        name: 'Respiração Quadrada',
+                        steps: [
+                            { text: 'Inspire', duration: 4000, scale: 1.0 },
+                            { text: 'Segure', duration: 4000, scale: 1.0 },
+                            { text: 'Expire', duration: 4000, scale: 0.4 },
+                            { text: 'Segure', duration: 4000, scale: 0.4 }
+                        ]
+                    }
+                };
+
+                const activeTechnique = computed(() => techniques[activeMode.value] || {});
+
+                const animationStyle = computed(() => ({
+                    width: '300px',
+                    height: '300px',
+                    transform: `scale(${scale.value})`,
+                    transition: `transform ${transitionDuration.value}ms linear` // Dynamic transition based on step duration
+                }));
+
+                const transitionDuration = ref(1000);
+
+                const runstep = async (stepIndex) => {
+                    if (!isRunning.value) return;
+
+                    const steps = activeTechnique.value.steps;
+                    const step = steps[stepIndex];
+
+                    // Set state
+                    currentInstruction.value = step.text;
+                    scale.value = step.scale;
+                    transitionDuration.value = step.duration;
+
+                    // Wait
+                    await new Promise(r => timeoutId = setTimeout(r, step.duration));
+
+                    if (!isRunning.value) return;
+
+                    // Next step
+                    const nextIndex = (stepIndex + 1) % steps.length;
+                    if (nextIndex === 0) cycles.value--;
+
+                    if (cycles.value > 0) {
+                        runstep(nextIndex);
+                    } else {
+                        currentInstruction.value = "Muito bem!";
+                        setTimeout(stopBreathing, 2000);
+                    }
+                };
+
+                const startBreathing = (mode) => {
+                    activeMode.value = mode;
+                    isRunning.value = true;
+                    cycles.value = 5; // Default cycles
+                    scale.value = 0.4; // Start small
+
+                    // Initial pause
+                    currentInstruction.value = "Prepare-se...";
+                    transitionDuration.value = 0;
+
+                    setTimeout(() => {
+                        runstep(0);
+                    }, 2000);
+                };
+
+                const stopBreathing = () => {
+                    clearTimeout(timeoutId);
+                    isRunning.value = false;
+                    activeMode.value = null;
+                };
+
+                return {
+                    isRunning, startBreathing, stopBreathing,
+                    currentInstruction, animationStyle, activeTechnique, cycles
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

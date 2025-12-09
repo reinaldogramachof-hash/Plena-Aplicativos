@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Smart | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pb-20">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl relative">
+
+        <!-- HEADER -->
+        <header class="bg-emerald-500 text-white p-6 rounded-b-3xl shadow-lg z-10 sticky top-0">
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="text-2xl font-bold"><i class="fa-solid fa-basket-shopping mr-2"></i> Lista Smart</h1>
+                <button @click="clearDone"
+                    class="text-xs bg-emerald-600 px-3 py-1 rounded-full border border-emerald-400 hover:bg-emerald-700">Limpar
+                    Feitos</button>
+            </div>
+
+            <div class="flex justify-between items-end">
+                <div class="text-sm opacity-90">{{ totalItems }} itens na lista</div>
+                <div class="text-right">
+                    <div class="text-[10px] uppercase opacity-70">Estimativa</div>
+                    <div class="text-2xl font-bold">R$ {{ totalPrice.toFixed(2) }}</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ADD ITEM FORM -->
+        <div class="p-4 bg-gray-50 border-b border-gray-100">
+            <div class="flex gap-2 mb-2">
+                <input v-model="newItem" @keyup.enter="addItem" type="text" placeholder="Adicionar item (ex: Leite)"
+                    class="flex-grow p-3 rounded-xl border border-gray-300 outline-none focus:border-emerald-500 shadow-sm">
+            </div>
+            <div class="flex gap-2">
+                <select v-model="newCategory"
+                    class="p-3 rounded-xl border border-gray-300 text-sm outline-none bg-white text-gray-600">
+                    <option v-for="cat in categories" :value="cat.name">{{ cat.icon }} {{ cat.name }}</option>
+                </select>
+                <input v-model.number="newPrice" type="number" step="0.50" placeholder="R$ Est."
+                    class="w-24 p-3 rounded-xl border border-gray-300 outline-none text-sm">
+                <button @click="addItem"
+                    class="bg-emerald-500 text-white w-12 rounded-xl text-xl shadow-md hover:bg-emerald-600">+</button>
+            </div>
+        </div>
+
+        <!-- LIST -->
+        <div class="p-4 space-y-6">
+
+            <div v-for="cat in activeCategories" :key="cat.name">
+                <h3 class="font-bold text-gray-400 text-xs uppercase tracking-widest pl-2 mb-2 flex items-center gap-2">
+                    <span>{{ cat.icon }}</span> {{ cat.name }}
+                </h3>
+
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
+                    <div v-for="item in cat.items" :key="item.id"
+                        class="p-3 flex items-center gap-3 hover:bg-gray-50 transition cursor-pointer"
+                        @click="toggleItem(item)">
+
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition"
+                            :class="item.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 text-transparent'">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </div>
+
+                        <div class="flex-grow" :class="item.done ? 'opacity-40 line-through' : ''">
+                            {{ item.name }}
+                        </div>
+
+                        <div v-if="item.price" class="text-xs font-bold text-gray-500">
+                            R$ {{ item.price.toFixed(2) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="items.length === 0" class="text-center py-10 opacity-30">
+                <i class="fa-regular fa-clipboard text-6xl text-gray-300 mb-4"></i>
+                <p>Lista vazia.<br>O que vamos comprar?</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const categories = [
+                    { name: "Hortifruti", icon: "🥦", keywords: ["banana", "maçã", "laranja", "alface", "tomate", "cebola", "batata", "fruta", "legume"] },
+                    { name: "Açougue", icon: "🍖", keywords: ["carne", "frango", "peixe", "bife", "linguiça", "ovo", "ovos"] },
+                    { name: "Mercearia", icon: "🥫", keywords: ["arroz", "feijão", "macarrão", "óleo", "sal", "açúcar", "café", "leite", "pão"] },
+                    { name: "Frios", icon: "🧀", keywords: ["queijo", "presunto", "manteiga", "requeijão", "iogurte"] },
+                    { name: "Limpeza", icon: "🧹", keywords: ["detergente", "sabão", "amaciante", "água sanitária", "papel", "bucha"] },
+                    { name: "Higiene", icon: "🧴", keywords: ["shampoo", "sabonete", "pasta", "escova", "desodorante"] },
+                    { name: "Bebidas", icon: "🥤", keywords: ["refrigerante", "suco", "água", "cerveja"] },
+                    { name: "Outros", icon: "📦", keywords: [] }
+                ];
+
+                const newItem = ref("");
+                const newPrice = ref(null);
+                const newCategory = ref("Mercearia"); // Default
+                const items = ref([]);
+
+                // Auto-categorize watcher
+                watch(newItem, (val) => {
+                    const lower = val.toLowerCase();
+                    for (const cat of categories) {
+                        if (cat.keywords.some(k => lower.includes(k))) {
+                            newCategory.value = cat.name;
+                            break;
+                        }
+                    }
+                });
+
+                const addItem = () => {
+                    if (!newItem.value.trim()) return;
+
+                    items.value.push({
+                        id: Date.now(),
+                        name: newItem.value,
+                        price: newPrice.value,
+                        category: newCategory.value,
+                        done: false
+                    });
+
+                    newItem.value = "";
+                    newPrice.value = null;
+                };
+
+                const toggleItem = (item) => item.done = !item.done;
+
+                const clearDone = () => {
+                    if (confirm("Remover itens concluídos?")) {
+                        items.value = items.value.filter(i => !i.done);
+                    }
+                };
+
+                const activeCategories = computed(() => {
+                    return categories.map(cat => {
+                        return {
+                            ...cat,
+                            items: items.value.filter(i => i.category === cat.name)
+                        };
+                    }).filter(c => c.items.length > 0);
+                });
+
+                const totalItems = computed(() => items.value.length);
+                const totalPrice = computed(() => items.value.reduce((acc, i) => acc + (i.price || 0), 0));
+
+                onMounted(() => {
+                    const saved = localStorage.getItem('plena_lista_compras');
+                    if (saved) try { items.value = JSON.parse(saved); } catch (e) { }
+                });
+
+                watch(items, () => {
+                    localStorage.setItem('plena_lista_compras', JSON.stringify(items.value));
+                }, { deep: true });
+
+                return {
+                    categories, newItem, newPrice, newCategory, items, addItem, toggleItem, activeCategories,
+                    totalItems, totalPrice, clearDone
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

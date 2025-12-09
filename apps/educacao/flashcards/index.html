@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flashcards Pro | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        card: { 50: '#fff1f2', 100: '#ffe4e6', 500: '#f43f5e', 600: '#e11d48', 900: '#881337' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #ffe4e6;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .perspective {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: #f43f5e;
+            color: white;
+        }
+
+        .card-front {
+            background: white;
+            color: #1f2937;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar Decks -->
+        <aside class="w-full md:w-80 bg-white border-r border-[#fecdd3] z-10 flex flex-col h-full shadow-xl">
+            <div class="p-6 border-b border-[#fecdd3] flex items-center gap-3 bg-[#fff1f2]">
+                <div
+                    class="w-10 h-10 bg-card-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-card-500/30 transform -rotate-6">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-card-900 tracking-tight">Flash<span
+                            class="text-card-500">Cards</span></h1>
+                </div>
+                <button @click="createDeck"
+                    class="ml-auto bg-card-100 text-card-600 w-8 h-8 rounded-full hover:bg-card-500 hover:text-white transition flex items-center justify-center">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+                <div v-for="(deck, idx) in decks" :key="deck.id" @click="selectDeck(idx)"
+                    class="p-4 rounded-xl cursor-pointer transition border border-transparent group relative"
+                    :class="currentDeckIdx === idx ? 'bg-card-500 text-white shadow-lg shadow-card-500/20' : 'bg-[#fff1f2] hover:bg-card-100 text-slate-700'">
+
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="font-bold truncate">{{ deck.name }}</h3>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                            :class="currentDeckIdx === idx ? 'bg-white/20 text-white' : 'bg-white text-card-400'">{{
+                            deck.cards.length }}</span>
+                    </div>
+                    <p class="text-[10px] opacity-70 truncate">{{ deck.desc || 'Sem descrição' }}</p>
+
+                    <button @click.stop="deleteDeck(idx)" v-if="decks.length > 0"
+                        class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition px-2 hover:text-red-200">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 bg-white border-t border-[#fecdd3]">
+                <p class="text-center text-xs text-card-400">Plena Apps</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main
+            class="flex-1 bg-gradient-to-br from-[#fff1f2] to-[#ffe4e6] flex flex-col h-full relative overflow-hidden">
+
+            <div v-if="currentDeck" class="h-full flex flex-col">
+
+                <!-- Deck Header / Edit Mode -->
+                <div v-if="mode === 'edit'" class="flex-1 flex flex-col min-h-0">
+                    <div class="p-6 md:p-8 flex justify-between items-center">
+                        <div class="flex-1 mr-4">
+                            <input v-model="currentDeck.name"
+                                class="text-3xl font-bold bg-transparent border-b-2 border-transparent focus:border-card-300 outline-none w-full text-card-900 placeholder-card-200 transition"
+                                placeholder="Nome do Baralho">
+                            <input v-model="currentDeck.desc"
+                                class="text-sm bg-transparent outline-none w-full text-card-900/60 mt-1 placeholder-card-200"
+                                placeholder="Descrição opcional (ex: Inglês Básico)">
+                        </div>
+                        <button @click="enterStudy" :disabled="currentDeck.cards.length === 0"
+                            class="bg-card-500 hover:bg-card-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-card-500/30 flex items-center gap-2 transition hover:scale-105">
+                            <i class="fa-solid fa-play"></i> ESTUDAR
+                        </button>
+                    </div>
+
+                    <!-- Cards List -->
+                    <div class="flex-1 overflow-y-auto px-6 pb-20 space-y-3">
+                        <div v-for="(card, cIdx) in currentDeck.cards" :key="cIdx"
+                            class="bg-white p-4 rounded-xl shadow-sm flex gap-4 items-start group hover:shadow-md transition">
+                            <div class="flex-1 space-y-2">
+                                <input v-model="card.front"
+                                    class="w-full text-lg font-bold text-slate-700 outline-none placeholder-slate-300"
+                                    placeholder="Frente (Pergunta)">
+                                <div class="h-px bg-slate-100 w-full"></div>
+                                <textarea v-model="card.back" rows="1"
+                                    class="w-full text-slate-500 outline-none resize-none placeholder-slate-300"
+                                    placeholder="Verso (Resposta)"></textarea>
+                            </div>
+                            <button @click="removeCard(cIdx)" class="text-slate-300 hover:text-red-400 p-2"><i
+                                    class="fa-solid fa-trash"></i></button>
+                        </div>
+
+                        <button @click="addCard"
+                            class="w-full py-4 border-2 border-dashed border-card-200 rounded-xl text-card-400 font-bold hover:bg-white hover:border-card-300 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Adicionar Carta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Study Mode -->
+                <div v-else class="flex-1 flex flex-col items-center justify-center p-6 relative">
+
+                    <button @click="mode = 'edit'"
+                        class="absolute top-6 left-6 text-card-900/50 hover:text-card-600 font-bold flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm">
+                        <i class="fa-solid fa-arrow-left"></i> Editar
+                    </button>
+
+                    <div class="text-center mb-8">
+                        <span class="text-card-900/40 font-bold uppercase tracking-widest text-sm">Carta {{ studyIndex +
+                            1 }} / {{ currentDeck.cards.length }}</span>
+                    </div>
+
+                    <!-- The Card -->
+                    <div class="w-full max-w-sm aspect-[3/4] md:aspect-[4/3] perspective cursor-pointer group"
+                        @click="flipped = !flipped">
+                        <div class="card-inner duration-500" :class="{flipped: flipped}">
+
+                            <div class="card-face card-front bg-white p-8">
+                                <div class="text-3xl md:text-4xl font-bold text-slate-800 text-center leading-snug">
+                                    {{ currentDeck.cards[studyIndex].front }}
+                                </div>
+                                <div
+                                    class="absolute bottom-6 text-xs text-slate-300 uppercase font-bold tracking-widest">
+                                    Toque para ver a resposta</div>
+                            </div>
+
+                            <div
+                                class="card-face card-back p-8 bg-gradient-to-br from-card-500 to-card-600 text-white relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-8 opacity-10"><i
+                                        class="fa-solid fa-lightbulb text-9xl"></i></div>
+                                <div class="text-2xl md:text-3xl font-medium text-center leading-snug relative z-10">
+                                    {{ currentDeck.cards[studyIndex].back }}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="mt-8 flex gap-4">
+                        <button @click="prevCard" :disabled="studyIndex === 0"
+                            class="w-14 h-14 rounded-full bg-white text-card-600 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 transition flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button @click="nextCard" :disabled="studyIndex >= currentDeck.cards.length - 1"
+                            class="w-14 h-14 rounded-full bg-white text-card-600 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 transition flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div v-else class="flex-1 flex items-center justify-center text-card-900/30 font-bold">
+                Selecione ou Crie um Baralho
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_flashcards_v1';
+
+        createApp({
+            setup() {
+                const decks = ref([
+                    {
+                        id: 1, name: 'Inglês Básico', desc: 'Palavras essenciais', cards: [
+                            { front: 'House', back: 'Casa' },
+                            { front: 'Dog', back: 'Cachorro' },
+                            { front: 'Water', back: 'Água' }
+                        ]
+                    }
+                ]);
+
+                const currentDeckIdx = ref(0);
+                const mode = ref('edit'); // edit | study
+                const studyIndex = ref(0);
+                const flipped = ref(false);
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) decks.value = JSON.parse(d);
+                });
+
+                watch(decks, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(decks.value));
+                }, { deep: true });
+
+                const currentDeck = computed(() => decks.value[currentDeckIdx.value]);
+
+                const selectDeck = (idx) => {
+                    currentDeckIdx.value = idx;
+                    mode.value = 'edit';
+                    flipped.value = false;
+                };
+
+                const createDeck = () => {
+                    const name = prompt('Nome do novo baralho:');
+                    if (name) {
+                        decks.value.push({
+                            id: Date.now(),
+                            name,
+                            desc: '',
+                            cards: []
+                        });
+                        currentDeckIdx.value = decks.value.length - 1;
+                        mode.value = 'edit';
+                    }
+                };
+
+                const deleteDeck = (idx) => {
+                    if (confirm('Apagar este baralho?')) {
+                        decks.value.splice(idx, 1);
+                        currentDeckIdx.value = Math.max(0, decks.value.length - 1);
+                    }
+                };
+
+                const addCard = () => {
+                    currentDeck.value.cards.push({ front: '', back: '' });
+                };
+
+                const removeCard = (idx) => {
+                    currentDeck.value.cards.splice(idx, 1);
+                };
+
+                const enterStudy = () => {
+                    studyIndex.value = 0;
+                    flipped.value = false;
+                    mode.value = 'study';
+                };
+
+                const nextCard = () => {
+                    if (studyIndex.value < currentDeck.value.cards.length - 1) {
+                        flipped.value = false;
+                        setTimeout(() => studyIndex.value++, 200); // Wait for flip back? or just raw switch
+                    }
+                };
+
+                const prevCard = () => {
+                    if (studyIndex.value > 0) {
+                        flipped.value = false;
+                        setTimeout(() => studyIndex.value--, 200);
+                    }
+                };
+
+                return {
+                    decks, currentDeckIdx, currentDeck, mode, studyIndex, flipped,
+                    selectDeck, createDeck, deleteDeck,
+                    addCard, removeCard, enterStudy, nextCard, prevCard
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

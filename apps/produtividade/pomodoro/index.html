@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Focus | Plena Produtividade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+
+        .bg-pomodoro {
+            background-color: #ba4949;
+        }
+
+        .bg-short {
+            background-color: #38858a;
+        }
+
+        .bg-long {
+            background-color: #397097;
+        }
+
+        .timer-btn {
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+            transition: all 0.1s;
+        }
+
+        .timer-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+</head>
+
+<body :class="currentBg" class="text-white h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-md">
+
+        <!-- Header / Logo -->
+        <h1 class="text-2xl font-bold flex items-center justify-center gap-2 mb-8 opacity-90">
+            <i class="fa-solid fa-circle-check"></i> Pomodoro Focus
+        </h1>
+
+        <!-- Timer Module -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 text-center shadow-2xl border border-white/10">
+
+            <!-- Type Selector -->
+            <div class="flex justify-center gap-2 mb-10 bg-black/20 p-1 rounded-full w-fit mx-auto">
+                <button @click="setMode('pomodoro')" :class="{'bg-black/30 font-bold': mode === 'pomodoro'}"
+                    class="px-4 py-2 rounded-full text-sm transition">Pomodoro</button>
+                <button @click="setMode('short')" :class="{'bg-black/30 font-bold': mode === 'short'}"
+                    class="px-4 py-2 rounded-full text-sm transition">Curta Pausa</button>
+                <button @click="setMode('long')" :class="{'bg-black/30 font-bold': mode === 'long'}"
+                    class="px-4 py-2 rounded-full text-sm transition">Longa Pausa</button>
+            </div>
+
+            <!-- The Clock -->
+            <div class="relative w-64 h-64 mx-auto mb-10 flex items-center justify-center">
+                <!-- SVG Circle Progress (Optional Visual) -->
+                <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" class="stroke-white/10" stroke-width="4"></circle>
+                    <circle cx="50" cy="50" r="45" fill="none" class="stroke-white progress-ring__circle"
+                        stroke-width="4" stroke-linecap="round" :stroke-dasharray="283" :stroke-dashoffset="dashOffset">
+                    </circle>
+                </svg>
+
+                <div class="text-[6rem] font-bold tracking-tighter leading-none select-none">
+                    {{ formattedTime }}
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-6">
+                <!-- Reset -->
+                <button v-if="isRunning || paused" @click="resetTimer"
+                    class="w-14 h-14 rounded-2xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xl transition">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+
+                <!-- Play/Pause -->
+                <button @click="toggleTimer"
+                    class="timer-btn bg-white text-slate-800 w-32 h-16 rounded-2xl text-2xl font-bold uppercase tracking-widest hover:scale-105">
+                    {{ isRunning ? 'PAUSE' : 'START' }}
+                </button>
+
+                <!-- Settings (Fake) -->
+                <button @click="showSettings = true"
+                    class="w-14 h-14 rounded-2xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xl transition">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Task List (Simple) -->
+        <div class="mt-8 text-center">
+            <p v-if="mode === 'pomodoro'" class="text-white/80 animate-pulse">Hora de focar! 🔥</p>
+            <p v-else class="text-white/80">Relaxe um pouco... ☕</p>
+        </div>
+
+        <!-- Settings Modal -->
+        <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60" @click="showSettings = false"></div>
+            <div class="bg-white text-slate-800 p-6 rounded-2xl w-full max-w-sm relative z-10">
+                <h2 class="font-bold text-lg mb-4 border-b pb-2 text-slate-400 uppercase tracking-widest text-xs">
+                    Configurações</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Pomodoro (min)</label>
+                        <input v-model.number="times.pomodoro" type="number" class="w-full bg-slate-100 p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Curta Pausa (min)</label>
+                        <input v-model.number="times.short" type="number" class="w-full bg-slate-100 p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Longa Pausa (min)</label>
+                        <input v-model.number="times.long" type="number" class="w-full bg-slate-100 p-2 rounded">
+                    </div>
+                    <button @click="showSettings = false; resetTimer()"
+                        class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl mt-4">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AUDIO -->
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+    <script>
+        const { createApp, ref, computed, watch } = Vue;
+
+        createApp({
+            setup() {
+                const times = ref({
+                    pomodoro: 25,
+                    short: 5,
+                    long: 15
+                });
+
+                const mode = ref('pomodoro');
+                const timeLeft = ref(25 * 60);
+                const isRunning = ref(false);
+                const showSettings = ref(false);
+                const paused = ref(false);
+                const interval = ref(null);
+
+                const currentBg = computed(() => {
+                    if (mode.value === 'pomodoro') return 'bg-pomodoro';
+                    if (mode.value === 'short') return 'bg-short';
+                    return 'bg-long';
+                });
+
+                const formattedTime = computed(() => {
+                    const m = Math.floor(timeLeft.value / 60).toString().padStart(2, '0');
+                    const s = (timeLeft.value % 60).toString().padStart(2, '0');
+                    return `${m}:${s}`;
+                });
+
+                const dashOffset = computed(() => {
+                    // Full circle is 283
+                    const totalTime = times.value[mode.value] * 60;
+                    const progress = timeLeft.value / totalTime;
+                    return 283 - (283 * progress); // Inverted logic for filling up? Or depleting.
+                    // To deplete: start at 0 offset (full), end at 283 (empty)
+                    return 283 * (1 - progress);
+                });
+
+                const setMode = (m) => {
+                    mode.value = m;
+                    resetTimer();
+                };
+
+                const toggleTimer = () => {
+                    if (isRunning.value) {
+                        clearInterval(interval.value);
+                        isRunning.value = false;
+                        paused.value = true;
+                    } else {
+                        isRunning.value = true;
+                        paused.value = false;
+                        interval.value = setInterval(() => {
+                            if (timeLeft.value > 0) {
+                                timeLeft.value--;
+                                // Title update
+                                document.title = `${formattedTime.value} - Pomodoro`;
+                            } else {
+                                clearInterval(interval.value);
+                                isRunning.value = false;
+                                document.getElementById('alarm-sound').play();
+                                alert('Tempo esgotado!');
+                            }
+                        }, 1000);
+                    }
+                };
+
+                const resetTimer = () => {
+                    clearInterval(interval.value);
+                    isRunning.value = false;
+                    paused.value = false;
+                    timeLeft.value = times.value[mode.value] * 60;
+                    document.title = "Pomodoro Focus";
+                };
+
+                return {
+                    times, mode, timeLeft, isRunning, showSettings, paused, currentBg, formattedTime, dashOffset,
+                    setMode, toggleTimer, resetTimer
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

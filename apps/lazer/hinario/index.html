@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hinário de Bolso | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Libre Baskerville', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+        }
+
+        .light-mode {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .search-input-dark {
+            background-color: #333;
+            color: white;
+            border-color: #555;
+        }
+
+        .search-input-light {
+            background-color: #f3f4f6;
+            color: black;
+            border-color: #ddd;
+        }
+    </style>
+</head>
+
+<body :class="isDark ? 'dark-mode' : 'light-mode'" class="min-h-screen transition-colors duration-300">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen flex flex-col">
+
+        <!-- HEADER & SEARCH -->
+        <div class="sticky top-0 z-20 p-4 shadow-md transition-colors duration-300"
+            :class="isDark ? 'bg-zinc-900 border-b border-zinc-700' : 'bg-white border-b border-gray-100'">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-music text-blue-500"></i> Hinário
+                </h1>
+                <button @click="toggleTheme" class="w-8 h-8 rounded-full flex items-center justify-center transition"
+                    :class="isDark ? 'bg-zinc-800 text-yellow-400' : 'bg-gray-100 text-gray-600'">
+                    <i :class="isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+                </button>
+            </div>
+
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+                <input v-model="search" type="text" placeholder="Buscar hino por nome ou número..."
+                    class="w-full pl-10 pr-4 py-2 rounded-lg outline-none border transition"
+                    :class="isDark ? 'search-input-dark' : 'search-input-light'">
+            </div>
+        </div>
+
+        <!-- LIST MODE -->
+        <div v-if="!activeHino" class="flex-grow p-4">
+            <div v-for="hino in filteredHinos" :key="hino.id" @click="openHino(hino)"
+                class="p-4 mb-2 rounded-lg cursor-pointer transition flex justify-between items-center group"
+                :class="isDark ? 'hover:bg-zinc-800 border border-zinc-700/50' : 'hover:bg-blue-50 border border-transparent hover:border-blue-100'">
+
+                <div class="flex items-center gap-4">
+                    <span class="font-bold text-sm w-8 text-right opacity-50">#{{ hino.id }}</span>
+                    <span class="font-bold">{{ hino.title }}</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs opacity-30 group-hover:opacity-100 transition"></i>
+            </div>
+
+            <div v-if="filteredHinos.length === 0" class="text-center py-10 opacity-50">
+                <p>Nenhum hino encontrado.</p>
+            </div>
+        </div>
+
+        <!-- LYRIC MODE -->
+        <div v-else class="flex-grow flex flex-col h-screen">
+            <!-- Toolbar -->
+            <div class="p-4 flex items-center justify-between shadow-sm z-30"
+                :class="isDark ? 'bg-zinc-900 border-b border-zinc-700' : 'bg-white border-b border-gray-100'">
+                <button @click="activeHino = null" class="text-blue-500 font-bold text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar
+                </button>
+                <div class="flex gap-2">
+                    <button @click="fontSize = Math.max(12, fontSize - 2)"
+                        class="w-8 h-8 rounded bg-opacity-20 flex items-center justify-center font-bold"
+                        :class="isDark ? 'bg-white text-white' : 'bg-black text-black'">A-</button>
+                    <button @click="fontSize = Math.min(32, fontSize + 2)"
+                        class="w-8 h-8 rounded bg-opacity-20 flex items-center justify-center font-bold"
+                        :class="isDark ? 'bg-white text-white' : 'bg-black text-black'">A+</button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow overflow-y-auto p-6 text-center">
+                <h2 class="text-2xl font-bold mb-1">{{ activeHino.title }}</h2>
+                <p class="text-xs uppercase tracking-widest opacity-50 mb-8">Hino #{{ activeHino.id }}</p>
+
+                <div class="whitespace-pre-wrap leading-relaxed transition-all" :style="{ fontSize: fontSize + 'px' }">
+                    {{ activeHino.lyrics }}</div>
+
+                <div class="mt-12 opacity-30 text-xs">Fim do Hino</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const isDark = ref(false);
+                const search = ref("");
+                const activeHino = ref(null);
+                const fontSize = ref(18);
+
+                const toggleTheme = () => isDark.value = !isDark.value;
+
+                // Mock Database (Public Domain / Common Hymns)
+                const hinos = [
+                    { id: 1, title: "Grandioso És Tu", lyrics: "Senhor meu Deus, quando eu maravilhado\nFico a pensar nas obras de tuas mãos\nNo céu azul de estrelas pontilhado\nO teu poder mostrando a criação\n\n(Coro)\nEntão minh'alma canta a ti, Senhor\nGrandioso és Tu, grandioso és Tu\nEntão minh'alma canta a ti, Senhor\nGrandioso és Tu, grandioso és Tu" },
+                    { id: 15, title: "Foi na Cruz", lyrics: "Foi na cruz, foi na cruz\nOnde um dia eu vi\nMeus pecados castigados em Jesus\nFoi ali, pela fé, que meus olhos abri\nE agora me alegro em sua luz" },
+                    { id: 33, title: "Tu És Fiel, Senhor", lyrics: "Tu és fiel, Senhor\nMeu Pai celeste\nPleno poder aos teus filhos darás\nNunca mudaste\nTu nunca faltaste\nTal como eras, tu sempre serás" },
+                    { id: 126, title: "Bem-aventurança", lyrics: "Bem-aventurado aquele que teme ao Senhor\nE anda nos seus caminhos\nDo trabalho de tuas mãos comerás\nFeliz serás, e tudo te irá bem" },
+                    { id: 300, title: "Vencendo Vem Jesus", lyrics: "Já refulge a glória eterna\nDe Jesus, o Rei dos reis\nBreve os reinos deste mundo\nSeguirão as suas leis" }
+                ];
+
+                const filteredHinos = computed(() => {
+                    const s = search.value.toLowerCase();
+                    return hinos.filter(h => h.title.toLowerCase().includes(s) || h.id.toString().includes(s));
+                });
+
+                const openHino = (h) => activeHino.value = h;
+
+                return {
+                    isDark, toggleTheme, search, hinos, filteredHinos, activeHino, openHino, fontSize
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

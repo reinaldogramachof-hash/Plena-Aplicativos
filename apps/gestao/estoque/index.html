@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estoque Fácil | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-boxes-stacked text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Estoque Fácil</h1>
+            </div>
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'list'"
+                    :class="currentView === 'list' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="nav-item">
+                    <i class="fa-solid fa-list w-5 text-center"></i> <span>Produtos</span>
+                </a>
+                <a @click="currentView = 'movement'"
+                    :class="currentView === 'movement' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="nav-item">
+                    <i class="fa-solid fa-arrow-right-arrow-left w-5 text-center"></i> <span>Movimentação</span>
+                </a>
+                <a @click="openModal()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-green-400 hover:bg-green-500/10 hover:text-green-500 transition cursor-pointer font-bold mt-4 border border-dashed border-green-500/30">
+                    <i class="fa-solid fa-plus w-5 text-center"></i> <span>Novo Produto</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-boxes-stacked text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Estoque Fácil</span>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-lg"><i
+                        class="fa-solid fa-bars text-lg"></i></button>
+            </header>
+
+            <transition name="fade">
+                <div v-if="mobileMenuOpen"
+                    class="absolute top-16 inset-x-0 bg-white shadow-xl z-30 p-4 md:hidden flex flex-col gap-2 border-b border-slate-200">
+                    <a @click="currentView = 'list'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-list text-brand-600"></i> Produtos</a>
+                    <a @click="currentView = 'movement'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-arrow-right-arrow-left text-brand-600"></i> Movimentação</a>
+                    <a @click="openModal(); mobileMenuOpen = false"
+                        class="p-3 bg-green-50 text-green-700 rounded-lg flex items-center gap-3 font-bold"><i
+                            class="fa-solid fa-plus"></i> Novo Produto</a>
+                </div>
+            </transition>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+                <!-- VIEW: LIST -->
+                <div v-if="currentView === 'list'" class="max-w-6xl mx-auto space-y-6 animate-fade-in">
+                    <!-- KPI -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="kpi-card">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Total Itens</div>
+                            <div class="text-2xl font-bold text-slate-800">{{ totalItems }}</div>
+                        </div>
+                        <div class="kpi-card border-l-4 border-red-500">
+                            <div class="text-xs font-bold text-red-500 uppercase">Estoque Baixo</div>
+                            <div class="text-2xl font-bold text-slate-800">{{ lowStockItems.length }}</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Valor Custo</div>
+                            <div class="text-2xl font-bold text-slate-600">R$ {{ formatMoney(totalCost) }}</div>
+                        </div>
+                        <div class="kpi-card bg-emerald-50 border-emerald-200">
+                            <div class="text-xs font-bold text-emerald-600 uppercase">Valor Venda</div>
+                            <div class="text-2xl font-bold text-emerald-700">R$ {{ formatMoney(totalSale) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <input v-model="search" type="text" placeholder="Buscar produto..."
+                            class="flex-1 px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500">
+                        <div class="flex gap-2">
+                            <button @click="filterLow = !filterLow"
+                                :class="filterLow ? 'bg-red-100 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'"
+                                class="px-4 py-2 rounded-xl border font-medium transition text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Baixo Estoque
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- List -->
+                    <div class="space-y-3 pb-20">
+                        <div v-for="p in filteredProducts" :key="p.id"
+                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:shadow-md transition">
+                            <div class="flex items-center gap-4">
+                                <div :class="isLowStock(p) ? 'bg-red-100 text-red-500' : 'bg-slate-100 text-slate-500'"
+                                    class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-lg">
+                                    {{ p.qty }}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">{{ p.name }}</h3>
+                                    <div class="text-xs text-slate-500">Min: {{ p.minQty }} | Custo: R$ {{
+                                        formatMoney(p.cost) }}</div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between md:justify-end gap-6 border-t md:border-0 border-slate-50 pt-3 md:pt-0">
+                                <div class="text-right">
+                                    <div class="text-xs text-slate-400 uppercase">Venda</div>
+                                    <div class="font-bold text-emerald-600">R$ {{ formatMoney(p.price) }}</div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button @click="quickMove(p, 1)"
+                                        class="w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center"><i
+                                            class="fa-solid fa-plus"></i></button>
+                                    <button @click="quickMove(p, -1)"
+                                        class="w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center"><i
+                                            class="fa-solid fa-minus"></i></button>
+                                    <button @click="openModal(p)"
+                                        class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center"><i
+                                            class="fa-solid fa-pen"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="filteredProducts.length === 0" class="text-center py-10 text-slate-400">Nenhum
+                            produto encontrado.</div>
+                    </div>
+                </div>
+
+                <!-- VIEW: MOVEMENT -->
+                <div v-if="currentView === 'movement'" class="max-w-4xl mx-auto animate-fade-in">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Histórico de Movimentação</h2>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div v-for="(m, i) in movementHistory" :key="i"
+                            class="p-4 border-b border-slate-50 hover:bg-slate-50 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div :class="m.type === 'in' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs">
+                                    <i :class="m.type === 'in' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">{{ m.productName }}</div>
+                                    <div class="text-xs text-slate-500">{{ formatDate(m.date) }}</div>
+                                </div>
+                            </div>
+                            <div class="font-bold font-mono"
+                                :class="m.type === 'in' ? 'text-green-600' : 'text-red-600'">
+                                {{ m.type === 'in' ? '+' : '-' }}{{ m.qty }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Modal -->
+        <div v-if="modal.show"
+            class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="font-bold text-lg">{{ modal.id ? 'Editar Produto' : 'Novo Produto' }}</h3>
+                    <button @click="closeModal"
+                        class="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-slate-600 flex items-center justify-center shadow-sm"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="label">Nome do Produto</label>
+                        <input v-model="modal.data.name" type="text" class="input">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Qtd Atual</label>
+                            <input v-model="modal.data.qty" type="number" class="input">
+                        </div>
+                        <div>
+                            <label class="label">Qtd Mínima</label>
+                            <input v-model="modal.data.minQty" type="number" class="input">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Custo (R$)</label>
+                            <input v-model="modal.data.cost" type="number" step="0.01" class="input">
+                        </div>
+                        <div>
+                            <label class="label">Venda (R$)</label>
+                            <input v-model="modal.data.price" type="number" step="0.01" class="input">
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+                    <button v-if="modal.id" @click="deleteProduct"
+                        class="px-4 py-2 text-red-500 font-bold hover:bg-red-50 rounded-lg"><i
+                            class="fa-solid fa-trash"></i></button>
+                    <div class="flex-1"></div>
+                    <button @click="closeModal"
+                        class="px-4 py-2 text-slate-500 font-bold hover:text-slate-700">Cancelar</button>
+                    <button @click="saveProduct"
+                        class="px-6 py-2 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 shadow-lg shadow-brand-500/30">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all;
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input:focus {
+            border-color: #f97316;
+            ring: 2px solid #f97316;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_estoque_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('list');
+                const products = ref([]);
+                const movements = ref([]);
+                const search = ref('');
+                const filterLow = ref(false);
+                const mobileMenuOpen = ref(false);
+                const modal = ref({ show: false, id: null, data: {} });
+
+                // Persistence
+                const load = () => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        products.value = parsed.products || [];
+                        movements.value = parsed.movements || [];
+                    } else {
+                        // Mock
+                        products.value = [
+                            { id: 1, name: 'Cabo USB-C', qty: 15, minQty: 5, cost: 5.00, price: 25.00 },
+                            { id: 2, name: 'Película de Vidro', qty: 3, minQty: 10, cost: 2.00, price: 15.00 },
+                        ];
+                    }
+                };
+                const save = () => localStorage.setItem(DB_KEY, JSON.stringify({ products: products.value, movements: movements.value }));
+                watch([products, movements], save, { deep: true });
+                onMounted(load);
+
+                // Computed
+                const totalItems = computed(() => products.value.length);
+                const lowStockItems = computed(() => products.value.filter(p => p.qty <= p.minQty));
+                const totalCost = computed(() => products.value.reduce((acc, p) => acc + (p.qty * p.cost), 0));
+                const totalSale = computed(() => products.value.reduce((acc, p) => acc + (p.qty * p.price), 0));
+
+                const filteredProducts = computed(() => {
+                    let list = products.value;
+                    if (search.value) list = list.filter(p => p.name.toLowerCase().includes(search.value.toLowerCase()));
+                    if (filterLow.value) list = list.filter(p => p.qty <= p.minQty);
+                    return list;
+                });
+
+                const movementHistory = computed(() => [...movements.value].sort((a, b) => b.date - a.date).slice(0, 50));
+
+                // Actions
+                const isLowStock = (p) => p.qty <= p.minQty;
+                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                const formatDate = (ts) => new Date(ts).toLocaleString('pt-BR');
+
+                const openModal = (p = null) => {
+                    if (p) {
+                        modal.value.id = p.id;
+                        modal.value.data = { ...p };
+                    } else {
+                        modal.value.id = null;
+                        modal.value.data = { name: '', qty: 0, minQty: 5, cost: 0, price: 0 };
+                    }
+                    modal.value.show = true;
+                };
+                const closeModal = () => modal.value.show = false;
+
+                const saveProduct = () => {
+                    if (!modal.value.data.name) return alert('Nome obrigatório');
+                    const d = modal.value.data;
+                    if (modal.value.id) {
+                        const idx = products.value.findIndex(p => p.id === modal.value.id);
+                        if (idx !== -1) products.value[idx] = d;
+                    } else {
+                        d.id = Date.now();
+                        products.value.push(d);
+                    }
+                    closeModal();
+                };
+
+                const deleteProduct = () => {
+                    if (confirm('Excluir produto?')) {
+                        products.value = products.value.filter(p => p.id !== modal.value.id);
+                        closeModal();
+                    }
+                };
+
+                const quickMove = (p, delta) => {
+                    p.qty = Number(p.qty) + delta;
+                    if (p.qty < 0) p.qty = 0;
+                    movements.value.push({
+                        type: delta > 0 ? 'in' : 'out',
+                        qty: Math.abs(delta),
+                        productName: p.name,
+                        date: Date.now()
+                    });
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([localStorage.getItem(DB_KEY)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'estoque_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        localStorage.setItem(DB_KEY, ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, search, filterLow, mobileMenuOpen, modal,
+                    totalItems, lowStockItems, totalCost, totalSale, filteredProducts, movementHistory,
+                    isLowStock, formatMoney, formatDate,
+                    openModal, closeModal, saveProduct, deleteProduct, quickMove,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

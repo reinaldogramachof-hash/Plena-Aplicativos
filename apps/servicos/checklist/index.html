@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Checklist Pro | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-list-check text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Checklist Pro</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'run'"
+                    :class="currentView === 'run' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-play w-5 text-center"></i> <span>Executar</span>
+                </a>
+                <a @click="currentView = 'templates'"
+                    :class="currentView === 'templates' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-clipboard-list w-5 text-center"></i> <span>Modelos</span>
+                </a>
+                <a @click="currentView = 'history'"
+                    :class="currentView === 'history' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i> <span>Histórico</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-list-check text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Checklist Pro</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: RUN (EXECUTION) -->
+                <div v-if="currentView === 'run'" class="max-w-2xl mx-auto animate-fade-in">
+
+                    <div v-if="!activeChecklist">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Iniciar Novo Checklist</h2>
+                        <div class="grid gap-4">
+                            <button v-for="t in templates" :key="t.id" @click="startChecklist(t)"
+                                class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-brand-500 hover:shadow-md transition text-left group">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-lg text-slate-800 group-hover:text-brand-600 transition">
+                                        {{ t.name }}</h3>
+                                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-brand-500"></i>
+                                </div>
+                                <div class="text-sm text-slate-500 mt-1">{{ t.items.length }} itens • Criado em {{
+                                    formatDate(t.createdAt) }}</div>
+                            </button>
+                            <div v-if="templates.length === 0"
+                                class="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                                <p class="text-slate-400 mb-4">Nenhum modelo criado.</p>
+                                <button @click="currentView = 'templates'"
+                                    class="text-brand-600 font-bold underline">Criar meu primeiro modelo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <div class="flex items-center gap-4 mb-6">
+                            <button @click="cancelChecklist"
+                                class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i
+                                    class="fa-solid fa-arrow-left"></i></button>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800">{{ activeChecklist.name }}</h2>
+                                <div class="text-xs text-slate-500">Em andamento • {{ progress }}% Concluído</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden mb-8">
+                            <div class="h-full bg-brand-500 transition-all duration-300"
+                                :style="{ width: progress + '%' }"></div>
+                        </div>
+
+                        <div class="space-y-3 mb-8">
+                            <div v-for="(item, idx) in activeChecklist.items" :key="idx" @click="toggleItem(idx)"
+                                :class="item.checked ? 'bg-brand-50 border-brand-200' : 'bg-white border-slate-200 hover:border-brand-300'"
+                                class="p-4 rounded-xl border shadow-sm cursor-pointer transition flex items-center gap-4 select-none">
+
+                                <div :class="item.checked ? 'bg-brand-500 border-brand-500' : 'bg-white border-slate-300'"
+                                    class="w-6 h-6 rounded border-2 flex items-center justify-center transition shrink-0">
+                                    <i v-if="item.checked" class="fa-solid fa-check text-white text-xs"></i>
+                                </div>
+                                <span
+                                    :class="item.checked ? 'text-brand-700 line-through decoration-brand-300' : 'text-slate-700 font-medium'"
+                                    class="flex-1">{{ item.text }}</span>
+                            </div>
+                        </div>
+
+                        <div class="pb-10">
+                            <label class="label mb-2">Observações (Opcional)</label>
+                            <textarea v-model="activeChecklist.notes" class="input h-24 mb-4"
+                                placeholder="Alguma anormalidade ou comentário?"></textarea>
+                            <button @click="finishChecklist"
+                                class="w-full btn-primary py-4 rounded-xl shadow-lg">Finalizar Checklist</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: TEMPLATES (MODELOS) -->
+                <div v-if="currentView === 'templates'" class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Modelos</h2>
+                        <button @click="openTemplateModal()"
+                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
+                                class="fa-solid fa-plus mr-2"></i> Novo Modelo</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-for="t in templates" :key="t.id"
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative group">
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition flex gap-2">
+                                <button @click="openTemplateModal(t)"
+                                    class="text-blue-500 bg-blue-50 p-2 rounded-lg hover:bg-blue-100"><i
+                                        class="fa-solid fa-pen"></i></button>
+                                <button @click="deleteTemplate(t.id)"
+                                    class="text-red-500 bg-red-50 p-2 rounded-lg hover:bg-red-100"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-800 pr-16">{{ t.name }}</h3>
+                            <div class="mt-4 space-y-1">
+                                <div v-for="(i, idx) in t.items.slice(0, 3)" :key="idx"
+                                    class="text-sm text-slate-500 flex items-center gap-2">
+                                    <i class="fa-solid fa-check text-slate-300 text-xs"></i> {{ i.text }}
+                                </div>
+                                <div v-if="t.items.length > 3" class="text-xs text-slate-400 pl-5 italic">+{{
+                                    t.items.length - 3 }} itens...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: HISTORY -->
+                <div v-if="currentView === 'history'" class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Histórico</h2>
+                        <button v-if="history.length > 0" @click="clearHistory"
+                            class="text-red-500 text-sm font-bold hover:underline">Limpar Tudo</button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div v-for="h in history.slice().reverse()" :key="h.id"
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div
+                                class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-800">{{ h.templateName }}</h3>
+                                    <div class="text-sm text-slate-500">{{ formatDateTime(h.finishedAt) }}</div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right">
+                                        <div class="text-2xl font-black text-brand-600">{{ h.score }}%</div>
+                                        <div class="text-xs font-bold text-slate-400 uppercase">Aproveitamento</div>
+                                    </div>
+                                    <button @click="copyReport(h)"
+                                        class="w-10 h-10 rounded-lg bg-slate-50 hover:bg-brand-50 hover:text-brand-600 transition flex items-center justify-center text-slate-400"
+                                        title="Copiar Relatório"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Mini detail collapse or just summary? Let's show unchecked items if any -->
+                            <div v-if="h.uncheckedCount > 0">
+                                <div class="text-xs font-bold text-red-500 uppercase mb-2">Itens Pendentes ({{
+                                    h.uncheckedCount }}):</div>
+                                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                    <li v-for="u in h.uncheckedItems" :key="u">{{ u }}</li>
+                                </ul>
+                            </div>
+                            <div v-else class="text-sm text-green-600 font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-check-circle"></i> Tudo Certo!
+                            </div>
+
+                            <div v-if="h.notes"
+                                class="mt-4 bg-yellow-50 p-3 rounded-lg text-sm text-yellow-800 border border-yellow-100">
+                                <span class="font-bold">Nota:</span> {{ h.notes }}
+                            </div>
+                        </div>
+                        <div v-if="history.length === 0" class="text-center py-12 text-slate-400">Nenhum histórico
+                            registrado.</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Template Editor Modal -->
+        <div v-if="modals.template"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl animate-fade-in flex flex-col max-h-[90vh]">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
+                    <h3 class="font-bold text-lg">{{ templateForm.id ? 'Editar' : 'Novo' }} Modelo</h3>
+                    <button @click="modals.template = false" class="text-slate-400 hover:text-slate-600"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                    <div>
+                        <label class="label">Nome do Checklist</label>
+                        <input v-model="templateForm.name" type="text" class="input" placeholder="Ex: Abertura de Loja">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="label mb-0">Itens de Verificação</label>
+                            <button @click="addItemToTemplate"
+                                class="text-xs font-bold text-brand-600 hover:underline">+ Adicionar Item</button>
+                        </div>
+                        <div class="space-y-2">
+                            <div v-for="(item, idx) in templateForm.items" :key="idx" class="flex gap-2">
+                                <input v-model="item.text" class="input py-2" placeholder="Descreva a tarefa...">
+                                <button @click="removeItemFromTemplate(idx)"
+                                    class="text-slate-300 hover:text-red-500 px-2"><i
+                                        class="fa-solid fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-slate-100 shrink-0">
+                    <button @click="saveTemplate" class="w-full btn-primary py-3 rounded-xl">Salvar Modelo</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #22c55e;
+            background: #fff;
+            ring: 2px solid #22c55e;
+        }
+
+        .btn-primary {
+            background-color: #16a34a;
+            color: white;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #15803d;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_TEMPLATES = 'plena_checklist_templates_v1';
+        const DB_HISTORY = 'plena_checklist_history_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('run');
+                const templates = ref([]);
+                const history = ref([]);
+
+                // Active Execution State
+                const activeChecklist = ref(null);
+
+                // Modal & Forms
+                const modals = ref({ template: false });
+                const templateForm = ref({ id: null, name: '', items: [] });
+
+                // Persistence
+                onMounted(() => {
+                    const t = localStorage.getItem(DB_TEMPLATES);
+                    if (t) templates.value = JSON.parse(t);
+                    else {
+                        // Seeds
+                        templates.value = [
+                            {
+                                id: 1, name: 'Abertura de Caixa', createdAt: new Date().toISOString(),
+                                items: [{ text: 'Contar fundo de troco' }, { text: 'Verificar bobina' }, { text: 'Limpar balcão' }, { text: 'Ligar computador' }]
+                            },
+                            {
+                                id: 2, name: 'Limpeza do Banheiro', createdAt: new Date().toISOString(),
+                                items: [{ text: 'Limpar espelho' }, { text: 'Repor papel' }, { text: 'Lavar chão' }, { text: 'Esvaziar lixeira' }]
+                            }
+                        ];
+                    }
+
+                    const h = localStorage.getItem(DB_HISTORY);
+                    if (h) history.value = JSON.parse(h);
+                });
+
+                watch(templates, () => localStorage.setItem(DB_TEMPLATES, JSON.stringify(templates.value)), { deep: true });
+                watch(history, () => localStorage.setItem(DB_HISTORY, JSON.stringify(history.value)), { deep: true });
+
+                // Computed
+                const progress = computed(() => {
+                    if (!activeChecklist.value) return 0;
+                    const total = activeChecklist.value.items.length;
+                    if (total === 0) return 0;
+                    const checked = activeChecklist.value.items.filter(i => i.checked).length;
+                    return Math.round((checked / total) * 100);
+                });
+
+                // Methods
+                const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR');
+                const formatDateTime = (d) => new Date(d).toLocaleString('pt-BR');
+
+                // Template Management
+                const openTemplateModal = (t = null) => {
+                    if (t) templateForm.value = JSON.parse(JSON.stringify(t));
+                    else templateForm.value = { id: null, name: '', items: [{ text: '' }, { text: '' }] };
+                    modals.value.template = true;
+                };
+
+                const addItemToTemplate = () => templateForm.value.items.push({ text: '' });
+                const removeItemFromTemplate = (i) => templateForm.value.items.splice(i, 1);
+
+                const saveTemplate = () => {
+                    if (!templateForm.value.name) return alert('Nome é obrigatório');
+                    const cleanItems = templateForm.value.items.filter(i => i.text.trim() !== '');
+                    if (cleanItems.length === 0) return alert('Adicione pelo menos um item');
+
+                    const data = {
+                        ...templateForm.value,
+                        items: cleanItems,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    if (templateForm.value.id) {
+                        const idx = templates.value.findIndex(t => t.id === templateForm.value.id);
+                        if (idx !== -1) templates.value[idx] = data;
+                    } else {
+                        data.id = Date.now();
+                        data.createdAt = new Date().toISOString();
+                        templates.value.push(data);
+                    }
+                    modals.value.template = false;
+                };
+
+                const deleteTemplate = (id) => {
+                    if (confirm('Excluir este modelo?')) templates.value = templates.value.filter(t => t.id !== id);
+                };
+
+                // Execution Logic
+                const startChecklist = (t) => {
+                    activeChecklist.value = {
+                        templateId: t.id,
+                        name: t.name,
+                        items: t.items.map(i => ({ text: i.text, checked: false })),
+                        startedAt: new Date().toISOString(),
+                        notes: ''
+                    };
+                };
+
+                const toggleItem = (idx) => {
+                    activeChecklist.value.items[idx].checked = !activeChecklist.value.items[idx].checked;
+                };
+
+                const cancelChecklist = () => {
+                    if (confirm('Cancelar checklist atual? O progresso será perdido.')) activeChecklist.value = null;
+                };
+
+                const finishChecklist = () => {
+                    if (!confirm('Finalizar checklist?')) return;
+
+                    const result = {
+                        id: Date.now(),
+                        templateName: activeChecklist.value.name,
+                        finishedAt: new Date().toISOString(),
+                        score: progress.value,
+                        totalItems: activeChecklist.value.items.length,
+                        checkedCount: activeChecklist.value.items.filter(i => i.checked).length,
+                        uncheckedCount: activeChecklist.value.items.filter(i => !i.checked).length,
+                        uncheckedItems: activeChecklist.value.items.filter(i => !i.checked).map(i => i.text),
+                        notes: activeChecklist.value.notes
+                    };
+
+                    history.value.push(result);
+                    activeChecklist.value = null;
+                    currentView.value = 'history';
+                };
+
+                const clearHistory = () => {
+                    if (confirm('Limpar todo o histórico?')) history.value = [];
+                };
+
+                const copyReport = (h) => {
+                    let text = `📋 *Checklist: ${h.templateName}*\n`;
+                    text += `📅 Data: ${formatDateTime(h.finishedAt)}\n`;
+                    text += `📊 Desempenho: ${h.score}%\n\n`;
+
+                    if (h.uncheckedCount === 0) {
+                        text += `✅ Tudo certo! Todos os ${h.totalItems} itens verificados.\n`;
+                    } else {
+                        text += `⚠️ *Pendências (${h.uncheckedCount}):*\n`;
+                        h.uncheckedItems.forEach(i => text += `[ ] ${i}\n`);
+                    }
+
+                    if (h.notes) text += `\n📝 Obs: ${h.notes}`;
+
+                    navigator.clipboard.writeText(text).then(() => alert('Relatório copiado!'));
+                };
+
+                // Backup
+                const backupData = () => {
+                    const data = { templates: templates.value, history: history.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'checklist_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const d = JSON.parse(ev.target.result);
+                        if (d.templates) templates.value = d.templates;
+                        if (d.history) history.value = d.history;
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, templates, history, activeChecklist, modals, templateForm,
+                    progress,
+                    formatDate, formatDateTime,
+                    openTemplateModal, addItemToTemplate, removeItemFromTemplate, saveTemplate, deleteTemplate,
+                    startChecklist, toggleItem, cancelChecklist, finishChecklist,
+                    clearHistory, copyReport,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

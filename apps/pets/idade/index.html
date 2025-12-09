@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idade Pet | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Balsamiq Sans', cursive;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50 text-indigo-900">
+
+    <div id="app" v-cloak
+        class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative border-x border-indigo-100">
+
+        <!-- HEADER -->
+        <header class="bg-indigo-500 text-white p-6 rounded-b-[3rem] shadow-lg relative z-10 text-center">
+            <div class="inline-block bg-white/20 p-4 rounded-full mb-3">
+                <i class="fa-solid fa-hourglass-half text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold">Idade Pet</h1>
+            <p class="text-indigo-200 text-sm">Quantos anos seu pet "realmente" tem?</p>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="flex-grow p-6 flex flex-col justify-center">
+
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-indigo-100 space-y-6">
+
+                <!-- NAME -->
+                <div>
+                    <label class="block font-bold text-indigo-400 mb-2">Nome do Pet</label>
+                    <input v-model="pet.name" type="text"
+                        class="w-full border-2 border-indigo-100 rounded-xl p-3 focus:border-indigo-500 outline-none text-lg font-bold"
+                        placeholder="Ex: Rex">
+                </div>
+
+                <!-- TYPE / SIZE -->
+                <div>
+                    <label class="block font-bold text-indigo-400 mb-2">Porte / Tipo</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button @click="pet.type = 'small'"
+                            :class="pet.type === 'small' ? 'bg-indigo-500 text-white shadow-lg scale-105' : 'bg-indigo-50 text-indigo-400 hover:bg-indigo-100'"
+                            class="p-3 rounded-xl font-bold transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-cat"></i> Pequeno/Gato
+                        </button>
+                        <button @click="pet.type = 'medium'"
+                            :class="pet.type === 'medium' ? 'bg-indigo-500 text-white shadow-lg scale-105' : 'bg-indigo-50 text-indigo-400 hover:bg-indigo-100'"
+                            class="p-3 rounded-xl font-bold transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-dog"></i> Médio
+                        </button>
+                        <button @click="pet.type = 'large'"
+                            :class="pet.type === 'large' ? 'bg-indigo-500 text-white shadow-lg scale-105' : 'bg-indigo-50 text-indigo-400 hover:bg-indigo-100'"
+                            class="p-3 rounded-xl font-bold transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-paw"></i> Grande
+                        </button>
+                        <button @click="pet.type = 'giant'"
+                            :class="pet.type === 'giant' ? 'bg-indigo-500 text-white shadow-lg scale-105' : 'bg-indigo-50 text-indigo-400 hover:bg-indigo-100'"
+                            class="p-3 rounded-xl font-bold transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-hippo"></i> Gigante
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AGE -->
+                <div>
+                    <label class="block font-bold text-indigo-400 mb-2">Idade Atual (Anos)</label>
+                    <div class="flex items-center gap-4">
+                        <input v-model.number="pet.age" type="range" min="1" max="25"
+                            class="flex-grow h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-3xl font-bold text-indigo-600 w-12 text-center">{{ pet.age }}</span>
+                    </div>
+                </div>
+
+                <!-- RESULT -->
+                <div
+                    class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg text-center transform scale-105 ring-4 ring-indigo-500/20 mt-4">
+                    <p class="text-indigo-200 text-xs uppercase font-bold mb-1">Idade Humana Estimada</p>
+                    <div class="text-6xl font-bold drop-shadow-md">{{ humanAge }}</div>
+                    <p class="text-lg font-bold text-indigo-100 mt-2">anos</p>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="p-6">
+            <button @click="shareResult"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg transition">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Compartilhar Descoberta
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const pet = ref({
+                    name: '',
+                    type: 'small', // small, medium, large, giant
+                    age: 2
+                });
+
+                const humanAge = computed(() => {
+                    const age = pet.value.age;
+                    const type = pet.value.type;
+
+                    if (age <= 0) return 0;
+
+                    // First 2 years are somewhat standard (approx 24 years)
+                    if (age === 1) return 15;
+                    if (age === 2) return 24;
+
+                    // After 2 years, rate changes by size
+                    const base = 24;
+                    const yearsAfter2 = age - 2;
+                    let rate = 4; // default
+
+                    if (type === 'small') rate = 4; // Small/Cat
+                    if (type === 'medium') rate = 5;
+                    if (type === 'large') rate = 6;
+                    if (type === 'giant') rate = 7;
+
+                    return base + (yearsAfter2 * rate);
+                });
+
+                const shareResult = () => {
+                    const name = pet.value.name ? pet.value.name : 'Meu pet';
+                    let text = `😱 *VOCÊ SABIA?*\n\n`;
+                    text += `O ${name} tem ${pet.value.age} anos, mas na idade humana ele já é um senhor de *${humanAge.value} ANOS*! 👴🐶\n\n`;
+                    text += `_Calcule a idade do seu pet aqui!_`;
+
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    pet, humanAge, shareResult
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

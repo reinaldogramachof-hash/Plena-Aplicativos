@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portaria Ágil | Plena Serviços</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .btn-large {
+            @apply py-4 text-lg font-bold rounded-xl shadow-lg transition active:scale-95;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative">
+
+        <!-- HEADER -->
+        <header class="bg-blue-900 text-white p-6 sticky top-0 z-50 shadow-md">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-building-user"></i> Portaria Ágil
+                    </h1>
+                    <p class="text-blue-200 text-sm">Turno de: <span class="font-bold text-white">{{ currentDoorman
+                            }}</span></p>
+                </div>
+                <button @click="toggleSettings" class="text-blue-200 hover:text-white p-2">
+                    <i class="fa-solid fa-gear text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow p-4 overflow-y-auto pb-24">
+
+            <!-- DASHBOARD TABS -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button @click="activeTab = 'ocorrencias'"
+                    :class="activeTab === 'ocorrencias' ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                    class="p-4 rounded-xl font-bold flex flex-col items-center gap-2 transition">
+                    <i class="fa-solid fa-book-open text-2xl"></i>
+                    Ocorrências
+                </button>
+                <button @click="activeTab = 'encomendas'"
+                    :class="activeTab === 'encomendas' ? 'bg-orange-600 text-white ring-2 ring-orange-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                    class="p-4 rounded-xl font-bold flex flex-col items-center gap-2 transition">
+                    <i class="fa-solid fa-box-open text-2xl"></i>
+                    Encomendas
+                </button>
+            </div>
+
+            <!-- TAB: OCORRÊNCIAS (LIVRO DIGITAL) -->
+            <div v-if="activeTab === 'ocorrencias'" class="animate-fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-700">Livro de Ocorrências</h2>
+                    <button @click="showAddModal('ocorrencia')"
+                        class="bg-green-600 text-white w-10 h-10 rounded-full shadow-lg hover:bg-green-700">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div v-if="occurrences.length === 0" class="text-center py-8 text-slate-400">
+                    <i class="fa-regular fa-clipboard fa-3x mb-2"></i>
+                    <p>Nenhuma ocorrência registrada hoje.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div v-for="item in sortedOccurrences" :key="item.id"
+                        class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded">
+                                {{ formatDate(item.date) }}
+                            </span>
+                            <span :class="getPriorityClass(item.type)"
+                                class="text-xs font-bold px-2 py-1 rounded uppercase">
+                                {{ item.type }}
+                            </span>
+                        </div>
+                        <p class="text-slate-800 font-medium mb-2">{{ item.description }}</p>
+                        <div class="flex justify-between text-xs text-slate-500 border-t pt-2">
+                            <span><i class="fa-solid fa-user"></i> {{ item.author }}</span>
+                            <button @click="deleteItem('occurrences', item.id)" class="text-red-400 hover:text-red-600">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ENCOMENDAS -->
+            <div v-if="activeTab === 'encomendas'" class="animate-fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-700">Controle de Pacotes</h2>
+                    <button @click="showAddModal('encomenda')"
+                        class="bg-green-600 text-white w-10 h-10 rounded-full shadow-lg hover:bg-green-700">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="bg-orange-50 border border-orange-100 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-orange-600">{{ pendingPackages }}</div>
+                        <div class="text-xs text-orange-600 font-bold uppercase">Pendentes</div>
+                    </div>
+                    <div class="bg-green-50 border border-green-100 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">{{ deliveredPackages }}</div>
+                        <div class="text-xs text-green-600 font-bold uppercase">Entregues</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div v-for="pkg in sortedPackages" :key="pkg.id"
+                        :class="pkg.delivered ? 'opacity-60 bg-slate-50' : 'bg-white border-l-4 border-orange-500'"
+                        class="border border-slate-200 p-4 rounded-lg shadow-sm transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">Apto {{ pkg.unit }}</h3>
+                                <p class="text-xs text-slate-500">{{ pkg.recipient }}</p>
+                            </div>
+                            <span v-if="!pkg.delivered"
+                                class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded">PENDENTE</span>
+                            <span v-else
+                                class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">ENTREGUE</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-3 bg-slate-50 p-2 rounded border border-slate-100">📦 {{
+                            pkg.description }}</p>
+
+                        <div class="flex gap-2">
+                            <button v-if="!pkg.delivered" @click="markDelivered(pkg)"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-bold text-sm shadow-sm transition">
+                                <i class="fa-solid fa-check"></i> Baixar
+                            </button>
+                            <a v-if="!pkg.delivered" :href="getWhatsAppLink(pkg)" target="_blank"
+                                class="bg-green-500 hover:bg-green-600 text-white w-10 flex items-center justify-center rounded-lg shadow-sm">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </a>
+                            <button @click="deleteItem('packages', pkg.id)"
+                                class="text-slate-400 hover:text-red-500 px-3">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        <div v-if="pkg.delivered" class="text-xs text-green-600 mt-2 text-center font-bold">
+                            Entregue em: {{ formatDate(pkg.deliveredAt) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- FOOTER NAV -->
+        <nav
+            class="absolute bottom-0 w-full bg-white border-t border-slate-200 p-2 flex justify-around items-center text-xs font-bold text-slate-400 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            <a href="../../../index.html" class="flex flex-col items-center p-2 hover:text-blue-600 transition">
+                <i class="fa-solid fa-store text-xl mb-1"></i>
+                Loja
+            </a>
+            <button @click="activeTab = 'ocorrencias'" :class="activeTab === 'ocorrencias' ? 'text-blue-600' : ''"
+                class="flex flex-col items-center p-2 transition">
+                <i class="fa-solid fa-book text-xl mb-1"></i>
+                Livro
+            </button>
+            <button @click="activeTab = 'encomendas'" :class="activeTab === 'encomendas' ? 'text-orange-600' : ''"
+                class="flex flex-col items-center p-2 transition">
+                <i class="fa-solid fa-box text-xl mb-1"></i>
+                Pacotes
+            </button>
+        </nav>
+
+        <!-- ADD MODAL -->
+        <div v-if="showModal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+            <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 relative z-10 animate-slide-up">
+                <h3 class="text-xl font-bold mb-6 text-slate-800">
+                    {{ modalType === 'ocorrencia' ? 'Registrar Ocorrência' : 'Registrar Encomenda' }}
+                </h3>
+
+                <!-- FORM: OCORRÊNCIA -->
+                <div v-if="modalType === 'ocorrencia'" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Tipo</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button @click="newForm.type = 'Aviso'"
+                                :class="newForm.type === 'Aviso' ? 'bg-blue-100 ring-2 ring-blue-500 text-blue-700' : 'bg-slate-100'"
+                                class="p-2 rounded font-bold text-sm">Aviso</button>
+                            <button @click="newForm.type = 'Reclamação'"
+                                :class="newForm.type === 'Reclamação' ? 'bg-orange-100 ring-2 ring-orange-500 text-orange-700' : 'bg-slate-100'"
+                                class="p-2 rounded font-bold text-sm">Reclamação</button>
+                            <button @click="newForm.type = 'Urgente'"
+                                :class="newForm.type === 'Urgente' ? 'bg-red-100 ring-2 ring-red-500 text-red-700' : 'bg-slate-100'"
+                                class="p-2 rounded font-bold text-sm">Urgente</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Descrição</label>
+                        <textarea v-model="newForm.description" rows="3" class="w-full border rounded-lg p-3 text-lg"
+                            placeholder="Descreva o que aconteceu..."></textarea>
+                    </div>
+                </div>
+
+                <!-- FORM: ENCOMENDA -->
+                <div v-if="modalType === 'encomenda'" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-600 mb-1">Apto / Bloco</label>
+                            <input v-model="newForm.unit" type="text"
+                                class="w-full border rounded-lg p-3 text-lg font-bold" placeholder="Ex: 102">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-600 mb-1">Destinatário</label>
+                            <input v-model="newForm.recipient" type="text" class="w-full border rounded-lg p-3 text-lg"
+                                placeholder="Nome">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">O que chegou?</label>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <button @click="newForm.description = 'Caixa Correios'"
+                                class="bg-yellow-100 text-yellow-800 text-xs font-bold py-1 px-2 rounded hover:bg-yellow-200">Correios</button>
+                            <button @click="newForm.description = 'Mercado Livre'"
+                                class="bg-yellow-100 text-yellow-800 text-xs font-bold py-1 px-2 rounded hover:bg-yellow-200">Merc.
+                                Livre</button>
+                            <button @click="newForm.description = 'Ifood / Comida'"
+                                class="bg-red-100 text-red-800 text-xs font-bold py-1 px-2 rounded hover:bg-red-200">Delivery</button>
+                        </div>
+                        <input v-model="newForm.description" type="text" class="w-full border rounded-lg p-3"
+                            placeholder="Outro...">
+                    </div>
+                </div>
+
+                <button @click="saveItem" class="w-full mt-6 bg-blue-600 text-white btn-large">
+                    Salvar Registro
+                </button>
+                <button @click="closeModal" class="w-full mt-2 text-slate-400 font-bold py-3">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- SETTINGS MODAL -->
+        <div v-if="showSettings" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showSettings = false">
+            </div>
+            <div class="bg-white w-full max-w-sm rounded-2xl p-6 relative z-10">
+                <h3 class="text-xl font-bold mb-4">Configurações</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">Nome do Porteiro (Turno Atual)</label>
+                    <input v-model="currentDoorman" @change="saveSettings" type="text"
+                        class="w-full border rounded-lg p-3">
+                </div>
+                <button @click="clearAllData"
+                    class="w-full bg-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-200">
+                    <i class="fa-solid fa-trash"></i> Limpar Todos os Dados
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const activeTab = ref('ocorrencias'); // ocorrencias | encomendas
+                const showModal = ref(false);
+                const showSettings = ref(false);
+                const modalType = ref(''); // ocorrencia | encomenda
+                const currentDoorman = ref('José Silva');
+
+                // DATA
+                const occurrences = ref([]);
+                const packages = ref([]);
+
+                const newForm = ref({
+                    type: 'Aviso',
+                    description: '',
+                    unit: '',
+                    recipient: ''
+                });
+
+                // --- PERSISTENCE ---
+                const saveData = () => {
+                    localStorage.setItem('portaria_agil_ocorrencias', JSON.stringify(occurrences.value));
+                    localStorage.setItem('portaria_agil_encomendas', JSON.stringify(packages.value));
+                    localStorage.setItem('portaria_agil_settings', JSON.stringify({ doorman: currentDoorman.value }));
+                };
+
+                const loadData = () => {
+                    const savedOcc = localStorage.getItem('portaria_agil_ocorrencias');
+                    if (savedOcc) occurrences.value = JSON.parse(savedOcc);
+
+                    const savedPkg = localStorage.getItem('portaria_agil_encomendas');
+                    if (savedPkg) packages.value = JSON.parse(savedPkg);
+
+                    const savedSettings = localStorage.getItem('portaria_agil_settings');
+                    if (savedSettings) currentDoorman.value = JSON.parse(savedSettings).doorman;
+                };
+
+                onMounted(() => {
+                    loadData();
+                });
+
+                watch([occurrences, packages], saveData, { deep: true });
+
+                // --- COMPUTED ---
+                const sortedOccurrences = computed(() => {
+                    return [...occurrences.value].sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
+
+                const sortedPackages = computed(() => {
+                    return [...packages.value].sort((a, b) => {
+                        if (a.delivered === b.delivered) {
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        }
+                        return a.delivered ? 1 : -1;
+                    });
+                });
+
+                const pendingPackages = computed(() => packages.value.filter(p => !p.delivered).length);
+                const deliveredPackages = computed(() => packages.value.filter(p => p.delivered).length);
+
+                // --- ACTIONS ---
+                const showAddModal = (type) => {
+                    modalType.value = type;
+                    // Reset Form
+                    newForm.value = { type: 'Aviso', description: '', unit: '', recipient: '' };
+                    showModal.value = true;
+                };
+
+                const closeModal = () => {
+                    showModal.value = false;
+                };
+
+                const toggleSettings = () => {
+                    showSettings.value = !showSettings.value;
+                };
+
+                const saveSettings = () => {
+                    saveData();
+                };
+
+                const saveItem = () => {
+                    if (modalType.value === 'ocorrencia') {
+                        if (!newForm.value.description) return alert('Descreva a ocorrência!');
+                        occurrences.value.push({
+                            id: Date.now(),
+                            type: newForm.value.type,
+                            description: newForm.value.description,
+                            author: currentDoorman.value,
+                            date: new Date().toISOString()
+                        });
+                    } else {
+                        if (!newForm.value.unit || !newForm.value.description) return alert('Preencha os dados!');
+                        packages.value.push({
+                            id: Date.now(),
+                            unit: newForm.value.unit,
+                            recipient: newForm.value.recipient || 'Morador',
+                            description: newForm.value.description,
+                            delivered: false,
+                            receivedBy: currentDoorman.value,
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                    closeModal();
+                };
+
+                const markDelivered = (pkg) => {
+                    if (confirm(`Confirmar entrega para Apto ${pkg.unit}?`)) {
+                        pkg.delivered = true;
+                        pkg.deliveredAt = new Date().toISOString();
+                    }
+                };
+
+                const deleteItem = (listName, id) => {
+                    if (confirm('Tem certeza?')) {
+                        if (listName === 'occurrences') {
+                            occurrences.value = occurrences.value.filter(i => i.id !== id);
+                        } else {
+                            packages.value = packages.value.filter(i => i.id !== id);
+                        }
+                    }
+                };
+
+                const clearAllData = () => {
+                    if (confirm('ATENÇÃO: Isso apagará TODO o histórico. Confirmar?')) {
+                        occurrences.value = [];
+                        packages.value = [];
+                        showSettings.value = false;
+                    }
+                };
+
+                // --- UTILS ---
+                const formatDate = (isoStr) => {
+                    if (!isoStr) return '';
+                    const d = new Date(isoStr);
+                    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                };
+
+                const getPriorityClass = (type) => {
+                    if (type === 'Urgente') return 'bg-red-100 text-red-700';
+                    if (type === 'Reclamação') return 'bg-orange-100 text-orange-700';
+                    return 'bg-blue-100 text-blue-700';
+                };
+
+                const getWhatsAppLink = (pkg) => {
+                    const text = `Olá! Chegou uma encomenda para o Apto ${pkg.unit} (${pkg.description}). Pode retirar na portaria.`;
+                    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+                };
+
+                return {
+                    activeTab, showModal, showSettings, modalType, currentDoorman, newForm,
+                    occurrences, packages, sortedOccurrences, sortedPackages, pendingPackages, deliveredPackages,
+                    showAddModal, closeModal, toggleSettings, saveSettings, saveItem, markDelivered, deleteItem, clearAllData,
+                    formatDate, getPriorityClass, getWhatsAppLink
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

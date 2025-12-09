@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copa Fácil | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        h1,
+        h2,
+        .font-teko {
+            font-family: 'Teko', sans-serif;
+            text-transform: uppercase;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        /* Bracket Connectors */
+        .bracket-node {
+            position: relative;
+        }
+
+        .bracket-line-r {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #475569;
+        }
+
+        .bracket-connector {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            width: 2px;
+            height: 100%;
+            background: #475569;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <div id="app" v-cloak class="flex-grow flex flex-col">
+
+        <!-- HEADER -->
+        <header class="p-6 text-center border-b border-slate-800 bg-slate-900 shadow-xl z-20">
+            <h1 class="text-4xl font-bold text-yellow-400 tracking-wider">
+                <i class="fa-solid fa-trophy mr-2"></i>Copa Fácil
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Gerador de Torneio Mata-Mata</p>
+        </header>
+
+        <!-- SETUP MODE -->
+        <div v-if="mode === 'setup'" class="flex-grow flex items-center justify-center p-6">
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+                <h2 class="text-3xl text-white mb-6 text-center font-teko">Inscrição dos Times</h2>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex gap-2">
+                        <input v-model="newTeam" @keyup.enter="addTeam" type="text" placeholder="Nome do Time..."
+                            class="flex-grow bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white outline-none focus:border-yellow-400">
+                        <button @click="addTeam" class="bg-blue-600 hover:bg-blue-500 text-white px-4 rounded-lg">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <div class="max-h-60 overflow-y-auto space-y-2 pr-2">
+                        <div v-for="(team, idx) in teams" :key="idx"
+                            class="bg-slate-700/50 p-3 rounded flex justify-between items-center animate-fade-in">
+                            <span class="font-bold">{{ idx + 1 }}. {{ team }}</span>
+                            <button @click="removeTeam(idx)" class="text-red-400 hover:text-red-300"><i
+                                    class="fa-solid fa-times"></i></button>
+                        </div>
+                        <div v-if="teams.length === 0" class="text-center text-slate-500 py-4 text-sm">
+                            Nenhum time inscrito ainda.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-xs text-slate-400 mb-4">
+                    Times inscritos: <span class="text-white font-bold">{{ teams.length }}</span> (Ideal: 4, 8 ou 16)
+                </div>
+
+                <button @click="startTournament" :disabled="teams.length < 2"
+                    class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-teko text-2xl py-3 rounded-lg font-bold shadow-lg shadow-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    GERAR CHAVES
+                </button>
+            </div>
+        </div>
+
+        <!-- BRACKET MODE (Simples: 8 Teams Fixed Logic for Demo) -->
+        <div v-else class="flex-grow overflow-x-auto p-8 flex items-center min-w-[1000px]">
+
+            <div class="flex gap-16 mx-auto">
+                <!-- QUARTAS (8 slots) -->
+                <div class="flex flex-col justify-around gap-8">
+                    <div v-for="(match, mIdx) in rounds.qf" :key="'qf-'+mIdx"
+                        class="bg-slate-800 w-48 rounded border border-slate-600 bracket-node relative">
+                        <div class="p-2 border-b border-slate-700 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('qf', mIdx, 0)">
+                            <span :class="{'text-yellow-400 font-bold': match.winner === 0}">{{ match.teams[0] }}</span>
+                            <span v-if="match.winner === 0" class="text-yellow-400"><i
+                                    class="fa-solid fa-check"></i></span>
+                        </div>
+                        <div class="p-2 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('qf', mIdx, 1)">
+                            <span :class="{'text-yellow-400 font-bold': match.winner === 1}">{{ match.teams[1] }}</span>
+                            <span v-if="match.winner === 1" class="text-yellow-400"><i
+                                    class="fa-solid fa-check"></i></span>
+                        </div>
+                        <!-- Connector to Semi -->
+                        <div class="absolute -right-8 top-1/2 w-8 h-[1px] bg-slate-500"></div>
+                    </div>
+                </div>
+
+                <!-- SEMIS (4 slots) -->
+                <div class="flex flex-col justify-around gap-16 py-8">
+                    <div v-for="(match, mIdx) in rounds.sf" :key="'sf-'+mIdx"
+                        class="bg-slate-800 w-48 rounded border border-slate-600 bracket-node relative">
+                        <div class="p-2 border-b border-slate-700 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('sf', mIdx, 0)">
+                            <span :class="{'text-yellow-400 font-bold': match.winner === 0}">{{ match.teams[0] || '?'
+                                }}</span>
+                        </div>
+                        <div class="p-2 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('sf', mIdx, 1)">
+                            <span :class="{'text-yellow-400 font-bold': match.winner === 1}">{{ match.teams[1] || '?'
+                                }}</span>
+                        </div>
+                        <!-- Connector to Final -->
+                        <div class="absolute -right-8 top-1/2 w-8 h-[1px] bg-slate-500"></div>
+                    </div>
+                </div>
+
+                <!-- FINAL (2 slots) -->
+                <div class="flex flex-col justify-center">
+                    <div class="bg-slate-800 w-56 rounded-xl border-2 border-yellow-500/50 shadow-2xl relative">
+                        <div class="absolute -top-4 left-0 w-full text-center"><span
+                                class="bg-yellow-500 text-slate-900 text-[10px] font-bold px-2 rounded">FINAL</span>
+                        </div>
+                        <div class="p-3 border-b border-slate-700 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('final', 0, 0)">
+                            <span class="font-teko text-xl"
+                                :class="{'text-yellow-400': rounds.final[0].winner === 0}">{{ rounds.final[0].teams[0]
+                                || '?' }}</span>
+                            <i v-if="rounds.final[0].winner === 0" class="fa-solid fa-trophy text-yellow-500"></i>
+                        </div>
+                        <div class="p-3 flex justify-between cursor-pointer hover:bg-slate-700"
+                            @click="setWinner('final', 0, 1)">
+                            <span class="font-teko text-xl"
+                                :class="{'text-yellow-400': rounds.final[0].winner === 1}">{{ rounds.final[0].teams[1]
+                                || '?' }}</span>
+                            <i v-if="rounds.final[0].winner === 1" class="fa-solid fa-trophy text-yellow-500"></i>
+                        </div>
+                    </div>
+
+                    <!-- CHAMPION DISPLAY -->
+                    <div v-if="champion" class="mt-8 text-center animate-bounce">
+                        <div class="text-sm text-yellow-200 uppercase tracking-widest mb-2">Grande Campeão</div>
+                        <div class="text-5xl font-teko text-yellow-400 drop-shadow-lg">{{ champion }}</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const mode = ref('setup');
+                const newTeam = ref('');
+                // Default teams for demo ease
+                const teams = ref(['Águias FC', 'Trovão Azul', 'Real Matismo', 'Os Pernetas', 'Fúria Negra', 'Vila Nova', 'Unidos da Pinga', 'Boleiros']);
+
+                const rounds = ref({
+                    qf: [],
+                    sf: [{ teams: [null, null], winner: null }, { teams: [null, null], winner: null }],
+                    final: [{ teams: [null, null], winner: null }]
+                });
+
+                const champion = ref(null);
+
+                const addTeam = () => {
+                    if (newTeam.value.trim()) {
+                        teams.value.push(newTeam.value.trim());
+                        newTeam.value = '';
+                    }
+                };
+
+                const removeTeam = (idx) => teams.value.splice(idx, 1);
+
+                const shuffle = (array) => {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                };
+
+                const startTournament = () => {
+                    // Logic fixed for 8 teams for this demo version
+                    // In a full app, we would handle byes or varied sizes
+                    let t = [...teams.value];
+
+                    // Pad with "Bye" if less than 8
+                    while (t.length < 8) t.push('BYE');
+                    if (t.length > 8) t = t.slice(0, 8); // Trim
+
+                    t = shuffle(t);
+
+                    // Create Quarter Finals
+                    rounds.value.qf = [
+                        { teams: [t[0], t[1]], winner: null },
+                        { teams: [t[2], t[3]], winner: null },
+                        { teams: [t[4], t[5]], winner: null },
+                        { teams: [t[6], t[7]], winner: null }
+                    ];
+
+                    mode.value = 'bracket';
+                };
+
+                const setWinner = (round, matchIdx, teamIdx) => {
+                    // Safety checks
+                    if (round === 'qf') {
+                        const match = rounds.value.qf[matchIdx];
+                        const winnerName = match.teams[teamIdx];
+                        match.winner = teamIdx;
+
+                        // Advance to SF
+                        const sfMatchIdx = Math.floor(matchIdx / 2);
+                        const sfTeamPos = matchIdx % 2;
+                        rounds.value.sf[sfMatchIdx].teams[sfTeamPos] = winnerName;
+                    }
+                    else if (round === 'sf') {
+                        const match = rounds.value.sf[matchIdx];
+                        if (!match.teams[0] || !match.teams[1]) return; // Not ready
+
+                        const winnerName = match.teams[teamIdx];
+                        match.winner = teamIdx;
+
+                        // Advance to Final
+                        rounds.value.final[0].teams[matchIdx] = winnerName;
+                    }
+                    else if (round === 'final') {
+                        const match = rounds.value.final[0];
+                        if (!match.teams[0] || !match.teams[1]) return;
+
+                        match.winner = teamIdx;
+                        champion.value = match.teams[teamIdx];
+
+                        // Fireworks logic here would be cool
+                    }
+                };
+
+                return {
+                    mode, newTeam, teams, rounds, champion,
+                    addTeam, removeTeam, startTournament, setWinner
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

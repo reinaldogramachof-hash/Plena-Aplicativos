@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Comanda Digital | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            900: '#881337',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-utensils text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Comanda Dig.</h1>
+            </div>
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'tables'"
+                    :class="currentView === 'tables' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="nav-item">
+                    <i class="fa-solid fa-chair w-5 text-center"></i> <span>Mesas</span>
+                </a>
+                <a @click="currentView = 'menu'"
+                    :class="currentView === 'menu' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="nav-item">
+                    <i class="fa-solid fa-book-open w-5 text-center"></i> <span>Cardápio</span>
+                </a>
+                <a @click="currentView = 'history'"
+                    :class="currentView === 'history' ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="nav-item">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i> <span>Histórico</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-utensils text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Comanda Digital</span>
+                </div>
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-lg"><i
+                        class="fa-solid fa-bars text-lg"></i></button>
+            </header>
+
+            <transition name="fade">
+                <div v-if="mobileMenuOpen"
+                    class="absolute top-16 inset-x-0 bg-white shadow-xl z-30 p-4 md:hidden flex flex-col gap-2 border-b border-slate-200">
+                    <a @click="currentView = 'tables'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-chair text-brand-600"></i> Mesas</a>
+                    <a @click="currentView = 'menu'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-book-open text-brand-600"></i> Cardápio</a>
+                    <a @click="currentView = 'history'; mobileMenuOpen = false"
+                        class="p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 font-medium text-slate-700"><i
+                            class="fa-solid fa-clock-rotate-left text-brand-600"></i> Histórico</a>
+                </div>
+            </transition>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+                <!-- VIEW: TABLES -->
+                <div v-if="currentView === 'tables'" class="max-w-6xl mx-auto animate-fade-in pb-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Mesas</h2>
+                        <button @click="addTable"
+                            class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold"><i
+                                class="fa-solid fa-plus"></i> Mesa</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div v-for="table in tables" :key="table.id" @click="openTable(table)"
+                            :class="table.status === 'open' ? 'bg-white border-slate-200 hover:border-brand-300' : 'bg-brand-50 border-brand-200 ring-2 ring-brand-100'"
+                            class="p-4 rounded-2xl border aspect-square flex flex-col items-center justify-center cursor-pointer transition relative group shadow-sm hover:shadow-md">
+                            <div class="text-3xl font-bold mb-1"
+                                :class="table.status === 'open' ? 'text-slate-700' : 'text-brand-600'">{{ table.number
+                                }}</div>
+                            <div class="text-xs uppercase font-bold"
+                                :class="table.status === 'open' ? 'text-slate-400' : 'text-brand-500'">
+                                {{ table.status === 'open' ? 'Livre' : 'Ocupada' }}
+                            </div>
+                            <div v-if="table.status === 'occupied'"
+                                class="mt-2 font-mono text-sm font-bold text-slate-800">
+                                R$ {{ formatMoney(getTableTotal(table)) }}
+                            </div>
+                            <button v-if="table.status === 'open'" @click.stop="deleteTable(table.id)"
+                                class="absolute top-2 right-2 text-slate-300 hover:text-red-400 md:opacity-0 group-hover:opacity-100 transition"><i
+                                    class="fa-solid fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: MENU (Simple Catalog) -->
+                <div v-if="currentView === 'menu'" class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Cardápio</h2>
+                        <button @click="openItemModal()"
+                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold"><i
+                                class="fa-solid fa-plus"></i> Item</button>
+                    </div>
+                    <div class="space-y-2">
+                        <div v-for="item in menu" :key="item.id"
+                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ item.name }}</div>
+                                <div class="text-xs text-slate-500">{{ item.category }}</div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="font-bold text-brand-600">R$ {{ formatMoney(item.price) }}</span>
+                                <button @click="deleteItem(item.id)" class="text-slate-300 hover:text-red-500"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div v-if="menu.length === 0" class="text-center py-8 text-slate-400">Cardápio vazio.</div>
+                    </div>
+                </div>
+
+                <!-- VIEW: HISTORY -->
+                <div v-if="currentView === 'history'" class="max-w-4xl mx-auto animate-fade-in">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Histórico de Vendas</h2>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div v-for="(h, i) in history" :key="i"
+                            class="p-4 border-b border-slate-50 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-slate-800">Mesa {{ h.tableNumber }}</div>
+                                <div class="text-xs text-slate-500">{{ formatDate(h.date) }}</div>
+                            </div>
+                            <div class="font-bold text-green-600">R$ {{ formatMoney(h.total) }}</div>
+                        </div>
+                        <div v-if="history.length === 0" class="text-center py-8 text-slate-400">Nenhum histórico.</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- TABLE MODAL (ORDER PAD) -->
+        <transition name="fade">
+            <div v-if="activeTable"
+                class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex flex-col md:flex-row md:justify-end animate-fade-in">
+                <!-- Mobile Close Area -->
+                <div class="flex-1 md:hidden" @click="closeTable"></div>
+
+                <div
+                    class="bg-slate-50 w-full md:w-[500px] h-[90vh] md:h-full mt-auto md:mt-0 rounded-t-2xl md:rounded-l-2xl shadow-2xl flex flex-col overflow-hidden">
+                    <!-- Header -->
+                    <div class="p-6 bg-white border-b border-slate-200 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Mesa {{ activeTable.number }}</h2>
+                            <span class="text-xs font-bold uppercase"
+                                :class="activeTable.status === 'open' ? 'text-green-500' : 'text-brand-500'">{{
+                                activeTable.status === 'open' ? 'Aberta' : 'Ocupada' }}</span>
+                        </div>
+                        <button @click="closeTable"
+                            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500"><i
+                                class="fa-solid fa-times"></i></button>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                        <div v-if="activeTable.items.length === 0" class="text-center py-12 text-slate-400">
+                            <i class="fa-solid fa-basket-shopping text-4xl mb-2 opacity-50"></i>
+                            <p>Mesa sem pedidos.</p>
+                        </div>
+                        <div v-else v-for="(item, idx) in activeTable.items" :key="idx"
+                            class="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ item.name }}</div>
+                                <div class="text-xs text-slate-500">R$ {{ formatMoney(item.price) }}</div>
+                            </div>
+                            <button @click="removeItemFromTable(idx)" class="text-red-400 hover:text-red-600 p-2"><i
+                                    class="fa-solid fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Add Items Section -->
+                    <div class="bg-white p-4 border-t border-slate-200">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-2">Adicionar Item</div>
+                        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                            <button v-for="m in menu" :key="m.id" @click="addItemToTable(m)"
+                                class="bg-slate-50 hover:bg-slate-100 border border-slate-200 px-4 py-2 rounded-lg whitespace-nowrap transition">
+                                <span class="font-bold text-slate-700">{{ m.name }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="p-6 bg-white border-t border-slate-200 space-y-4">
+                        <div class="flex justify-between items-end">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="serviceTip" v-model="includeTip"
+                                    class="w-4 h-4 accent-brand-600">
+                                <label for="serviceTip" class="text-sm font-bold text-slate-600 cursor-pointer">+ 10%
+                                    Serviço</label>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-400 uppercase">Total</div>
+                                <div class="text-3xl font-bold text-slate-800">R$ {{ formatMoney(currentTotal) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button v-if="activeTable.status === 'occupied'" @click="checkoutTable"
+                                class="col-span-2 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-green-500/30 transition">
+                                <i class="fa-solid fa-check mr-2"></i> Fechar Conta
+                            </button>
+                            <button v-if="activeTable.status === 'open' && activeTable.items.length > 0"
+                                @click="occupyTable"
+                                class="col-span-2 bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-500/30 transition">
+                                <i class="fa-solid fa-play mr-2"></i> Abrir Mesa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- New Item Modal -->
+        <div v-if="itemModal.show" class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl p-6 w-full max-w-sm space-y-4">
+                <h3 class="font-bold text-lg">Novo Item</h3>
+                <input v-model="itemModal.data.name" placeholder="Nome" class="w-full p-2 border rounded">
+                <input v-model="itemModal.data.price" type="number" step="0.01" placeholder="Preço"
+                    class="w-full p-2 border rounded">
+                <div class="flex gap-2">
+                    <button @click="itemModal.show = false" class="flex-1 p-2 bg-slate-100 rounded">Cancelar</button>
+                    <button @click="saveItem"
+                        class="flex-1 p-2 bg-brand-600 text-white rounded font-bold">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all;
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_comanda_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('tables'); // tables, menu, history
+                const mobileMenuOpen = ref(false);
+
+                // Data
+                const tables = ref([]);
+                const menu = ref([]);
+                const history = ref([]);
+
+                // Transient
+                const activeTable = ref(null);
+                const includeTip = ref(false);
+                const itemModal = ref({ show: false, data: {} });
+
+                // Persistence
+                const load = () => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        tables.value = parsed.tables || [];
+                        menu.value = parsed.menu || [];
+                        history.value = parsed.history || [];
+                    } else {
+                        // Init Defaults
+                        for (let i = 1; i <= 10; i++) tables.value.push({ id: i, number: i, status: 'open', items: [] });
+                        menu.value = [
+                            { id: 1, name: 'Cerveja 600ml', price: 12.00, category: 'Bebidas' },
+                            { id: 2, name: 'Porção Fritas', price: 25.00, category: 'Petiscos' },
+                            { id: 3, name: 'Refrigerante Lata', price: 6.00, category: 'Bebidas' }
+                        ];
+                    }
+                };
+                const save = () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify({ tables: tables.value, menu: menu.value, history: history.value }));
+                };
+                watch([tables, menu, history], save, { deep: true });
+                onMounted(load);
+
+                // Computed
+                const currentTotal = computed(() => {
+                    if (!activeTable.value) return 0;
+                    const subtotal = activeTable.value.items.reduce((acc, i) => acc + Number(i.price), 0);
+                    return includeTip.value ? subtotal * 1.1 : subtotal;
+                });
+
+                // Methods
+                const formatMoney = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                const formatDate = (ts) => new Date(ts).toLocaleString('pt-BR');
+
+                const getTableTotal = (t) => t.items.reduce((acc, i) => acc + Number(i.price), 0);
+
+                const openTable = (t) => {
+                    activeTable.value = t;
+                    includeTip.value = false;
+                };
+                const closeTable = () => activeTable.value = null;
+
+                const addItemToTable = (item) => {
+                    activeTable.value.items.push({ ...item }); // Copy item
+                    if (activeTable.value.status === 'open') activeTable.value.status = 'occupied';
+                };
+
+                const removeItemFromTable = (idx) => {
+                    activeTable.value.items.splice(idx, 1);
+                    if (activeTable.value.items.length === 0) activeTable.value.status = 'open';
+                };
+
+                const occupyTable = () => activeTable.value.status = 'occupied';
+
+                const checkoutTable = () => {
+                    if (confirm(`Fechar conta da Mesa ${activeTable.value.number}? Total: R$ ${formatMoney(currentTotal.value)}`)) {
+                        history.value.unshift({
+                            tableNumber: activeTable.value.number,
+                            total: currentTotal.value,
+                            items: [...activeTable.value.items],
+                            date: Date.now()
+                        });
+                        // Reset Table
+                        activeTable.value.items = [];
+                        activeTable.value.status = 'open';
+                        closeTable();
+                        currentView.value = 'history';
+                    }
+                };
+
+                const addTable = () => {
+                    const next = tables.value.length + 1;
+                    tables.value.push({ id: next, number: next, status: 'open', items: [] });
+                };
+                const deleteTable = (id) => tables.value = tables.value.filter(t => t.id !== id);
+
+                // Menu
+                const openItemModal = () => {
+                    itemModal.value.data = { name: '', price: '' };
+                    itemModal.value.show = true;
+                };
+                const saveItem = () => {
+                    if (itemModal.value.data.name && itemModal.value.data.price) {
+                        menu.value.push({ id: Date.now(), ...itemModal.value.data, category: 'Geral' });
+                        itemModal.value.show = false;
+                    }
+                };
+                const deleteItem = (id) => {
+                    if (confirm('Excluir item?')) menu.value = menu.value.filter(i => i.id !== id);
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([localStorage.getItem(DB_KEY)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'comanda_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        localStorage.setItem(DB_KEY, ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, mobileMenuOpen, tables, menu, history, activeTable, includeTip, itemModal,
+                    formatMoney, formatDate, getTableTotal, currentTotal,
+                    openTable, closeTable, addItemToTable, removeItemFromTable, occupyTable, checkoutTable,
+                    addTable, deleteTable, openItemModal, saveItem, deleteItem,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

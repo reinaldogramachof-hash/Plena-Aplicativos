@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador Lorem Ipsum | Plena Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .serif {
+            font-family: 'Merriweather', serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col md:flex-row bg-[#f3f4f6]">
+
+    <div id="app"
+        class="flex-1 w-full max-w-5xl mx-auto md:my-12 md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row bg-white">
+
+        <!-- Controls Sidebar -->
+        <aside class="w-full md:w-80 bg-slate-50 border-r border-slate-200 p-8 flex flex-col gap-6 z-10">
+            <div>
+                <h1 class="font-bold text-2xl text-slate-800 mb-1">Lorem Ipsum</h1>
+                <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Gerador de Texto Simulado</p>
+            </div>
+
+            <div class="space-y-5 flex-1">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Quantidade</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" v-model="count" min="1" max="50"
+                            class="w-20 p-2 border border-slate-300 rounded-lg text-center font-bold text-slate-700 outline-none focus:border-blue-500">
+                        <div class="flex gap-2 rounded-lg bg-slate-200 p-1">
+                            <button @click="type = 'paragraphs'"
+                                class="px-3 py-1.5 rounded-md text-xs font-bold transition"
+                                :class="type === 'paragraphs' ? 'bg-white shadow text-blue-600' : 'text-slate-500'">Parágrafos</button>
+                            <button @click="type = 'words'" class="px-3 py-1.5 rounded-md text-xs font-bold transition"
+                                :class="type === 'words' ? 'bg-white shadow text-blue-600' : 'text-slate-500'">Palavras</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition"
+                            :class="startWithLorem ? 'bg-blue-500 border-blue-500 text-white' : 'group-hover:border-blue-400'">
+                            <i v-if="startWithLorem" class="fa-solid fa-check text-xs"></i>
+                        </div>
+                        <input type="checkbox" v-model="startWithLorem" class="hidden">
+                        <span class="text-sm font-medium text-slate-600">Começar com "Lorem ipsum..."</span>
+                    </label>
+                </div>
+                <div>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition"
+                            :class="useHtml ? 'bg-blue-500 border-blue-500 text-white' : 'group-hover:border-blue-400'">
+                            <i v-if="useHtml" class="fa-solid fa-check text-xs"></i>
+                        </div>
+                        <input type="checkbox" v-model="useHtml" class="hidden">
+                        <span class="text-sm font-medium text-slate-600">Tags HTML (&lt;p&gt;)</span>
+                    </label>
+                </div>
+
+                <div class="pt-4 border-t border-slate-200">
+                    <button @click="generate"
+                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition transform active:scale-95">
+                        Gerar Texto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="text-xs text-slate-400 text-center">
+                {{ outputStats }}
+            </div>
+        </aside>
+
+        <!-- Output Area -->
+        <main class="flex-1 flex flex-col relative bg-white">
+            <div class="absolute top-4 right-4 z-20">
+                <button @click="copyText"
+                    class="bg-white/90 backdrop-blur border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 px-4 py-2 rounded-full shadow-sm text-sm font-bold transition flex items-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Copiar
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 md:p-12">
+                <div v-if="output" class="prose prose-slate max-w-none text-slate-600 leading-relaxed serif text-lg">
+                    <template v-if="useHtml">
+                        <pre
+                            class="whitespace-pre-wrap font-mono text-sm bg-slate-50 p-4 rounded-lg border border-slate-100 text-slate-700">{{ output }}</pre>
+                    </template>
+                    <template v-else>
+                        <p v-for="(para, i) in outputArray" :key="i" class="mb-6 last:mb-0">{{ para }}</p>
+                    </template>
+                </div>
+                <div v-else class="h-full flex flex-col items-center justify-center opacity-30 select-none">
+                    <i class="fa-solid fa-align-left text-6xl mb-4"></i>
+                    <p class="font-bold">Gere seu texto simulado</p>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const count = ref(5);
+                const type = ref('paragraphs');
+                const startWithLorem = ref(true);
+                const useHtml = ref(false);
+                const output = ref('');
+
+                // Classic Lorem Ipsum Dictionary
+                const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint", "occaecat", "cupidatat", "non", "proident", "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollit", "anim", "id", "est", "laborum"];
+
+                const generate = () => {
+                    let result = [];
+
+                    if (type.value === 'paragraphs') {
+                        for (let i = 0; i < count.value; i++) {
+                            // Generate random length paragraph (20-60 words)
+                            const len = Math.floor(Math.random() * 40) + 20;
+                            let para = generateSentence(len);
+
+                            // Adjust start
+                            if (i === 0 && startWithLorem.value) {
+                                // Remove first few words to ensure clean 'Lorem ipsum...'
+                                // Actually, easiest is to force overwrite the start
+                                if (!para.toLowerCase().startsWith("lorem ipsum")) {
+                                    para = "Lorem ipsum dolor sit amet, " + para.toLowerCase();
+                                }
+                            }
+                            result.push(para);
+                        }
+                    } else {
+                        // Just words
+                        let text = generateSentence(count.value).toLowerCase(); // basic sentence generator returns capitalized
+                        if (startWithLorem.value) {
+                            text = "Lorem ipsum " + text;
+                            // trim to count
+                            text = text.split(' ').slice(0, count.value).join(' ');
+                        }
+                        result.push(text);
+                    }
+
+                    if (useHtml.value) {
+                        if (type.value === 'paragraphs') {
+                            output.value = result.map(p => `<p>${p}</p>`).join('\n\n');
+                        } else {
+                            output.value = result[0];
+                        }
+                    } else {
+                        output.value = result.join('\n\n');
+                    }
+                };
+
+                const generateSentence = (length) => {
+                    let sentence = [];
+                    for (let j = 0; j < length; j++) {
+                        const word = words[Math.floor(Math.random() * words.length)];
+                        sentence.push(word);
+                    }
+                    let s = sentence.join(' ');
+                    // Capitalize first letter
+                    return s.charAt(0).toUpperCase() + s.slice(1) + '.';
+                };
+
+                const outputArray = computed(() => {
+                    if (!output.value) return [];
+                    return useHtml.value ? [output.value] : output.value.split('\n\n');
+                });
+
+                const outputStats = computed(() => {
+                    if (!output.value) return 'Pronto para gerar';
+                    const chars = output.value.length;
+                    const w = output.value.split(/\s+/).filter(w => w.length > 0).length;
+                    return `${chars} caracteres • ${w} palavras`;
+                });
+
+                const copyText = () => {
+                    if (!output.value) return;
+                    navigator.clipboard.writeText(output.value);
+                    alert('Texto copiado!');
+                };
+
+                // Init
+                generate();
+
+                return {
+                    count, type, startWithLorem, useHtml, output, outputArray, outputStats,
+                    generate, copyText
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

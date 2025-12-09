@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beleza Pro | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .script-font {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        }
+    </style>
+</head>
+
+<body class="bg-pink-50 text-slate-800">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative">
+
+        <!-- HEADER -->
+        <header class="gradient-bg text-white p-6 pb-2 sticky top-0 z-50 rounded-b-3xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl script-font flex items-center gap-2">
+                    <i class="fa-solid fa-spa"></i> Beleza Pro
+                </h1>
+                <button @click="showSettings = true" class="text-pink-200 hover:text-white">
+                    <i class="fa-solid fa-gear text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Quick Date Selector -->
+            <div
+                class="flex justify-between items-center bg-white/20 rounded-xl p-2 mb-4 backdrop-blur-sm overflow-x-auto gap-2">
+                <button v-for="day in weekDays" :key="day.date" @click="currentDate = day.date"
+                    :class="currentDate === day.date ? 'bg-white text-pink-600 shadow-md' : 'text-white hover:bg-white/10'"
+                    class="flex-shrink-0 flex flex-col items-center p-2 rounded-lg w-14 transition">
+                    <span class="text-xs uppercase font-bold">{{ day.weekName }}</span>
+                    <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow p-4 overflow-y-auto pb-24">
+
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-700">Agenda do Dia</h2>
+                <button @click="openModal('appointment')"
+                    class="bg-pink-600 hover:bg-pink-700 text-white w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition active:scale-90">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- APPOINTMENT LIST -->
+            <div v-if="filteredAppointments.length === 0" class="text-center py-10 opacity-40">
+                <i class="fa-regular fa-calendar-check text-4xl mb-2 text-pink-300"></i>
+                <p>Nenhuma cliente para hoje.</p>
+                <button @click="openModal('appointment')" class="text-pink-600 font-bold mt-2 underline">Agendar
+                    Cliente</button>
+            </div>
+
+            <div class="space-y-4">
+                <div v-for="app in filteredAppointments" :key="app.id"
+                    class="bg-white border-l-4 border-pink-500 rounded-xl shadow-sm p-4 hover:shadow-md transition">
+
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="text-2xl font-bold text-slate-800 leading-none">{{ app.time }}</div>
+                            <div class="font-bold text-pink-600 text-lg">{{ app.clientName }}</div>
+                            <div class="text-xs text-slate-500">{{ app.service }} • R$ {{ app.price }}</div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a :href="getWhatsAppConfirmLink(app)" target="_blank"
+                                class="bg-green-500 hover:bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition">
+                                <i class="fa-brands fa-whatsapp text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- LOYALTY CARD MINI -->
+                    <div class="bg-pink-50 rounded-lg p-2 mt-2 flex items-center justify-between">
+                        <div class="flex gap-1">
+                            <span v-for="i in 5" :key="i"
+                                class="w-4 h-4 rounded-full border border-pink-300 flex items-center justify-center"
+                                :class="i <= (app.loyaltyPoints || 0) ? 'bg-pink-500 text-white' : 'bg-white'">
+                                <i v-if="i <= (app.loyaltyPoints || 0)" class="fa-solid fa-heart text-[8px]"></i>
+                            </span>
+                        </div>
+                        <button @click="addLoyaltyPoint(app)"
+                            class="text-xs font-bold text-pink-600 hover:text-pink-800">+ Ponto</button>
+                    </div>
+
+                    <div class="mt-2 text-right">
+                        <button @click="deleteAppointment(app.id)"
+                            class="text-xs text-slate-400 hover:text-red-500">Cancelar</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ADD MODAL -->
+        <div v-if="showModal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+            <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 relative z-10 animate-slide-up">
+
+                <h3 class="text-2xl font-bold mb-6 text-slate-800 script-font text-pink-600">Nova Cliente</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Nome da Cliente</label>
+                        <input v-model="form.clientName" type="text"
+                            class="w-full border-2 border-pink-100 rounded-xl p-3 focus:border-pink-500 outline-none"
+                            placeholder="Ex: Ana Clara">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-600 mb-1">Horário</label>
+                            <input v-model="form.time" type="time"
+                                class="w-full border-2 border-pink-100 rounded-xl p-3 focus:border-pink-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-600 mb-1">Valor (R$)</label>
+                            <input v-model="form.price" type="number"
+                                class="w-full border-2 border-pink-100 rounded-xl p-3 focus:border-pink-500 outline-none"
+                                placeholder="0,00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-1">Serviço</label>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <button @click="form.service = 'Mão'"
+                                :class="form.service === 'Mão' ? 'bg-pink-500 text-white' : 'bg-pink-50 text-pink-600'"
+                                class="p-2 rounded-lg font-bold text-xs transition">Mão</button>
+                            <button @click="form.service = 'Pé + Mão'"
+                                :class="form.service === 'Pé + Mão' ? 'bg-pink-500 text-white' : 'bg-pink-50 text-pink-600'"
+                                class="p-2 rounded-lg font-bold text-xs transition">Pé/Mão</button>
+                            <button @click="form.service = 'Sobrancelha'"
+                                :class="form.service === 'Sobrancelha' ? 'bg-pink-500 text-white' : 'bg-pink-50 text-pink-600'"
+                                class="p-2 rounded-lg font-bold text-xs transition">Sobran.</button>
+                        </div>
+                        <input v-model="form.service" type="text"
+                            class="w-full border-2 border-pink-100 rounded-xl p-3 focus:border-pink-500 outline-none"
+                            placeholder="Outro...">
+                    </div>
+                </div>
+
+                <button @click="saveAppointment"
+                    class="w-full mt-6 bg-pink-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-pink-300 hover:bg-pink-700 transition">
+                    Agendar <i class="fa-solid fa-heart ml-2"></i>
+                </button>
+                <button @click="closeModal" class="w-full mt-2 text-slate-400 font-bold py-3">Cancelar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const showModal = ref(false);
+                const showSettings = ref(false);
+                const appointments = ref([]);
+
+                // Date Logic
+                const today = new Date().toISOString().split('T')[0];
+                const currentDate = ref(today);
+
+                const form = ref({ clientName: '', time: '09:00', service: 'Mão', price: '' });
+
+                // --- PERSISTENCE ---
+                const saveData = () => {
+                    localStorage.setItem('beleza_pro_data', JSON.stringify({ appointments: appointments.value }));
+                };
+
+                const loadData = () => {
+                    const saved = localStorage.getItem('beleza_pro_data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        appointments.value = data.appointments || [];
+                    }
+                };
+
+                onMounted(() => loadData());
+                watch(appointments, saveData, { deep: true });
+
+                // --- COMPUTED ---
+                const weekDays = computed(() => {
+                    const days = [];
+                    const d = new Date();
+                    // Generate next 7 days
+                    for (let i = 0; i < 7; i++) {
+                        const nextDay = new Date(d);
+                        nextDay.setDate(d.getDate() + i);
+                        const iso = nextDay.toISOString().split('T')[0];
+                        days.push({
+                            date: iso,
+                            weekName: nextDay.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+                            dayNumber: nextDay.getDate()
+                        });
+                    }
+                    return days;
+                });
+
+                const filteredAppointments = computed(() => {
+                    // Start of day compare? 
+                    // Let's store full ISO string but compare by YYYY-MM-DD
+                    return appointments.value
+                        .filter(app => app.date === currentDate.value)
+                        .sort((a, b) => a.time.localeCompare(b.time));
+                });
+
+                // --- ACTIONS ---
+                const openModal = () => {
+                    form.value = { clientName: '', time: '14:00', service: 'Mão', price: '' };
+                    showModal.value = true;
+                };
+
+                const closeModal = () => showModal.value = false;
+
+                const saveAppointment = () => {
+                    if (!form.value.clientName) return alert('Qual o nome da cliente?');
+
+                    appointments.value.push({
+                        id: Date.now(),
+                        date: currentDate.value,
+                        ...form.value,
+                        loyaltyPoints: 0
+                    });
+                    closeModal();
+                };
+
+                const deleteAppointment = (id) => {
+                    if (confirm('Desmarcar cliente?')) {
+                        appointments.value = appointments.value.filter(a => a.id !== id);
+                    }
+                };
+
+                const addLoyaltyPoint = (app) => {
+                    if (!app.loyaltyPoints) app.loyaltyPoints = 0;
+                    if (app.loyaltyPoints < 5) {
+                        app.loyaltyPoints++;
+                        if (app.loyaltyPoints === 5) alert(`Parabéns! ${app.clientName} ganhou um brinde/desconto! 🎉`);
+                    } else {
+                        if (confirm('Zerar fidelidade para novo ciclo?')) app.loyaltyPoints = 0;
+                    }
+                };
+
+                // --- UTILS ---
+                const getWhatsAppConfirmLink = (app) => {
+                    // "Oi [Nome]! 💅 Seu horário de [Service] amanhã às [Time] está confirmado? Te espero!"
+                    // Checking if date is today or tomorrow
+                    const appDate = new Date(app.date);
+                    const todayDate = new Date(today);
+
+                    let dayText = "hoje";
+                    const diffTime = Math.abs(appDate - todayDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (app.date > today) dayText = "amanhã"; // Simple logic for now
+                    if (app.date === today) dayText = "hoje";
+
+                    const text = `Oie ${app.clientName}! 💅 Tudo bem? Passando pra confirmar seu horário de ${app.service} pra ${dayText} às ${app.time}. Posso confirmar? 😘`;
+                    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+                };
+
+                return {
+                    showModal, showSettings, currentDate, weekDays, filteredAppointments, form,
+                    openModal, closeModal, saveAppointment, deleteAppointment, addLoyaltyPoint, getWhatsAppConfirmLink
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

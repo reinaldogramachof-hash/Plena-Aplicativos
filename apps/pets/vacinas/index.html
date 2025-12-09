@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteirinha Pet | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-cyan-50 text-slate-700">
+
+    <div id="app" v-cloak
+        class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative border-x border-cyan-100">
+
+        <!-- HEADER -->
+        <header class="bg-cyan-500 text-white p-8 rounded-b-[40px] shadow-lg sticky top-0 z-50">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">Carteirinha</h1>
+                    <p class="text-cyan-100 text-sm">Saúde do seu melhor amigo</p>
+                </div>
+                <div class="bg-white/20 p-3 rounded-full">
+                    <i class="fa-solid fa-paw text-2xl"></i>
+                </div>
+            </div>
+
+            <!-- PET SELECTOR (MOCK) -->
+            <div class="mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                <div
+                    class="flex-shrink-0 w-16 h-16 rounded-full bg-white border-4 border-cyan-300 flex items-center justify-center overflow-hidden shadow-md">
+                    <i class="fa-solid fa-dog text-3xl text-cyan-500"></i>
+                </div>
+                <button @click="alert('Em breve: Multi-pets!')"
+                    class="flex-shrink-0 w-16 h-16 rounded-full bg-cyan-600/50 flex items-center justify-center text-white border-2 border-white/30 border-dashed">
+                    <i class="fa-solid fa-plus font-bold"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="flex-grow p-6 pb-24 overflow-y-auto">
+
+            <!-- TABS -->
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-6">
+                <button @click="activeTab = 'vaccines'" class="flex-1 py-2 rounded-lg text-sm font-bold transition"
+                    :class="activeTab === 'vaccines' ? 'bg-white shadow text-cyan-600' : 'text-slate-400'">
+                    Vacinas
+                </button>
+                <button @click="activeTab = 'meds'" class="flex-1 py-2 rounded-lg text-sm font-bold transition"
+                    :class="activeTab === 'meds' ? 'bg-white shadow text-cyan-600' : 'text-slate-400'">
+                    Remédios
+                </button>
+            </div>
+
+            <!-- VACINAS -->
+            <div v-if="activeTab === 'vaccines'" class="space-y-4 animate-fade-in">
+
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-slate-500 text-xs uppercase">Histórico de Vacinação</h3>
+                    <button @click="openModal('vaccine')"
+                        class="text-cyan-600 font-bold text-xs bg-cyan-50 px-3 py-1 rounded-full border border-cyan-100">
+                        + Registrar
+                    </button>
+                </div>
+
+                <div v-if="vaccines.length === 0" class="text-center py-10 opacity-40">
+                    <i class="fa-solid fa-syringe text-4xl mb-3 text-cyan-300"></i>
+                    <p class="text-sm">Nenhuma vacina registrada.</p>
+                </div>
+
+                <div v-for="v in sortedVaccines" :key="v.id"
+                    class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 relative overflow-hidden group">
+                    <div class="w-1 bg-cyan-500 absolute left-0 top-0 bottom-0"></div>
+
+                    <div class="flex-grow">
+                        <div class="font-bold text-lg text-slate-800">{{ v.name }}</div>
+                        <div class="text-xs text-slate-400 flex gap-2">
+                            <span><i class="fa-solid fa-calendar-check text-green-500"></i> {{ formatDate(v.date)
+                                }}</span>
+                            <span v-if="v.nextDate" class="font-bold text-orange-400"><i
+                                    class="fa-solid fa-calendar-plus"></i> Reforço: {{ formatDate(v.nextDate) }}</span>
+                        </div>
+                    </div>
+                    <button @click="deleteItem('vaccines', v.id)"
+                        class="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+
+            </div>
+
+            <!-- REMÉDIOS -->
+            <div v-if="activeTab === 'meds'" class="space-y-4 animate-fade-in">
+
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-slate-500 text-xs uppercase">Vermífugos e Antipulgas</h3>
+                    <button @click="openModal('med')"
+                        class="text-purple-600 font-bold text-xs bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
+                        + Registrar
+                    </button>
+                </div>
+
+                <div v-if="meds.length === 0" class="text-center py-10 opacity-40">
+                    <i class="fa-solid fa-pills text-4xl mb-3 text-purple-300"></i>
+                    <p class="text-sm">Nenhum medicamento.</p>
+                </div>
+
+                <div v-for="m in sortedMeds" :key="m.id"
+                    class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 relative overflow-hidden group">
+                    <div class="w-1 bg-purple-500 absolute left-0 top-0 bottom-0"></div>
+
+                    <div class="flex-grow">
+                        <div class="font-bold text-lg text-slate-800">{{ m.name }}</div>
+                        <div class="text-xs text-slate-400 flex gap-2">
+                            <span><i class="fa-solid fa-calendar-check text-green-500"></i> {{ formatDate(m.date)
+                                }}</span>
+                            <span v-if="m.nextDate" class="font-bold text-orange-400"><i
+                                    class="fa-solid fa-calendar-plus"></i> Próx: {{ formatDate(m.nextDate) }}</span>
+                        </div>
+                    </div>
+                    <button @click="deleteItem('meds', m.id)"
+                        class="text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+
+            </div>
+
+
+        </main>
+
+        <!-- MODAL -->
+        <div v-if="showModal"
+            class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4 bg-black/60 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-2xl p-6 relative animate-slide-up">
+                <h3 class="text-xl font-bold mb-4 text-slate-800">{{ modalType === 'vaccine' ? 'Nova Vacina' : 'Novo
+                    Medicamento' }}</h3>
+
+                <div class="space-y-3">
+                    <input v-model="form.name" type="text"
+                        :placeholder="modalType === 'vaccine' ? 'Nome (ex: V10, Antirrábica)' : 'Nome (ex: Drontal, NexGard)'"
+                        class="w-full border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-cyan-500">
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 ml-1">Data da Aplicação</label>
+                        <input v-model="form.date" type="date"
+                            class="w-full border rounded-xl p-3 bg-slate-50 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 ml-1">Próxima Dose (Opicional)</label>
+                        <input v-model="form.nextDate" type="date"
+                            class="w-full border rounded-xl p-3 bg-slate-50 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button @click="closeModal"
+                        class="flex-1 py-3 font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
+                    <button @click="saveItem"
+                        class="flex-1 bg-cyan-500 text-white font-bold py-3 rounded-xl hover:bg-cyan-600 shadow-lg">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const activeTab = ref('vaccines');
+                const vaccines = ref([]);
+                const meds = ref([]);
+
+                const showModal = ref(false);
+                const modalType = ref('vaccine'); // vaccine | med
+                const form = ref({ name: '', date: '', nextDate: '' });
+
+                // --- PERSISTENCE ---
+                onMounted(() => {
+                    const savedV = localStorage.getItem('carteirinha_vaccines');
+                    const savedM = localStorage.getItem('carteirinha_meds');
+
+                    if (savedV) vaccines.value = JSON.parse(savedV);
+                    if (savedM) meds.value = JSON.parse(savedM);
+
+                    // Default date today
+                    form.value.date = new Date().toISOString().split('T')[0];
+                });
+
+                watch(vaccines, (v) => localStorage.setItem('carteirinha_vaccines', JSON.stringify(v)), { deep: true });
+                watch(meds, (m) => localStorage.setItem('carteirinha_meds', JSON.stringify(m)), { deep: true });
+
+                // --- COMPUTED ---
+                const sortedVaccines = computed(() => [...vaccines.value].sort((a, b) => new Date(b.date) - new Date(a.date)));
+                const sortedMeds = computed(() => [...meds.value].sort((a, b) => new Date(b.date) - new Date(a.date)));
+
+                // --- ACTIONS ---
+                const openModal = (type) => {
+                    modalType.value = type;
+                    form.value = { name: '', date: new Date().toISOString().split('T')[0], nextDate: '' };
+                    showModal.value = true;
+                };
+
+                const closeModal = () => showModal.value = false;
+
+                const saveItem = () => {
+                    if (!form.value.name || !form.value.date) return;
+
+                    const item = {
+                        id: Date.now(),
+                        ...form.value
+                    };
+
+                    if (modalType.value === 'vaccine') {
+                        vaccines.value.push(item);
+                    } else {
+                        meds.value.push(item);
+                    }
+                    closeModal();
+                };
+
+                const deleteItem = (type, id) => {
+                    if (confirm('Apagar registro?')) {
+                        if (type === 'vaccines') vaccines.value = vaccines.value.filter(i => i.id !== id);
+                        else meds.value = meds.value.filter(i => i.id !== id);
+                    }
+                };
+
+                const formatDate = (iso) => {
+                    if (!iso) return '';
+                    const [y, m, d] = iso.split('-');
+                    return `${d}/${m}/${y}`;
+                };
+
+                return {
+                    activeTab, vaccines, meds, showModal, modalType, form, sortedVaccines, sortedMeds,
+                    openModal, closeModal, saveItem, deleteItem, formatDate
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário da Gratidão | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Nunito:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fdf6e3;
+            color: #5d574d;
+        }
+
+        h1,
+        h2,
+        .handwritten {
+            font-family: 'Caveat', cursive;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .paper-texture {
+            background-color: #fffbf0;
+            background-image: linear-gradient(#e8e0cc 1px, transparent 1px);
+            background-size: 100% 2rem;
+            line-height: 2rem;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div id="app" v-cloak class="w-full max-w-md">
+
+        <!-- HEADER -->
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-amber-600 mb-2">Gratidão</h1>
+            <p class="text-amber-800/60 italic">"A felicidade não é ter o que você quer, é querer o que você tem."</p>
+        </header>
+
+        <!-- INPUT AREA -->
+        <main class="bg-white p-6 rounded-2xl shadow-xl border border-amber-100 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-amber-400"></div>
+
+            <h2 class="text-2xl mb-4 text-amber-900 text-center">Hoje eu sou grato por...</h2>
+
+            <div class="space-y-4">
+                <div v-for="i in 3" :key="i" class="flex items-center gap-3">
+                    <span class="text-amber-400 font-bold text-xl">{{ i }}.</span>
+                    <input v-model="entries[i-1]" type="text" placeholder="Escreva aqui..."
+                        class="flex-grow bg-transparent border-b border-amber-200 focus:border-amber-500 outline-none py-1 text-lg text-amber-900 transition paper-texture">
+                </div>
+            </div>
+
+            <button @click="saveEntry" :disabled="!isFormValid"
+                class="w-full mt-8 bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-amber-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95">
+                <i class="fa-solid fa-heart mr-2"></i> Guardar no Pote
+            </button>
+        </main>
+
+        <!-- HISTORY (Timeline) -->
+        <section v-if="history.length > 0" class="space-y-6">
+            <h3 class="text-center text-amber-800/40 uppercase tracking-widest text-xs font-bold">Seu Pote de Memórias
+            </h3>
+
+            <div v-for="(entry, idx) in sortedHistory" :key="idx"
+                class="bg-white/60 p-5 rounded-xl border border-amber-100/50 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold text-amber-400 uppercase bg-amber-50 px-2 py-1 rounded">{{
+                        formatDate(entry.date) }}</span>
+                    <button @click="deleteEntry(idx)" class="text-amber-200 hover:text-red-400 transition text-xs"><i
+                            class="fa-solid fa-trash"></i></button>
+                </div>
+                <ul class="space-y-1">
+                    <li v-for="item in entry.items"
+                        class="handwritten text-xl text-amber-900 pl-4 border-l-2 border-amber-200">{{ item }}</li>
+                </ul>
+            </div>
+        </section>
+
+        <section v-else class="text-center py-10 opacity-40">
+            <i class="fa-solid fa-jar text-6xl text-amber-200 mb-4"></i>
+            <p>Seu pote ainda está vazio.<br>Comece hoje!</p>
+        </section>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const entries = ref(['', '', '']);
+                const history = ref([]);
+
+                const isFormValid = computed(() => entries.value.some(e => e.trim().length > 0));
+
+                const sortedHistory = computed(() => {
+                    return [...history.value].sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
+
+                const saveEntry = () => {
+                    const validItems = entries.value.filter(e => e.trim().length > 0);
+                    if (validItems.length > 0) {
+                        history.value.unshift({
+                            date: new Date().toISOString(),
+                            items: validItems
+                        });
+
+                        localStorage.setItem('plena_gratidao', JSON.stringify(history.value));
+
+                        // Reset
+                        entries.value = ['', '', ''];
+                        alert("Gratidão registrada! ✨");
+                    }
+                };
+
+                const deleteEntry = (idx) => {
+                    if (confirm("Deseja apagar essa memória?")) {
+                        // idx refers to sorted array, need to find in original or just splice if logic matches
+                        // For simplicity in this demo, since sortedHistory is derived, we should find by ID, but let's assume direct splice on history for now essentially works if we re-sort logic match
+                        // Better: just splice from history directly, but idx from v-for is on sorted...
+                        // Quick fix: replace history with filtered sorted
+                        const itemToDelete = sortedHistory.value[idx];
+                        history.value = history.value.filter(i => i !== itemToDelete);
+                        localStorage.setItem('plena_gratidao', JSON.stringify(history.value));
+                    }
+                };
+
+                const formatDate = (iso) => {
+                    return new Date(iso).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'long' });
+                };
+
+                onMounted(() => {
+                    const saved = localStorage.getItem('plena_gratidao');
+                    if (saved) {
+                        try { history.value = JSON.parse(saved); } catch (e) { }
+                    }
+                });
+
+                return {
+                    entries, history, saveEntry, isFormValid, sortedHistory, formatDate, deleteEntry
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

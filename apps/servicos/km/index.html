@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle KM | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-road text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Controle KM</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'dashboard'"
+                    :class="currentView === 'dashboard' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-gauge-high w-5 text-center"></i> <span>Painel</span>
+                </a>
+                <a @click="currentView = 'list'"
+                    :class="currentView === 'list' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-list w-5 text-center"></i> <span>Viagens</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-road text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Controle KM</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: DASHBOARD -->
+                <div v-if="currentView === 'dashboard'" class="max-w-5xl mx-auto animate-fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Total Percorrido</div>
+                            <div class="text-4xl font-black text-slate-800 tracking-tight">{{ stats.totalKm }} <span
+                                    class="text-lg text-slate-400 font-bold">km</span></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Total Viagens</div>
+                            <div class="text-4xl font-black text-brand-600 tracking-tight">{{ stats.trips }}</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Média p/ Viagem</div>
+                            <div class="text-4xl font-black text-slate-800 tracking-tight">{{ stats.avg }} <span
+                                    class="text-lg text-slate-400 font-bold">km</span></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-lg">Últimas Viagens</h3>
+                        <button @click="currentView = 'list'"
+                            class="text-sm font-bold text-brand-600 hover:underline">Ver todas</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div v-for="t in trips.slice(0, 5)" :key="t.id"
+                            class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                                    <i class="fa-solid fa-car"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">{{ t.destination }}</div>
+                                    <div class="text-xs text-slate-500">{{ formatDate(t.date) }} • {{ t.vehicle ||
+                                        'Veículo Padrão' }}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-black text-lg text-brand-600">{{ t.distance }} km</div>
+                                <div class="text-[10px] text-slate-400 uppercase font-bold">{{ t.startKm }} ➔ {{ t.endKm
+                                    }}</div>
+                            </div>
+                        </div>
+                        <div v-if="trips.length === 0" class="text-center py-10 text-slate-400">Nenhuma viagem
+                            registrada.</div>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button @click="openModal()"
+                            class="btn-primary px-8 py-4 rounded-full shadow-xl shadow-brand-500/30 text-lg"><i
+                                class="fa-solid fa-plus mr-2"></i> Registrar Nova Viagem</button>
+                    </div>
+                </div>
+
+                <!-- VIEW: LIST -->
+                <div v-if="currentView === 'list'" class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Histórico de Viagens</h2>
+                        <button @click="openModal()"
+                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
+                                class="fa-solid fa-plus mr-2"></i> Nova</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 text-xs text-slate-500 uppercase font-bold hidden md:table-header-group">
+                                <tr>
+                                    <th class="p-4">Data / Destino</th>
+                                    <th class="p-4">Veículo</th>
+                                    <th class="p-4 text-center">Odômetro (Início - Fim)</th>
+                                    <th class="p-4 text-right">Distância</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="t in trips" :key="t.id"
+                                    class="flex flex-col md:table-row relative group hover:bg-slate-50 transition">
+                                    <td class="p-4">
+                                        <div class="font-bold text-slate-800">{{ t.destination }}</div>
+                                        <div class="text-xs text-slate-500">{{ formatDate(t.date) }}</div>
+                                    </td>
+                                    <td class="p-4 md:table-cell hidden text-sm text-slate-600">{{ t.vehicle }}</td>
+                                    <td class="p-4 text-center text-slate-600 md:table-cell flex justify-between">
+                                        <span
+                                            class="md:hidden text-xs font-bold uppercase text-slate-400">Odômetro:</span>
+                                        <span class="font-mono text-sm bg-slate-100 px-2 py-1 rounded">{{ t.startKm }} ➔
+                                            {{ t.endKm }}</span>
+                                    </td>
+                                    <td
+                                        class="p-4 text-right md:table-cell flex justify-between border-t md:border-0 border-slate-100">
+                                        <span class="md:hidden text-xs font-bold uppercase text-slate-400">Total:</span>
+                                        <span class="font-black text-brand-600">{{ t.distance }} km</span>
+                                    </td>
+                                    <td class="p-4 text-center flex justify-end gap-2 md:table-cell">
+                                        <button @click="deleteTrip(t.id)"
+                                            class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition"><i
+                                                class="fa-solid fa-trash text-xs"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ADD MODAL -->
+        <div v-if="modal.show"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-fade-in">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-lg">Nova Viagem</h3>
+                    <button @click="modal.show = false" class="text-slate-400 hover:text-slate-600"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="label">Destino / Cliente</label>
+                        <input v-model="form.destination" type="text" class="input"
+                            placeholder="Ex: Visita Cliente XYZ">
+                    </div>
+                    <div>
+                        <label class="label">Data</label>
+                        <input v-model="form.date" type="date" class="input">
+                    </div>
+                    <div>
+                        <label class="label">Veículo (Placa/Modelo)</label>
+                        <input v-model="form.vehicle" type="text" class="input" placeholder="Ex: Fiat Uno ABC-1234">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">KM Inicial</label>
+                            <input v-model="form.startKm" type="number" class="input" placeholder="10000">
+                        </div>
+                        <div>
+                            <label class="label">KM Final</label>
+                            <input v-model="form.endKm" type="number" class="input" placeholder="10050">
+                        </div>
+                    </div>
+                    <div v-if="calcDistance > 0"
+                        class="text-center py-2 bg-green-50 rounded-lg text-green-700 font-bold text-sm">
+                        Distância Calculada: {{ calcDistance }} km
+                    </div>
+                    <div v-if="calcDistance < 0"
+                        class="text-center py-2 bg-red-50 rounded-lg text-red-700 font-bold text-sm">
+                        Erro: KM Final menor que Inicial
+                    </div>
+                    <button @click="saveTrip" class="w-full btn-primary py-3 rounded-xl mt-2">Salvar Registro</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #3b82f6;
+            background: #fff;
+            ring: 2px solid #3b82f6;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_km_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('dashboard');
+                const trips = ref([]);
+                const modal = ref({ show: false });
+                const form = ref({ destination: '', date: '', vehicle: '', startKm: '', endKm: '' });
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) trips.value = JSON.parse(d);
+
+                    // Pre-fill vehicle if exists from last trip
+                    if (trips.value.length > 0) {
+                        form.value.vehicle = trips.value[0].vehicle || '';
+                        // Suggest start KM based on last end KM
+                        form.value.startKm = trips.value[0].endKm || '';
+                    }
+                });
+                watch(trips, () => localStorage.setItem(DB_KEY, JSON.stringify(trips.value)), { deep: true });
+
+                // Computed
+                const calcDistance = computed(() => {
+                    const s = Number(form.value.startKm);
+                    const e = Number(form.value.endKm);
+                    if (!s || !e) return 0;
+                    return e - s;
+                });
+
+                const stats = computed(() => {
+                    const totalKm = trips.value.reduce((acc, t) => acc + t.distance, 0);
+                    return {
+                        totalKm,
+                        trips: trips.value.length,
+                        avg: trips.value.length ? Math.round(totalKm / trips.value.length) : 0
+                    };
+                });
+
+                // Methods
+                const formatDate = (d) => d ? d.split('-').reverse().join('/') : '';
+
+                const openModal = () => {
+                    const lastTrip = trips.value.length > 0 ? trips.value[0] : null;
+                    form.value = {
+                        destination: '',
+                        date: new Date().toISOString().split('T')[0],
+                        vehicle: lastTrip ? lastTrip.vehicle : '',
+                        startKm: lastTrip ? lastTrip.endKm : '',
+                        endKm: ''
+                    };
+                    modal.value.show = true;
+                };
+
+                const saveTrip = () => {
+                    if (!form.value.destination || !form.value.date || !form.value.startKm || !form.value.endKm) return alert('Preencha todos os campos obrigatórios.');
+                    if (calcDistance.value < 0) return alert('KM Final não pode ser menor que KM Inicial.');
+
+                    const trip = {
+                        id: Date.now(),
+                        ...form.value,
+                        startKm: Number(form.value.startKm),
+                        endKm: Number(form.value.endKm),
+                        distance: calcDistance.value
+                    };
+
+                    trips.value.unshift(trip);
+                    modal.value.show = false;
+                };
+
+                const deleteTrip = (id) => {
+                    if (confirm('Excluir registro de viagem?')) trips.value = trips.value.filter(t => t.id !== id);
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(trips.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'km_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        trips.value = JSON.parse(ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, trips, stats, modal, form, calcDistance,
+                    formatDate, openModal, saveTrip, deleteTrip,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

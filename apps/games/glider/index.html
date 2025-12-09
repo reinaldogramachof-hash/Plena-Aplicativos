@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Glider | Plena Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-overlay {
+            pointer-events: none;
+        }
+
+        .ui-interactive {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-sky-300 text-white min-h-screen relative select-none">
+
+    <!-- CANVAS LAYER -->
+    <canvas id="gameCanvas" class="absolute inset-0 z-0"></canvas>
+
+    <!-- UI LAYER -->
+    <div class="absolute inset-0 z-10 ui-overlay flex flex-col justify-between p-6">
+
+        <!-- TOP HUD -->
+        <div class="flex justify-between items-start">
+            <a href="../../../index.html"
+                class="bg-white/20 hover:bg-white/40 backdrop-blur rounded-xl p-3 text-white transition ui-interactive">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </a>
+            <div class="text-center">
+                <div class="text-md uppercase tracking-widest text-white/80 font-bold mb-1">Score</div>
+                <div id="scoreDisplay" class="text-6xl font-bold drop-shadow-md">0</div>
+            </div>
+            <div class="w-12"></div> <!-- Spacer -->
+        </div>
+
+        <!-- START SCREEN -->
+        <div id="startScreen"
+            class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity duration-300">
+            <div
+                class="bg-white text-slate-800 p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full animate-bounce-slow">
+                <div class="text-6xl mb-4 text-sky-500"><i class="fa-solid fa-plane-up"></i></div>
+                <h1 class="text-3xl font-bold mb-2 text-slate-700">Sky Glider</h1>
+                <p class="text-slate-500 mb-6 text-lg">Toque e segure para subir.<br>Solte para descer.</p>
+                <button onclick="startGame()"
+                    class="bg-sky-500 hover:bg-sky-600 text-white text-xl font-bold py-4 px-10 rounded-full shadow-lg transform active:scale-95 transition w-full">
+                    DECOLAR!
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen"
+            class="hidden absolute inset-0 flex flex-col items-center justify-center bg-red-500/80 backdrop-blur-md pointer-events-auto z-50">
+            <h2 class="text-5xl font-bold mb-2 text-white drop-shadow-lg">CRASH!</h2>
+            <div class="text-2xl mb-8 font-bold text-white/90">Score: <span id="finalScore">0</span></div>
+            <button onclick="resetGame()"
+                class="bg-white text-red-500 hover:bg-slate-100 text-xl font-bold py-4 px-10 rounded-full shadow-xl transform active:scale-95 transition">
+                TENTAR DE NOVO
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game State
+        let isPlaying = false;
+        let score = 0;
+        let frames = 0;
+        let speed = 4;
+
+        // Physics
+        const gravity = 0.4;
+        const lift = -0.7;
+        const maxVelocity = 8;
+
+        // Player
+        const plane = {
+            x: 100,
+            y: 300,
+            w: 50,
+            h: 30,
+            velocity: 0,
+            angle: 0,
+            isAscending: false
+        };
+
+        // Obstacles
+        let obstacles = [];
+        let clouds = [];
+
+        // Resize
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            plane.x = canvas.width * 0.15; // 15% from left
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Input
+        const handleInputStart = (e) => {
+            if (isPlaying) {
+                plane.isAscending = true;
+                // e.preventDefault(); // Prevent standard touch behavior
+            }
+        };
+        const handleInputEnd = (e) => { plane.isAscending = false; };
+
+        document.addEventListener('mousedown', handleInputStart);
+        document.addEventListener('mouseup', handleInputEnd);
+        document.addEventListener('touchstart', handleInputStart, { passive: false });
+        document.addEventListener('touchend', handleInputEnd);
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space') handleInputStart(); });
+        document.addEventListener('keyup', (e) => { if (e.code === 'Space') handleInputEnd(); });
+
+        class Obstacle {
+            constructor() {
+                this.w = 60;
+                this.x = canvas.width;
+                this.gap = 220; // Height of gap
+                // Random Y for gap center
+                const minH = 100;
+                const maxH = canvas.height - 100;
+                this.y = Math.random() * (canvas.height - 300) + 150;
+                this.passed = false;
+            }
+
+            update() {
+                this.x -= speed;
+            }
+
+            draw() {
+                ctx.fillStyle = '#64748b'; // Slate 500
+                // Top Pillar
+                ctx.fillRect(this.x, 0, this.w, this.y - this.gap / 2);
+                // Bottom Pillar
+                ctx.fillRect(this.x, this.y + this.gap / 2, this.w, canvas.height - (this.y + this.gap / 2));
+
+                // Details (border)
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(this.x, 0, this.w, this.y - this.gap / 2);
+                ctx.strokeRect(this.x, this.y + this.gap / 2, this.w, canvas.height);
+            }
+        }
+
+        class Cloud {
+            constructor() {
+                this.x = canvas.width + Math.random() * 200;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 50 + 30;
+                this.speed = Math.random() * 2 + 0.5;
+            }
+            update() { this.x -= this.speed; }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Logic
+        function update() {
+            if (!isPlaying) return;
+            frames++;
+
+            // Speed up slightly
+            if (frames % 1000 === 0) speed += 0.5;
+
+            // Player Physics
+            if (plane.isAscending) {
+                plane.velocity += lift;
+            } else {
+                plane.velocity += gravity;
+            }
+
+            // Terminal Velocity
+            plane.velocity = Math.max(Math.min(plane.velocity, maxVelocity), -maxVelocity);
+
+            plane.y += plane.velocity;
+
+            // Rotation based on velocity
+            plane.angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (plane.velocity * 0.1)));
+
+            // Boundaries
+            if (plane.y + plane.h > canvas.height || plane.y < 0) {
+                gameOver();
+            }
+
+            // Obstacles Spawn
+            if (frames % 120 === 0) {
+                obstacles.push(new Obstacle());
+            }
+
+            // Clouds Spawn
+            if (frames % 60 === 0) {
+                clouds.push(new Cloud());
+            }
+
+            // Update Entities
+            clouds.forEach(c => c.update());
+            obstacles.forEach(o => o.update());
+
+            // Cleanup offscreen
+            obstacles = obstacles.filter(o => o.x + o.w > 0);
+            clouds = clouds.filter(c => c.x + c.size > 0);
+
+            // Collision & Score
+            obstacles.forEach(o => {
+                // X Check
+                if (plane.x + plane.w > o.x && plane.x < o.x + o.w) {
+                    // Y Check (Hitting top or bottom pipe)
+                    if (plane.y < o.y - o.gap / 2 || plane.y + plane.h > o.y + o.gap / 2) {
+                        gameOver();
+                    }
+                }
+
+                // Score
+                if (o.x + o.w < plane.x && !o.passed) {
+                    score++;
+                    o.passed = true;
+                    document.getElementById('scoreDisplay').innerText = score;
+                    // Beep score?
+                }
+            });
+        }
+
+        function draw() {
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Clouds (Background)
+            clouds.forEach(c => c.draw());
+
+            // Obstacles
+            obstacles.forEach(o => o.draw());
+
+            // Player
+            ctx.save();
+            ctx.translate(plane.x + plane.w / 2, plane.y + plane.h / 2);
+            ctx.rotate(plane.angle);
+
+            // Draw Plane (Simple Geometry)
+            ctx.fillStyle = '#facc15'; // Yellow 400
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 25, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#eab308';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Wing
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.ellipse(5, -5, 15, 8, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Propeller
+            if (frames % 4 < 2) {
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(20, -10, 2, 20);
+            } else {
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(20, -5, 2, 10); // Spin effect
+            }
+
+            ctx.restore();
+        }
+
+        function loop() {
+            update();
+            draw();
+            if (isPlaying) requestAnimationFrame(loop);
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startScreen').style.display = 'none';
+            }, 300);
+
+            score = 0;
+            frames = 0;
+            speed = 4;
+            plane.y = canvas.height / 2;
+            plane.velocity = 0;
+            plane.angle = 0;
+            obstacles = [];
+            clouds = [];
+            document.getElementById('scoreDisplay').innerText = '0';
+
+            isPlaying = true;
+            resize(); // Ensure correct positioning
+            loop();
+        }
+
+        function resetGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            startGame();
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+
+        // Initial Draw
+        resize();
+
+    </script>
+</body>
+
+</html>

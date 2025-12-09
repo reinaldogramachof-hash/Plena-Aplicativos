@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário do Professor | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .notebook-line {
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 100% 2rem;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800">
+
+    <div id="app" v-cloak class="max-w-4xl mx-auto min-h-screen flex flex-col md:flex-row shadow-2xl bg-white">
+
+        <!-- SIDEBAR (Turmas) -->
+        <aside class="w-full md:w-64 bg-slate-900 text-white flex flex-col">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="bg-blue-600 w-8 h-8 rounded flex items-center justify-center font-bold">D</div>
+                    <h1 class="font-bold text-lg">Diário Pro</h1>
+                </div>
+                <p class="text-xs text-slate-400">Gestão de Sala Eficiente</p>
+            </div>
+
+            <nav class="flex-grow p-4 space-y-2">
+                <div v-for="turma in turmas" :key="turma.id" @click="activeTurma = turma"
+                    :class="activeTurma.id === turma.id ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="p-3 rounded-lg cursor-pointer transition flex items-center justify-between">
+                    <span>{{ turma.nome }}</span>
+                    <span class="text-xs bg-black/20 px-2 py-0.5 rounded">{{ turma.alunos.length }}</span>
+                </div>
+
+                <button @click="addTurma"
+                    class="w-full border border-dashed border-slate-600 text-slate-500 p-3 rounded-lg hover:border-slate-400 hover:text-slate-300 transition text-sm">
+                    + Nova Turma
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
+                Data: {{ today }}
+            </div>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="flex-grow flex flex-col h-screen overflow-hidden">
+
+            <!-- TOOLBAR -->
+            <header class="h-16 border-b border-slate-200 flex items-center justify-between px-6 bg-white">
+                <h2 class="font-bold text-xl text-slate-700">{{ activeTurma.nome }}</h2>
+                <div class="flex gap-2">
+                    <button
+                        class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
+                        <i class="fa-solid fa-calendar-days"></i> Histórico
+                    </button>
+                    <button
+                        class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-200"
+                        @click="addAlunoModal = true">
+                        <i class="fa-solid fa-plus"></i> Add Aluno
+                    </button>
+                </div>
+            </header>
+
+            <!-- STUDENT LIST -->
+            <div class="flex-grow overflow-y-auto p-6 bg-slate-50">
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div
+                        class="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        <div class="col-span-1 text-center">Nº</div>
+                        <div class="col-span-5">Nome do Aluno</div>
+                        <div class="col-span-2 text-center">Presença</div>
+                        <div class="col-span-2 text-center">Tarefa</div>
+                        <div class="col-span-2 text-center">Ações</div>
+                    </div>
+
+                    <div v-for="(aluno, index) in activeTurma.alunos" :key="aluno.id"
+                        class="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 items-center hover:bg-blue-50/30 transition group">
+
+                        <div class="col-span-1 text-center font-bold text-slate-400">{{ index + 1 }}</div>
+
+                        <div class="col-span-5">
+                            <div class="font-bold text-slate-700">{{ aluno.nome }}</div>
+                            <div class="text-[10px] text-slate-400">{{ aluno.responsavel }}</div>
+                        </div>
+
+                        <!-- Presença Toggle -->
+                        <div class="col-span-2 flex justify-center">
+                            <button @click="aluno.presente = !aluno.presente"
+                                :class="aluno.presente ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                                class="w-24 py-1.5 rounded-full text-xs font-bold transition flex items-center justify-center gap-1">
+                                <i :class="aluno.presente ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+                                {{ aluno.presente ? 'Presente' : 'Faltou' }}
+                            </button>
+                        </div>
+
+                        <!-- Tarefa Checkbox -->
+                        <div class="col-span-2 flex justify-center">
+                            <label class="cursor-pointer flex items-center gap-2 select-none">
+                                <input type="checkbox" v-model="aluno.tarefa"
+                                    class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                <span class="text-xs font-medium"
+                                    :class="aluno.tarefa ? 'text-blue-600' : 'text-slate-400'">
+                                    {{ aluno.tarefa ? 'Feita' : 'Pendente' }}
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Zap Action -->
+                        <div class="col-span-2 flex justify-center">
+                            <button @click="openZapModal(aluno)"
+                                class="bg-white border border-slate-200 text-slate-400 hover:text-green-500 hover:border-green-500 w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="activeTurma.alunos.length === 0" class="text-center py-20 text-slate-400">
+                    <i class="fa-solid fa-child-reaching text-4xl mb-3 opacity-20"></i>
+                    <p>Nenhum aluno cadastrado nesta turma.</p>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- MODAL ZAP -->
+        <div v-if="zapModal.open" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+                <button @click="zapModal.open = false"
+                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i
+                        class="fa-solid fa-times"></i></button>
+
+                <h3 class="font-bold text-lg mb-1 text-slate-800">Mensagem para Responsável</h3>
+                <p class="text-sm text-slate-500 mb-4">Aluno: <b>{{ zapModal.aluno.nome }}</b></p>
+
+                <div class="bg-slate-100 p-4 rounded-lg mb-4 text-sm relative">
+                    <textarea v-model="zapModal.message"
+                        class="w-full bg-transparent outline-none resize-none h-32 text-slate-700"></textarea>
+                    <div class="absolute bottom-2 right-2 text-[10px] text-slate-400">Editável</div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <button @click="setTemplate('falta')"
+                        class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded font-bold hover:bg-red-100">Falta</button>
+                    <button @click="setTemplate('tarefa')"
+                        class="flex-1 bg-yellow-50 text-yellow-600 text-xs py-2 rounded font-bold hover:bg-yellow-100">Tarefa</button>
+                    <button @click="setTemplate('elogio')"
+                        class="flex-1 bg-blue-50 text-blue-600 text-xs py-2 rounded font-bold hover:bg-blue-100">Elogio</button>
+                </div>
+
+                <button @click="sendZap"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> Enviar Mensagem
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                // Storage Mock
+                const today = new Date().toLocaleDateString('pt-BR');
+
+                const turmas = ref([
+                    {
+                        id: 1, nome: "6º Ano A - Matutino",
+                        alunos: [
+                            { id: 1, nome: "Ana Clara Silva", responsavel: "Mãe (Maria)", presente: true, tarefa: true },
+                            { id: 2, nome: "Bernardo Santos", responsavel: "Pai (João)", presente: true, tarefa: false },
+                            { id: 3, nome: "Carlos Eduardo", responsavel: "Tia (Joana)", presente: false, tarefa: false },
+                        ]
+                    },
+                    { id: 2, nome: "7º Ano B - Matutino", alunos: [] },
+                    { id: 3, nome: "9º Ano A - Vespertino", alunos: [] }
+                ]);
+
+                const activeTurma = ref(turmas.value[0]);
+                const addAlunoModal = ref(false);
+
+                const zapModal = ref({
+                    open: false,
+                    aluno: {},
+                    message: ""
+                });
+
+                const addTurma = () => {
+                    const nome = prompt("Nome da nova turma:");
+                    if (nome) {
+                        turmas.value.push({ id: Date.now(), nome: nome, alunos: [] });
+                    }
+                };
+
+                const openZapModal = (aluno) => {
+                    zapModal.value.aluno = aluno;
+                    zapModal.value.message = `Olá! Sou responsável pela turma do(a) ${aluno.nome} e gostaria de falar sobre o desempenho escolar.`;
+                    zapModal.value.open = true;
+                };
+
+                const setTemplate = (type) => {
+                    const nome = zapModal.value.aluno.nome;
+                    if (type === 'falta') {
+                        zapModal.value.message = `Olá. Informamos que o aluno(a) *${nome}* não compareceu à aula hoje (${today}). Gostaria de saber o motivo.`;
+                    } else if (type === 'tarefa') {
+                        zapModal.value.message = `Olá. O aluno(a) *${nome}* não entregou a atividade solicitada para hoje. É importante manter as tarefas em dia.`;
+                    } else if (type === 'elogio') {
+                        zapModal.value.message = `Olá! Passando para elogiar o desempenho do(a) *${nome}* na aula de hoje. Parabéns pelo empenho! 👏`;
+                    }
+                };
+
+                const sendZap = () => {
+                    const text = zapModal.value.message;
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                    zapModal.value.open = false;
+                };
+
+                return {
+                    today, turmas, activeTurma, addTurma, addAlunoModal,
+                    zapModal, openZapModal, setTemplate, sendZap
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

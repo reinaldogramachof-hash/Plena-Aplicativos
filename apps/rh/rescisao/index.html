@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora de Rescisão | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar Input -->
+        <aside class="w-full md:w-[480px] bg-white border-r border-slate-200 z-10 flex flex-col h-full shadow-xl">
+            <div class="p-6 border-b border-slate-100 flex items-center gap-3 bg-slate-50">
+                <div
+                    class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-rose-600/30">
+                    <i class="fa-solid fa-calculator text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-800 tracking-tight">Calc. <span
+                            class="text-rose-600">Rescisão</span></h1>
+                    <p class="text-xs text-slate-400">Estimativa Trabalhista (CLT)</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+                <!-- Basic Data -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-clock"></i> Dados do Contrato
+                    </h3>
+
+                    <div>
+                        <label class="label">Salário Bruto (Base)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 text-sm">R$</span>
+                            <input v-model.number="salary" type="number" class="input pl-8 font-bold text-slate-700"
+                                placeholder="0,00">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Admissão</label>
+                            <input v-model="dateStart" type="date" class="input">
+                        </div>
+                        <div>
+                            <label class="label">Afastamento</label>
+                            <input v-model="dateEnd" type="date" class="input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label">Motivo do Desligamento</label>
+                        <select v-model="reason" class="input">
+                            <option value="sem_justa">Dispensa Sem Justa Causa</option>
+                            <option value="pedido">Pedido de Demissão</option>
+                            <option value="com_justa">Dispensa Com Justa Causa</option>
+                            <option value="acordo">Acordo (Reforma Trabalhista)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="label">Aviso Prévio</label>
+                        <select v-model="noticeType" class="input">
+                            <option value="trabalhado">Trabalhado</option>
+                            <option value="indenizado">Indenizado (Pelo Empregador)</option>
+                            <option value="nao_cumprido">Não Cumprido (Desconto)</option>
+                        </select>
+                    </div>
+
+                    <div v-show="reason === 'sem_justa' || reason === 'acordo'">
+                        <label class="label">Saldo FGTS (Para Multa)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 text-sm">R$</span>
+                            <input v-model.number="fgtsBalance" type="number" class="input pl-8" placeholder="0,00">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Consulte o extrato do trabalhador.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" v-model="hasVacationDue" id="vacDue"
+                            class="w-4 h-4 text-rose-600 rounded border-gray-300 focus:ring-rose-500">
+                        <label for="vacDue" class="text-sm text-slate-600 select-none">Possui Férias Vencidas (1
+                            ano)?</label>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="p-6 border-t border-slate-200 bg-white shadow-lg z-20">
+                <button @click="calculate"
+                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> CALCULAR RESCISÃO
+                </button>
+            </div>
+        </aside>
+
+        <!-- Result Area -->
+        <main class="flex-1 bg-slate-100 flex items-center justify-center p-4 md:p-8 overflow-y-auto">
+
+            <div v-if="result"
+                class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in border border-slate-100">
+                <!-- Header -->
+                <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
+                    <div>
+                        <h2 class="font-bold text-lg">Resumo da Rescisão</h2>
+                        <p class="text-xs opacity-60">Estimativa baseada nos dados informados</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs opacity-60 uppercase mb-1">Total Líquido Estimado</div>
+                        <div class="text-2xl font-black text-rose-400">{{ formatCurrency(result.totalNet) }}</div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 space-y-6">
+
+                    <!-- Earnings -->
+                    <div>
+                        <h3
+                            class="text-xs font-bold text-green-600 uppercase tracking-wider mb-3 border-b border-green-100 pb-1">
+                            Proventos (A Receber)</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Saldo de Salário ({{ result.daysWorked }} dias)</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.salaryBalance) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.noticeValue > 0">
+                                <span class="text-slate-600">Aviso Prévio Indenizado</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.noticeValue) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.vacationProp > 0">
+                                <span class="text-slate-600">Férias Proporcionais ({{ result.monthVacation }}/12)</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.vacationProp) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.vacationDue > 0">
+                                <span class="text-slate-600">Férias Vencidas</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.vacationDue) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.vacationThird > 0">
+                                <span class="text-slate-600">1/3 sobre Férias</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.vacationThird) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.thirteenthProp > 0">
+                                <span class="text-slate-600">13º Salário Proporcional ({{ result.monthThirteenth
+                                    }}/12)</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.thirteenthProp)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.thirteenthInd > 0">
+                                <span class="text-slate-600">13º Indenizado (Aviso)</span>
+                                <span class="font-bold text-slate-800">{{ formatCurrency(result.thirteenthInd) }}</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-between bg-green-50 p-2 rounded text-green-800 font-bold text-sm">
+                            <span>Total Proventos</span>
+                            <span>{{ formatCurrency(result.totalEarnings) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Deductions -->
+                    <div v-if="result.totalDeductions > 0">
+                        <h3
+                            class="text-xs font-bold text-red-500 uppercase tracking-wider mb-3 border-b border-red-100 pb-1">
+                            Descontos</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between" v-if="result.inss > 0">
+                                <span class="text-slate-600">INSS (Est.)</span>
+                                <span class="font-bold text-red-600">- {{ formatCurrency(result.inss) }}</span>
+                            </div>
+                            <div class="flex justify-between" v-if="result.noticeDeduction > 0">
+                                <span class="text-slate-600">Desconto Aviso Não Cumprido</span>
+                                <span class="font-bold text-red-600">- {{ formatCurrency(result.noticeDeduction)
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-between bg-red-50 p-2 rounded text-red-800 font-bold text-sm">
+                            <span>Total Descontos</span>
+                            <span>- {{ formatCurrency(result.totalDeductions) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- FGTS Fine -->
+                    <div v-if="result.fgtsFine > 0" class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Multa Rescisória FGTS
+                        </h3>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-blue-800">Multa ({{ reason === 'acordo' ? '20%' : '40%' }})</span>
+                            <span class="font-bold text-blue-900">{{ formatCurrency(result.fgtsFine) }}</span>
+                        </div>
+                        <p class="text-[10px] text-blue-400 mt-2">*Valor depositado na conta FGTS do trabalhador, não
+                            pago diretamente na rescisão em dinheiro.</p>
+                    </div>
+
+                </div>
+
+                <div class="p-6 bg-slate-50 border-t border-slate-100 text-center">
+                    <button @click="printResult"
+                        class="text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center justify-center gap-2 mx-auto">
+                        <i class="fa-solid fa-print"></i> Imprimir Resultado
+                    </button>
+                    <p class="text-[10px] text-slate-400 mt-4 max-w-md mx-auto">
+                        Atenção: Esta é uma calculadora de estimativa para fins educativos. Os cálculos oficiais podem
+                        variar devido a convenções coletivas, médias de horas extras, adicionais e mudanças na
+                        legislação. Consulte sempre um contador.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="text-center opacity-40 max-w-xs">
+                <i class="fa-solid fa-scale-balanced text-8xl mb-4 text-slate-400"></i>
+                <h3 class="text-xl font-bold text-slate-600">Resultado da Simulação</h3>
+                <p class="text-sm">Preencha os dados ao lado e clique em calcular para ver a estimativa.</p>
+            </div>
+
+        </main>
+
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.70rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        .input:focus {
+            border-color: #f43f5e;
+            ring: 2px solid #fecdd3;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                // Inputs
+                const salary = ref(null);
+                const dateStart = ref('');
+                const dateEnd = ref('');
+                const reason = ref('sem_justa'); // sem_justa, pedido, com_justa, acordo
+                const noticeType = ref('indenizado'); // trabalhado, indenizado, nao_cumprido
+                const fgtsBalance = ref(null);
+                const hasVacationDue = ref(false);
+
+                // Output
+                const result = ref(null);
+
+                const calculate = () => {
+                    if (!salary.value || !dateStart.value || !dateEnd.value) {
+                        alert('Por favor, preencha salário e datas.');
+                        return;
+                    }
+
+                    const start = new Date(dateStart.value);
+                    const end = new Date(dateEnd.value);
+
+                    if (end < start) {
+                        alert('Data de saída anterior à admissão.');
+                        return;
+                    }
+
+                    // 1. Time Calculations
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const yearsWorked = diffDays / 365; // Approx
+
+                    // Last month days
+                    const daysInLastMonth = end.getDate(); // Simple approx for salary balance
+
+                    // Months worked in current year (for 13th)
+                    // Rule: >= 15 days counts as month
+                    let months13 = end.getMonth() + (end.getDate() >= 15 ? 1 : 0);
+                    // Check if admission was in same year
+                    if (start.getFullYear() === end.getFullYear()) {
+                        months13 = (end.getMonth() - start.getMonth()) + (end.getDate() >= 15 ? 1 : 0) - (start.getDate() > 15 ? 1 : 0); // rough fix
+                        // safer logic: iterate months
+                        // For MVP simplified:
+                        months13 = end.getMonth() + 1; // Assuming full year start mostly, fixing below
+                        if (start.getFullYear() === end.getFullYear()) {
+                            let count = 0;
+                            let curr = new Date(start);
+                            while (curr <= end) {
+                                if (curr.getMonth() === end.getMonth()) {
+                                    if (end.getDate() >= 15) count++;
+                                } else if (curr.getMonth() === start.getMonth()) {
+                                    // first month
+                                    const daysInM = new Date(curr.getFullYear(), curr.getMonth() + 1, 0).getDate();
+                                    if (daysInM - curr.getDate() + 1 >= 15) count++;
+                                } else {
+                                    count++;
+                                }
+                                curr.setMonth(curr.getMonth() + 1);
+                                curr.setDate(1);
+                            }
+                            months13 = count;
+                        }
+                    }
+
+                    // Months vacation proportional (since anniversary)
+                    // We need to find last anniversary
+                    let lastAnniversary = new Date(start);
+                    lastAnniversary.setFullYear(end.getFullYear());
+                    if (lastAnniversary > end) lastAnniversary.setFullYear(end.getFullYear() - 1);
+
+                    // Count months from lastAnniversary to end
+                    let monthsVac = 0;
+                    // Simplified: (Month diff)
+                    let mDiff = (end.getFullYear() - lastAnniversary.getFullYear()) * 12 + (end.getMonth() - lastAnniversary.getMonth());
+                    if (end.getDate() >= 15) mDiff += 1; // >=15 days rule
+                    // if(start.getDate() > 15) ... complex rules, sticking to simple estimation
+                    monthsVac = mDiff;
+                    if (monthsVac > 12) monthsVac = 12;
+
+                    // Notice Period (Aviso Previo)
+                    // 30 days + 3 days per year worked (max 90)
+                    let noticeDays = 30 + (Math.floor(yearsWorked) * 3);
+                    if (noticeDays > 90) noticeDays = 90;
+                    if (reason.value === 'pedido' || reason.value === 'com_justa') noticeDays = 0;
+
+                    const oneDaySalary = salary.value / 30;
+
+                    // 2. Earnings Calc
+                    let salaryBalance = oneDaySalary * daysInLastMonth;
+                    let noticeValue = 0;
+                    let vacationProp = (salary.value / 12) * monthsVac;
+                    let vacationDue = hasVacationDue.value ? salary.value : 0;
+                    let thirteenthProp = (salary.value / 12) * months13;
+                    let thirteenthInd = 0; // 1/12 avos indemnified notice
+
+                    // Rules Application
+                    if (reason.value === 'sem_justa' || reason.value === 'acordo') {
+                        if (noticeType.value === 'indenizado') {
+                            noticeValue = oneDaySalary * noticeDays;
+                            if (reason.value === 'acordo') noticeValue = noticeValue / 2; // Reform rule: half notice
+
+                            // Indenized notice adds 1/12 to 13th and Vac (Projected)
+                            // Logic: Extend end date by notice days and recount limits?
+                            // MVP: Just add 1/12
+                            thirteenthInd = salary.value / 12;
+                            vacationProp += salary.value / 12; // Add 1 month prop
+                        }
+                    }
+
+                    if (reason.value === 'com_justa') {
+                        vacationProp = 0; // No proportional vac
+                        thirteenthProp = 0; // No proportional 13th
+                        vacationDue = hasVacationDue.value ? salary.value : 0; // Vencidas sim
+                    }
+
+                    // Calculate 1/3
+                    let vacationThird = (vacationProp + vacationDue) / 3;
+
+                    // 3. Deductions
+                    let inss = 0;
+                    // Simple INSS approx on Salary Balance + 13th
+                    const baseINSS = salaryBalance + thirteenthProp;
+                    if (baseINSS <= 1412.00) inss = baseINSS * 0.075;
+                    else if (baseINSS <= 2666.68) inss = baseINSS * 0.09; // Simplified
+                    else if (baseINSS <= 4000.03) inss = baseINSS * 0.12;
+                    else inss = baseINSS * 0.14;
+                    if (inss > 908.85) inss = 908.85; // Teto approx
+
+                    let noticeDeduction = 0;
+                    if (reason.value === 'pedido' && noticeType.value === 'nao_cumprido') {
+                        noticeDeduction = salary.value; // Desconta 1 salário
+                    }
+
+                    // 4. FGTS Fine
+                    let fgtsFine = 0;
+                    if (fgtsBalance.value > 0) {
+                        if (reason.value === 'sem_justa') fgtsFine = fgtsBalance.value * 0.40;
+                        if (reason.value === 'acordo') fgtsFine = fgtsBalance.value * 0.20;
+                    }
+
+                    // Totals
+                    const totalEarnings = salaryBalance + noticeValue + vacationProp + vacationDue + vacationThird + thirteenthProp + thirteenthInd;
+                    const totalDeductions = inss + noticeDeduction;
+
+                    result.value = {
+                        daysWorked: daysInLastMonth,
+                        salaryBalance,
+                        noticeValue,
+                        vacationProp,
+                        vacationDue,
+                        vacationThird,
+                        thirteenthProp,
+                        thirteenthInd,
+                        monthVacation: monthsVac > 12 ? 12 : monthsVac, // cap visual
+                        monthThirteenth: months13 > 12 ? 12 : months13,
+
+                        inss,
+                        noticeDeduction,
+
+                        fgtsFine,
+
+                        totalEarnings,
+                        totalDeductions,
+                        totalNet: (totalEarnings - totalDeductions) // Important: FGTS Fine is NOT included in "Net Pay" usually, it's deposited. Or sometimes calc shows summary. Let's exclude from "Net Pay in hand" but show in separate block, or clarify.
+                        // Actually, let's keep it separate as it's not "on the receipt" usually, it's a guide (GRRF).
+                        // Updated: show FGTS fine in blue box, not in main sum? Or add note.
+                    };
+                };
+
+                const formatCurrency = (val) => {
+                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+                };
+
+                const printResult = () => window.print();
+
+                return {
+                    salary, dateStart, dateEnd, reason, noticeType, fgtsBalance, hasVacationDue,
+                    result,
+                    calculate, formatCurrency, printResult
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

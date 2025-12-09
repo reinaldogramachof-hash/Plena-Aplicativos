@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expresso Emoção | Plena Kids</title>
+
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FONTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            /* Fonte amigável para crianças */
+            background-color: #FEF9C3;
+            /* Amarelo clarinho */
+            background-image:
+                radial-gradient(circle at 10% 20%, rgb(255, 200, 200) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgb(200, 255, 255) 0%, transparent 20%);
+        }
+
+        .card-enter-active,
+        .card-leave-active {
+            transition: all 0.5s ease;
+        }
+
+        .card-enter-from,
+        .card-leave-to {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+        }
+
+        .bounce-enter-active {
+            animation: bounce-in 0.5s;
+        }
+
+        .bounce-leave-active {
+            animation: bounce-in 0.5s reverse;
+        }
+
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Botão Glossy */
+        .btn-glossy {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.05) 51%, rgba(0, 0, 0, 0.05) 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased text-slate-800 overflow-hidden">
+
+    <div id="app" v-cloak class="flex-grow flex flex-col relative">
+
+        <!-- HEADER -->
+        <header class="p-4 flex justify-between items-center z-20">
+            <a href="../../../index.html"
+                class="bg-white/80 p-3 rounded-full shadow-lg text-orange-500 hover:scale-110 transition">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </a>
+
+            <div class="bg-white/80 px-6 py-2 rounded-full shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-star text-yellow-400 text-xl animate-pulse"></i>
+                <span class="font-bold text-2xl text-slate-700">{{ score }}</span>
+            </div>
+
+            <button @click="toggleSound"
+                class="bg-white/80 p-3 rounded-full shadow-lg text-blue-500 hover:scale-110 transition">
+                <i class="fa-solid" :class="soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'"></i>
+            </button>
+        </header>
+
+        <!-- TELA DE BOAS VINDAS -->
+        <transition name="card">
+            <div v-if="gameState === 'START'"
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 bg-white/30 backdrop-blur-sm">
+                <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-md w-full border-4 border-orange-400">
+                    <div class="text-6xl mb-4">🚂😊</div>
+                    <h1 class="text-4xl font-bold text-orange-500 mb-2">Expresso Emoção</h1>
+                    <p class="text-slate-500 text-lg mb-8">Vamos aprender o que as pessoas estão sentindo?</p>
+
+                    <div class="flex flex-col gap-4">
+                        <button @click="startGame(1)"
+                            class="btn-glossy bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl text-xl font-bold shadow-lg transition transform hover:-translate-y-1">
+                            Nível 1 (Fácil)
+                        </button>
+                        <button @click="startGame(2)"
+                            class="btn-glossy bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl text-xl font-bold shadow-lg transition transform hover:-translate-y-1">
+                            Nível 2 (Médio)
+                        </button>
+                        <button @click="startGame(3)"
+                            class="btn-glossy bg-purple-500 hover:bg-purple-600 text-white py-4 rounded-xl text-xl font-bold shadow-lg transition transform hover:-translate-y-1">
+                            Nível 3 (Difícil)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- JOGO -->
+        <main v-if="gameState === 'PLAYING'"
+            class="flex-grow flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full">
+
+            <!-- Personagem / Imagem -->
+            <div class="w-full aspect-square md:aspect-video bg-white rounded-3xl shadow-xl overflow-hidden mb-6 relative border-4 border-white transform transition-all duration-500"
+                :class="{'scale-95 opacity-50': feedbackState !== null}">
+                <img :src="currentQuestion.image" alt="Emoção" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Pergunta (Texto Falado) -->
+            <h2 class="text-2xl font-bold text-slate-700 mb-6 text-center bg-white/50 px-6 py-2 rounded-full">
+                O que essa pessoa está sentindo?
+            </h2>
+
+            <!-- Opções -->
+            <div class="grid grid-cols-2 gap-4 w-full">
+                <button v-for="opt in currentOptions" :key="opt.text" @click="checkAnswer(opt)"
+                    :disabled="feedbackState !== null"
+                    class="bg-white hover:bg-blue-50 border-4 border-transparent hover:border-blue-300 p-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1 flex flex-col items-center justify-center gap-2 h-32 group">
+                    <span class="text-4xl group-hover:scale-125 transition">{{ opt.icon }}</span>
+                    <span class="font-bold text-lg text-slate-600">{{ opt.text }}</span>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- FEEDBACK OVERLAY -->
+        <transition name="bounce">
+            <div v-if="feedbackState"
+                class="absolute inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                <div
+                    class="bg-white p-8 rounded-3xl shadow-2xl text-center flex flex-col items-center animate-bounce-short">
+                    <div class="text-8xl mb-4">
+                        {{ feedbackState === 'CORRECT' ? '⭐' : '🤔' }}
+                    </div>
+                    <h3 class="text-3xl font-bold mb-2"
+                        :class="feedbackState === 'CORRECT' ? 'text-green-500' : 'text-orange-500'">
+                        {{ feedbackState === 'CORRECT' ? 'Muito Bem!' : 'Quase lá!' }}
+                    </h3>
+                    <p class="text-slate-500 text-lg">
+                        {{ feedbackState === 'CORRECT' ? 'Você acertou!' : 'Tente novamente.' }}
+                    </p>
+                </div>
+            </div>
+        </transition>
+
+        <!-- FIM DO JOGO / NÍVEL -->
+        <transition name="card">
+            <div v-if="gameState === 'FINISHED'"
+                class="absolute inset-0 z-20 flex items-center justify-center p-4 bg-white/90">
+                <div class="text-center">
+                    <div class="text-8xl mb-6 animate-bounce">🏆</div>
+                    <h1 class="text-4xl font-bold text-slate-800 mb-4">Nível Completo!</h1>
+                    <div class="text-2xl text-slate-600 mb-8">
+                        Sua pontuação final<br>
+                        <span class="text-5xl font-bold text-orange-500">{{ score }}</span>
+                    </div>
+                    <div class="flex gap-4 justify-center">
+                        <button @click="gameState = 'START'"
+                            class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-3 rounded-full font-bold transition">
+                            Menu Principal
+                        </button>
+                        <button @click="startGame(currentLevel < 3 ? currentLevel + 1 : 1)"
+                            class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-bold shadow-lg transition transform hover:-translate-y-1">
+                            {{ currentLevel < 3 ? 'Próximo Nível' : 'Jogar Novamente' }} </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- LOGICA -->
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const gameState = ref('START'); // START, PLAYING, FINISHED
+                const score = ref(0);
+                const currentLevel = ref(1);
+                const soundEnabled = ref(true);
+                const feedbackState = ref(null); // null, CORRECT, WRONG
+
+                // Banco de Dados de Emoções
+                const emotionsDB = [
+                    { id: 'feliz', text: 'Feliz', icon: '😄', level: 1, image: 'https://images.unsplash.com/photo-1545342979-99bbcc6a4b16?w=600&q=80' },
+                    { id: 'triste', text: 'Triste', icon: '😢', level: 1, image: 'https://images.unsplash.com/photo-1616005707767-16013ae9e115?w=600&q=80' },
+                    { id: 'bravo', text: 'Bravo', icon: '😠', level: 2, image: 'https://images.unsplash.com/photo-1548543604-a87c9909abec?w=600&q=80' },
+                    { id: 'surpreso', text: 'Surpreso', icon: '😲', level: 2, image: 'https://images.unsplash.com/photo-1616781296564-bd43d839352e?w=600&q=80' },
+                    { id: 'medo', text: 'Com Medo', icon: '😨', level: 3, image: 'https://images.unsplash.com/photo-1628146914598-c70e0600a944?w=600&q=80' },
+                    { id: 'nojo', text: 'Nojo', icon: '🤢', level: 3, image: 'https://images.unsplash.com/photo-1556637172-e5c9b7405232?w=600&q=80' },
+                    { id: 'pensativo', text: 'Pensativo', icon: '🤔', level: 3, image: 'https://images.unsplash.com/photo-1606518175402-99042df58467?w=600&q=80' },
+                    { id: 'engracado', text: 'Engraçado', icon: '🤪', level: 2, image: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=600&q=80' }
+                ];
+
+                const queue = ref([]);
+                const currentQuestion = ref(null);
+                const currentOptions = ref([]);
+
+                const speak = (text) => {
+                    if (!soundEnabled.value) return;
+                    // Cancelar falas anteriores
+                    window.speechSynthesis.cancel();
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'pt-BR';
+                    utterance.rate = 1.1; // Um pouco mais rápido/animado
+                    utterance.pitch = 1.2; // Um pouco mais agudo (infantil)
+                    window.speechSynthesis.speak(utterance);
+                };
+
+                const toggleSound = () => {
+                    soundEnabled.value = !soundEnabled.value;
+                };
+
+                const startGame = (level) => {
+                    currentLevel.value = level;
+                    score.value = 0;
+                    gameState.value = 'PLAYING';
+
+                    // Filtrar emoções do nível (e anteriores para reforço)
+                    const possibleEmotions = emotionsDB.filter(e => e.level <= level);
+
+                    // Criar fila de perguntas (5 rodadas por padrão)
+                    // Embaralhar
+                    queue.value = [...possibleEmotions]
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, 5);
+
+                    nextTurn();
+                };
+
+                const nextTurn = () => {
+                    if (queue.value.length === 0) {
+                        gameState.value = 'FINISHED';
+                        setTimeout(() => speak(`Parabéns! Você completou o nível ${currentLevel.value}. Sua pontuação foi ${score.value}!`), 500);
+                        return;
+                    }
+
+                    currentQuestion.value = queue.value.pop();
+
+                    // Gerar opções (1 correta + 3 erradas aleatórias)
+                    const correctOption = currentQuestion.value;
+                    const distractors = emotionsDB
+                        .filter(e => e.id !== correctOption.id)
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, 3);
+
+                    currentOptions.value = [correctOption, ...distractors].sort(() => Math.random() - 0.5);
+
+                    // Narrar a pergunta
+                    setTimeout(() => speak("O que essa pessoa está sentindo?"), 500);
+                };
+
+                const checkAnswer = (selected) => {
+                    if (selected.id === currentQuestion.value.id) {
+                        // Correto
+                        score.value += 10;
+                        feedbackState.value = 'CORRECT';
+                        speak(`Isso! ${selected.text}! Muito bem!`);
+
+                        setTimeout(() => {
+                            feedbackState.value = null;
+                            nextTurn();
+                        }, 2000);
+                    } else {
+                        // Errado
+                        feedbackState.value = 'WRONG';
+                        speak(`Não exatamente. Tente de novo!`);
+
+                        setTimeout(() => {
+                            feedbackState.value = null;
+                        }, 1500);
+                    }
+                };
+
+                return {
+                    gameState, score, currentLevel, soundEnabled,
+                    currentQuestion, currentOptions, feedbackState,
+                    startGame, checkAnswer, toggleSound
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

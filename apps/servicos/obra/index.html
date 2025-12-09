@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obra Fácil | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .blueprint-bg {
+            background-color: #1e3a8a;
+            background-image: linear-gradient(#1e40af 1px, transparent 1px), linear-gradient(90deg, #1e40af 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-slate-50 shadow-2xl flex flex-col relative">
+
+        <!-- HEADER -->
+        <header class="blueprint-bg text-white p-6 sticky top-0 z-50 shadow-lg border-b-4 border-yellow-500">
+            <h1 class="text-2xl font-bold flex items-center gap-3 uppercase tracking-wider">
+                <i class="fa-solid fa-hammer text-yellow-400"></i> Obra Fácil
+            </h1>
+            <p class="text-blue-200 text-xs mt-1">Orçamentos Profissionais</p>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-grow p-4 overflow-y-auto pb-24">
+
+            <!-- INPUT FORM -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 relative">
+                <div class="absolute -top-3 left-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
+                    DADOS DO SERVIÇO</div>
+
+                <div class="space-y-4 mt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">CLIENTE</label>
+                        <input v-model="quote.client" type="text" class="w-full border rounded-lg p-2 bg-slate-50"
+                            placeholder="Nome do Cliente">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">DESCRIÇÃO DO SERVIÇO</label>
+                        <textarea v-model="quote.description" class="w-full border rounded-lg p-2 bg-slate-50 h-20"
+                            placeholder="Ex: Troca de fiação..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">MÃO DE OBRA (R$)</label>
+                            <input v-model="quote.laborCost" type="number"
+                                class="w-full border rounded-lg p-2 bg-slate-50 font-bold text-lg text-blue-900"
+                                placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">PRAZO (DIAS)</label>
+                            <input v-model="quote.days" type="number" class="w-full border rounded-lg p-2 bg-slate-50"
+                                placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MATERIALS LIST -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 relative">
+                <div class="absolute -top-3 left-4 bg-slate-700 text-white text-xs font-bold px-2 py-1 rounded">LISTA DE
+                    MATERIAIS</div>
+
+                <div class="mt-2 space-y-2">
+                    <div v-for="(item, idx) in quote.materials" :key="idx" class="flex gap-2">
+                        <input v-model="item.name" type="text" class="flex-grow border rounded p-2 text-sm"
+                            placeholder="Item (ex: Cimento)">
+                        <input v-model="item.qty" type="text" class="w-16 border rounded p-2 text-sm text-center"
+                            placeholder="Qtd">
+                        <button @click="removeMaterial(idx)" class="text-red-400 px-2"><i
+                                class="fa-solid fa-times"></i></button>
+                    </div>
+                </div>
+
+                <button @click="addMaterial"
+                    class="w-full mt-3 border-2 border-dashed border-slate-300 text-slate-500 font-bold py-2 rounded-lg hover:border-blue-500 hover:text-blue-500 transition text-sm">
+                    <i class="fa-solid fa-plus"></i> Adicionar Material
+                </button>
+            </div>
+
+            <!-- PREVIEW CARD (HIDDEN FOR PDF GEN, BUT VISIBLE FOR USER) -->
+            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl text-center">
+                <p class="text-xs text-yellow-800 font-bold uppercase mb-1">Total Estimado</p>
+                <div class="text-4xl font-bold text-yellow-600">R$ {{ totalCost }}</div>
+                <p class="text-[10px] text-yellow-700 mt-1">*Sem contar materiais</p>
+            </div>
+
+        </main>
+
+        <!-- FOOTER ACTIONS -->
+        <footer class="bg-white border-t p-4 flex gap-3 sticky bottom-0 z-50">
+            <button @click="resetForm"
+                class="flex-1 bg-slate-200 text-slate-600 font-bold py-3 rounded-xl">Limpar</button>
+            <button @click="shareOnZap"
+                class="flex-[3] bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Enviar Orçamento
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const quote = ref({
+                    client: '',
+                    description: '',
+                    laborCost: '',
+                    days: '',
+                    materials: [{ name: '', qty: '' }]
+                });
+
+                const totalCost = computed(() => {
+                    return Number(quote.value.laborCost || 0).toFixed(2);
+                });
+
+                const addMaterial = () => {
+                    quote.value.materials.push({ name: '', qty: '' });
+                };
+
+                const removeMaterial = (index) => {
+                    quote.value.materials.splice(index, 1);
+                };
+
+                const resetForm = () => {
+                    if (confirm('Limpar tudo?')) {
+                        quote.value = {
+                            client: '',
+                            description: '',
+                            laborCost: '',
+                            days: '',
+                            materials: [{ name: '', qty: '' }]
+                        };
+                    }
+                };
+
+                const shareOnZap = () => {
+                    if (!quote.value.client) return alert('Preencha o nome do cliente!');
+
+                    const q = quote.value;
+                    let text = `*ORÇAMENTO OBRA FÁCIL* 🛠️\n\n`;
+                    text += `👤 *Cliente:* ${q.client}\n`;
+                    text += `📝 *Serviço:* ${q.description}\n`;
+                    text += `⏳ *Prazo:* ${q.days} dias\n`;
+                    text += `💰 *Mão de Obra:* R$ ${q.laborCost}\n\n`;
+
+                    if (q.materials.length > 0 && q.materials[0].name) {
+                        text += `📦 *LISTA DE MATERIAIS:*\n`;
+                        q.materials.forEach(m => {
+                            if (m.name) text += `- ${m.qty}x ${m.name}\n`;
+                        });
+                    }
+
+                    text += `\n_Gerado por Obra Fácil_`;
+
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    quote, totalCost, addMaterial, removeMaterial, resetForm, shareOnZap
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

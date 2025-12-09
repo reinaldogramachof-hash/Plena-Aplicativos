@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sorteador PRO | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Clash Display', 'sans-serif']
+                    },
+                    colors: {
+                        purple: { 400: '#c084fc', 600: '#9333ea', 900: '#581c87' }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(to right, #c084fc, #ec4899);
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar: Input -->
+        <aside
+            class="w-full md:w-[400px] bg-slate-900 border-r border-slate-800 z-10 flex flex-col h-full shadow-2xl relative">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-trophy text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-xl text-white tracking-wider">Sorteio <span
+                            class="text-purple-400">PRO</span></h1>
+                    <p class="text-xs text-slate-400">Realize sorteios justos</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                <!-- List Input -->
+                <div class="flex-1 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Lista de Participantes</label>
+                        <span class="text-xs bg-slate-800 px-2 py-1 rounded text-purple-300 font-bold">{{ itemCount }}
+                            itens</span>
+                    </div>
+                    <textarea v-model="inputText"
+                        class="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 focus:border-purple-500 outline-none resize-none font-mono leading-relaxed"
+                        placeholder="Cole aqui os nomes, números ou e-mails...&#10;Um por linha"></textarea>
+                </div>
+
+                <!-- Options -->
+                <div class="space-y-3 bg-slate-800/30 p-4 rounded-xl border border-slate-800">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="checkbox" v-model="removeDuplicates"
+                            class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500 focus:ring-offset-slate-900">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition">Remover duplicados</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="number" v-model.number="drawCount" min="1" max="10"
+                            class="w-16 bg-slate-700 border border-slate-600 rounded px-2 py-1 text-center font-bold text-white focus:border-purple-500 outline-none">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition">Qtd. de Ganhadores</span>
+                    </label>
+                </div>
+
+                <button @click="startDraw" :disabled="isDrawing || itemCount < 1"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-display font-bold text-lg py-5 rounded-xl shadow-xl shadow-purple-900/30 transition transform active:scale-95 flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play" :class="{'animate-pulse': isDrawing}"></i>
+                    <span>{{ isDrawing ? 'Sorteando...' : 'SORTEAR AGORA' }}</span>
+                </button>
+            </div>
+
+            <div class="p-4 text-center text-[10px] text-slate-600">
+                Plena Aplicativos v3.0
+            </div>
+        </aside>
+
+        <!-- Main Stage: Visualization -->
+        <main class="flex-1 bg-slate-950 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+            <!-- Background FX -->
+            <div class="absolute inset-0 opacity-20"
+                style="background-image: radial-gradient(#4c1d95 1px, transparent 1px); background-size: 40px 40px;">
+            </div>
+            <div
+                class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-slate-900/0 via-slate-900/0 to-slate-950 pointer-events-none">
+            </div>
+
+            <!-- Pre-Screen -->
+            <div v-if="state === 'idle'" class="text-center opacity-50">
+                <i class="fa-solid fa-clover text-6xl mb-4 text-slate-700 animate-bounce"></i>
+                <h2 class="text-2xl font-display font-bold text-slate-500">Boa Sorte!</h2>
+                <p class="text-sm text-slate-600">Prepare a lista e clique em Sortear</p>
+            </div>
+
+            <!-- Drawing Animation -->
+            <div v-if="state === 'drawing'" class="flex flex-col items-center z-20">
+                <div
+                    class="text-8xl md:text-9xl font-display font-black gradient-text tracking-tighter mb-4 transition-all duration-75 relative">
+                    {{ currentDisplay }}
+                    <div class="absolute inset-0 blur-lg opacity-50 animate-pulse-fast">{{ currentDisplay }}</div>
+                </div>
+                <div class="text-purple-400 font-bold uppercase tracking-widest animate-pulse">Embaralhando...</div>
+            </div>
+
+            <!-- Winner Reveal -->
+            <div v-if="state === 'winner'" class="flex flex-col items-center z-20 w-full max-w-4xl relative">
+                <div class="absolute -inset-20 bg-purple-600/20 blur-3xl rounded-full"></div>
+
+                <h2 class="text-purple-300 font-display font-bold uppercase tracking-widest mb-8 text-xl">🎉
+                    Vencedor(es) 🎉</h2>
+
+                <div class="flex flex-wrap justify-center gap-6 w-full">
+                    <div v-for="(winner, idx) in winners" :key="idx"
+                        class="bg-gradient-to-b from-white to-slate-200 text-slate-900 p-8 rounded-3xl shadow-[0_0_50px_rgba(147,51,234,0.5)] transform hover:scale-105 transition duration-500 border-4 border-purple-500 relative animate-zoom-in">
+                        <div
+                            class="absolute -top-4 -left-4 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center font-black text-yellow-800 shadow-lg border-2 border-yellow-200">
+                            {{ idx + 1 }}</div>
+                        <div class="text-3xl md:text-5xl font-black font-display text-center break-all max-w-sm">{{
+                            winner }}</div>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex gap-4">
+                    <button @click="reset"
+                        class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-full font-bold transition border border-slate-700">Novo
+                        Sorteio</button>
+                    <button @click="downloadProof"
+                        class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-full font-bold transition border border-slate-700"><i
+                            class="fa-solid fa-camera mr-2"></i>Salvar Resultado</button>
+                </div>
+            </div>
+
+            <!-- History Drawer (Bottom Right) -->
+            <div class="absolute bottom-6 right-6 z-30" v-if="history.length > 0">
+                <button @click="showHistory = !showHistory"
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-slate-700 transition">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+
+                <div v-if="showHistory"
+                    class="absolute bottom-16 right-0 w-80 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-4 animate-slide-up max-h-96 overflow-y-auto">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-sm text-slate-400">Histórico</h3>
+                        <button @click="clearHistory" class="text-xs text-red-400 hover:text-red-300">Limpar</button>
+                    </div>
+                    <div class="space-y-2">
+                        <div v-for="(entry, idx) in history" :key="idx"
+                            class="bg-slate-800 p-3 rounded-lg border border-slate-700/50">
+                            <div class="text-xs text-slate-500 mb-1">{{ new Date(entry.date).toLocaleString() }}</div>
+                            <div class="font-bold text-green-400 text-sm">{{ entry.winners.join(', ') }}</div>
+                            <div class="text-[10px] text-slate-600 mt-1">{{ entry.totalItems }} participantes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <style>
+        .animate-zoom-in {
+            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const DB_KEY = 'plena_sorteio_history_v1';
+
+        createApp({
+            setup() {
+                // State
+                const inputText = ref('');
+                const removeDuplicates = ref(true);
+                const drawCount = ref(1);
+
+                const state = ref('idle'); // idle, drawing, winner
+                const currentDisplay = ref('???');
+                const winners = ref([]);
+
+                const history = ref([]);
+                const showHistory = ref(false);
+
+                // Derived
+                const itemsList = computed(() => {
+                    if (!inputText.value) return [];
+                    let list = inputText.value.split(/\n|,/).map(s => s.trim()).filter(s => s.length > 0);
+                    if (removeDuplicates.value) list = [...new Set(list)];
+                    return list;
+                });
+
+                const itemCount = computed(() => itemsList.value.length);
+                const isDrawing = computed(() => state.value === 'drawing');
+
+                // Init
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) history.value = JSON.parse(d);
+                });
+
+                // Logic
+                const startDraw = () => {
+                    if (itemCount.value < 1) return;
+                    if (drawCount.value > itemCount.value) return alert('Número de ganhadores maior que participantes!');
+
+                    state.value = 'drawing';
+                    winners.value = [];
+
+                    let duration = 3000; // 3s spin
+                    let intervalTime = 50;
+
+                    const interval = setInterval(() => {
+                        // Shuffle display
+                        const rnd = Math.floor(Math.random() * itemCount.value);
+                        currentDisplay.value = itemsList.value[rnd];
+                    }, intervalTime);
+
+                    setTimeout(() => {
+                        clearInterval(interval);
+                        finalizeDraw();
+                    }, duration);
+                };
+
+                const finalizeDraw = () => {
+                    // Pick winners purely random
+                    // NOTE: In a real app we might want cryptographically secure random, but Math.random is fine for casual use.
+                    const pool = [...itemsList.value];
+                    const results = [];
+
+                    for (let i = 0; i < drawCount.value; i++) {
+                        const rnd = Math.floor(Math.random() * pool.length);
+                        results.push(pool[rnd]);
+                        pool.splice(rnd, 1); // Remove to prevent double win
+                    }
+
+                    winners.value = results;
+                    state.value = 'winner';
+
+                    // FX
+                    triggerConfetti();
+                    saveHistory(results);
+                };
+
+                const triggerConfetti = () => {
+                    // Left burst
+                    confetti({ particleCount: 100, spread: 70, origin: { x: 0.1, y: 0.6 }, colors: ['#c084fc', '#e879f9', '#fbbf24'] });
+                    // Right burst
+                    setTimeout(() => confetti({ particleCount: 100, spread: 70, origin: { x: 0.9, y: 0.6 }, colors: ['#c084fc', '#e879f9', '#fbbf24'] }), 200);
+                    // Center rain
+                    setTimeout(() => confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, gravity: 0.8 }), 500);
+                };
+
+                const saveHistory = (wins) => {
+                    history.value.unshift({
+                        date: Date.now(),
+                        winners: wins,
+                        totalItems: itemCount.value
+                    });
+                    if (history.value.length > 20) history.value.pop();
+                    localStorage.setItem(DB_KEY, JSON.stringify(history.value));
+                };
+
+                const reset = () => {
+                    state.value = 'idle';
+                    currentDisplay.value = '???';
+                    winners.value = [];
+                };
+
+                const clearHistory = () => {
+                    if (confirm('Limpar histórico?')) {
+                        history.value = [];
+                        localStorage.removeItem(DB_KEY);
+                    }
+                };
+
+                // Fake "screenshot" by creating a canvas or just alerting feature pending
+                // Actually, for a single file app, capturing DOM to image is heavy (html2canvas).
+                // We'll simulate a simple text export or just print dialog.
+                const downloadProof = () => {
+                    window.print();
+                };
+
+                return {
+                    inputText, removeDuplicates, drawCount, state, currentDisplay, winners, history, showHistory,
+                    itemsList, itemCount, isDrawing,
+                    startDraw, reset, clearHistory, downloadProof
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

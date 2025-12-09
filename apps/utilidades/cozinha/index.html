@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medida Certa | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fff1f2;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden border border-rose-100">
+
+        <!-- Header -->
+        <div class="bg-rose-500 text-white p-6 text-center relative">
+            <h1 class="text-3xl font-bold">Medida Certa</h1>
+            <p class="text-rose-100 italic">Chef's Assistant</p>
+            <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-rose-300 rounded-full"></div>
+        </div>
+
+        <div class="p-8 space-y-6">
+
+            <!-- Ingredient Select -->
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Ingrediente</label>
+                <div class="relative">
+                    <select v-model="ingredient"
+                        class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded-xl appearance-none outline-none focus:border-rose-400 font-bold">
+                        <option v-for="(val, key) in densities" :value="key">{{ key }}</option>
+                    </select>
+                    <div class="absolute right-4 top-3 text-rose-400 pointer-events-none">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- From Unit -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Quantidade</label>
+                    <input v-model="amount" type="number"
+                        class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded-xl outline-none focus:border-rose-400 font-bold text-center">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Unidade</label>
+                    <div class="relative">
+                        <select v-model="unit"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded-xl appearance-none outline-none focus:border-rose-400 font-bold text-sm">
+                            <option value="xicara">Xícara</option>
+                            <option value="colher_sopa">Colher Sopa</option>
+                            <option value="colher_cha">Colher Chá</option>
+                            <option value="gramas">Gramas</option>
+                            <option value="ml">Mililitros</option>
+                        </select>
+                        <div class="absolute right-3 top-3.5 text-rose-400 pointer-events-none text-xs">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULT -->
+            <div class="bg-rose-50 rounded-2xl p-6 text-center border border-rose-100 mt-8">
+                <div class="text-xs text-rose-400 font-bold uppercase mb-1">Equivale a</div>
+
+                <div class="text-4xl font-bold text-rose-600 mb-2">
+                    {{ result.value }}
+                    <span class="text-base font-normal text-rose-500">{{ result.unit }}</span>
+                </div>
+
+                <div v-if="result.alt" class="text-sm text-gray-500">
+                    ou {{ result.alt }}
+                </div>
+            </div>
+
+            <!-- TIP -->
+            <div class="text-center text-xs text-gray-400 italic">
+                *Baseado em padrões culinários brasileiros.
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                // Density = grams per 1 cup (240ml standard)
+                const densities = {
+                    "Farinha de Trigo": 120,
+                    "Açúcar Refinado": 160,
+                    "Açúcar Mascavo": 150,
+                    "Arroz Cru": 190,
+                    "Aveia": 80,
+                    "Cacau em Pó": 90,
+                    "Manteiga": 200,
+                    "Mel": 340,
+                    "Água/Leite (Líq.)": 240,
+                    "Óleo": 220
+                };
+
+                const ingredient = ref("Farinha de Trigo");
+                const amount = ref(1);
+                const unit = ref("xicara");
+
+                const result = computed(() => {
+                    const d = densities[ingredient.value]; // grams per cup
+                    const qty = parseFloat(amount.value) || 0;
+
+                    if (unit.value === 'gramas') {
+                        // Convert TO Cups/Spoons
+                        const cups = qty / d;
+                        return { value: cups.toFixed(2), unit: 'Xícaras' };
+                    }
+
+                    if (unit.value === 'ml') {
+                        return { value: qty, unit: 'Gramas (aprox. igual se água)' };
+                        // Simple logic for non-water liquids needs density but keeping simple
+                    }
+
+                    // Convert FROM Cups/Spoons TO Grams
+                    let cups = 0;
+                    if (unit.value === 'xicara') cups = qty;
+                    if (unit.value === 'colher_sopa') cups = qty / 16;
+                    if (unit.value === 'colher_cha') cups = qty / 48;
+
+                    const grams = cups * d;
+                    const ml = cups * 240;
+
+                    return {
+                        value: Math.round(grams),
+                        unit: 'Gramas',
+                        alt: `${Math.round(ml)} ml`
+                    };
+                });
+
+                return {
+                    densities, ingredient, amount, unit, result
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

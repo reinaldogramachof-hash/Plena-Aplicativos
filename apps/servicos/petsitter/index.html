@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Sitter Pro | Plena Apps</title>
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .paw-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 2c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm6 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-4 4c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z' fill='%23f97316' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+
+<body class="bg-orange-50 text-slate-700 paw-pattern">
+
+    <div id="app" v-cloak
+        class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative border-x border-orange-100">
+
+        <!-- HEADER -->
+        <header class="bg-orange-500 text-white p-6 rounded-b-[3rem] shadow-lg sticky top-0 z-50">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-dog"></i> Pet Sitter
+                </h1>
+                <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">Pro</div>
+            </div>
+            <p class="text-orange-100 text-sm mt-1 ml-1">Relatório Diário de Passeio</p>
+        </header>
+
+        <!-- FORM CONTENT -->
+        <main class="flex-grow p-6 pb-24 overflow-y-auto">
+
+            <!-- PET INFO -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-orange-100 mb-6 relative">
+                <div
+                    class="absolute -top-3 left-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold">
+                    Sobre o Pet</div>
+                <div class="mt-2">
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Nome do Pet</label>
+                    <input v-model="report.petName" type="text"
+                        class="w-full border-b-2 border-orange-100 focus:border-orange-500 outline-none py-2 text-lg font-bold text-slate-700 bg-transparent placeholder-slate-300"
+                        placeholder="Ex: Bob">
+                </div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="space-y-4 mb-6">
+
+                <!-- XIXI -->
+                <div class="flex items-center justify-between bg-yellow-50 p-4 rounded-xl border border-yellow-100 cursor-pointer transition hover:scale-[1.02]"
+                    @click="report.pee = !report.pee">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-yellow-400 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <span class="font-bold text-yellow-800">Fez Xixi?</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg border-2 flex items-center justify-center transition"
+                        :class="report.pee ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 text-transparent'">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+
+                <!-- COCO -->
+                <div class="flex items-center justify-between bg-stone-100 p-4 rounded-xl border border-stone-200 cursor-pointer transition hover:scale-[1.02]"
+                    @click="report.poop = !report.poop">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-stone-600 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-poop"></i>
+                        </div>
+                        <span class="font-bold text-stone-700">Fez Cocô?</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg border-2 flex items-center justify-center transition"
+                        :class="report.poop ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 text-transparent'">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+
+                <!-- AGUA -->
+                <div class="flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100 cursor-pointer transition hover:scale-[1.02]"
+                    @click="report.water = !report.water">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-blue-400 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-glass-water"></i>
+                        </div>
+                        <span class="font-bold text-blue-800">Bebeu Água?</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg border-2 flex items-center justify-center transition"
+                        :class="report.water ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 text-transparent'">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+
+                <!-- COMIDA -->
+                <div class="flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-100 cursor-pointer transition hover:scale-[1.02]"
+                    @click="report.food = !report.food">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-red-400 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-bowl-food"></i>
+                        </div>
+                        <span class="font-bold text-red-800">Comeu tudo?</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg border-2 flex items-center justify-center transition"
+                        :class="report.food ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 text-transparent'">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NOTES -->
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">Como foi o passeio?</label>
+                <textarea v-model="report.notes"
+                    class="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 h-24"
+                    placeholder="Ex: Brincou muito no parque, interagiu com outros cães..."></textarea>
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white p-4 border-t sticky bottom-0 z-50">
+            <button @click="shareReport"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg transition transform active:scale-95">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Relatório
+            </button>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const report = ref({
+                    petName: '',
+                    pee: false,
+                    poop: false,
+                    water: false,
+                    food: false,
+                    notes: ''
+                });
+
+                const shareReport = () => {
+                    const r = report.value;
+                    const today = new Date().toLocaleDateString('pt-BR');
+
+                    let text = `*🐾 DIÁRIO DO PET SITTER 🐾*\n`;
+                    text += `📅 Data: ${today}\n`;
+                    text += `🐶 Pet: *${r.petName || 'Pet'}*\n\n`;
+
+                    text += `*Checklist do Dia:*\n`;
+                    text += `${r.pee ? '✅' : '❌'} Fez Xixi\n`;
+                    text += `${r.poop ? '✅' : '❌'} Fez Cocô\n`;
+                    text += `${r.water ? '✅' : '❌'} Bebeu Água\n`;
+                    text += `${r.food ? '✅' : '❌'} Comeu\n\n`;
+
+                    if (r.notes) {
+                        text += `*📝 Observações:*\n${r.notes}\n\n`;
+                    }
+
+                    text += `_Cuidado com carinho! ❤️_`;
+
+                    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    report, shareReport
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

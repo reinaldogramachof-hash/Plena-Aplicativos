@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha RPG | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Metamorphous&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'MedievalSharp', cursive;
+            background: #2f2b25;
+            color: #d4cebc;
+        }
+
+        .parchment {
+            background-color: #e3dcd2;
+            color: #2b2520;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239e927b' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.2);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Metamorphous', cursive;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .stat-diamond {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen py-6 px-4">
+
+    <div id="app" v-cloak class="max-w-2xl mx-auto">
+
+        <!-- HEADER CHARACTER -->
+        <div
+            class="parchment p-6 rounded-t-lg border-b-2 border-amber-900/30 flex flex-col md:flex-row gap-4 items-center">
+
+            <div
+                class="w-20 h-20 bg-amber-900 rounded-full border-4 border-amber-600 overflow-hidden shadow-lg flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1636192804618-b223add109e9?w=200&q=80"
+                    class="w-full h-full object-cover opacity-80">
+            </div>
+
+            <div class="flex-grow w-full space-y-2">
+                <div class="flex gap-2">
+                    <input v-model="char.name" type="text" placeholder="Nome do Personagem"
+                        class="w-full bg-transparent border-b border-amber-900/20 text-xl font-bold placeholder-amber-900/40 outline-none text-amber-900">
+                    <input v-model.number="char.level" type="number" placeholder="Lvl"
+                        class="w-16 text-center bg-transparent border-b border-amber-900/20 text-xl font-bold text-amber-900">
+                </div>
+                <div class="flex gap-2">
+                    <input v-model="char.race" type="text" placeholder="Raça"
+                        class="w-1/2 bg-transparent text-sm text-amber-800/70 border-none outline-none">
+                    <input v-model="char.class" type="text" placeholder="Classe"
+                        class="w-1/2 bg-transparent text-sm text-amber-800/70 border-none outline-none">
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS & HP -->
+        <div class="parchment p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- ATTRIBUTES -->
+            <div class="md:col-span-1 space-y-4">
+                <div v-for="(val, stat) in char.stats" :key="stat" class="flex items-center justify-between">
+                    <div class="text-xs font-bold uppercase text-amber-900 w-8">{{ stat }}</div>
+
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="w-10 h-10 border-2 border-amber-800 rounded bg-white/50 flex items-center justify-center font-bold text-lg text-amber-900 relative">
+                            <input v-model.number="char.stats[stat]"
+                                class="w-full h-full text-center bg-transparent outline-none">
+                        </div>
+                        <button @click="rollStat(stat)"
+                            class="w-10 h-10 bg-amber-900 rounded-full text-amber-100 flex items-center justify-center font-bold text-sm shadow hover:bg-amber-700 transition">
+                            {{ calculateMod(val) >= 0 ? '+' : '' }}{{ calculateMod(val) }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMBAT & HP -->
+            <div class="md:col-span-2 space-y-6">
+
+                <!-- HP Bar -->
+                <div class="bg-amber-100 rounded-xl p-4 border border-amber-300 shadow-inner">
+                    <div class="flex justify-between text-xs font-bold text-amber-900 mb-1">
+                        <span>HIT POINTS</span>
+                        <span>{{ char.hp.current }} / {{ char.hp.max }}</span>
+                    </div>
+                    <div class="h-4 bg-amber-200 rounded-full overflow-hidden mb-3">
+                        <div class="h-full bg-red-600 transition-all duration-500"
+                            :style="`width: ${(char.hp.current / char.hp.max) * 100}%`"></div>
+                    </div>
+                    <div class="flex gap-2 justify-center">
+                        <button @click="char.hp.current = Math.max(0, char.hp.current - 1)"
+                            class="bg-red-200 text-red-900 w-8 h-8 rounded hover:bg-red-300 font-bold">-1</button>
+                        <button @click="char.hp.current = Math.min(char.hp.max, char.hp.current + 1)"
+                            class="bg-green-200 text-green-900 w-8 h-8 rounded hover:bg-green-300 font-bold">+1</button>
+                        <button @click="healFull" class="text-xs text-amber-600 underline ml-2">Descanso Longo</button>
+                    </div>
+                </div>
+
+                <!-- Dice Roller -->
+                <div class="bg-slate-800 p-4 rounded-xl text-center text-white relative overflow-hidden">
+                    <div v-if="rollResult"
+                        class="absolute inset-0 bg-black/80 flex items-center justify-center z-10 animate-fade-in"
+                        @click="rollResult = null">
+                        <div>
+                            <div class="text-6xl font-bold text-yellow-400 mb-2">{{ rollResult.total }}</div>
+                            <div class="text-xs text-slate-400">D20 ({{ rollResult.dice }}) + Mod ({{ rollResult.mod }})
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-4">Clique para fechar</div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-yellow-500/50 text-xs uppercase tracking-widest mb-3">Rolagem Rápida</h3>
+                    <div class="flex justify-center gap-3">
+                        <button @click="rollDice(4)"
+                            class="w-10 h-10 bg-slate-700 rounded hover:bg-slate-600 text-xs font-bold">D4</button>
+                        <button @click="rollDice(6)"
+                            class="w-10 h-10 bg-slate-700 rounded hover:bg-slate-600 text-xs font-bold">D6</button>
+                        <button @click="rollDice(8)"
+                            class="w-10 h-10 bg-slate-700 rounded hover:bg-slate-600 text-xs font-bold">D8</button>
+                        <button @click="rollDice(20)"
+                            class="w-12 h-12 bg-red-900 rounded-xl hover:bg-red-800 text-sm font-bold border border-red-500 shadow-red-900/50 shadow-lg">D20</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- INVENTORY -->
+        <div class="parchment p-6 rounded-b-lg border-t border-amber-900/10 mt-1">
+            <h3 class="font-bold text-amber-900 mb-2 border-b border-amber-900">Equipamento</h3>
+            <textarea v-model="char.inventory"
+                class="w-full bg-transparent outline-none h-32 text-sm text-amber-900 resize-none font-sans"
+                placeholder="Espada Longa, Poção de Cura (3x), Corda..."></textarea>
+
+            <div class="text-right mt-2 text-xs text-amber-700">
+                <button @click="save" class="bg-amber-800 text-amber-100 px-4 py-1 rounded hover:bg-amber-700">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Ficha
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const char = ref({
+                    name: "",
+                    level: 1,
+                    race: "",
+                    class: "",
+                    hp: { current: 10, max: 10 },
+                    stats: { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 },
+                    inventory: ""
+                });
+
+                const rollResult = ref(null);
+
+                // D&D 5e Mod Calculator
+                const calculateMod = (score) => Math.floor((score - 10) / 2);
+
+                const rollStat = (stat) => {
+                    const mod = calculateMod(char.value.stats[stat]);
+                    const d20 = Math.floor(Math.random() * 20) + 1;
+                    rollResult.value = {
+                        dice: d20,
+                        mod: mod,
+                        total: d20 + mod
+                    };
+                };
+
+                const rollDice = (sides) => {
+                    const res = Math.floor(Math.random() * sides) + 1;
+                    rollResult.value = { dice: res, mod: 0, total: res };
+                };
+
+                const healFull = () => {
+                    char.value.hp.current = char.value.hp.max;
+                };
+
+                const save = () => {
+                    localStorage.setItem('plena_rpg_char', JSON.stringify(char.value));
+                    alert('Progresso Salvo!');
+                };
+
+                onMounted(() => {
+                    const saved = localStorage.getItem('plena_rpg_char');
+                    if (saved) {
+                        try { char.value = JSON.parse(saved); } catch (e) { }
+                    }
+                });
+
+                // Auto-save logic
+                watch(char, () => {
+                    localStorage.setItem('plena_rpg_char', JSON.stringify(char.value));
+                }, { deep: true });
+
+                return {
+                    char, calculateMod, rollStat, rollDice, rollResult, healFull, save
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

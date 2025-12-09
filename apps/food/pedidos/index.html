@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestor de Pedidos (KDS) | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Chakra Petch', 'monospace']
+                    },
+                    colors: {
+                        brand: {
+                            500: '#10b981', // Emerald for "Go/Activity"
+                            600: '#059669',
+                            900: '#064e3b',
+                        },
+                        ui: {
+                            800: '#1e293b', // Slate 800
+                            900: '#0f172a', // Slate 900
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .font-tech {
+            font-family: 'Chakra Petch', monospace;
+        }
+
+        .card-enter-active,
+        .card-leave-active {
+            transition: all 0.3s ease;
+        }
+
+        .card-enter-from,
+        .card-leave-to {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <div id="app" class="flex-1 flex flex-col h-full relative">
+
+        <!-- Header -->
+        <header class="h-16 bg-ui-800 border-b border-gray-700 flex items-center justify-between px-6 z-20 shrink-0">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-600/20">
+                    <i class="fa-solid fa-fire-burner text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-tech font-bold text-xl text-white tracking-wider">KDS <span
+                            class="text-brand-500">PRO</span></h1>
+                    <div class="text-[10px] text-gray-400 font-mono">{{ currentTime }}</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button @click="newOrderModal = true"
+                    class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg font-bold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Novo Pedido</span>
+                </button>
+                <div class="relative group">
+                    <button
+                        class="w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-gray-300">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div
+                        class="absolute right-0 top-12 bg-gray-800 border border-gray-700 rounded-xl shadow-xl p-2 hidden group-hover:block min-w-[150px] z-50">
+                        <button @click="clearHistory"
+                            class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded">Limpar
+                            Histórico</button>
+                        <button @click="backupData"
+                            class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded">Backup
+                            Dados</button>
+                        <label
+                            class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded cursor-pointer block">
+                            Restaurar <input type="file" class="hidden" @change="importData">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Kanban Board -->
+        <main class="flex-1 overflow-x-auto overflow-y-hidden p-4">
+            <div class="flex h-full gap-4 min-w-[1000px]">
+
+                <!-- Column: NOVOS -->
+                <div class="flex-1 flex flex-col bg-ui-800 rounded-xl border border-gray-700/50">
+                    <div
+                        class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-700/30 rounded-t-xl">
+                        <h2 class="font-tech font-bold text-lg text-blue-400 uppercase"><i
+                                class="fa-solid fa-bell mr-2"></i> Novos</h2>
+                        <span class="bg-gray-700 text-white text-xs px-2 py-1 rounded-full font-bold">{{
+                            getOrders('novos').length }}</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-900/50">
+                        <TransitionGroup name="card">
+                            <div v-for="order in getOrders('novos')" :key="order.id"
+                                class="bg-white text-gray-800 rounded-xl shadow-md p-4 border-l-4 border-blue-500 hover:shadow-lg transition group relative">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-lg">#{{ order.num }}</span>
+                                    <span
+                                        class="text-xs font-mono font-bold bg-gray-100 px-2 py-1 rounded text-gray-600">{{
+                                        getTimer(order.createdAt) }}</span>
+                                </div>
+                                <div class="text-sm font-bold text-gray-600 mb-2">{{ order.customer }}</div>
+                                <ul class="text-sm space-y-1 mb-3 text-gray-700">
+                                    <li v-for="(item, idx) in order.items" :key="idx" class="flex gap-2">
+                                        <span class="font-bold text-blue-600">{{ item.qty }}x</span> {{ item.name }}
+                                    </li>
+                                </ul>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex gap-2">
+                                    <button @click="moveOrder(order, 'preparo')"
+                                        class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-bold text-sm transition">Iniciar
+                                        Preparo</button>
+                                    <button @click="deleteOrder(order.id)"
+                                        class="px-3 text-gray-300 hover:text-red-500"><i
+                                            class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </TransitionGroup>
+                    </div>
+                </div>
+
+                <!-- Column: EM PREPARO -->
+                <div class="flex-1 flex flex-col bg-ui-800 rounded-xl border border-gray-700/50">
+                    <div
+                        class="p-4 border-b border-gray-700 flex justify-between items-center bg-orange-900/20 rounded-t-xl">
+                        <h2 class="font-tech font-bold text-lg text-orange-400 uppercase"><i
+                                class="fa-solid fa-fire mr-2 animate-pulse"></i> Preparando</h2>
+                        <span class="bg-gray-700 text-white text-xs px-2 py-1 rounded-full font-bold">{{
+                            getOrders('preparo').length }}</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-900/50">
+                        <TransitionGroup name="card">
+                            <div v-for="order in getOrders('preparo')" :key="order.id"
+                                class="bg-orange-50 text-gray-800 rounded-xl shadow-md p-4 border-l-4 border-orange-500 hover:shadow-lg transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-lg">#{{ order.num }}</span>
+                                    <span
+                                        class="text-xs font-mono font-bold bg-orange-200 text-orange-800 px-2 py-1 rounded">{{
+                                        getTimer(order.createdAt) }}</span>
+                                </div>
+                                <div class="text-sm font-bold text-gray-600 mb-2">{{ order.customer }}</div>
+                                <ul class="text-sm space-y-1 mb-3 font-medium">
+                                    <li v-for="(item, idx) in order.items" :key="idx" class="flex gap-2">
+                                        <span class="font-bold text-orange-600">{{ item.qty }}x</span> {{ item.name }}
+                                    </li>
+                                </ul>
+                                <button @click="moveOrder(order, 'pronto')"
+                                    class="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-bold text-sm transition">Marcar
+                                    Pronto</button>
+                            </div>
+                        </TransitionGroup>
+                    </div>
+                </div>
+
+                <!-- Column: PRONTO -->
+                <div class="flex-1 flex flex-col bg-ui-800 rounded-xl border border-gray-700/50">
+                    <div
+                        class="p-4 border-b border-gray-700 flex justify-between items-center bg-green-900/20 rounded-t-xl">
+                        <h2 class="font-tech font-bold text-lg text-green-400 uppercase"><i
+                                class="fa-solid fa-check-circle mr-2"></i> Pronto</h2>
+                        <span class="bg-gray-700 text-white text-xs px-2 py-1 rounded-full font-bold">{{
+                            getOrders('pronto').length }}</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-900/50">
+                        <TransitionGroup name="card">
+                            <div v-for="order in getOrders('pronto')" :key="order.id"
+                                class="bg-green-50 text-gray-800 rounded-xl shadow-md p-4 border-l-4 border-green-500 hover:shadow-lg transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-lg">#{{ order.num }}</span>
+                                    <span
+                                        class="text-xs font-mono font-bold bg-green-200 text-green-800 px-2 py-1 rounded">Aguar.
+                                        Retirada</span>
+                                </div>
+                                <div class="text-sm font-bold text-gray-600 mb-2">{{ order.customer }}</div>
+                                <ul class="text-sm space-y-1 mb-3 opacity-75">
+                                    <li v-for="(item, idx) in order.items" :key="idx" class="truncate">
+                                        {{ item.qty }}x {{ item.name }}
+                                    </li>
+                                </ul>
+                                <button @click="moveOrder(order, 'entregue')"
+                                    class="w-full mt-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-bold text-sm transition">Entregar
+                                    / Finalizar</button>
+                            </div>
+                        </TransitionGroup>
+                    </div>
+                </div>
+
+                <!-- Column: ULTIMOS ENTREGUES -->
+                <div
+                    class="w-64 flex flex-col bg-gray-800/50 rounded-xl border border-gray-800 blur-xs opacity-75 hover:opacity-100 hover:blur-0 transition duration-300">
+                    <div
+                        class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-800 rounded-t-xl">
+                        <h2 class="font-tech font-bold text-sm text-gray-400 uppercase">Histórico Recente</h2>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                        <div v-for="order in getOrders('entregue').slice(0, 10)" :key="order.id"
+                            class="bg-gray-800 p-3 rounded-lg border border-gray-700 text-sm text-gray-400">
+                            <div class="flex justify-between">
+                                <span class="font-bold text-gray-300">#{{ order.num }}</span>
+                                <span class="text-xs">{{ formatTime(order.finishedAt) }}</span>
+                            </div>
+                            <div class="truncate text-xs">{{ order.customer }}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ADD ORDER MODAL -->
+        <div v-if="newOrderModal"
+            class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-ui-800 w-full max-w-lg rounded-2xl shadow-2xl border border-gray-700 animate-fade-in p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white font-tech">Novo Pedido</h2>
+                    <button @click="newOrderModal = false" class="text-gray-400 hover:text-white"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Mesa/Senha</label>
+                            <input v-model="form.customer" class="input" placeholder="Ex: 10">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Observação</label>
+                            <input v-model="form.obs" class="input" placeholder="Sem cebola...">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
+                        <div class="flex gap-2 mb-2">
+                            <input v-model="tempItem.qty" type="number" class="input w-20 text-center" placeholder="Qtd"
+                                value="1">
+                            <input v-model="tempItem.name" @keyup.enter="addItem" class="input flex-1"
+                                placeholder="Item (Ex: X-Salada)">
+                            <button @click="addItem"
+                                class="bg-brand-600 hover:bg-brand-500 text-white w-12 rounded-lg"><i
+                                    class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <div class="max-h-32 overflow-y-auto space-y-1 mt-3">
+                            <div v-for="(item, idx) in form.items" :key="idx"
+                                class="flex justify-between items-center bg-gray-800 p-2 rounded text-sm text-gray-300">
+                                <span><b class="text-brand-500">{{ item.qty }}x</b> {{ item.name }}</span>
+                                <button @click="form.items.splice(idx, 1)" class="text-gray-500 hover:text-red-400"><i
+                                        class="fa-solid fa-times"></i></button>
+                            </div>
+                            <div v-if="form.items.length === 0" class="text-gray-600 text-xs text-center italic py-2">
+                                Nenhum item adicionado.</div>
+                        </div>
+                    </div>
+
+                    <button @click="submitOrder"
+                        class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/20 transition text-lg font-tech tracking-wide mt-4">Lançar
+                        para Cozinha</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+            outline: none;
+            transition: all;
+            background: #0f172a;
+            color: white;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #10b981;
+            ring: 1px solid #10b981;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+        const DB_KEY = 'plena_pedidos_v1';
+
+        createApp({
+            setup() {
+                const orders = ref([]);
+                const newOrderModal = ref(false);
+                const currentTime = ref('');
+                const timerInterval = ref(null);
+                const now = ref(Date.now()); // Reactive timestamp for updates
+
+                // Form
+                const form = ref({ customer: '', obs: '', items: [] });
+                const tempItem = ref({ qty: 1, name: '' });
+                const nextOrderNum = ref(1);
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        orders.value = parsed.orders || [];
+                        nextOrderNum.value = parsed.nextNum || 1;
+                    }
+
+                    // Clock
+                    updateTime();
+                    timerInterval.value = setInterval(() => {
+                        updateTime();
+                        now.value = Date.now();
+                    }, 1000);
+                });
+
+                onUnmounted(() => clearInterval(timerInterval.value));
+
+                watch(orders, () => savestate(), { deep: true });
+                const savestate = () => localStorage.setItem(DB_KEY, JSON.stringify({ orders: orders.value, nextNum: nextOrderNum.value }));
+
+                const updateTime = () => {
+                    const d = new Date();
+                    currentTime.value = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                };
+
+                // Logic
+                const getOrders = (status) => orders.value.filter(o => o.status === status).sort((a, b) => b.createdAt - a.createdAt);
+
+                // Time Tracking
+                const getTimer = (timestamp) => {
+                    const diff = Math.floor((now.value - timestamp) / 1000); // seconds
+                    if (diff < 60) return `${diff}s`;
+                    const mins = Math.floor(diff / 60);
+                    return `${mins} min`;
+                };
+
+                const formatTime = (ts) => {
+                    if (!ts) return '-';
+                    return new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                };
+
+                // Actions
+                const addItem = () => {
+                    if (!tempItem.value.name) return;
+                    form.value.items.push({ ...tempItem.value });
+                    tempItem.value = { qty: 1, name: '' };
+                };
+
+                const submitOrder = () => {
+                    if (form.value.items.length === 0) return alert('Adicione itens ao pedido.');
+
+                    orders.value.push({
+                        id: Date.now(),
+                        num: nextOrderNum.value++,
+                        customer: form.value.customer || 'Balcão',
+                        obs: form.value.obs,
+                        items: [...form.value.items],
+                        status: 'novos',
+                        createdAt: Date.now(),
+                        finishedAt: null
+                    });
+
+                    form.value = { customer: '', obs: '', items: [] };
+                    newOrderModal.value = false;
+                    savestate();
+                };
+
+                const moveOrder = (order, newStatus) => {
+                    const idx = orders.value.findIndex(o => o.id === order.id);
+                    if (idx !== -1) {
+                        orders.value[idx].status = newStatus;
+                        if (newStatus === 'entregue') orders.value[idx].finishedAt = Date.now();
+                    }
+                };
+
+                const deleteOrder = (id) => {
+                    if (confirm('Cancelar pedido?')) orders.value = orders.value.filter(o => o.id !== id);
+                };
+
+                const clearHistory = () => {
+                    if (confirm('Limpar pedidos entregues do histórico?')) {
+                        orders.value = orders.value.filter(o => o.status !== 'entregue');
+                    }
+                };
+
+                // Backup
+                const backupData = () => {
+                    const data = { orders: orders.value, nextNum: nextOrderNum.value };
+                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'kds_pedidos_backup.json';
+                    a.click();
+                };
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const d = JSON.parse(ev.target.result);
+                        if (d.orders) orders.value = d.orders;
+                        if (d.nextNum) nextOrderNum.value = d.nextNum;
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    orders, newOrderModal, currentTime, form, tempItem,
+                    getOrders, getTimer, formatTime,
+                    addItem, submitOrder, moveOrder, deleteOrder, clearHistory,
+                    backupData, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

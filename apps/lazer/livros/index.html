@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minha Biblioteca | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Lato', 'sans-serif'], serif: ['Libre Baskerville', 'serif'] },
+                    colors: {
+                        book: {
+                            bg: '#fdf6e3',
+                            paper: '#eee8d5',
+                            ink: '#2c2520',
+                            accent: '#d33682',
+                            brown: '#8b5a2b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fdf6e3;
+            color: #2c2520;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .shelf-shadow {
+            box-shadow: 0 15px 10px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-spine {
+            box-shadow: inset 2px 0 5px rgba(255, 255, 255, 0.2),
+                inset -2px 0 5px rgba(0, 0, 0, 0.2),
+                4px 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .book-spine:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d3cbb8;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative max-w-7xl mx-auto shadow-2xl md:border-x border-[#ebe1c9]">
+
+        <!-- Sidebar Shelves -->
+        <aside class="w-full md:w-64 bg-[#eee8d5] border-r border-[#d3cbb8] z-10 flex flex-col h-full">
+            <div class="p-6 border-b border-[#d3cbb8] flex items-center gap-3">
+                <div class="w-10 h-10 bg-book-brown rounded-lg flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <h1 class="font-serif font-bold text-xl text-book-ink tracking-tight">Biblioteca</h1>
+            </div>
+
+            <div class="flex-1 overflow-y-auto py-4 space-y-1">
+                <button v-for="shelf in shelves" :key="shelf.id" @click="currentShelf = shelf.id"
+                    class="w-full text-left px-6 py-3 font-bold flex items-center gap-3 transition"
+                    :class="currentShelf === shelf.id ? 'bg-[#e4dec9] text-book-accent border-r-4 border-book-accent' : 'text-book-ink/60 hover:text-book-ink hover:bg-[#e4dec9]/50'">
+                    <i :class="shelf.icon" class="w-5 text-center"></i>
+                    {{ shelf.label }}
+                    <span class="ml-auto text-xs bg-black/5 px-2 py-0.5 rounded-full">{{ getCount(shelf.id) }}</span>
+                </button>
+            </div>
+
+            <div class="p-4 border-t border-[#d3cbb8]">
+                <button @click="showAddModal = true"
+                    class="w-full bg-book-brown hover:bg-[#704620] text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-plus"></i> Novo Livro
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 bg-book-bg relative overflow-hidden flex flex-col">
+
+            <!-- Mobile Header shelf select -->
+            <div class="md:hidden p-4 border-b border-[#d3cbb8] flex gap-2 overflow-x-auto">
+                <button v-for="shelf in shelves" :key="shelf.id" @click="currentShelf = shelf.id"
+                    class="whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold border transition"
+                    :class="currentShelf === shelf.id ? 'bg-book-accent text-white border-book-accent' : 'bg-transparent border-[#d3cbb8] text-book-ink'">
+                    {{ shelf.label }}
+                </button>
+            </div>
+
+            <!-- List of Books -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+                <h2 class="font-serif text-3xl font-bold text-book-ink mb-6 border-b border-[#eee8d5] pb-2">
+                    {{ shelves.find(s => s.id === currentShelf).label }}
+                </h2>
+
+                <div v-if="filteredBooks.length === 0" class="text-center py-20 opacity-40">
+                    <i class="fa-solid fa-book text-6xl mb-4"></i>
+                    <p class="font-serif italic">Nenhum livro nesta estante ainda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="book in filteredBooks" :key="book.id"
+                        class="bg-white rounded-r-xl rounded-l-md shadow-md flex overflow-hidden border border-[#eee8d5] h-40 group hover:shadow-xl transition relative">
+
+                        <!-- Spine/Cover -->
+                        <div class="w-24 flex-shrink-0 relative flex items-center justify-center p-2 text-center"
+                            :style="{backgroundColor: book.color}">
+                            <div class="absolute left-1 top-0 bottom-0 w-0.5 bg-white/20"></div>
+                            <span
+                                class="font-serif font-bold text-white text-xs rotate-[-90deg] whitespace-nowrap opacity-90 w-32 truncate shadow-sm">{{
+                                book.title }}</span>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="flex-1 p-4 flex flex-col">
+                            <h3 class="font-bold text-book-ink leading-tight mb-1 line-clamp-2">{{ book.title }}</h3>
+                            <p class="text-xs text-book-ink/60 mb-2">{{ book.author }}</p>
+
+                            <!-- Progress -->
+                            <div class="mt-auto">
+                                <div v-if="currentShelf === 'reading'" class="mb-2">
+                                    <div class="flex justify-between text-[10px] font-bold text-book-ink/50 mb-1">
+                                        <span>{{ book.currentPage }} / {{ book.pages }}</span>
+                                        <span>{{ Math.round((book.currentPage / book.pages) * 100) }}%</span>
+                                    </div>
+                                    <div class="h-1.5 bg-[#eee8d5] rounded-full overflow-hidden">
+                                        <div class="h-full bg-book-accent rounded-full transition-all"
+                                            :style="{width: (book.currentPage / book.pages) * 100 + '%'}"></div>
+                                    </div>
+                                </div>
+                                <div v-else-if="currentShelf === 'read'" class="text-book-accent text-xs">
+                                    <i v-for="n in 5" :key="n" class="fa-solid fa-star"
+                                        :class="n <= book.rating ? 'opacity-100' : 'opacity-20'"></i>
+                                </div>
+
+                                <div class="flex justify-end gap-2 mt-2">
+                                    <button @click="editBook(book)"
+                                        class="text-xs font-bold text-book-brown hover:underline">Editar/Mover</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Add/Edit Modal -->
+        <div v-if="showAddModal"
+            class="absolute inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-[#fdf6e3] rounded-2xl shadow-2xl w-full max-w-md border-4 border-[#eee8d5] overflow-hidden">
+                <div class="bg-[#eee8d5] p-4 border-b border-[#d3cbb8] flex justify-between items-center">
+                    <h3 class="font-serif font-bold text-lg text-book-ink">{{ isEditing ? 'Editar Livro' : 'Novo Livro'
+                        }}</h3>
+                    <button @click="closeModal" class="text-book-ink/50 hover:text-book-ink"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+
+                <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                    <div>
+                        <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Título</label>
+                        <input v-model="form.title"
+                            class="w-full p-2 rounded-lg border border-[#d3cbb8] bg-white focus:border-book-brown outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Autor</label>
+                        <input v-model="form.author"
+                            class="w-full p-2 rounded-lg border border-[#d3cbb8] bg-white focus:border-book-brown outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Páginas
+                                Totais</label>
+                            <input type="number" v-model.number="form.pages"
+                                class="w-full p-2 rounded-lg border border-[#d3cbb8] bg-white focus:border-book-brown outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Página Atual</label>
+                            <input type="number" v-model.number="form.currentPage"
+                                class="w-full p-2 rounded-lg border border-[#d3cbb8] bg-white focus:border-book-brown outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Estante</label>
+                        <select v-model="form.shelf"
+                            class="w-full p-2 rounded-lg border border-[#d3cbb8] bg-white focus:border-book-brown outline-none">
+                            <option v-for="s in shelves" :value="s.id">{{ s.label }}</option>
+                        </select>
+                    </div>
+
+                    <div v-if="form.shelf === 'read'">
+                        <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Avaliação</label>
+                        <div class="flex gap-2 justify-center py-2 bg-white rounded-lg border border-[#d3cbb8]">
+                            <button v-for="n in 5" :key="n" @click="form.rating = n"
+                                class="text-xl focus:outline-none transition transform active:scale-125"
+                                :class="form.rating >= n ? 'text-book-accent' : 'text-[#d3cbb8]'">
+                                <i class="fa-solid fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-book-ink/50 uppercase mb-1">Cor da Capa</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <button v-for="c in colors" :key="c" @click="form.color = c"
+                                class="w-8 h-8 rounded-full border-2 transition transform hover:scale-110"
+                                :style="{backgroundColor: c}"
+                                :class="form.color === c ? 'border-book-ink scale-110' : 'border-transparent'"></button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="p-4 bg-[#eee8d5] border-t border-[#d3cbb8] flex gap-3">
+                    <button v-if="isEditing" @click="deleteBook"
+                        class="px-4 py-2 text-red-500 font-bold hover:bg-red-50 rounded-lg"><i
+                            class="fa-solid fa-trash"></i></button>
+                    <button @click="saveBook"
+                        class="flex-1 bg-book-brown text-white font-bold py-2 rounded-lg shadow hover:bg-[#704620] transition">Salvar
+                        Livro</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_books_v1';
+
+        createApp({
+            setup() {
+                const shelves = [
+                    { id: 'reading', label: 'Lendo', icon: 'fa-solid fa-book-reader' },
+                    { id: 'want', label: 'Quero Ler', icon: 'fa-regular fa-bookmark' },
+                    { id: 'read', label: 'Lidos', icon: 'fa-solid fa-check-circle' }
+                ];
+
+                const currentShelf = ref('reading');
+                const books = ref([]);
+
+                const showAddModal = ref(false);
+                const isEditing = ref(false);
+                const editingId = ref(null);
+
+                const colors = ['#8b5a2b', '#d33682', '#2c3e50', '#c0392b', '#27ae60', '#8e44ad', '#d35400', '#2980b9'];
+
+                const form = ref({
+                    title: '', author: '', pages: 300, currentPage: 0, shelf: 'reading', color: '#8b5a2b', rating: 0
+                });
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) books.value = JSON.parse(d);
+                    else {
+                        // Demo data
+                        books.value = [
+                            { id: 1, title: 'Dom Casmurro', author: 'Machado de Assis', pages: 256, currentPage: 120, shelf: 'reading', color: '#8b5a2b', rating: 0 },
+                            { id: 2, title: 'O Hobbit', author: 'J.R.R. Tolkien', pages: 310, currentPage: 0, shelf: 'want', color: '#27ae60', rating: 0 }
+                        ];
+                    }
+                });
+
+                watch(books, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(books.value));
+                }, { deep: true });
+
+                const filteredBooks = computed(() => {
+                    return books.value.filter(b => b.shelf === currentShelf.value);
+                });
+
+                const getCount = (shelfId) => books.value.filter(b => b.shelf === shelfId).length;
+
+                const resetForm = () => {
+                    form.value = { title: '', author: '', pages: 300, currentPage: 0, shelf: currentShelf.value, color: colors[Math.floor(Math.random() * colors.length)], rating: 0 };
+                    isEditing.value = false;
+                    editingId.value = null;
+                };
+
+                const closeModal = () => {
+                    showAddModal.value = false;
+                    resetForm();
+                };
+
+                const editBook = (book) => {
+                    form.value = { ...book };
+                    isEditing.value = true;
+                    editingId.value = book.id;
+                    showAddModal.value = true;
+                };
+
+                const saveBook = () => {
+                    if (!form.value.title) return alert('Título obrigatório');
+
+                    // Auto-move to "read" if pages match
+                    if (form.value.currentPage >= form.value.pages && form.value.pages > 0 && form.value.shelf === 'reading') {
+                        if (confirm('Você terminou o livro? Mover para Lidos?')) {
+                            form.value.shelf = 'read';
+                        }
+                    }
+
+                    if (isEditing.value) {
+                        const idx = books.value.findIndex(b => b.id === editingId.value);
+                        if (idx !== -1) books.value[idx] = { ...form.value, id: editingId.value };
+                    } else {
+                        books.value.push({ ...form.value, id: Date.now() });
+                    }
+                    closeModal();
+                };
+
+                const deleteBook = () => {
+                    if (confirm('Apagar este livro?')) {
+                        const idx = books.value.findIndex(b => b.id === editingId.value);
+                        if (idx !== -1) books.value.splice(idx, 1);
+                        closeModal();
+                    }
+                };
+
+                return {
+                    shelves, currentShelf, books, filteredBooks, getCount,
+                    showAddModal, isEditing, form, colors,
+                    closeModal, editBook, saveBook, deleteBook
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

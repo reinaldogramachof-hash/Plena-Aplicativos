@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ponto Simples | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-clock text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Ponto Facil</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'today'"
+                    :class="currentView === 'today' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-stopwatch w-5 text-center"></i> <span>Registro Diário</span>
+                </a>
+                <a @click="currentView = 'history'"
+                    :class="currentView === 'history' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-calendar-days w-5 text-center"></i> <span>Histórico</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-clock text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Ponto Facil</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: TODAY -->
+                <div v-if="currentView === 'today'"
+                    class="max-w-xl mx-auto flex flex-col items-center justify-center h-full min-h-[500px]">
+
+                    <div class="text-center mb-8">
+                        <div class="text-sm font-bold text-slate-400 uppercase tracking-widest">{{ currentDateStr }}
+                        </div>
+                        <div class="text-6xl md:text-8xl font-black text-slate-800 tabular-nums my-4 tracking-tighter">
+                            {{ currentTime }}</div>
+                        <div :class="workingStatus.color"
+                            class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase">{{
+                            workingStatus.label }}</div>
+                    </div>
+
+                    <div
+                        class="w-full bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative overflow-hidden">
+                        <!-- Progress Bar (Visual Flair) -->
+                        <div class="absolute top-0 left-0 h-1 bg-brand-500 transition-all duration-1000"
+                            :style="{ width: progressPercent + '%' }"></div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <button @click="registerPoint('entry')" :disabled="todayLog.entry"
+                                :class="todayLog.entry ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-100 text-green-700 hover:bg-green-200 hover:scale-105'"
+                                class="h-24 rounded-2xl flex flex-col items-center justify-center transition transform">
+                                <i class="fa-solid fa-sun text-2xl mb-2"></i>
+                                <span class="font-bold text-sm">Entrada</span>
+                                <span v-if="todayLog.entry" class="text-xs font-mono mt-1">{{ todayLog.entry }}</span>
+                            </button>
+
+                            <button @click="registerPoint('lunchOut')" :disabled="!todayLog.entry || todayLog.lunchOut"
+                                :class="!todayLog.entry || todayLog.lunchOut ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-orange-100 text-orange-700 hover:bg-orange-200 hover:scale-105'"
+                                class="h-24 rounded-2xl flex flex-col items-center justify-center transition transform">
+                                <i class="fa-solid fa-utensils text-2xl mb-2"></i>
+                                <span class="font-bold text-sm">Almoço</span>
+                                <span v-if="todayLog.lunchOut" class="text-xs font-mono mt-1">{{ todayLog.lunchOut
+                                    }}</span>
+                            </button>
+
+                            <button @click="registerPoint('lunchIn')" :disabled="!todayLog.lunchOut || todayLog.lunchIn"
+                                :class="!todayLog.lunchOut || todayLog.lunchIn ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:scale-105'"
+                                class="h-24 rounded-2xl flex flex-col items-center justify-center transition transform">
+                                <i class="fa-solid fa-mug-hot text-2xl mb-2"></i>
+                                <span class="font-bold text-sm">Volta</span>
+                                <span v-if="todayLog.lunchIn" class="text-xs font-mono mt-1">{{ todayLog.lunchIn
+                                    }}</span>
+                            </button>
+
+                            <button @click="registerPoint('exit')" :disabled="!todayLog.lunchIn || todayLog.exit"
+                                :class="!todayLog.lunchIn || todayLog.exit ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-red-100 text-red-700 hover:bg-red-200 hover:scale-105'"
+                                class="h-24 rounded-2xl flex flex-col items-center justify-center transition transform">
+                                <i class="fa-solid fa-door-open text-2xl mb-2"></i>
+                                <span class="font-bold text-sm">Saída</span>
+                                <span v-if="todayLog.exit" class="text-xs font-mono mt-1">{{ todayLog.exit }}</span>
+                            </button>
+                        </div>
+
+                        <div v-if="todayLog.hours > 0" class="text-center p-4 bg-slate-50 rounded-xl">
+                            <span class="text-slate-500 text-xs font-bold uppercase">Total Trabalhado Hoje</span>
+                            <div class="text-3xl font-black text-slate-800 tabular-nums">{{
+                                formatDuration(todayLog.hours) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: HISTORY -->
+                <div v-if="currentView === 'history'" class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">Histórico de Ponto</h2>
+                        <button @click="exportCSV"
+                            class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-brand-700 transition"><i
+                                class="fa-solid fa-file-export mr-2"></i> Excel</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <table class="w-full text-left bg-white">
+                            <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
+                                <tr>
+                                    <th class="p-4">Data</th>
+                                    <th class="p-4 text-center">Entrada</th>
+                                    <th class="p-4 text-center">Saída Almoço</th>
+                                    <th class="p-4 text-center">Volta Almoço</th>
+                                    <th class="p-4 text-center">Saída</th>
+                                    <th class="p-4 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="log in sortedHistory" :key="log.date" class="hover:bg-slate-50 transition">
+                                    <td class="p-4 font-bold text-slate-700">{{ formatDate(log.date) }}</td>
+                                    <td class="p-4 text-center font-mono text-sm text-slate-600">{{ log.entry || '--:--'
+                                        }}</td>
+                                    <td class="p-4 text-center font-mono text-sm text-slate-600">{{ log.lunchOut ||
+                                        '--:--' }}</td>
+                                    <td class="p-4 text-center font-mono text-sm text-slate-600">{{ log.lunchIn ||
+                                        '--:--' }}</td>
+                                    <td class="p-4 text-center font-mono text-sm text-slate-600">{{ log.exit || '--:--'
+                                        }}</td>
+                                    <td class="p-4 text-right font-bold text-brand-600 text-sm">{{
+                                        formatDuration(log.hours || 0) }}</td>
+                                </tr>
+                                <tr v-if="history.length === 0">
+                                    <td colspan="6" class="p-8 text-center text-slate-400">Nenhum registro ainda.</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-slate-50 border-t border-slate-200">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-right font-bold text-slate-600 uppercase text-xs">
+                                        Total acumulado</td>
+                                    <td class="p-4 text-right font-black text-slate-800">{{ formatDuration(totalHours)
+                                        }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+        const DB_KEY = 'plena_ponto_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('today');
+                const history = ref([]);
+                const now = ref(new Date());
+
+                // Realtime Clock
+                let timer;
+                const updateTime = () => now.value = new Date();
+                onMounted(() => timer = setInterval(updateTime, 1000));
+                onUnmounted(() => clearInterval(timer));
+
+                const currentTime = computed(() => now.value.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+                const currentDateStr = computed(() => now.value.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }));
+                const currentISODate = computed(() => now.value.toISOString().split('T')[0]);
+
+                // State Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) history.value = JSON.parse(d);
+                });
+                watch(history, () => localStorage.setItem(DB_KEY, JSON.stringify(history.value)), { deep: true });
+
+                const todayLog = computed(() => {
+                    const log = history.value.find(h => h.date === currentISODate.value);
+                    return log || { date: currentISODate.value, entry: null, lunchOut: null, lunchIn: null, exit: null, hours: 0 };
+                });
+
+                const sortedHistory = computed(() => [...history.value].sort((a, b) => b.date.localeCompare(a.date)));
+                const totalHours = computed(() => history.value.reduce((acc, h) => acc + (h.hours || 0), 0));
+
+                const workingStatus = computed(() => {
+                    const t = todayLog.value;
+                    if (t.exit) return { label: 'Dia Finalizado', color: 'bg-slate-200 text-slate-300 line-through' };
+                    if (t.lunchIn) return { label: 'Trabalhando (Tarde)', color: 'bg-green-100 text-green-600' };
+                    if (t.lunchOut) return { label: 'Em Almoço', color: 'bg-orange-100 text-orange-600' };
+                    if (t.entry) return { label: 'Trabalhando (Manhã)', color: 'bg-green-100 text-green-600' };
+                    return { label: 'Aguardando Início', color: 'bg-slate-200 text-slate-500' };
+                });
+
+                // Helper: duration calculation
+                const calcHours = (l) => {
+                    if (!l.entry) return 0;
+
+                    const toMin = (timeStr) => {
+                        if (!timeStr) return 0;
+                        const [h, m] = timeStr.split(':').map(Number);
+                        return h * 60 + m;
+                    };
+
+                    let totalMin = 0;
+                    // Morning shift
+                    if (l.lunchOut) totalMin += toMin(l.lunchOut) - toMin(l.entry);
+                    else if (l.exit) totalMin += toMin(l.exit) - toMin(l.entry); // No lunch break taken yet or skipped
+                    else {
+                        // Still working morning, dynamic calc? No, only calc finished blocks for storage simplicity
+                        // Usually real-time calc is complex, let's Stick to "Logged intervals"
+                    }
+
+                    // Afternoon shift
+                    if (l.lunchIn && l.exit) totalMin += toMin(l.exit) - toMin(l.lunchIn);
+
+                    return totalMin; // in minutes
+                };
+
+                const progressPercent = computed(() => {
+                    // Just for visual flair, estimate based on time of day vs 8h shift?
+                    // Let's do a simple 0-100 based on standard 8AM-18PM window
+                    const startMin = 8 * 60;
+                    const endMin = 18 * 60;
+                    const nowMin = now.value.getHours() * 60 + now.value.getMinutes();
+                    if (nowMin < startMin) return 0;
+                    if (nowMin > endMin) return 100;
+                    return ((nowMin - startMin) / (endMin - startMin)) * 100;
+                });
+
+                const registerPoint = (type) => {
+                    const timeStr = now.value.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    let log = history.value.find(h => h.date === currentISODate.value);
+                    if (!log) {
+                        log = { date: currentISODate.value, entry: null, lunchOut: null, lunchIn: null, exit: null, hours: 0 };
+                        history.value.push(log);
+                    }
+
+                    log[type] = timeStr;
+                    log.hours = calcHours(log);
+
+                    // Trigger reactivity by replacing array item
+                    const idx = history.value.findIndex(h => h.date === currentISODate.value);
+                    history.value[idx] = { ...log };
+                };
+
+                const formatDate = (d) => d.split('-').reverse().join('/');
+                const formatDuration = (mins) => {
+                    const h = Math.floor(mins / 60);
+                    const m = mins % 60;
+                    return `${h}h ${m}min`;
+                };
+
+                const exportCSV = () => {
+                    let csvContent = "data:text/csv;charset=utf-8,Data,Entrada,Saida Almoço,Volta Almoço,Saida,Total Horas\n";
+                    sortedHistory.value.forEach(row => {
+                        csvContent += `${formatDate(row.date)},${row.entry || ''},${row.lunchOut || ''},${row.lunchIn || ''},${row.exit || ''},${formatDuration(row.hours || 0)}\n`;
+                    });
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "ponto_simples.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                };
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(history.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'ponto_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        history.value = JSON.parse(ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, currentTime, currentDateStr, workingStatus,
+                    todayLog, history, sortedHistory, totalHours, progressPercent,
+                    registerPoint, formatDate, formatDuration,
+                    exportCSV, backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

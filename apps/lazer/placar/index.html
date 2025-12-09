@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Placar Universal | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Roboto', 'sans-serif'], display: ['Russo One', 'sans-serif'] },
+                    colors: {
+                        game: { bg: '#1a1a2e', card: '#16213e', accent: '#e94560', green: '#0f3460' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .score-font {
+            font-family: 'Russo One', sans-serif;
+        }
+
+        .btn-push {
+            transition: all 0.1s;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-push:active {
+            transform: translateY(2px);
+            border-bottom: 0px solid transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col items-center justify-center p-0 md:p-4">
+
+    <div id="app"
+        class="w-full max-w-lg h-full bg-game-bg md:rounded-3xl shadow-2xl flex flex-col border border-white/5 overflow-hidden ring-1 ring-white/10">
+
+        <!-- Header -->
+        <div class="p-4 bg-game-card flex justify-between items-center shadow-lg z-10">
+            <h1 class="font-display text-xl tracking-wider text-game-accent uppercase italic"><i
+                    class="fa-solid fa-trophy mr-1"></i> Placar<span class="text-white">Pro</span></h1>
+
+            <div class="flex gap-2">
+                <button @click="resetScores"
+                    class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button @click="addPlayer"
+                    class="w-10 h-10 rounded-full bg-game-accent hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-900/50">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Players List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+
+            <div v-for="(player, idx) in players" :key="player.id"
+                class="bg-game-card rounded-2xl p-4 border border-white/5 relative group">
+
+                <div class="flex justify-between items-center mb-4">
+                    <input v-model="player.name"
+                        class="bg-transparent font-bold text-lg text-white/90 outline-none w-full placeholder-white/30"
+                        placeholder="Nome do Jogador">
+                    <button @click="removePlayer(idx)" class="text-white/20 hover:text-red-400 p-2"><i
+                            class="fa-solid fa-times"></i></button>
+                </div>
+
+                <div class="flex items-center justify-between gap-4">
+
+                    <!-- Controls Left -->
+                    <div class="flex flex-col gap-2">
+                        <button @click="changeScore(idx, -1)"
+                            class="btn-push w-12 h-12 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center font-bold text-xl shadow">-1</button>
+                        <button @click="changeScore(idx, -5)"
+                            class="btn-push w-12 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold text-xs text-slate-400">-5</button>
+                    </div>
+
+                    <!-- Score -->
+                    <div class="flex-1 text-center bg-black/20 rounded-xl py-2 border-2 border-white/5">
+                        <span class="score-font text-6xl block leading-none transition-all"
+                            :class="getScoreColor(idx)">{{ player.score }}</span>
+                    </div>
+
+                    <!-- Controls Right -->
+                    <div class="flex flex-col gap-2">
+                        <button @click="changeScore(idx, 1)"
+                            class="btn-push w-12 h-12 rounded-xl bg-game-accent hover:bg-red-500 flex items-center justify-center font-bold text-xl shadow">+1</button>
+                        <button @click="changeScore(idx, 5)"
+                            class="btn-push w-12 h-8 rounded-lg bg-red-900/50 hover:bg-red-900 flex items-center justify-center font-bold text-xs text-red-200">+5</button>
+                    </div>
+
+                </div>
+
+                <!-- Crown for leader -->
+                <div v-if="isLeader(idx) && player.score > 0"
+                    class="absolute -top-3 -left-2 text-2xl rotate-[-15deg] drop-shadow-lg filter">
+                    👑
+                </div>
+
+            </div>
+
+            <div v-if="players.length === 0" class="text-center text-white/30 py-10">
+                <i class="fa-solid fa-users text-4xl mb-4"></i>
+                <p>Adicione jogadores para começar</p>
+            </div>
+
+        </div>
+
+        <!-- History / Log Panel (Collapsible) -->
+        <div class="bg-black/40 backdrop-blur-md border-t border-white/10 flex flex-col"
+            :class="showHistory ? 'h-48' : 'h-10'">
+            <div @click="showHistory = !showHistory"
+                class="flex items-center justify-center py-2 cursor-pointer hover:bg-white/5 transition">
+                <div class="w-10 h-1 rounded-full bg-white/20"></div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 pt-0 text-sm space-y-2">
+                <div v-for="(log, lIdx) in history" :key="lIdx"
+                    class="flex justify-between text-white/60 border-b border-white/5 pb-1">
+                    <span>{{ log.time }}</span>
+                    <span><strong class="text-white">{{ log.name }}</strong> {{ log.diff > 0 ? '+' : ''}}{{ log.diff
+                        }}</span>
+                    <span class="font-mono">{{ log.total }}</span>
+                </div>
+                <div v-if="history.length === 0" class="text-center text-white/20 text-xs mt-2">Nenhum histórico ainda.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_placar_v1';
+
+        createApp({
+            setup() {
+                const players = ref([
+                    { id: 1, name: 'Jogador 1', score: 0 },
+                    { id: 2, name: 'Jogador 2', score: 0 }
+                ]);
+                const history = ref([]);
+                const showHistory = ref(false);
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) players.value = JSON.parse(d);
+                });
+
+                watch(players, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(players.value));
+                }, { deep: true });
+
+                const addPlayer = () => {
+                    players.value.push({
+                        id: Date.now(),
+                        name: `Jogador ${players.value.length + 1}`,
+                        score: 0
+                    });
+                };
+
+                const removePlayer = (idx) => {
+                    if (confirm('Remover jogador?')) players.value.splice(idx, 1);
+                };
+
+                const resetScores = () => {
+                    if (confirm('Zerar o placar de todos?')) {
+                        players.value.forEach(p => p.score = 0);
+                        history.value = [];
+                    }
+                };
+
+                const changeScore = (idx, amount) => {
+                    const p = players.value[idx];
+                    p.score += amount;
+
+                    // Log
+                    const now = new Date();
+                    history.value.unshift({
+                        time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        name: p.name,
+                        diff: amount,
+                        total: p.score
+                    });
+
+                    if (history.value.length > 50) history.value.pop();
+                };
+
+                const maxScore = computed(() => {
+                    if (players.value.length === 0) return 0;
+                    return Math.max(...players.value.map(p => p.score));
+                });
+
+                const isLeader = (idx) => {
+                    return players.value[idx].score === maxScore.value;
+                };
+
+                const getScoreColor = (idx) => {
+                    if (isLeader(idx) && players.value[idx].score > 0) return 'text-game-accent';
+                    return 'text-white';
+                };
+
+                return {
+                    players, history, showHistory,
+                    addPlayer, removePlayer, resetScores, changeScore,
+                    isLeader, getScoreColor
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

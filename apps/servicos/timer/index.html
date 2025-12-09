@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Time Tracker | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .timer-display {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative">
+
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-600/50">
+                    <i class="fa-solid fa-stopwatch text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg tracking-tight">Time Tracker</h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a @click="currentView = 'active'"
+                    :class="currentView === 'active' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-play-circle w-5 text-center"></i> <span>Atividades</span>
+                </a>
+                <a @click="currentView = 'report'"
+                    :class="currentView === 'report' ? 'bg-brand-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition cursor-pointer font-medium select-none">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span>Relatórios</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <button @click="backupData" class="hover:text-white underline">Backup</button> |
+                <button @click="triggerImport" class="hover:text-white underline">Restaurar</button>
+                <input type="file" id="importFile" class="hidden" @change="importData" accept=".json">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 relative w-full">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white"><i
+                            class="fa-solid fa-stopwatch text-xs"></i></div>
+                    <span class="font-bold text-slate-800">Time Tracker</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400">v3.0</div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+                <!-- VIEW: ACTIVE TASKS -->
+                <div v-if="currentView === 'active'" class="max-w-4xl mx-auto animate-fade-in">
+
+                    <!-- New Task Input -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mb-8 sticky top-0 z-10">
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <input v-model="newTaskName" @keyup.enter="addTask" type="text" class="input flex-1"
+                                placeholder="O que você está fazendo agora?">
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <div class="relative w-32">
+                                    <span class="absolute left-3 top-3 text-slate-400 text-xs">R$/h</span>
+                                    <input v-model.number="hourlyRate" type="number" class="input pl-10 text-sm"
+                                        placeholder="Taxa">
+                                </div>
+                                <button @click="addTask"
+                                    class="btn-primary px-6 rounded-xl shadow-lg shadow-brand-500/30 whitespace-nowrap"><i
+                                        class="fa-solid fa-play mr-2"></i> Iniciar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active/Recent Tasks -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 text-lg mb-4">Tarefas Recentes</h3>
+
+                        <div v-for="task in tasks.slice().reverse()" :key="task.id"
+                            :class="task.isRunning ? 'border-brand-500 ring-2 ring-brand-100 bg-white' : 'bg-white border-slate-200'"
+                            class="p-5 rounded-2xl shadow-sm border transition group relative overflow-hidden">
+                            <!-- Background Pulse for Running Task -->
+                            <div v-if="task.isRunning" class="absolute inset-0 bg-brand-50/50 pointer-events-none">
+                            </div>
+
+                            <div class="relative flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div class="flex-1 w-full">
+                                    <div class="flex items-center gap-3">
+                                        <div :class="task.isRunning ? 'text-brand-600 animate-pulse' : 'text-slate-300'"
+                                            class="text-xs font-black uppercase tracking-wider">
+                                            {{ task.isRunning ? 'EM ANDAMENTO' : 'PAUSADO' }}
+                                        </div>
+                                        <div class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full"
+                                            v-if="task.rate > 0">R$ {{ task.rate }}/h</div>
+                                    </div>
+                                    <h3 class="font-bold text-lg text-slate-800 mt-1">{{ task.name }}</h3>
+                                </div>
+
+                                <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
+                                    <div class="text-right">
+                                        <div class="font-mono text-3xl font-bold text-slate-800 timer-display">{{
+                                            formatTime(task.totalTime + (task.isRunning ? currentSessionDuration : 0))
+                                            }}</div>
+                                        <div v-if="task.rate > 0" class="text-xs font-bold text-green-600">
+                                            Est: {{ formatCurrency( calculateCost(task.totalTime + (task.isRunning ?
+                                            currentSessionDuration : 0), task.rate) ) }}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <button @click="toggleTimer(task)"
+                                            :class="task.isRunning ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-brand-50 text-brand-600 hover:bg-brand-100'"
+                                            class="w-12 h-12 rounded-full flex items-center justify-center text-lg transition shadow-sm">
+                                            <i :class="task.isRunning ? 'fa-solid fa-stop' : 'fa-solid fa-play'"></i>
+                                        </button>
+                                        <button v-if="!task.isRunning" @click="deleteTask(task.id)"
+                                            class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-slate-100 flex items-center justify-center transition">
+                                            <i class="fa-solid fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="tasks.length === 0"
+                            class="text-center py-12 text-slate-400 border border-dashed border-slate-300 rounded-2xl">
+                            Nenhuma tarefa iniciada.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: REPORT -->
+                <div v-if="currentView === 'report'" class="max-w-4xl mx-auto animate-fade-in">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-bold text-slate-800">Relatório de Atividades</h2>
+                        <button @click="clearAll" class="text-red-500 text-sm font-bold hover:underline">Limpar
+                            Tudo</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Tempo Total</div>
+                            <div class="text-2xl font-black text-brand-600 font-mono">{{ formatTime(totalStats.time) }}
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Valor Estimado</div>
+                            <div class="text-2xl font-black text-green-600">{{ formatCurrency(totalStats.value) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-slate-50 text-xs text-slate-500 uppercase font-bold hidden md:table-header-group">
+                                <tr>
+                                    <th class="p-4">Tarefa</th>
+                                    <th class="p-4 text-center">Sessões</th>
+                                    <th class="p-4 text-center">Tempo Total</th>
+                                    <th class="p-4 text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="task in tasks" :key="task.id"
+                                    class="flex flex-col md:table-row hover:bg-slate-50 relative group">
+                                    <td class="p-4">
+                                        <div class="font-bold text-slate-800">{{ task.name }}</div>
+                                        <div class="text-xs text-slate-500">{{ formatDate(task.createdAt) }}</div>
+                                    </td>
+                                    <td class="p-4 text-center text-sm text-slate-600 md:table-cell">
+                                        {{ task.sessions.length }} <span class="md:hidden">sessões</span>
+                                    </td>
+                                    <td class="p-4 text-center font-mono font-bold text-brand-600 md:table-cell">
+                                        {{ formatTime(task.totalTime) }}
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-green-600 md:table-cell">
+                                        {{ formatCurrency(calculateCost(task.totalTime, task.rate)) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            transition: all;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .input:focus {
+            border-color: #8b5cf6;
+            background: #fff;
+            ring: 2px solid #8b5cf6;
+        }
+
+        .btn-primary {
+            background-color: #7c3aed;
+            color: white;
+            font-weight: 700;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #6d28d9;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+        const DB_KEY = 'plena_timer_v1';
+
+        createApp({
+            setup() {
+                const currentView = ref('active');
+                const tasks = ref([]);
+                const newTaskName = ref('');
+                const hourlyRate = ref(''); // Default empty
+
+                // Timer Logic
+                const now = ref(Date.now());
+                let intervalId = null;
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        tasks.value = JSON.parse(d);
+                        // Resume logic if needed? 
+                        // If page was closed while running, we can check 'lastStartTime'
+                        // For v3.0 Simple, let's assume if it was running, it kept running in "real time" 
+                        // because we calculate delta from startTime, not counting ticks.
+                        // So we just need faithfully updating 'now'.
+                    }
+                    intervalId = setInterval(() => { now.value = Date.now(); }, 1000);
+                });
+
+                onUnmounted(() => clearInterval(intervalId));
+
+                watch(tasks, () => localStorage.setItem(DB_KEY, JSON.stringify(tasks.value)), { deep: true });
+
+                // Computed
+                // The active running task needs to know how long since it started this specific session
+                const activeTask = computed(() => tasks.value.find(t => t.isRunning));
+                const currentSessionDuration = computed(() => {
+                    if (!activeTask.value) return 0;
+                    return Math.floor((now.value - activeTask.value.lastStartTime) / 1000);
+                });
+
+                const totalStats = computed(() => {
+                    let totalTime = 0;
+                    let totalValue = 0;
+                    tasks.value.forEach(t => {
+                        let time = t.totalTime;
+                        // Don't add current running session to report stats yet to be stable, or yes?
+                        // Let's simple sum stored times.
+                        totalTime += time;
+                        totalValue += calculateCost(time, t.rate);
+                    });
+                    return { time: totalTime, value: totalValue };
+                });
+
+                // Methods
+                const addTask = () => {
+                    if (!newTaskName.value.trim()) return;
+
+                    // Stop any running task first? Optional. Let's allow one running at a time.
+                    if (activeTask.value) toggleTimer(activeTask.value); // Stop current
+
+                    const task = {
+                        id: Date.now(),
+                        name: newTaskName.value,
+                        rate: Number(hourlyRate.value) || 0,
+                        totalTime: 0, // seconds
+                        isRunning: true,
+                        lastStartTime: Date.now(),
+                        sessions: [],
+                        createdAt: new Date().toISOString()
+                    };
+
+                    tasks.value.push(task);
+                    newTaskName.value = '';
+                };
+
+                const toggleTimer = (task) => {
+                    if (task.isRunning) {
+                        // Stop
+                        const end = Date.now();
+                        const duration = Math.floor((end - task.lastStartTime) / 1000);
+                        task.totalTime += duration;
+                        task.sessions.push({ start: task.lastStartTime, end: end, duration: duration });
+                        task.isRunning = false;
+                        task.lastStartTime = null;
+                    } else {
+                        // Start - Stop others first
+                        if (activeTask.value) toggleTimer(activeTask.value);
+
+                        task.lastStartTime = Date.now();
+                        task.isRunning = true;
+                    }
+                };
+
+                const deleteTask = (id) => {
+                    if (confirm('Excluir esta tarefa e histórico?')) tasks.value = tasks.value.filter(t => t.id !== id);
+                };
+
+                const clearAll = () => {
+                    if (confirm('Apagar todo o histórico de tarefas?')) tasks.value = [];
+                };
+
+                // Helpers
+                const formatTime = (seconds) => {
+                    const h = Math.floor(seconds / 3600);
+                    const m = Math.floor((seconds % 3600) / 60);
+                    const s = seconds % 60;
+                    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                };
+
+                const calculateCost = (seconds, rate) => {
+                    if (!rate) return 0;
+                    const hours = seconds / 3600;
+                    return hours * rate;
+                };
+
+                const formatCurrency = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR');
+
+                // Backup
+                const backupData = () => {
+                    const blob = new Blob([JSON.stringify(tasks.value)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'timer_backup.json';
+                    a.click();
+                };
+                const triggerImport = () => document.getElementById('importFile').click();
+                const importData = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        tasks.value = JSON.parse(ev.target.result);
+                        location.reload();
+                    }
+                    r.readAsText(f);
+                };
+
+                return {
+                    currentView, tasks, newTaskName, hourlyRate, activeTask, currentSessionDuration, totalStats,
+                    addTask, toggleTimer, deleteTask, clearAll,
+                    formatTime, formatCurrency, formatDate, calculateCost,
+                    backupData, triggerImport, importData
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter | Plena DevTools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .json-output {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .string {
+            color: #a5d6ff;
+        }
+
+        .number {
+            color: #f9f1a5;
+        }
+
+        .boolean {
+            color: #ff7b72;
+        }
+
+        .null {
+            color: #79c0ff;
+        }
+
+        .key {
+            color: #7ee787;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div id="app" class="flex-1 flex flex-col h-full">
+        <!-- Toolbar -->
+        <header class="h-14 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-4 shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-code text-blue-500"></i>
+                <h1 class="font-bold text-slate-100">JSON <span class="text-blue-500">Formatter</span></h1>
+            </div>
+            <div class="flex gap-2">
+                <button @click="formatJSON"
+                    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Formatar
+                </button>
+                <button @click="minifyJSON"
+                    class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-compress"></i> Minificar
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+
+            <!-- Input -->
+            <div
+                class="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-slate-700 h-1/2 md:h-full relative">
+                <div
+                    class="bg-slate-800 px-3 py-1 text-xs font-bold text-slate-400 flex justify-between items-center select-none">
+                    <span>INPUT</span>
+                    <button @click="input = ''" class="hover:text-white"><i class="fa-solid fa-trash"></i>
+                        Limpar</button>
+                </div>
+                <textarea v-model="input" placeholder="Cole seu JSON aqui..."
+                    class="flex-1 w-full bg-[#0d1117] text-slate-300 p-4 font-mono text-sm outline-none resize-none placeholder-slate-700 focus:bg-[#0f151c] transition"></textarea>
+
+                <!-- Sample Data Button (Empty State) -->
+                <div v-if="!input" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <button @click="loadSample"
+                        class="pointer-events-auto px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 text-sm hover:text-white hover:border-slate-500 transition">
+                        Carregar Exemplo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output -->
+            <div class="flex-1 flex flex-col h-1/2 md:h-full bg-[#0d1117] relative">
+                <div
+                    class="bg-slate-800 px-3 py-1 text-xs font-bold text-slate-400 flex justify-between items-center select-none">
+                    <span>OUTPUT</span>
+                    <div class="flex gap-3">
+                        <span v-if="sizeInfo" class="text-slate-500">{{ sizeInfo }}</span>
+                        <button @click="copyOutput" class="hover:text-green-400 transition ml-2">
+                            <i class="fa-regular fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-auto p-4 font-mono text-sm relative">
+                    <div v-if="error" class="text-red-400 bg-red-900/20 p-4 rounded-lg border border-red-900/50">
+                        <h3 class="font-bold flex items-center gap-2 mb-2"><i
+                                class="fa-solid fa-circle-exclamation"></i> JSON Inválido</h3>
+                        <p>{{ error }}</p>
+                    </div>
+                    <!-- Syntax Highlighted Output -->
+                    <pre v-else class="json-output" v-html="highlightedOutput"></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const input = ref('');
+                const output = ref('');
+                const error = ref(null);
+
+                const loadSample = () => {
+                    input.value = '{"project":"Plena Apps","active":true,"apps_count":50,"categories":["Gestão","Food","Dev"],"meta":{"author":"Antigravity","version":3.0}}';
+                    formatJSON();
+                };
+
+                const formatJSON = () => {
+                    error.value = null;
+                    if (!input.value.trim()) { output.value = ''; return; }
+                    try {
+                        const obj = JSON.parse(input.value);
+                        output.value = JSON.stringify(obj, null, 4);
+                    } catch (e) {
+                        error.value = e.message;
+                        output.value = '';
+                    }
+                };
+
+                const minifyJSON = () => {
+                    error.value = null;
+                    if (!input.value.trim()) { output.value = ''; return; }
+                    try {
+                        const obj = JSON.parse(input.value);
+                        output.value = JSON.stringify(obj);
+                    } catch (e) {
+                        error.value = e.message;
+                        output.value = '';
+                    }
+                };
+
+                const copyOutput = () => {
+                    if (!output.value) return;
+                    navigator.clipboard.writeText(output.value);
+                    alert('Copiado!');
+                };
+
+                const sizeInfo = computed(() => {
+                    if (!output.value) return null;
+                    const bytes = new Blob([output.value]).size;
+                    return (bytes / 1024).toFixed(2) + ' KB';
+                });
+
+                // Simple Syntax Highlighter
+                const highlightedOutput = computed(() => {
+                    if (!output.value) return '';
+                    if (error.value) return '';
+                    let json = output.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                        let cls = 'number';
+                        if (/^"/.test(match)) {
+                            if (/:$/.test(match)) {
+                                cls = 'key';
+                            } else {
+                                cls = 'string';
+                            }
+                        } else if (/true|false/.test(match)) {
+                            cls = 'boolean';
+                        } else if (/null/.test(match)) {
+                            cls = 'null';
+                        }
+                        return '<span class="' + cls + '">' + match + '</span>';
+                    });
+                });
+
+                return {
+                    input, output, error, sizeInfo, highlightedOutput,
+                    formatJSON, minifyJSON, loadSample, copyOutput
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mala Pronta | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Open Sans', 'sans-serif'], title: ['Fredoka', 'sans-serif'] },
+                    colors: {
+                        travel: { 50: '#ecfeff', 100: '#cffafe', 500: '#06b6d4', 600: '#0891b2', 900: '#164e63' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #ecfeff;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .checkbox-wrapper input:checked+div {
+            background-color: #06b6d4;
+            border-color: #06b6d4;
+        }
+
+        .checkbox-wrapper input:checked+div svg {
+            display: block;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #a5f3fc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app"
+        class="flex-1 flex h-full w-full relative max-w-lg mx-auto md:max-w-4xl shadow-2xl bg-white overflow-hidden md:rounded-2xl md:my-4 md:border border-travel-100">
+
+        <!-- Sidebar Templates -->
+        <aside class="w-full md:w-72 bg-travel-50 border-r border-travel-100 z-10 flex flex-col h-full">
+            <div class="p-6 border-b border-travel-100 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-travel-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-travel-500/30 transform -rotate-12">
+                    <i class="fa-solid fa-suitcase-rolling"></i>
+                </div>
+                <div>
+                    <h1 class="font-title font-semibold text-xl text-travel-900 leading-none">Mala<br><span
+                            class="text-travel-500">Pronta</span></h1>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                <p class="text-xs font-bold text-travel-900/40 uppercase mb-2 px-2">Modelos Rápidos</p>
+                <button v-for="t in templates" :key="t.id" @click="confirmLoadTemplate(t)"
+                    class="w-full text-left p-3 rounded-xl hover:bg-white hover:shadow-md transition flex items-center gap-3 group border border-transparent hover:border-travel-100">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                        :class="t.bg + ' ' + t.text">
+                        <i :class="t.icon"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-700 group-hover:text-travel-600">{{ t.label }}</h3>
+                        <p class="text-[10px] text-slate-400">{{ t.desc }}</p>
+                    </div>
+                </button>
+            </div>
+
+            <div class="p-4 border-t border-travel-100">
+                <button @click="resetList"
+                    class="w-full py-3 text-sm font-bold text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-trash-can"></i> Limpar Tudo
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full bg-white relative overflow-hidden">
+
+            <!-- Progress Header -->
+            <div class="p-6 md:p-8 bg-white z-20 sticky top-0">
+                <div class="flex justify-between items-end mb-2">
+                    <h2 class="text-2xl font-title font-semibold text-travel-900">Minha Lista</h2>
+                    <span class="text-3xl font-bold text-travel-500 font-title">{{ progress }}%</span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-travel-500 rounded-full transition-all duration-500 ease-out"
+                        :style="{ width: progress + '%' }"></div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs font-bold text-slate-400">
+                    <span>{{ completedCount }} itens prontos</span>
+                    <span>{{ totalCount }} total</span>
+                </div>
+            </div>
+
+            <!-- Categories & Items -->
+            <div class="flex-1 overflow-y-auto px-6 pb-24 md:pb-8 space-y-8">
+
+                <div v-for="(catItems, catName) in categories" :key="catName" class="animate-fadeIn">
+                    <h3
+                        class="font-bold text-sm text-travel-900/50 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i :class="getCategoryIcon(catName)"></i> {{ catName }}
+                    </h3>
+
+                    <div class="space-y-2">
+                        <div v-for="(item, idx) in catItems" :key="item.id"
+                            class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 transition group hover:border-travel-200 hover:shadow-sm cursor-pointer select-none"
+                            :class="item.checked ? 'bg-travel-50/50' : 'bg-white'" @click="toggleItem(catName, idx)">
+
+                            <div class="checkbox-wrapper relative w-6 h-6 flex-shrink-0">
+                                <input type="checkbox" :checked="item.checked"
+                                    class="absolute opacity-0 cursor-pointer h-full w-full z-10">
+                                <div
+                                    class="w-6 h-6 border-2 border-slate-200 rounded-lg transition flex items-center justify-center bg-white">
+                                    <svg class="w-3 h-3 text-white hidden pointer-events-none" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <span class="flex-1 font-medium text-slate-700 transition"
+                                :class="item.checked ? 'line-through text-slate-400' : ''">{{ item.name }}</span>
+
+                            <button @click.stop="deleteItem(catName, idx)"
+                                class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="totalCount === 0" class="text-center py-10 opacity-50">
+                    <i class="fa-solid fa-plane-up text-4xl mb-4 text-travel-200"></i>
+                    <p>Selecione um modelo ao lado ou adicione itens.</p>
+                </div>
+
+            </div>
+
+            <!-- Floating Add Button -->
+            <div class="absolute bottom-6 right-6 z-30">
+                <button @click="showAddModal = true"
+                    class="w-14 h-14 bg-travel-500 hover:bg-travel-600 text-white rounded-full shadow-xl shadow-travel-500/40 flex items-center justify-center text-2xl transition hover:scale-110">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- Add Modal -->
+        <div v-if="showAddModal"
+            class="absolute inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center p-4"
+            @click.self="showAddModal = false">
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-slideUp">
+                <div class="p-6">
+                    <h3 class="font-title font-bold text-xl text-slate-800 mb-4">Novo Item</h3>
+
+                    <input v-model="newItemName" @keyup.enter="addItem" placeholder="Ex: Protetor Solar"
+                        class="w-full text-lg p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-travel-500 focus:bg-white transition mb-4">
+
+                    <div class="grid grid-cols-2 gap-2 mb-6">
+                        <button v-for="cat in categoryList" :key="cat" @click="newItemCategory = cat"
+                            class="p-2 text-xs font-bold rounded-lg border transition"
+                            :class="newItemCategory === cat ? 'bg-travel-500 text-white border-travel-500' : 'bg-white text-slate-500 border-slate-200 hover:border-travel-300'">
+                            {{ cat }}
+                        </button>
+                    </div>
+
+                    <button @click="addItem"
+                        class="w-full bg-travel-900 text-white font-bold py-3 rounded-xl hover:bg-travel-800 transition">Adicionar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const DB_KEY = 'plena_malas_v1';
+
+        createApp({
+            setup() {
+                const templates = [
+                    {
+                        id: 'praia', label: 'Praia & Sol', desc: 'Para relaxar no litoral', icon: 'fa-solid fa-umbrella-beach', bg: 'bg-orange-100', text: 'text-orange-500',
+                        items: {
+                            'Roupas': ['Roupas de Banho', 'Saída de Praia', 'Chinelos', 'Boné / Chapéu', 'Óculos de Sol', 'Roupas Leves'],
+                            'Higiene': ['Protetor Solar', 'Pós-Sol', 'Hidratante', 'Shampoo/Condicionador', 'Escova de Dentes'],
+                            'Eletrônicos': ['Carregador', 'Fone de Ouvido', 'Powerbank', 'Caixinha de Som'],
+                            'Documentos': ['RG / CNH', 'Cartões de Crédito', 'Dinheiro']
+                        }
+                    },
+                    {
+                        id: 'frio', label: 'Inverno & Neve', desc: 'Para enfrentar o frio', icon: 'fa-solid fa-snowflake', bg: 'bg-blue-100', text: 'text-blue-500',
+                        items: {
+                            'Roupas': ['Casacos Pesados', 'Segunda Pele', 'Luvas e Cachecol', 'Touca', 'Botas', 'Meias de Lã'],
+                            'Higiene': ['Protetor Labial', 'Hidratante Potente', 'Remédios Gripe'],
+                            'Eletrônicos': ['Carregador', 'Adaptador Tomada'],
+                            'Documentos': ['Passaporte', 'Seguro Viagem']
+                        }
+                    },
+                    {
+                        id: 'business', label: 'Negócios', desc: 'Viagem a trabalho', icon: 'fa-solid fa-briefcase', bg: 'bg-slate-100', text: 'text-slate-500',
+                        items: {
+                            'Roupas': ['Ternos / Blazers', 'Camisas Sociais', 'Sapatos Sociais', 'Pijama', 'Roupa Casual (Jantar)'],
+                            'Higiene': ['Perfume', 'Barbeador / Maquiagem', 'Desodorante'],
+                            'Eletrônicos': ['Notebook', 'Carregador Note', 'Mouse', 'Kindle'],
+                            'Documentos': ['Cartões de Visita', 'Notebook da Empresa', 'Crachá']
+                        }
+                    },
+                    {
+                        id: 'camping', label: 'Acampamento', desc: 'Natureza selvagem', icon: 'fa-solid fa-campground', bg: 'bg-green-100', text: 'text-green-500',
+                        items: {
+                            'Equipamentos': ['Barraca', 'Saco de Dormir', 'Lanterna', 'Isqueiro/Fósforos', 'Canivete'],
+                            'Roupas': ['Botas Trekking', 'Capa de Chuva', 'Roupas Secagem Rápida'],
+                            'Higiene': ['Repelente', 'Papel Higiênico', 'Sabonete Bio'],
+                            'Comida': ['Água', 'Snacks', 'Fogareiro']
+                        }
+                    }
+                ];
+
+                const categoryList = ['Roupas', 'Higiene', 'Eletrônicos', 'Documentos', 'Equipamentos', 'Comida', 'Outros'];
+
+                // Data Structure: { 'CategoryName': [ {id, name, checked}, ... ], ... }
+                const categories = ref({});
+
+                const showAddModal = ref(false);
+                const newItemName = ref('');
+                const newItemCategory = ref('Outros');
+
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) categories.value = JSON.parse(d);
+                    else {
+                        // Empty state or default load? Let's leave empty so user chooses template
+                    }
+                });
+
+                watch(categories, () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify(categories.value));
+                }, { deep: true });
+
+                // Computed
+                const flatItems = computed(() => {
+                    let all = [];
+                    for (const cat in categories.value) {
+                        all = all.concat(categories.value[cat]);
+                    }
+                    return all;
+                });
+
+                const totalCount = computed(() => flatItems.value.length);
+                const completedCount = computed(() => flatItems.value.filter(i => i.checked).length);
+                const progress = computed(() => totalCount.value === 0 ? 0 : Math.round((completedCount.value / totalCount.value) * 100));
+
+                // Actions
+                const confirmLoadTemplate = (t) => {
+                    if (totalCount.value > 0) {
+                        if (!confirm(`Substituir sua lista atual pelo modelo "${t.label}"?`)) return;
+                    }
+                    loadTemplate(t);
+                };
+
+                const loadTemplate = (t) => {
+                    const newCats = {};
+                    for (const cat in t.items) {
+                        newCats[cat] = t.items[cat].map(name => ({ id: Date.now() + Math.random(), name, checked: false }));
+                    }
+                    categories.value = newCats;
+                };
+
+                const resetList = () => {
+                    if (confirm('Apagar todos os itens da lista?')) categories.value = {};
+                };
+
+                const toggleItem = (cat, idx) => {
+                    categories.value[cat][idx].checked = !categories.value[cat][idx].checked;
+                };
+
+                const deleteItem = (cat, idx) => {
+                    categories.value[cat].splice(idx, 1);
+                    if (categories.value[cat].length === 0) delete categories.value[cat];
+                };
+
+                const addItem = () => {
+                    if (!newItemName.value) return;
+
+                    if (!categories.value[newItemCategory.value]) categories.value[newItemCategory.value] = [];
+
+                    categories.value[newItemCategory.value].push({
+                        id: Date.now(),
+                        name: newItemName.value,
+                        checked: false
+                    });
+
+                    newItemName.value = '';
+                    showAddModal.value = false;
+                };
+
+                const getCategoryIcon = (cat) => {
+                    const map = {
+                        'Roupas': 'fa-solid fa-shirt',
+                        'Higiene': 'fa-solid fa-pump-soap',
+                        'Eletrônicos': 'fa-solid fa-plug',
+                        'Documentos': 'fa-solid fa-passport',
+                        'Equipamentos': 'fa-solid fa-toolbox',
+                        'Comida': 'fa-solid fa-apple-whole',
+                        'Outros': 'fa-solid fa-box-open'
+                    };
+                    return map[cat] || 'fa-solid fa-check';
+                };
+
+                return {
+                    templates, categories, categoryList, totalCount, completedCount, progress,
+                    showAddModal, newItemName, newItemCategory,
+                    confirmLoadTemplate, resetList, toggleItem, deleteItem, addItem, getCategoryIcon
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minhas Notas | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Epilogue', 'sans-serif'] },
+                    colors: {
+                        school: { 50: '#f0f9ff', 100: '#e0f2fe', 600: '#0284c7', 900: '#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Epilogue', sans-serif;
+        }
+
+        .grade-good {
+            color: #16a34a;
+        }
+
+        .grade-bad {
+            color: #dc2626;
+        }
+
+        .grade-warn {
+            color: #ca8a04;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <div id="app" class="flex-1 flex h-full w-full relative bg-white md:bg-school-50">
+
+        <!-- Sidebar Subjects -->
+        <aside class="w-full md:w-80 bg-white border-r border-slate-200 z-10 flex flex-col h-full shadow-lg">
+            <div class="p-6 border-b border-slate-100 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-school-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-school-600/20">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-800 tracking-tight leading-tight">Gestor<br><span
+                            class="text-school-600">Escolar</span></h1>
+                </div>
+
+                <div class="ml-auto relative group">
+                    <button class="text-slate-400 hover:text-school-600"><i class="fa-solid fa-gear"></i></button>
+                    <!-- Settings Pop -->
+                    <div
+                        class="absolute right-0 top-8 bg-white border border-slate-200 p-4 rounded-xl shadow-xl w-48 hidden group-hover:block z-50">
+                        <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Média p/ Aprovação</label>
+                        <input type="number" v-model.number="settings.passingGrade"
+                            class="w-full border rounded p-1 text-center font-bold text-slate-700">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+
+                <!-- Overall Card -->
+                <div
+                    class="bg-gradient-to-br from-school-600 to-school-900 rounded-2xl p-5 text-white mb-6 shadow-lg relative overflow-hidden">
+                    <i class="fa-solid fa-chart-pie absolute -bottom-4 -right-4 text-6xl opacity-20"></i>
+                    <p class="text-xs font-bold uppercase opacity-80 mb-1">Média Geral</p>
+                    <div class="text-4xl font-bold">{{ overallAverage }}</div>
+                    <div class="mt-2 text-xs opacity-90 flex gap-2">
+                        <span class="bg-white/20 px-2 py-0.5 rounded">{{ subjects.length }} Matérias</span>
+                    </div>
+                </div>
+
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">Matérias</div>
+
+                <div v-for="(sub, idx) in subjects" :key="sub.id" @click="selectSubject(idx)"
+                    class="p-4 rounded-xl cursor-pointer transition border border-transparent flex items-center justify-between group"
+                    :class="currentSubjectIdx === idx ? 'bg-school-50 border-school-600/30' : 'bg-white hover:bg-slate-50 border-slate-100'">
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-10 rounded-full" :class="getAverageColorClass(getSubjectAverage(sub))"></div>
+                        <div>
+                            <h3 class="font-bold text-slate-700"
+                                :class="currentSubjectIdx === idx ? 'text-school-600' : ''">{{ sub.name }}</h3>
+                            <p class="text-xs text-slate-400">{{ sub.grades.length }} notas lançadas</p>
+                        </div>
+                    </div>
+
+                    <span class="font-bold text-lg" :class="getAverageTextColorClass(getSubjectAverage(sub))">{{
+                        getSubjectAverage(sub) }}</span>
+                </div>
+
+                <button @click="addSubject"
+                    class="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 font-bold hover:bg-white hover:border-school-600 hover:text-school-600 transition flex items-center justify-center gap-2 text-sm mt-4">
+                    <i class="fa-solid fa-plus"></i> Nova Matéria
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full bg-slate-50 relative overflow-hidden">
+
+            <div v-if="currentSubject" class="h-full flex flex-col p-4 md:p-8 overflow-y-auto">
+
+                <!-- Header Subject -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <input v-model="currentSubject.name"
+                            class="text-3xl font-bold bg-transparent border-b-2 border-transparent focus:border-slate-300 outline-none text-slate-800 transition"
+                            placeholder="Nome da Matéria">
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                                :class="getStatus(getSubjectAverage(currentSubject)).bg">
+                                {{ getStatus(getSubjectAverage(currentSubject)).label }}
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="deleteSubject" class="text-slate-300 hover:text-red-500 transition px-4 py-2"><i
+                            class="fa-solid fa-trash-can"></i></button>
+                </div>
+
+                <!-- Grades List -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                <th class="p-4 text-xs font-bold text-slate-400 uppercase w-1/2">Avaliação</th>
+                                <th class="p-4 text-xs font-bold text-slate-400 uppercase text-center w-24">Peso</th>
+                                <th class="p-4 text-xs font-bold text-slate-400 uppercase text-center w-24">Nota</th>
+                                <th class="p-4 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr v-for="(grade, gIdx) in currentSubject.grades" :key="grade.id"
+                                class="group hover:bg-slate-50">
+                                <td class="p-3">
+                                    <input v-model="grade.name" placeholder="Ex: Prova 1"
+                                        class="w-full bg-transparent outline-none font-medium text-slate-700 placeholder-slate-300">
+                                </td>
+                                <td class="p-3">
+                                    <div class="flex items-center justify-center bg-slate-100 rounded-lg px-2 py-1">
+                                        <span class="text-xs text-slate-400 font-bold mr-1">x</span>
+                                        <input type="number" v-model.number="grade.weight"
+                                            class="w-8 bg-transparent text-center font-bold text-slate-600 outline-none"
+                                            min="1">
+                                    </div>
+                                </td>
+                                <td class="p-3">
+                                    <input type="number" v-model.number="grade.value" step="0.1" max="10"
+                                        placeholder="0.0"
+                                        class="w-full text-center font-bold text-lg bg-transparent outline-none"
+                                        :class="getAverageTextColorClass(grade.value)">
+                                </td>
+                                <td class="p-3 text-center">
+                                    <button @click="removeGrade(gIdx)"
+                                        class="text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"><i
+                                            class="fa-solid fa-times"></i></button>
+                                </td>
+                            </tr>
+                            <tr v-if="currentSubject.grades.length === 0">
+                                <td colspan="4" class="p-8 text-center text-slate-400 text-sm">Nenhuma nota lançada.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="p-4 bg-slate-50 border-t border-slate-200">
+                        <button @click="addGrade"
+                            class="w-full py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:border-school-600 hover:text-school-600 shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Adicionar Nota
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prediction / Simulator -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 border border-blue-100 p-6 rounded-2xl relative overflow-hidden">
+                        <h4 class="font-bold text-school-900 mb-2">Simulador Rápido</h4>
+                        <p class="text-sm text-school-900/70 mb-4">Descubra quanto precisa tirar na próxima prova.</p>
+
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1">
+                                <label class="text-[10px] uppercase font-bold text-blue-400">Peso Próx. Prova</label>
+                                <input type="number" v-model.number="simulatorWeight"
+                                    class="w-full p-2 rounded-lg border border-blue-200 font-bold text-school-900">
+                            </div>
+                            <div class="flex items-center justify-center pt-5">
+                                <i class="fa-solid fa-arrow-right text-school-600"></i>
+                            </div>
+                            <div class="flex-1 bg-white p-2 rounded-lg border border-blue-200 text-center">
+                                <label
+                                    class="text-[10px] uppercase font-bold text-blue-400 block mb-1">Necessário</label>
+                                <span class="text-xl font-bold"
+                                    :class="neededGrade > 10 ? 'text-red-500' : 'text-school-600'">{{ neededGrade
+                                    }}</span>
+                            </div>
+                        </div>
+                        <p v-if="neededGrade > 10" class="text-xs text-red-500 mt-2 font-bold"><i
+                                class="fa-solid fa-triangle-exclamation"></i> Impossível matematicamente (Assumindo máx
+                            10)</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div v-else class="flex-1 flex flex-col items-center justify-center text-slate-300">
+                <i class="fa-solid fa-book text-6xl mb-4"></i>
+                <p class="font-bold">Selecione uma matéria</p>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch, onMounted } = Vue;
+        const DB_KEY = 'plena_notas_v1';
+
+        createApp({
+            setup() {
+                const settings = ref({ passingGrade: 6.0 });
+                const subjects = ref([
+                    {
+                        id: 1,
+                        name: 'Matemática',
+                        grades: [
+                            { id: 1, name: 'Prova 1', value: 5.5, weight: 1 },
+                            { id: 2, name: 'Trabalho', value: 8.0, weight: 1 }
+                        ]
+                    }
+                ]);
+                const currentSubjectIdx = ref(0);
+                const simulatorWeight = ref(1);
+
+                // Persistence
+                onMounted(() => {
+                    const d = localStorage.getItem(DB_KEY);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        settings.value = parsed.settings || { passingGrade: 6.0 };
+                        subjects.value = parsed.subjects || [];
+                    }
+                });
+
+                watch([subjects, settings], () => {
+                    localStorage.setItem(DB_KEY, JSON.stringify({
+                        settings: settings.value,
+                        subjects: subjects.value
+                    }));
+                }, { deep: true });
+
+                const currentSubject = computed(() => subjects.value[currentSubjectIdx.value]);
+
+                // Calculations
+                const getSubjectAverage = (sub) => {
+                    if (!sub || sub.grades.length === 0) return 0;
+
+                    let totalVal = 0;
+                    let totalWeight = 0;
+
+                    sub.grades.forEach(g => {
+                        const w = g.weight || 1;
+                        totalVal += (g.value || 0) * w;
+                        totalWeight += w;
+                    });
+
+                    return totalWeight === 0 ? 0 : parseFloat((totalVal / totalWeight).toFixed(1));
+                };
+
+                const overallAverage = computed(() => {
+                    if (subjects.value.length === 0) return '0.0';
+                    let sum = 0;
+                    subjects.value.forEach(sub => sum += getSubjectAverage(sub));
+                    return (sum / subjects.value.length).toFixed(1);
+                });
+
+                const neededGrade = computed(() => {
+                    if (!currentSubject.value) return 0;
+
+                    const target = settings.value.passingGrade;
+                    const nextWeight = simulatorWeight.value || 1;
+
+                    let currentSum = 0;
+                    let currentWeight = 0;
+
+                    currentSubject.value.grades.forEach(g => {
+                        currentSum += (g.value || 0) * (g.weight || 1);
+                        currentWeight += (g.weight || 1);
+                    });
+
+                    // Recipe: (Target * (CurrWeight + NextWeight)) - CurrSum / NextWeight
+                    const finalWeight = currentWeight + nextWeight;
+                    const requiredTotal = target * finalWeight;
+                    const diff = requiredTotal - currentSum;
+                    const result = diff / nextWeight;
+
+                    return result < 0 ? 0 : parseFloat(result.toFixed(1));
+                });
+
+                // Style Helpers
+                const getAverageColorClass = (avg) => {
+                    if (avg >= settings.value.passingGrade) return 'bg-green-500';
+                    if (avg >= settings.value.passingGrade - 1.5) return 'bg-yellow-500'; // Close call
+                    return 'bg-red-500';
+                };
+
+                const getAverageTextColorClass = (val) => {
+                    if (val >= settings.value.passingGrade) return 'text-green-600';
+                    if (val >= settings.value.passingGrade - 1.5) return 'text-yellow-600';
+                    return 'text-red-600';
+                };
+
+                const getStatus = (avg) => {
+                    if (avg >= settings.value.passingGrade) return { label: 'Aprovado', bg: 'bg-green-100 text-green-700' };
+                    if (avg >= settings.value.passingGrade - 1.5) return { label: 'Recuperação', bg: 'bg-yellow-100 text-yellow-700' };
+                    return { label: 'Reprovado', bg: 'bg-red-100 text-red-700' };
+                };
+
+                // Actions
+                const selectSubject = (idx) => currentSubjectIdx.value = idx;
+
+                const addSubject = () => {
+                    const name = prompt('Nome da Matéria (ex: História):');
+                    if (name) {
+                        subjects.value.push({ id: Date.now(), name, grades: [] });
+                        currentSubjectIdx.value = subjects.value.length - 1;
+                    }
+                };
+
+                const deleteSubject = () => {
+                    if (confirm('Remover esta matéria?')) {
+                        subjects.value.splice(currentSubjectIdx.value, 1);
+                        currentSubjectIdx.value = Math.max(0, subjects.value.length - 1);
+                    }
+                };
+
+                const addGrade = () => {
+                    currentSubject.value.grades.push({ id: Date.now(), name: '', value: null, weight: 1 });
+                };
+
+                const removeGrade = (idx) => {
+                    currentSubject.value.grades.splice(idx, 1);
+                };
+
+                return {
+                    settings, subjects, currentSubjectIdx, currentSubject, simulatorWeight,
+                    overallAverage, neededGrade,
+                    getSubjectAverage, getAverageColorClass, getAverageTextColorClass, getStatus,
+                    selectSubject, addSubject, deleteSubject, addGrade, removeGrade
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

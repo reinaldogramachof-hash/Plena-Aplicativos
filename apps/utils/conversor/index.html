@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Conversor Universal | Plena Aplicativos</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Public Sans', 'sans-serif'] },
+                    colors: {
+                        brand: { 500: '#3b82f6', 600: '#2563eb' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .tab-active {
+            background: #fff;
+            color: #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group:focus-within label {
+            color: #2563eb;
+        }
+
+        .input-group:focus-within input {
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-2xl h-full md:h-auto flex flex-col">
+
+        <!-- Header -->
+        <div class="text-center mb-6 mt-4 md:mt-0">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-right-arrow-left text-brand-500"></i> Conversor <span
+                    class="text-brand-600">Universal</span>
+            </h1>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 flex-1 flex flex-col overflow-hidden">
+
+            <!-- Tabs -->
+            <div class="flex overflow-x-auto p-2 bg-slate-100 gap-2 no-scrollbar">
+                <button v-for="cat in categories" :key="cat.id" @click="currentCategory = cat.id"
+                    class="flex-1 min-w-[100px] py-3 px-4 rounded-xl text-sm font-bold transition-all flex flex-col items-center gap-1 border border-transparent"
+                    :class="currentCategory === cat.id ? 'tab-active border-slate-200' : 'text-slate-500 hover:bg-slate-200'">
+                    <i :class="cat.icon" class="text-lg"></i>
+                    {{ cat.name }}
+                </button>
+            </div>
+
+            <!-- Converter Area -->
+            <div class="p-6 md:p-8 flex-1 overflow-y-auto bg-white/50 relative">
+
+                <div v-for="cat in categories" :key="cat.id">
+                    <div v-if="currentCategory === cat.id" class="space-y-4 animate-fade-in">
+
+                        <div v-for="unit in cat.units" :key="unit.id" class="input-group relative">
+                            <label
+                                class="absolute left-4 top-2 text-xs font-bold text-slate-400 uppercase tracking-wider transition-colors z-10">{{
+                                unit.name }} ({{ unit.symbol }})</label>
+                            <input type="number" v-model="values[unit.id]"
+                                @input="convert(unit.id, $event.target.value)" placeholder="0"
+                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pt-7 pb-3 px-4 text-xl font-bold text-slate-700 outline-none transition-all placeholder-slate-300 shadow-sm focus:shadow-md focus:bg-white spin-hide">
+
+                            <!-- Copy Btn -->
+                            <button @click="copy(values[unit.id])"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500 transition opacity-0 group-hover:opacity-100 input-group:hover:opacity-100">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Empty State / Intro if needed, but tabs default to first -->
+
+            </div>
+
+            <!-- Footer Info -->
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Precisão de 4 casas decimais
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <style>
+        .spin-hide::-webkit-outer-spin-button,
+        .spin-hide::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const currentCategory = ref('length');
+                // Store active values for all units across all categories flatly? 
+                // Alternatively, reset when switching cat? Better to keep state? 
+                // Let's keep state separate but simple.
+
+                const values = ref({});
+
+                const categories = [
+                    {
+                        id: 'length', name: 'Comprimento', icon: 'fa-solid fa-ruler-combined',
+                        units: [
+                            { id: 'm', name: 'Metros', symbol: 'm', factor: 1 },
+                            { id: 'cm', name: 'Centímetros', symbol: 'cm', factor: 0.01 },
+                            { id: 'km', name: 'Quilômetros', symbol: 'km', factor: 1000 },
+                            { id: 'ft', name: 'Pés', symbol: 'ft', factor: 0.3048 },
+                            { id: 'in', name: 'Polegadas', symbol: 'in', factor: 0.0254 },
+                            { id: 'mi', name: 'Milhas', symbol: 'mi', factor: 1609.34 }
+                        ]
+                    },
+                    {
+                        id: 'weight', name: 'Peso', icon: 'fa-solid fa-weight-hanging',
+                        units: [
+                            { id: 'kg', name: 'Quilogramas', symbol: 'kg', factor: 1 },
+                            { id: 'g', name: 'Gramas', symbol: 'g', factor: 0.001 },
+                            { id: 'lb', name: 'Libras', symbol: 'lb', factor: 0.453592 },
+                            { id: 'oz', name: 'Onças', symbol: 'oz', factor: 0.0283495 }
+                        ]
+                    },
+                    {
+                        id: 'temp', name: 'Temperatura', icon: 'fa-solid fa-temperature-half',
+                        units: [
+                            { id: 'c', name: 'Celsius', symbol: '°C' },
+                            { id: 'f', name: 'Fahrenheit', symbol: '°F' },
+                            { id: 'k', name: 'Kelvin', symbol: 'K' }
+                        ]
+                    },
+                    {
+                        id: 'speed', name: 'Velocidade', icon: 'fa-solid fa-gauge-high',
+                        units: [
+                            { id: 'kmh', name: 'km/h', symbol: 'km/h', factor: 1 },
+                            { id: 'mph', name: 'Milhas/h', symbol: 'mph', factor: 1.60934 },
+                            { id: 'ms', name: 'm/s', symbol: 'm/s', factor: 3.6 }
+                        ]
+                    }
+                ];
+
+                const convert = (sourceId, val) => {
+                    if (val === '') {
+                        // Clear all in category
+                        const cat = categories.find(c => c.units.find(u => u.id === sourceId));
+                        cat.units.forEach(u => values.value[u.id] = '');
+                        return;
+                    }
+
+                    const value = parseFloat(val);
+                    if (isNaN(value)) return;
+
+                    const cat = categories.find(c => c.units.find(u => u.id === sourceId));
+
+                    if (cat.id === 'temp') {
+                        // Special logic for Temp
+                        if (sourceId === 'c') {
+                            values.value.f = strip((value * 9 / 5) + 32);
+                            values.value.k = strip(value + 273.15);
+                        } else if (sourceId === 'f') {
+                            values.value.c = strip((value - 32) * 5 / 9);
+                            values.value.k = strip((value - 32) * 5 / 9 + 273.15);
+                        } else if (sourceId === 'k') {
+                            values.value.c = strip(value - 273.15);
+                            values.value.f = strip((value - 273.15) * 9 / 5 + 32);
+                        }
+                    } else {
+                        // Factor based
+                        const sourceUnit = cat.units.find(u => u.id === sourceId);
+                        const baseValue = value * sourceUnit.factor; // Convert to base (e.g. meters)
+
+                        cat.units.forEach(u => {
+                            if (u.id !== sourceId) {
+                                values.value[u.id] = strip(baseValue / u.factor);
+                            }
+                        });
+                    }
+                };
+
+                const strip = (num) => parseFloat(num.toFixed(4));
+
+                const copy = (val) => {
+                    if (!val) return;
+                    navigator.clipboard.writeText(val);
+                    // Maybe show toast? 
+                };
+
+                return {
+                    currentCategory, categories, values, convert, copy
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

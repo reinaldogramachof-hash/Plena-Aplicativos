@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redação Nota 1000 | Plena Educação</title>
+
+    <!-- LIBS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FONTS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Merriweather', serif;
+        }
+
+        /* Papel de Redação Style */
+        .paper-bg {
+            background-color: #fff;
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 100% 2rem;
+            line-height: 2rem;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50 text-slate-800 min-h-screen flex flex-col">
+
+    <div id="app" v-cloak class="flex-grow flex flex-col md:flex-row h-screen overflow-hidden">
+
+        <!-- LEFT SIDE: WIZARD -->
+        <aside class="w-full md:w-1/2 lg:w-2/5 bg-white shadow-xl flex flex-col z-20 h-full">
+
+            <!-- Header -->
+            <div class="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <a href="../../../index.html" class="hover:bg-indigo-500 p-2 rounded-lg transition"><i
+                            class="fa-solid fa-arrow-left"></i></a>
+                    <h1 class="font-bold text-xl">Redação Nota 1000</h1>
+                </div>
+                <!-- Step Indicator -->
+                <div class="text-xs font-bold uppercase tracking-widest bg-indigo-800 px-3 py-1 rounded">
+                    Passo {{ currentStep + 1 }}/4
+                </div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-grow overflow-y-auto p-6 md:p-10">
+
+                <transition name="fade" mode="out-in">
+                    <!-- PASSO 0: INTRODUÇÃO -->
+                    <div v-if="currentStep === 0" key="step0">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-indigo-900 mb-2">Introdução</h2>
+                            <p class="text-slate-500 text-sm">Apresente o tema e sua tese (opinião).</p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Contextualização
+                                    (Opcional)</label>
+                                <textarea v-model="form.intro_context"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Na obra 'Vidas Secas' de Graciliano Ramos... ou Historicamente..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Sua Tese (O problema
+                                    central)</label>
+                                <textarea v-model="form.intro_thesis"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: É evidente que a persistência da violência contra a mulher no Brasil representa um grave desafio..."></textarea>
+                                <p class="text-xs text-slate-400 mt-2"><i
+                                        class="fa-solid fa-lightbulb text-yellow-500"></i> Dica: Use termos como 'É
+                                    notório que', 'Nota-se que'.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 1: ARGUMENTO 1 -->
+                    <div v-else-if="currentStep === 1" key="step1">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-indigo-900 mb-2">Desenvolvimento 1</h2>
+                            <p class="text-slate-500 text-sm">Primeiro motivo que prova sua tese.</p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Tópico Frasal (A ideia
+                                    principal)</label>
+                                <textarea v-model="form.dev1_topic"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Mormente, é preciso analisar a ineficiência estatal..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Exemplo ou Fato</label>
+                                <textarea v-model="form.dev1_example"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Segundo dados do IBGE..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 2: ARGUMENTO 2 -->
+                    <div v-else-if="currentStep === 2" key="step2">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-indigo-900 mb-2">Desenvolvimento 2</h2>
+                            <p class="text-slate-500 text-sm">Segundo motivo ou consequência.</p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Tópico Frasal</label>
+                                <textarea v-model="form.dev2_topic"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Ademais, vale ressaltar a influência da mídia..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Aprofundamento</label>
+                                <textarea v-model="form.dev2_example"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Isso cria uma cultura de..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 3: CONCLUSÃO -->
+                    <div v-else-if="currentStep === 3" key="step3">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-indigo-900 mb-2">Conclusão</h2>
+                            <p class="text-slate-500 text-sm">Retomada e Proposta de Intervenção.</p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Conectivo Conclusivo +
+                                    Retomada</label>
+                                <textarea v-model="form.concl_start"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Portanto, medidas são necessárias para resolver o impasse..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Proposta de Intervenção
+                                    (Quem? O que? Como?)</label>
+                                <textarea v-model="form.concl_action"
+                                    class="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-indigo-500 outline-none transition h-24"
+                                    placeholder="Ex: Cabe ao Ministério da Educação criar campanhas de conscientização nas escolas..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+            </div>
+
+            <!-- Footer Navigation -->
+            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-between">
+                <button @click="prevStep" :disabled="currentStep === 0"
+                    class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-200 disabled:opacity-50 transition">
+                    Voltar
+                </button>
+                <button @click="nextStep"
+                    class="px-8 py-3 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition transform hover:-translate-y-1">
+                    {{ currentStep === 3 ? 'Finalizar' : 'Próximo' }}
+                </button>
+            </div>
+        </aside>
+
+        <!-- RIGHT SIDE: PREVIEW -->
+        <main class="w-full md:w-1/2 lg:w-3/5 bg-slate-100 p-4 md:p-8 flex flex-col h-full overflow-hidden">
+            <h2 class="text-center font-serif font-bold text-slate-400 mb-4 uppercase tracking-widest text-sm">
+                Visualização em Tempo Real</h2>
+
+            <div
+                class="flex-grow bg-white paper-bg shadow-2xl rounded-sm p-8 md:p-12 overflow-y-auto font-serif text-slate-800 text-lg relative max-w-3xl mx-auto w-full">
+                <!-- Watermark -->
+                <div class="absolute top-4 right-4 text-xs text-slate-300 font-sans select-none">Folha de Redação
+                    Digital</div>
+
+                <!-- TITLE (Optional) -->
+                <div class="text-center mb-8 pb-4 border-b-2 border-slate-100">
+                    <input type="text" placeholder="Título da Redação (Opcional)"
+                        class="w-full text-center font-bold text-xl outline-none bg-transparent placeholder-slate-300 text-slate-800">
+                </div>
+
+                <!-- PARAGRAPHS -->
+                <p v-if="textIntro" class="mb-4 indent-8 text-justify">{{ textIntro }}</p>
+                <p v-else class="mb-4 indent-8 text-slate-300 italic select-none">[Sua introdução aparecerá aqui...]</p>
+
+                <p v-if="textDev1" class="mb-4 indent-8 text-justify">{{ textDev1 }}</p>
+                <p v-else class="mb-4 indent-8 text-slate-300 italic select-none">[Seu desenvolvimento 1 aparecerá
+                    aqui...]</p>
+
+                <p v-if="textDev2" class="mb-4 indent-8 text-justify">{{ textDev2 }}</p>
+                <p v-else class="mb-4 indent-8 text-slate-300 italic select-none">[Seu desenvolvimento 2 aparecerá
+                    aqui...]</p>
+
+                <p v-if="textConcl" class="mb-4 indent-8 text-justify">{{ textConcl }}</p>
+                <p v-else class="mb-4 indent-8 text-slate-300 italic select-none">[Sua conclusão aparecerá aqui...]</p>
+
+            </div>
+
+            <div class="mt-8 text-center">
+                <button @click="copyText"
+                    class="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 mx-auto transition">
+                    <i class="fa-solid fa-copy"></i> Copiar Redação Completa
+                </button>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div id="toast"
+        class="fixed bottom-4 right-4 bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 transition duration-300 z-50">
+        Texto copiado com sucesso!
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const currentStep = ref(0);
+                const form = ref({
+                    intro_context: '',
+                    intro_thesis: '',
+                    dev1_topic: '',
+                    dev1_example: '',
+                    dev2_topic: '',
+                    dev2_example: '',
+                    concl_start: '',
+                    concl_action: ''
+                });
+
+                const steps = ['Introdução', 'Desenvolvimento 1', 'Desenvolvimento 2', 'Conclusão'];
+
+                const nextStep = () => {
+                    if (currentStep.value < 3) currentStep.value++;
+                };
+
+                const prevStep = () => {
+                    if (currentStep.value > 0) currentStep.value--;
+                };
+
+                // Computed Paragraphs
+                const textIntro = computed(() => {
+                    const parts = [form.value.intro_context, form.value.intro_thesis].filter(p => p.trim());
+                    return parts.join(' ');
+                });
+
+                const textDev1 = computed(() => {
+                    const parts = [form.value.dev1_topic, form.value.dev1_example].filter(p => p.trim());
+                    return parts.join(' ');
+                });
+
+                const textDev2 = computed(() => {
+                    const parts = [form.value.dev2_topic, form.value.dev2_example].filter(p => p.trim());
+                    return parts.join(' ');
+                });
+
+                const textConcl = computed(() => {
+                    const parts = [form.value.concl_start, form.value.concl_action].filter(p => p.trim());
+                    return parts.join(' ');
+                });
+
+                const copyText = () => {
+                    const fullText = [textIntro.value, textDev1.value, textDev2.value, textConcl.value].join('\n\n');
+                    navigator.clipboard.writeText(fullText).then(() => {
+                        const toast = document.getElementById('toast');
+                        toast.classList.remove('translate-y-20');
+                        setTimeout(() => toast.classList.add('translate-y-20'), 3000);
+                    });
+                };
+
+                return {
+                    currentStep, form, steps,
+                    nextStep, prevStep,
+                    textIntro, textDev1, textDev2, textConcl,
+                    copyText
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

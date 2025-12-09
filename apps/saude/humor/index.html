@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-2xl flex flex-col">
+
+        <!-- HEADER -->
+        <header class="p-6 bg-indigo-600 text-white pb-10 rounded-b-3xl shadow-lg relative z-10">
+            <h1 class="text-2xl font-bold mb-1">Olá! <span class="font-light opacity-80">Como você está?</span></h1>
+            <p class="text-xs text-indigo-200">{{ todayFormatted }}</p>
+        </header>
+
+        <!-- INPUT CARD (Floating) -->
+        <div class="mx-6 -mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 z-20 text-center">
+            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Humor de Hoje</h2>
+
+            <div class="flex justify-between gap-2 mb-4">
+                <button v-for="mood in moods" :key="mood.val" @click="setTodayMood(mood.val)"
+                    class="flex flex-col items-center gap-1 transition transform hover:scale-110 active:scale-95 group">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm border-2 border-transparent group-hover:border-indigo-100"
+                        :class="todayMood === mood.val ? 'ring-4 ring-indigo-200 bg-indigo-50' : 'bg-gray-50'">
+                        {{ mood.emoji }}
+                    </div>
+                </button>
+            </div>
+
+            <textarea v-model="todayNote" placeholder="Alguma nota sobre o dia?"
+                class="w-full bg-gray-50 rounded-lg p-3 text-sm outline-none border border-transparent focus:border-indigo-200 resize-none h-20 mb-2"></textarea>
+
+            <button @click="save"
+                class="w-full bg-indigo-600 text-white rounded-lg py-2 font-bold text-sm shadow-md hover:bg-indigo-700 transition">
+                Registrar
+            </button>
+        </div>
+
+        <!-- CALENDAR VIEW -->
+        <div class="p-6 flex-grow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-700">Meu Mês</h3>
+                <div class="text-xs font-mono text-gray-400">30 Dias</div>
+            </div>
+
+            <div class="grid grid-cols-7 gap-2">
+                <!-- Weekdays -->
+                <div v-for="d in ['D','S','T','Q','Q','S','S']" class="text-center text-[10px] font-bold text-gray-400">
+                    {{ d }}</div>
+
+                <!-- Days -->
+                <div v-for="day in calendarDays" :key="day.date"
+                    class="day-cell rounded-lg flex items-center justify-center text-xs relative cursor-pointer group transition hover:brightness-95"
+                    :style="{ backgroundColor: getMoodColor(day.mood) }" @click="viewDay(day)">
+
+                    <span :class="day.mood ? 'opacity-30 mix-blend-multiply' : 'text-gray-300'">{{ day.num }}</span>
+
+                    <div v-if="day.mood" class="absolute inset-0 flex items-center justify-center text-lg">
+                        {{ getMoodEmoji(day.mood) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEGEND -->
+            <div class="mt-8 grid grid-cols-2 gap-2 text-[10px] text-gray-400">
+                <div v-for="mood in moods" class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full" :style="{background: mood.color}"></div>
+                    <span>{{ mood.label }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const today = new Date();
+                const todayFormatted = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                const moods = [
+                    { val: 5, emoji: '🤩', color: '#4ade80', label: 'Incrível' },
+                    { val: 4, emoji: '🙂', color: '#86efac', label: 'Bem' },
+                    { val: 3, emoji: '😐', color: '#e5e7eb', label: 'Normal' },
+                    { val: 2, emoji: '😕', color: '#fdba74', label: 'Chateado' },
+                    { val: 1, emoji: '🤬', color: '#fca5a5', label: 'Péssimo' }
+                ];
+
+                const todayMood = ref(null);
+                const todayNote = ref("");
+                const history = ref({}); // "YYYY-MM-DD": { mood: 5, note: "" }
+
+                // Generate Calendar (Simulated for current month)
+                const calendarDays = computed(() => {
+                    const days = [];
+                    const year = today.getFullYear();
+                    const month = today.getMonth();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                    // Simple logic: Day 1 starts somewhere, lets pad with empty for visual if needed, but for simplicity just listing 1-30
+                    // In a real app we'd align empty slots for correct weekday
+
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                        const record = history.value[dateKey];
+                        days.push({
+                            num: i,
+                            date: dateKey,
+                            mood: record ? record.mood : null,
+                            note: record ? record.note : null
+                        });
+                    }
+                    return days;
+                });
+
+                const getMoodColor = (val) => {
+                    if (!val) return '#f9fafb';
+                    const m = moods.find(x => x.val === val);
+                    return m ? m.color : '#f9fafb';
+                };
+
+                const getMoodEmoji = (val) => {
+                    const m = moods.find(x => x.val === val);
+                    return m ? m.emoji : '';
+                };
+
+                const setTodayMood = (val) => todayMood.value = val;
+
+                const save = () => {
+                    if (!todayMood.value) return;
+
+                    const dateKey = today.toISOString().split('T')[0];
+                    history.value[dateKey] = {
+                        mood: todayMood.value,
+                        note: todayNote.value
+                    };
+
+                    localStorage.setItem('plena_mood_tracker', JSON.stringify(history.value));
+                    alert("Humor Registrado! 🌟");
+                };
+
+                const viewDay = (day) => {
+                    if (day.note) alert(`Nota do dia ${day.num}: ${day.note}`);
+                };
+
+                onMounted(() => {
+                    const saved = localStorage.getItem('plena_mood_tracker');
+                    if (saved) {
+                        try { history.value = JSON.parse(saved); } catch (e) { }
+                    }
+
+                    // Load today if exists
+                    const dateKey = today.toISOString().split('T')[0];
+                    if (history.value[dateKey]) {
+                        todayMood.value = history.value[dateKey].mood;
+                        todayNote.value = history.value[dateKey].note;
+                    }
+                });
+
+                return {
+                    todayFormatted, moods, todayMood, todayNote, setTodayMood, save,
+                    calendarDays, getMoodColor, getMoodEmoji, viewDay
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
