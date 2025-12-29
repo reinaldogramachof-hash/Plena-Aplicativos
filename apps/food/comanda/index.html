@@ -3,116 +3,173 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comanda Digital | Plena Apps</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Comanda Digital | Plena</title>
+    <!-- CDNs -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            background-color: #374151;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         [v-cloak] {
             display: none;
         }
+
+        .table-card {
+            transition: all 0.2s;
+        }
+
+        .table-card:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
 
-    <div id="app" v-cloak
-        class="max-w-6xl mx-auto min-h-screen bg-gray-800 flex flex-col md:flex-row shadow-2xl overflow-hidden">
+    <div id="app" v-cloak class="flex h-full">
 
-        <!-- TABLES GRID -->
-        <div class="flex-grow p-6 overflow-y-auto">
-            <header class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-white"><i class="fa-solid fa-utensils"></i> Gestão de Mesas</h1>
-                <div class="flex gap-2">
-                    <button @click="backupData" class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"><i
-                            class="fa-solid fa-download"></i></button>
-                    <label class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600 cursor-pointer">
-                        <i class="fa-solid fa-upload"></i>
-                        <input type="file" @change="restoreData" class="hidden" accept=".json">
-                    </label>
-                </div>
+        <!-- SIDEBAR -->
+        <aside
+            :class="['fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transition-transform lg:static lg:translate-x-0 flex flex-col', isMenuOpen ? 'translate-x-0' : '-translate-x-full']">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-utensils"></i></div>
+                <span class="font-bold text-lg leading-tight">Comanda Pro</span>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <button
+                    class="w-full text-left px-4 py-3 rounded-xl bg-white/10 text-white font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-table-cells"></i> Mesas
+                </button>
+                <div class="px-4 py-2 text-slate-500 text-xs uppercase font-bold mt-4">Gestão</div>
+                <button @click="backupData"
+                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Backup
+                </button>
+                <label
+                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Restaurar
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </nav>
+            <div class="p-4 border-t border-slate-800">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition px-4 py-2">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- OVERLAY MOBILE -->
+        <div v-if="isMenuOpen" @click="isMenuOpen = false" class="fixed inset-0 bg-black/50 z-40 lg:hidden"></div>
+
+        <!-- MAIN CONTENT (GRID) -->
+        <main class="flex-1 flex flex-col relative w-full overflow-hidden">
+            <!-- Header Mobile -->
+            <header class="lg:hidden bg-white p-4 border-b flex justify-between items-center shadow-sm z-30">
+                <button @click="isMenuOpen = true" class="text-slate-600"><i
+                        class="fa-solid fa-bars text-xl"></i></button>
+                <span class="font-bold text-slate-800">Comanda Pro</span>
+                <span class="w-6"></span>
             </header>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <div v-for="t in tables" :key="t.id" @click="openTable(t)"
-                    class="rounded-xl p-4 cursor-pointer transition transform hover:scale-105 relative h-32 flex flex-col justify-between shadow-lg border-2"
-                    :class="t.items.length > 0 ? 'bg-red-800 border-red-600' : 'bg-green-800 border-green-600'">
-
-                    <div class="flex justify-between items-start">
-                        <span class="font-bold text-2xl text-white">{{ t.id }}</span>
-                        <i class="fa-solid fa-users text-white/30 text-xl"></i>
+            <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Salão de Mesas</h2>
+                        <p class="text-sm text-slate-500">Toque em uma mesa para abrir a comanda.</p>
                     </div>
+                </div>
 
-                    <div class="text-right">
-                        <span v-if="t.items.length > 0" class="block text-yellow-400 font-bold text-lg">R$ {{
-                            getTableTotal(t).toFixed(2) }}</span>
-                        <span v-else class="block text-green-300 text-xs font-bold uppercase">Livre</span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div v-for="t in tables" :key="t.id" @click="openTable(t)"
+                        class="table-card p-4 rounded-2xl cursor-pointer relative h-32 flex flex-col justify-between shadow-sm border transaction hover:shadow-md"
+                        :class="t.items.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200 hover:border-blue-300'">
+
+                        <div class="flex justify-between items-start">
+                            <span class="text-2xl font-bold"
+                                :class="t.items.length > 0 ? 'text-red-600' : 'text-slate-700'">{{ t.id }}</span>
+                            <i class="fa-solid fa-users text-xl"
+                                :class="t.items.length > 0 ? 'text-red-300' : 'text-slate-200'"></i>
+                        </div>
+
+                        <div class="text-right">
+                            <span v-if="t.items.length > 0" class="block font-bold text-lg text-slate-800">R$ {{
+                                getTableTotal(t).toFixed(2) }}</span>
+                            <span v-else
+                                class="block text-green-500 text-xs font-bold uppercase bg-green-50 px-2 py-1 rounded-full w-fit ml-auto border border-green-100">Livre</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <!-- SIDE PANEL (Selected Table) -->
+        <!-- RIGHT PANEL (DETAILS) -->
         <div v-if="selectedTable"
-            class="w-full md:w-96 bg-gray-100 border-l border-gray-600 flex flex-col h-[60vh] md:h-screen z-20 absolute bottom-0 md:relative animate-slide-left">
-
+            class="absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl border-l border-slate-200 z-50 flex flex-col transform transition-transform duration-300">
             <!-- Header -->
-            <div class="bg-gray-900 text-white p-4 flex justify-between items-center shrink-0">
-                <h2 class="font-bold text-xl">Mesa {{ selectedTable.id }}</h2>
-                <button @click="selectedTable = null" class="text-white hover:text-red-400"><i
-                        class="fa-solid fa-xmark text-2xl"></i></button>
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Comanda</span>
+                    <h2 class="font-bold text-xl leading-none">Mesa {{ selectedTable.id }}</h2>
+                </div>
+                <button @click="selectedTable = null" class="text-slate-400 hover:text-white transition p-2"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
             <!-- Items List -->
-            <div class="flex-grow overflow-y-auto p-4 space-y-2">
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50">
                 <div v-for="(item, idx) in selectedTable.items" :key="idx"
-                    class="flex justify-between items-center bg-white p-3 rounded shadow-sm">
+                    class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-100">
                     <div>
-                        <p class="font-bold text-gray-800">{{ item.name }}</p>
-                        <p class="text-xs text-gray-500">R$ {{ item.price.toFixed(2) }}</p>
+                        <p class="font-bold text-slate-800 text-sm">{{ item.name }}</p>
+                        <p class="text-xs text-slate-500">R$ {{ item.price.toFixed(2) }}</p>
                     </div>
-                    <button @click="selectedTable.items.splice(idx, 1)" class="text-red-400 hover:text-red-600"><i
+                    <button @click="selectedTable.items.splice(idx, 1)" class="text-red-300 hover:text-red-500 p-2"><i
                             class="fa-solid fa-trash"></i></button>
                 </div>
-                <div v-if="selectedTable.items.length === 0" class="text-center text-gray-400 py-10 italic">Comanda
-                    vazia</div>
+                <div v-if="selectedTable.items.length === 0"
+                    class="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
+                    <i class="fa-solid fa-basket-shopping text-4xl opacity-20"></i>
+                    <p class="text-sm">Nenhum pedido lançado</p>
+                </div>
             </div>
 
             <!-- Add Item -->
-            <div class="p-4 bg-white border-t border-b border-gray-200">
-                <p class="text-xs font-bold text-gray-400 uppercase mb-2">Adicionar Item</p>
+            <div class="p-4 bg-white border-t border-slate-200 space-y-3">
+                <label class="block text-xs font-bold text-slate-400 uppercase">Adicionar Produto</label>
                 <div class="flex gap-2">
-                    <select v-model="selectedProduct" class="flex-grow border rounded p-2 bg-white">
+                    <select v-model="selectedProduct"
+                        class="flex-grow bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                         <option :value="null">Selecione...</option>
                         <option v-for="p in menu" :value="p">{{ p.name }} - {{ p.price }}</option>
                     </select>
-                    <button @click="addItem" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded font-bold"><i
+                    <button @click="addItem"
+                        class="bg-blue-600 hover:bg-blue-700 text-white w-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"><i
                             class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
 
             <!-- Footer Actions -->
-            <div class="p-4 bg-gray-200">
-                <div class="flex justify-between items-end mb-4">
-                    <span class="text-gray-600 font-bold uppercase">Total</span>
-                    <span class="text-3xl font-bold text-gray-900">R$ {{ getTableTotal(selectedTable).toFixed(2)
+            <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-4">
+                <div class="flex justify-between items-end">
+                    <span class="text-slate-500 text-sm font-bold uppercase">Total</span>
+                    <span class="text-3xl font-bold text-slate-800">R$ {{ getTableTotal(selectedTable).toFixed(2)
                         }}</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-3">
                     <button @click="closeTable"
-                        class="bg-red-500 hover:bg-red-600 text-white py-3 rounded font-bold transition">Encerrar</button>
+                        class="bg-white border-2 border-red-100 text-red-500 hover:bg-red-50 py-3 rounded-xl font-bold text-sm transition">Encerrar</button>
                     <button @click="shareWhatsapp"
-                        class="bg-green-500 hover:bg-green-600 text-white py-3 rounded font-bold transition flex items-center justify-center gap-2"><i
-                            class="fa-brands fa-whatsapp"></i> Conta</button>
+                        class="bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"><i
+                            class="fa-brands fa-whatsapp"></i> Enviar</button>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -122,7 +179,7 @@
 
         createApp({
             setup() {
-                // Initial Data
+                const isMenuOpen = ref(false);
                 const tables = ref(Array.from({ length: 20 }, (_, i) => ({ id: i + 1, items: [] })));
                 const selectedTable = ref(null);
                 const selectedProduct = ref(null);
@@ -134,17 +191,17 @@
                     { name: 'Porção Fritas', price: 25.00 },
                     { name: 'Porção Isca Peixe', price: 45.00 },
                     { name: 'Hamburguer Artesanal', price: 28.00 },
-                    { name: 'Suco Natural', price: 10.00 }
+                    { name: 'Suco Natural', price: 10.00 },
+                    { name: 'Caipirinha', price: 18.00 }
                 ]);
 
-                // Methods
                 const openTable = (t) => selectedTable.value = t;
-
                 const getTableTotal = (t) => t.items.reduce((acc, i) => acc + i.price, 0);
 
                 const addItem = () => {
                     if (!selectedProduct.value || !selectedTable.value) return;
-                    selectedTable.value.items.push({ ...selectedProduct.value }); // Push copy
+                    selectedTable.value.items.push({ ...selectedProduct.value });
+                    // selectedProduct.value = null; // Optional: keep selection for quick add
                 };
 
                 const closeTable = () => {
@@ -156,25 +213,23 @@
 
                 const shareWhatsapp = () => {
                     const t = selectedTable.value;
-                    let text = `🧾 *Comanda - Mesa ${t.id}*\n\n`;
+                    let text = `🧾 *Conta - Mesa ${t.id}*\n\n`;
 
-                    // Group Items
                     const grouped = {};
                     t.items.forEach(i => {
-                        grouped[i.name] = grouped[i.name] ? { ...grouped[i.name], qty: grouped[i.name].qty + 1, total: grouped[i.name].total + i.price } : { name: i.name, qty: 1, total: i.price };
+                        grouped[i.name] = grouped[i.name]
+                            ? { ...grouped[i.name], qty: grouped[i.name].qty + 1, total: grouped[i.name].total + i.price }
+                            : { name: i.name, qty: 1, total: i.price };
                     });
 
                     for (const key in grouped) {
                         text += `▪️ ${grouped[key].qty}x ${key} - R$ ${grouped[key].total.toFixed(2)}\n`;
                     }
 
-                    text += `\n💰 *TOTAL: R$ ${getTableTotal(t).toFixed(2)}*\n\n`;
-                    text += `_Obrigado pela preferência!_`;
-
+                    text += `\n💰 *TOTAL: R$ ${getTableTotal(t).toFixed(2)}*\n`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                // Backup
                 const backupData = () => {
                     const blob = new Blob([JSON.stringify(tables.value)], { type: "application/json" });
                     const a = document.createElement('a');
@@ -187,11 +242,10 @@
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (v) => { try { tables.value = JSON.parse(v.target.result); alert("Dados Restaurados!"); } catch (e) { alert("Erro!"); } };
+                    r.onload = (v) => { try { tables.value = JSON.parse(v.target.result); alert("Restaurado!"); } catch (e) { alert("Erro!"); } };
                     r.readAsText(f);
                 };
 
-                // Storage
                 onMounted(() => {
                     const d = localStorage.getItem('plena_comanda_tables');
                     if (d) tables.value = JSON.parse(d);
@@ -199,7 +253,7 @@
                 watch(tables, () => localStorage.setItem('plena_comanda_tables', JSON.stringify(tables.value)), { deep: true });
 
                 return {
-                    tables, selectedTable, menu, selectedProduct,
+                    isMenuOpen, tables, selectedTable, menu, selectedProduct,
                     openTable, getTableTotal, addItem, closeTable, shareWhatsapp, backupData, restoreData
                 };
             }

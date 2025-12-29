@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Controle de Mesas | Plena Aplicativos</title>
+    <title>Gestor de Mesas | Plena Chefs</title>
 
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -19,9 +18,9 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         status: {
-                            free: '#22c55e', // Green
-                            occupied: '#ef4444', // Red
-                            reserved: '#eab308', // Yellow/Amber
+                            free: '#22c55e',
+                            occupied: '#ef4444',
+                            reserved: '#eab308',
                         }
                     }
                 }
@@ -31,8 +30,12 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        [v-cloak] {
+            display: none;
         }
 
         ::-webkit-scrollbar {
@@ -49,140 +52,177 @@
             border-radius: 3px;
         }
 
-        .table-enter-active,
-        .table-leave-active {
+        .table-anim-enter-active,
+        .table-anim-leave-active {
             transition: all 0.3s ease;
         }
 
-        .table-enter-from,
-        .table-leave-to {
+        .table-anim-enter-from,
+        .table-anim-leave-to {
             opacity: 0;
             transform: scale(0.9);
         }
     </style>
 </head>
 
-<body class="h-screen overflow-hidden flex flex-col md:flex-row text-slate-800">
+<body class="flex flex-col md:flex-row h-screen text-slate-800 bg-slate-50 overflow-hidden">
 
-    <div id="app" class="flex-1 flex h-full w-full relative">
+    <div id="app" v-cloak class="flex-1 flex h-full w-full relative">
 
-        <!-- Sidebar -->
-        <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white border-r border-slate-800 z-20 shadow-xl">
+        <!-- SIDEBAR -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed md:relative md:translate-x-0 w-64 bg-slate-900 text-white h-full z-30 transition-transform duration-300 flex flex-col border-r border-slate-800 shadow-2xl">
             <div class="p-6 flex items-center gap-3 border-b border-slate-800">
                 <div
                     class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/50">
                     <i class="fa-solid fa-chair text-white text-sm"></i>
                 </div>
-                <h1 class="font-bold text-lg tracking-tight">Gestor de Mesas</h1>
+                <!-- brand text -->
+                <span class="font-bold text-lg tracking-tight">Plena<span class="text-blue-500">Mesas</span></span>
             </div>
 
-            <div class="p-6 space-y-6">
-                <!-- Status Legend -->
-                <div class="space-y-3">
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Legenda</div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 rounded-full bg-status-free shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-                        <span class="text-sm font-medium text-slate-300">Livre</span>
-                        <span class="ml-auto text-xs font-bold bg-slate-800 px-2 py-0.5 rounded text-white">{{ countFree
-                            }}</span>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-6">
+
+                <!-- Legend -->
+                <div class="space-y-3 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Status do Salão
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 rounded-full bg-status-occupied shadow-[0_0_10px_rgba(239,68,68,0.5)]">
+                    <div class="flex items-center gap-3 justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div> <span
+                                class="text-xs text-slate-300">Livre</span>
                         </div>
-                        <span class="text-sm font-medium text-slate-300">Ocupada</span>
-                        <span class="ml-auto text-xs font-bold bg-slate-800 px-2 py-0.5 rounded text-white">{{
-                            countOccupied }}</span>
+                        <span class="font-bold text-xs bg-slate-700 px-2 py-0.5 rounded-md">{{ countFree }}</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 rounded-full bg-status-reserved shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                    <div class="flex items-center gap-3 justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div> <span
+                                class="text-xs text-slate-300">Ocupada</span>
                         </div>
-                        <span class="text-sm font-medium text-slate-300">Reservada</span>
-                        <span class="ml-auto text-xs font-bold bg-slate-800 px-2 py-0.5 rounded text-white">{{
-                            countReserved }}</span>
+                        <span class="font-bold text-xs bg-slate-700 px-2 py-0.5 rounded-md">{{ countOccupied }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div> <span
+                                class="text-xs text-slate-300">Reservada</span>
+                        </div>
+                        <span class="font-bold text-xs bg-slate-700 px-2 py-0.5 rounded-md">{{ countReserved }}</span>
                     </div>
                 </div>
 
-                <!-- Capacity -->
+                <!-- Occupation Bar -->
                 <div>
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ocupação Atual</div>
-                    <div class="w-full bg-slate-800 rounded-full h-2 mb-1 overflow-hidden">
+                    <div
+                        class="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Ocupação</span>
+                        <span>{{ percentOccupied }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
                         <div class="bg-blue-500 h-2 rounded-full transition-all duration-500"
                             :style="{ width: percentOccupied + '%' }"></div>
                     </div>
-                    <div class="flex justify-between text-xs text-slate-400">
-                        <span>{{ totalPax }} pessoas</span>
-                        <span>{{ percentOccupied }}%</span>
-                    </div>
+                    <div class="text-right text-[10px] text-slate-500 mt-1">{{ totalPax }} pessoas sentadas</div>
                 </div>
-            </div>
 
-            <div class="mt-auto p-4 border-t border-slate-800">
-                <button @click="configModal = true"
-                    class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm font-bold">
-                    <i class="fa-solid fa-cog"></i> Configurar Salão
-                </button>
-                <div class="mt-4 text-xs text-slate-500 text-center flex justify-center gap-3">
-                    <button @click="backupData" class="hover:text-white underline">Backup</button>
-                    <label class="hover:text-white underline cursor-pointer">
-                        Restaurar <input type="file" @change="importData" class="hidden">
+                <div class="mt-auto pt-4 border-t border-slate-800 space-y-2">
+                    <button @click="configModal = true"
+                        class="w-full text-left px-3 py-2 text-xs text-slate-400 hover:text-blue-400 transition flex items-center gap-2">
+                        <i class="fa-solid fa-cog"></i> Configurar Salão
+                    </button>
+                    <button @click="backupData"
+                        class="w-full text-left px-3 py-2 text-xs text-slate-400 hover:text-blue-400 transition flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Backup Backup
+                    </button>
+                    <label
+                        class="w-full text-left px-3 py-2 text-xs text-slate-400 hover:text-blue-400 transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload"></i> Restaurar
+                        <input type="file" @change="importData" class="hidden" accept=".json">
                     </label>
                 </div>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
             </div>
         </aside>
 
-        <!-- Main Floor -->
-        <main class="flex-1 h-full overflow-hidden flex flex-col bg-slate-100 relative w-full">
+        <!-- OVERLAY -->
+        <div v-if="sidebarOpen" @click="sidebarOpen = false"
+            class="fixed inset-0 bg-black/60 z-20 md:hidden backdrop-blur-sm"></div>
 
-            <!-- Mobile Header -->
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 h-full flex flex-col bg-slate-50 relative w-full overflow-hidden">
+
+            <!-- MOBILE HEADER -->
             <header
-                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0 shadow-sm">
+                class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-20 shrink-0 shadow-sm">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i
-                            class="fa-solid fa-chair text-xs"></i></div>
-                    <span class="font-bold text-slate-800">Mapas de Mesas</span>
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fa-solid fa-chair text-xs"></i>
+                    </div>
+                    <span class="font-bold text-slate-800 tracking-tight">Plena<span
+                            class="text-blue-600">Mesas</span></span>
                 </div>
-                <div class="flex items-center gap-3 text-xs font-bold">
-                    <span class="text-status-free"><i class="fa-solid fa-circle text-[8px]"></i> {{ countFree }}</span>
-                    <span class="text-status-occupied"><i class="fa-solid fa-circle text-[8px]"></i> {{ countOccupied
-                        }}</span>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded">
+                        <i class="fa-solid fa-user"></i> {{ totalPax }}
+                    </div>
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded-lg transition">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
-                <div
-                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 animate-fade-in pb-20">
+            <!-- FLOOR PLAN GRID -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-24">
 
                     <div v-for="table in tables" :key="table.id" @click="openTable(table)"
                         :class="getTableClasses(table.status)"
-                        class="aspect-square rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:scale-105 transition duration-200 group p-2 text-center">
-                        <div class="absolute top-2 left-2 text-xs font-black opacity-30 group-hover:opacity-100">#{{
-                            table.number }}</div>
-                        <div class="absolute top-2 right-2" v-if="table.status !== 'free'">
-                            <i :class="getStatusIcon(table.status)" class="text-sm"></i>
+                        class="aspect-square rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-lg hover:-translate-y-1 transition duration-200 group p-2 text-center select-none bg-white">
+
+                        <!-- Table Number -->
+                        <div
+                            class="absolute top-2 left-3 text-sm font-black opacity-20 group-hover:opacity-40 transition">
+                            #{{ table.number }}</div>
+
+                        <!-- Status Indicator Icon -->
+                        <div class="absolute top-2 right-2 text-xs">
+                            <i v-if="table.status === 'occupied'"
+                                class="fa-solid fa-utensils text-white drop-shadow-md animate-pulse"></i>
+                            <i v-if="table.status === 'reserved'" class="fa-solid fa-clock text-yellow-800"></i>
                         </div>
 
-                        <!-- Content based on Status -->
-                        <div v-if="table.status === 'free'" class="text-slate-400 group-hover:text-slate-600">
-                            <div class="text-3xl font-black mb-1 opacity-20 group-hover:opacity-40">{{ table.number }}
-                            </div>
+                        <!-- FREE STATE -->
+                        <div v-if="table.status === 'free'" class="text-slate-300 group-hover:text-blue-400 transition">
+                            <i class="fa-solid fa-chair text-4xl mb-1 opacity-20"></i>
                             <div class="text-[10px] font-bold uppercase tracking-wide">Livre</div>
                         </div>
 
-                        <div v-else-if="table.status === 'occupied'" class="text-white w-full">
-                            <div class="text-2xl font-black mb-1 drop-shadow-md">{{ getTimer(table.openedAt) }}</div>
-                            <div class="text-xs font-medium truncate w-full px-2">{{ table.customer || 'Cliente' }}
-                            </div>
-                            <div class="mt-2 text-[10px] font-bold bg-white/20 rounded-full px-2 py-0.5 inline-block">
-                                <i class="fa-solid fa-user mr-1"></i> {{ table.pax }}
+                        <!-- OCCUPIED STATE -->
+                        <div v-else-if="table.status === 'occupied'" class="text-white w-full z-10">
+                            <div class="text-2xl font-black mb-1 drop-shadow-md font-mono">{{ getTimer(table.openedAt)
+                                }}</div>
+                            <div class="text-xs font-semibold truncate w-full px-2 opacity-90">{{ table.customer ||
+                                'Cliente' }}</div>
+                            <div
+                                class="mt-2 text-[10px] font-bold bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 inline-flex items-center gap-1 mx-auto shadow-sm">
+                                <i class="fa-solid fa-user text-[8px]"></i> {{ table.pax }}
                             </div>
                         </div>
 
-                        <div v-else-if="table.status === 'reserved'" class="text-slate-800 w-full">
-                            <div class="text-sm font-bold truncate mb-1">{{ table.reservationTime }}</div>
-                            <div class="text-xs truncate w-full px-1 text-slate-600">{{ table.customer }}</div>
-                            <div
-                                class="mt-2 text-[10px] font-bold bg-yellow-400/30 text-yellow-800 rounded-full px-2 py-0.5 inline-block">
-                                Reservada</div>
+                        <!-- RESERVED STATE -->
+                        <div v-else-if="table.status === 'reserved'" class="text-slate-800 w-full z-10">
+                            <div class="text-sm font-bold truncate mb-1 bg-yellow-100 rounded px-1">{{
+                                table.reservationTime }}</div>
+                            <div class="text-xs truncate w-full px-1 text-slate-600 font-medium">{{ table.customer }}
+                            </div>
+                            <div class="mt-2 text-[10px] font-bold text-yellow-700 uppercase tracking-wide">Reservada
+                            </div>
                         </div>
 
                     </div>
@@ -190,331 +230,229 @@
                 </div>
             </div>
 
-            <!-- Floating FAB (Quick Reserve) -->
-            <button @click="quickReserve"
-                class="md:hidden absolute bottom-6 right-6 w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl z-20">
-                <i class="fa-solid fa-plus text-xl"></i>
-            </button>
+            <!-- Floating Action Button Mobile Only (Quick Add/Config?) -->
+            <!-- Maybe not needed as grid is interactive -->
 
         </main>
 
-        <!-- MODAL: TABLE DETAILS -->
-        <div v-if="activeTable"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4">
-            <div
-                class="bg-white w-full md:max-w-md md:rounded-3xl rounded-t-3xl shadow-2xl animate-slide-up md:animate-zoom-in h-[80vh] md:h-auto flex flex-col">
+        <!-- MODAL -->
+        <transition name="fade">
+            <div v-if="activeTable" class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="activeTable = null"></div>
 
-                <!-- Modal Header -->
                 <div
-                    class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 md:rounded-t-3xl">
-                    <div>
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Mesa Selecionada
+                    class="bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] md:max-h-auto">
+
+                    <!-- Modal Header -->
+                    <div class="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detalhes do
+                                Pedido</span>
+                            <h2 class="text-2xl font-black text-slate-800">Mesa {{ activeTable.number }}</h2>
                         </div>
-                        <h2 class="text-3xl font-black text-slate-800">Mesa {{ activeTable.number }}</h2>
+                        <button @click="activeTable = null"
+                            class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 flex items-center justify-center transition"><i
+                                class="fa-solid fa-times"></i></button>
                     </div>
-                    <button @click="activeTable = null"
-                        class="w-10 h-10 rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 flex items-center justify-center"><i
-                            class="fa-solid fa-times text-lg"></i></button>
-                </div>
 
-                <div class="p-6 flex-1 overflow-y-auto space-y-6">
+                    <div class="p-6 overflow-y-auto">
 
-                    <!-- Scenario 1: FREE TABLE -->
-                    <div v-if="activeTable.status === 'free'" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <button @click="actionType = 'occupy'"
-                                :class="actionType === 'occupy' ? 'bg-status-occupied text-white ring-4 ring-red-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-                                class="p-4 rounded-2xl font-bold transition flex flex-col items-center gap-2">
-                                <i class="fa-solid fa-users text-2xl"></i>
-                                <span>Ocupar Agora</span>
-                            </button>
-                            <button @click="actionType = 'reserve'"
-                                :class="actionType === 'reserve' ? 'bg-status-reserved text-white ring-4 ring-yellow-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
-                                class="p-4 rounded-2xl font-bold transition flex flex-col items-center gap-2">
-                                <i class="fa-solid fa-calendar-check text-2xl"></i>
-                                <span>Reservar</span>
-                            </button>
-                        </div>
-
-                        <!-- Form: Occupy -->
-                        <div v-if="actionType === 'occupy'"
-                            class="animate-fade-in space-y-3 bg-red-50 p-4 rounded-2xl border border-red-100">
-                            <div>
-                                <label class="label text-red-400">Nome do Cliente (Opcional)</label>
-                                <input v-model="form.customer" class="input border-red-200 focus:border-red-500"
-                                    placeholder="Ex: João da Silva">
+                        <!-- FREE ACTIONS -->
+                        <div v-if="activeTable.status === 'free'" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <button @click="actionType = 'occupy'"
+                                    class="p-4 rounded-xl border-2 transition flex flex-col items-center gap-2 group"
+                                    :class="actionType === 'occupy' ? 'border-red-500 bg-red-50' : 'border-slate-100 hover:border-red-200'">
+                                    <i class="fa-solid fa-users text-2xl"
+                                        :class="actionType === 'occupy' ? 'text-red-500' : 'text-slate-300'"></i>
+                                    <span class="font-bold text-sm"
+                                        :class="actionType === 'occupy' ? 'text-red-600' : 'text-slate-500'">Ocupar</span>
+                                </button>
+                                <button @click="actionType = 'reserve'"
+                                    class="p-4 rounded-xl border-2 transition flex flex-col items-center gap-2"
+                                    :class="actionType === 'reserve' ? 'border-yellow-500 bg-yellow-50' : 'border-slate-100 hover:border-yellow-200'">
+                                    <i class="fa-solid fa-clock text-2xl"
+                                        :class="actionType === 'reserve' ? 'text-yellow-500' : 'text-slate-300'"></i>
+                                    <span class="font-bold text-sm"
+                                        :class="actionType === 'reserve' ? 'text-yellow-600' : 'text-slate-500'">Reservar</span>
+                                </button>
                             </div>
-                            <div>
-                                <label class="label text-red-400">Nº de Pessoas</label>
+
+                            <!-- Form Occupy -->
+                            <div v-if="actionType === 'occupy'" class="space-y-3 pt-2 animate-fade-in-up">
+                                <input v-model="form.customer"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-red-500 transition"
+                                    placeholder="Nome do Cliente (Opcional)">
                                 <div class="flex items-center gap-3">
-                                    <button @click="form.pax = Math.max(1, form.pax-1)"
-                                        class="w-10 h-10 rounded-lg bg-white shadow text-red-500 font-bold text-xl flex items-center justify-center">-</button>
-                                    <span class="font-black text-2xl text-red-600 w-8 text-center">{{ form.pax }}</span>
-                                    <button @click="form.pax++"
-                                        class="w-10 h-10 rounded-lg bg-white shadow text-red-500 font-bold text-xl flex items-center justify-center">+</button>
+                                    <span class="text-sm font-bold text-slate-500 uppercase flex-1">Nº Pessoas</span>
+                                    <div class="flex items-center bg-slate-100 rounded-lg p-1">
+                                        <button @click="form.pax = Math.max(1, form.pax-1)"
+                                            class="w-8 h-8 bg-white rounded shadow text-slate-600 font-bold hover:text-red-500">-</button>
+                                        <input type="number" v-model.number="form.pax"
+                                            class="w-10 text-center bg-transparent font-bold outline-none">
+                                        <button @click="form.pax++"
+                                            class="w-8 h-8 bg-white rounded shadow text-slate-600 font-bold hover:text-red-500">+</button>
+                                    </div>
                                 </div>
+                                <button @click="confirmOccupy"
+                                    class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-500/30 transition mt-2">
+                                    Confirmar Ocupação
+                                </button>
                             </div>
-                            <button @click="confirmOccupy"
-                                class="w-full bg-status-occupied text-white font-bold py-3 rounded-xl shadow-lg shadow-red-500/30 mt-2">Confirmar
-                                Ocupação</button>
+
+                            <!-- Form Reserve -->
+                            <div v-if="actionType === 'reserve'" class="space-y-3 pt-2 animate-fade-in-up">
+                                <input v-model="form.customer"
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-yellow-500 transition"
+                                    placeholder="Hóspede da Reserva">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <input type="time" v-model="form.time"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-yellow-500 transition font-bold text-center">
+                                    <input type="number" v-model.number="form.pax"
+                                        class="w-full text-center bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-yellow-500 transition font-bold"
+                                        placeholder="Pax">
+                                </div>
+                                <button @click="confirmReserve"
+                                    class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-500/30 transition mt-2">
+                                    Confirmar Reserva
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Form: Reserve -->
-                        <div v-if="actionType === 'reserve'"
-                            class="animate-fade-in space-y-3 bg-yellow-50 p-4 rounded-2xl border border-yellow-100">
-                            <div>
-                                <label class="label text-yellow-600">Nome da Reserva</label>
-                                <input v-model="form.customer" class="input border-yellow-200 focus:border-yellow-500"
-                                    placeholder="Ex: Maria Oliveira">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="label text-yellow-600">Horário</label>
-                                    <input v-model="form.time" type="time"
-                                        class="input border-yellow-200 focus:border-yellow-500">
+                        <!-- OCCUPIED DETAILS -->
+                        <div v-if="activeTable.status === 'occupied'" class="text-center space-y-6">
+                            <div class="bg-red-50 border border-red-100 p-6 rounded-2xl">
+                                <div class="text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Tempo Corrido
                                 </div>
-                                <div>
-                                    <label class="label text-yellow-600">Pessoas</label>
-                                    <input v-model.number="form.pax" type="number"
-                                        class="input border-yellow-200 focus:border-yellow-500">
+                                <div class="text-4xl font-black text-red-500 font-mono">{{
+                                    getTimer(activeTable.openedAt) }}</div>
+                                <div class="text-xs text-red-400 mt-1 font-medium">{{ formatTime(activeTable.openedAt)
+                                    }}</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 bg-slate-50 rounded-xl p-4 text-sm">
+                                <div class="flex flex-col border-r border-slate-200 pr-4">
+                                    <span class="text-slate-400 text-xs font-bold uppercase">Cliente</span>
+                                    <span class="font-bold text-slate-800 truncate">{{ activeTable.customer || '---'
+                                        }}</span>
+                                </div>
+                                <div class="flex flex-col pl-4">
+                                    <span class="text-slate-400 text-xs font-bold uppercase">Pessoas</span>
+                                    <span class="font-bold text-slate-800">{{ activeTable.pax }}</span>
                                 </div>
                             </div>
-                            <button @click="confirmReserve"
-                                class="w-full bg-status-reserved text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-500/30 mt-2">Confirmar
-                                Reserva</button>
+
+                            <div class="flex gap-3">
+                                <button @click="editTable"
+                                    class="px-4 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold hover:bg-slate-200 transition"><i
+                                        class="fa-solid fa-pen"></i></button>
+                                <button @click="freeTable"
+                                    class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 shadow-lg transition">Liberar
+                                    Mesa</button>
+                            </div>
+                        </div>
+
+                        <!-- RESERVED DETAILS -->
+                        <div v-if="activeTable.status === 'reserved'" class="text-center space-y-6">
+                            <div class="bg-yellow-50 border border-yellow-100 p-6 rounded-2xl relative overflow-hidden">
+                                <div
+                                    class="absolute -right-6 -top-6 w-20 h-20 bg-yellow-200 rounded-full blur-2xl opacity-50">
+                                </div>
+                                <i class="fa-regular fa-clock text-4xl text-yellow-500 mb-3"></i>
+                                <div class="text-2xl font-black text-yellow-600">{{ activeTable.reservationTime }}</div>
+                                <div class="text-xs text-yellow-600 mt-1 font-bold uppercase">Reserva Confirmada</div>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-left">
+                                <div class="flex justify-between border-b border-slate-100 pb-2 mb-2">
+                                    <span class="text-xs text-slate-500 font-bold uppercase">Cliente</span>
+                                    <span class="text-sm font-bold text-slate-800">{{ activeTable.customer }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-xs text-slate-500 font-bold uppercase">Pessoas</span>
+                                    <span class="text-sm font-bold text-slate-800">{{ activeTable.pax }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button @click="freeTable"
+                                    class="flex-1 bg-red-100 text-red-500 font-bold py-3 rounded-xl hover:bg-red-200 transition">Cancelar</button>
+                                <button @click="confirmOccupyFromReservation"
+                                    class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-500/30 hover:bg-green-600 transition">Check-in</button>
+                            </div>
                         </div>
 
                     </div>
-
-                    <!-- Scenario 2: OCCUPIED TABLE -->
-                    <div v-if="activeTable.status === 'occupied'" class="space-y-6 text-center">
-                        <div class="bg-red-50 p-6 rounded-2xl border border-red-100">
-                            <div class="text-xs font-bold text-red-400 uppercase mb-2">Tempo de Ocupação</div>
-                            <div class="text-5xl font-black text-red-500 mb-2 font-mono">{{
-                                getTimer(activeTable.openedAt) }}</div>
-                            <div class="text-sm text-red-400">Desde {{ formatTime(activeTable.openedAt) }}</div>
-                        </div>
-
-                        <div class="flex justify-between items-center px-4">
-                            <div class="text-left">
-                                <div class="text-xs font-bold text-slate-400 uppercase">Cliente</div>
-                                <div class="font-bold text-xl text-slate-700">{{ activeTable.customer || 'Anônimo' }}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xs font-bold text-slate-400 uppercase">Pessoas</div>
-                                <div class="font-bold text-xl text-slate-700">{{ activeTable.pax }}</div>
-                            </div>
-                        </div>
-
-                        <div class="pt-4 border-t border-slate-100 flex gap-4">
-                            <button @click="freeTable"
-                                class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-slate-700 transition">Liberar
-                                Mesa</button>
-                            <button @click="editTable"
-                                class="px-4 bg-slate-100 text-slate-500 rounded-xl font-bold hover:bg-slate-200"><i
-                                    class="fa-solid fa-pen"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Scenario 3: RESERVED TABLE -->
-                    <div v-if="activeTable.status === 'reserved'" class="space-y-6">
-                        <div class="bg-yellow-50 p-6 rounded-2xl border border-yellow-100 text-center">
-                            <i class="fa-solid fa-clock text-4xl text-yellow-500 mb-2"></i>
-                            <h3 class="text-xl font-bold text-yellow-700">{{ activeTable.reservationTime }}</h3>
-                            <p class="text-yellow-600">Reserva Aguardando</p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="flex justify-between p-3 bg-slate-50 rounded-lg">
-                                <span class="text-slate-500">Cliente</span>
-                                <span class="font-bold text-slate-800">{{ activeTable.customer }}</span>
-                            </div>
-                            <div class="flex justify-between p-3 bg-slate-50 rounded-lg">
-                                <span class="text-slate-500">Pessoas</span>
-                                <span class="font-bold text-slate-800">{{ activeTable.pax }}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <button @click="confirmOccupyFromReservation"
-                                class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600">Check-in
-                                (Ocupar)</button>
-                            <button @click="freeTable"
-                                class="flex-1 bg-red-100 text-red-500 font-bold py-3 rounded-xl hover:bg-red-200">Cancelar</button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
-        </div>
+        </transition>
 
         <!-- CONFIG MODAL -->
-        <div v-if="configModal"
-            class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl animate-bounce-small p-6">
-                <h3 class="font-bold text-lg text-slate-800 mb-4">Configurar Salão</h3>
-                <div class="mb-4">
-                    <label class="label">Total de Mesas</label>
-                    <input v-model.number="settings.totalTables" type="number" class="input">
-                    <p class="text-xs text-slate-400 mt-2">Alterar o número pode resetar o status de mesas removidas.
-                    </p>
+        <div v-if="configModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" @click="configModal = false"></div>
+            <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl relative animate-bounce-small">
+                <h3 class="font-bold text-slate-800 text-lg mb-4">Configuração</h3>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Quantidade de Mesas</label>
+                    <input type="number" v-model.number="settings.totalTables"
+                        class="w-full bg-slate-100 border border-slate-200 rounded-xl p-3 font-bold outline-none focus:ring-2 ring-blue-500">
                 </div>
                 <div class="flex gap-3">
                     <button @click="saveSettings"
-                        class="flex-1 btn-primary py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold">Salvar</button>
+                        class="flex-1 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-500 transition">Salvar
+                        & Recarregar</button>
                     <button @click="configModal = false"
-                        class="flex-1 bg-slate-100 text-slate-600 font-bold py-2 rounded-lg">Cancelar</button>
+                        class="flex-1 bg-slate-100 text-slate-600 font-bold py-2 rounded-lghover:bg-slate-200 transition">Cancelar</button>
                 </div>
-                <div class="mt-6 pt-6 border-t border-slate-100">
-                    <button @click="resetAll" class="w-full text-red-500 text-xs font-bold hover:underline">Zerar Todas
-                        as Mesas</button>
-                </div>
+                <button @click="resetAll" class="w-full mt-4 text-xs font-bold text-red-500 hover:text-red-700">Resetar
+                    Tudo (Perigo)</button>
             </div>
         </div>
 
     </div>
 
-    <style>
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-        }
-
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            outline: none;
-            transition: all;
-            background: #f8fafc;
-            font-weight: 500;
-        }
-
-        .input:focus {
-            border-color: #3b82f6;
-            background: #fff;
-            ring: 2px solid #3b82f6;
-        }
-
-        .bg-status-free {
-            background-color: #22c55e;
-        }
-
-        .bg-status-occupied {
-            background-color: #ef4444;
-        }
-
-        .bg-status-reserved {
-            background-color: #eab308;
-        }
-
-        .text-status-free {
-            color: #22c55e;
-        }
-
-        .text-status-occupied {
-            color: #ef4444;
-        }
-
-        .text-status-reserved {
-            color: #eab308;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.3s ease-out forwards;
-        }
-
-        .animate-zoom-in {
-            animation: zoomIn 0.2s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    </style>
-
     <script>
         const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
-        const DB_KEY = 'plena_mesas_v1';
+        const DB_KEY = 'plena_mesas_v2'; // New key for standardization
 
         createApp({
             setup() {
+                const sidebarOpen = ref(false);
                 const tables = ref([]);
                 const settings = ref({ totalTables: 24 });
-
-                // UI
                 const activeTable = ref(null);
                 const configModal = ref(false);
-                const actionType = ref('occupy'); // occupy or reserve
+                const actionType = ref('occupy');
                 const currentTime = ref(Date.now());
                 const timerInterval = ref(null);
-
-                // Forms
                 const form = ref({ customer: '', pax: 2, time: '' });
 
-                // Persistence & Init
+                // Persistence
                 onMounted(() => {
                     const d = localStorage.getItem(DB_KEY);
                     if (d) {
-                        const parsed = JSON.parse(d);
-                        settings.value = parsed.settings || settings.value;
-                        if (parsed.tables && parsed.tables.length > 0) {
-                            tables.value = parsed.tables;
-                        } else {
-                            generateTables();
-                        }
+                        try {
+                            const parsed = JSON.parse(d);
+                            settings.value = parsed.settings || { totalTables: 24 };
+                            tables.value = parsed.tables || [];
+                            if (tables.value.length === 0) generateTables();
+                        } catch (e) { generateTables(); }
                     } else {
+                        // Might try to migrate old key? For now fresh start or manual migration if needed
                         generateTables();
                     }
 
-                    // Sync table count if settings changed manually
+                    // Sync count
                     if (tables.value.length !== settings.value.totalTables) {
-                        // Adjust array size preserving data
-                        const newTables = [];
-                        for (let i = 1; i <= settings.value.totalTables; i++) {
-                            const existing = tables.value.find(t => t.number === i);
-                            if (existing) newTables.push(existing);
-                            else newTables.push({ id: i, number: i, status: 'free', customer: '', pax: 0, openedAt: null, reservationTime: null });
+                        // Resizing logic (simple truncation or expansion)
+                        const current = tables.value.length;
+                        if (settings.value.totalTables > current) {
+                            for (let i = current + 1; i <= settings.value.totalTables; i++) {
+                                tables.value.push({ id: i, number: i, status: 'free', customer: '', pax: 0, openedAt: null, reservationTime: null });
+                            }
+                        } else {
+                            tables.value = tables.value.slice(0, settings.value.totalTables);
                         }
-                        tables.value = newTables;
                     }
 
                     timerInterval.value = setInterval(() => currentTime.value = Date.now(), 1000);
@@ -529,34 +467,30 @@
                 const generateTables = () => {
                     tables.value = [];
                     for (let i = 1; i <= settings.value.totalTables; i++) {
-                        tables.value.push({ id: i, number: i, status: 'free', customer: '', pax: 0, openedAt: null, reservationTime: null });
+                        tables.value.push({
+                            id: i, number: i, status: 'free', customer: '', pax: 0, openedAt: null, reservationTime: null
+                        });
                     }
                 };
 
-                // Computed Stats
+                // Computed
                 const countFree = computed(() => tables.value.filter(t => t.status === 'free').length);
                 const countOccupied = computed(() => tables.value.filter(t => t.status === 'occupied').length);
                 const countReserved = computed(() => tables.value.filter(t => t.status === 'reserved').length);
                 const totalPax = computed(() => tables.value.reduce((acc, t) => acc + (t.pax || 0), 0));
-                const percentOccupied = computed(() => Math.round((countOccupied.value / tables.value.length) * 100) || 0);
+                const percentOccupied = computed(() => tables.value.length ? Math.round((countOccupied.value / tables.value.length) * 100) : 0);
 
-                // Visual Helpers
+                // Helpers
                 const getTableClasses = (status) => {
                     if (status === 'free') return 'bg-white hover:border-blue-400';
-                    if (status === 'occupied') return 'bg-status-occupied border-red-600 shadow-lg shadow-red-200 transform scale-105';
-                    if (status === 'reserved') return 'bg-status-reserved border-yellow-600 shadow-md transform';
-                    return '';
-                };
-
-                const getStatusIcon = (status) => {
-                    if (status === 'occupied') return 'fa-solid fa-utensils text-white';
-                    if (status === 'reserved') return 'fa-solid fa-clock text-yellow-800';
+                    if (status === 'occupied') return 'bg-red-500 border-red-600 shadow-red-200 text-white transform scale-[1.02]';
+                    if (status === 'reserved') return 'bg-yellow-400 border-yellow-500 shadow-yellow-200 transform';
                     return '';
                 };
 
                 const getTimer = (start) => {
                     if (!start) return '00:00';
-                    const diff = Math.floor((currentTime.value - start) / 1000);
+                    const diff = Math.max(0, Math.floor((currentTime.value - start) / 1000));
                     const h = Math.floor(diff / 3600).toString().padStart(2, '0');
                     const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
                     const s = (diff % 60).toString().padStart(2, '0');
@@ -565,10 +499,9 @@
 
                 const formatTime = (ts) => new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // Actions
+                // Handlers
                 const openTable = (t) => {
                     activeTable.value = t;
-                    // Reset form defaults
                     form.value = { customer: '', pax: 2, time: '' };
                     actionType.value = 'occupy';
                 };
@@ -578,7 +511,7 @@
                     const t = tables.value.find(x => x.id === activeTable.value.id);
                     t.status = 'occupied';
                     t.customer = form.value.customer || `Mesa ${t.number}`;
-                    t.pax = form.value.pax;
+                    t.pax = form.value.pax || 1;
                     t.openedAt = Date.now();
                     t.reservationTime = null;
                     activeTable.value = null;
@@ -586,12 +519,12 @@
 
                 const confirmReserve = () => {
                     if (!activeTable.value) return;
-                    if (!form.value.customer || !form.value.time) return alert('Nome e Horário obrigatórios para reserva.');
+                    if (!form.value.customer || !form.value.time) return alert("Preencha Nome e Horário");
                     const t = tables.value.find(x => x.id === activeTable.value.id);
                     t.status = 'reserved';
                     t.customer = form.value.customer;
-                    t.pax = form.value.pax;
                     t.reservationTime = form.value.time;
+                    t.pax = form.value.pax || 2;
                     t.openedAt = null;
                     activeTable.value = null;
                 };
@@ -601,26 +534,23 @@
                     const t = tables.value.find(x => x.id === activeTable.value.id);
                     t.status = 'occupied';
                     t.openedAt = Date.now();
-                    t.reservationTime = null; // Clear reservation
+                    t.reservationTime = null;
                     activeTable.value = null;
                 };
 
                 const freeTable = () => {
                     if (!activeTable.value) return;
-                    if (confirm('Liberar esta mesa?')) {
+                    if (confirm("Liberar mesa?")) {
                         const t = tables.value.find(x => x.id === activeTable.value.id);
                         t.status = 'free';
-                        t.customer = '';
-                        t.pax = 0;
-                        t.openedAt = null;
-                        t.reservationTime = null;
+                        t.customer = ''; t.pax = 0; t.openedAt = null; t.reservationTime = null;
                         activeTable.value = null;
                     }
                 };
 
                 const editTable = () => {
-                    const newName = prompt('Editar nome do cliente:', activeTable.value.customer);
-                    if (newName !== null) {
+                    const newName = prompt("Nome do Cliente:", activeTable.value.customer);
+                    if (newName) {
                         const t = tables.value.find(x => x.id === activeTable.value.id);
                         t.customer = newName;
                     }
@@ -628,43 +558,44 @@
 
                 const saveSettings = () => {
                     if (settings.value.totalTables < 1) settings.value.totalTables = 1;
-                    // Logic to rebuild array handled in onMounted/Watch or reload
                     location.reload();
                 };
 
                 const resetAll = () => {
-                    if (confirm('ATENÇÃO: Isso vai liberar TODAS as mesas. Continuar?')) {
+                    if (confirm("Resetar TODAS as mesas?")) {
                         generateTables();
                         configModal.value = false;
                     }
                 };
 
-                // Backup
                 const backupData = () => {
                     const data = { tables: tables.value, settings: settings.value };
-                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = 'mesas_backup.json';
+                    a.download = `mesas_backup_${Date.now()}.json`;
                     a.click();
                 };
+
                 const importData = (e) => {
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (ev) => {
-                        const d = JSON.parse(ev.target.result);
-                        if (d.tables) tables.value = d.tables;
-                        if (d.settings) settings.value = d.settings;
-                        location.reload();
-                    }
+                    r.onload = (v) => {
+                        try {
+                            const d = JSON.parse(v.target.result);
+                            if (d.settings) settings.value = d.settings;
+                            if (d.tables) tables.value = d.tables;
+                            location.reload();
+                        } catch (e) { alert("Erro ao importar"); }
+                    };
                     r.readAsText(f);
                 };
 
                 return {
-                    tables, activeTable, settings, configModal, actionType, form,
-                    countFree, countOccupied, countReserved, totalPax, percentOccupied,
-                    getTableClasses, getStatusIcon, getTimer, formatTime,
+                    sidebarOpen, tables, settings, activeTable, configModal, actionType, form,
+                    countFree, countOccupied, countReserved, totalPax, percentOccupied, currentTime,
+                    getTableClasses, getTimer, formatTime,
                     openTable, confirmOccupy, confirmReserve, confirmOccupyFromReservation, freeTable, editTable,
                     saveSettings, resetAll, backupData, importData
                 };

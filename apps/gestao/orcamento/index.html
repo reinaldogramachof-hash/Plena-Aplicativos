@@ -4,114 +4,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Orçamentos | Plena Apps</title>
+    <title>Gerador de Orçamentos | Plena Business</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            background-color: #f7f9fc;
-            font-family: 'Helvetica Neue', sans-serif;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         [v-cloak] {
             display: none;
         }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800">
 
-    <div id="app" v-cloak class="max-w-3xl mx-auto min-h-screen bg-white shadow-lg flex flex-col">
+    <div id="app" v-cloak class="flex min-h-screen">
 
-        <!-- HEADER -->
-        <header class="bg-gray-800 text-white p-5 flex justify-between items-center">
-            <h1 class="text-xl font-bold"><i class="fa-solid fa-file-invoice mr-2"></i>Orçamento Pro</h1>
-            <div class="flex gap-2">
-                <button @click="backupData"
-                    class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm transition"><i
-                        class="fa-solid fa-download"></i></button>
-                <label class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm transition cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
-                    <input type="file" @change="restoreData" class="hidden" accept=".json">
-                </label>
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white fixed h-full z-20 shadow-2xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-700/50">
+                <div
+                    class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-file-invoice text-white text-sm"></i>
+                </div>
+                <!-- brand text -->
+                <span class="font-bold text-lg tracking-tight">Orça<span class="text-indigo-400">Pro</span></span>
             </div>
+
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <button
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium shadow-inner">
+                    <i class="fa-solid fa-pen-to-square w-5 text-indigo-400"></i> Novo Orçamento
+                </button>
+                <div class="mt-8 px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Histórico</div>
+                <div class="space-y-2">
+                    <div v-for="(h, idx) in history.slice(0, 5)" :key="idx"
+                        class="px-4 py-2 text-xs text-slate-400 hover:text-white transition cursor-pointer border-l-2 border-transparent hover:border-indigo-500 truncate">
+                        {{ h.client }} - R$ {{ h.total.toFixed(2) }}
+                    </div>
+                    <div v-if="history.length === 0" class="px-4 text-xs text-slate-600 italic">Nenhum histórico</div>
+                </div>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700/50 space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <button @click="backupData"
+                        class="flex flex-col items-center bg-slate-800 p-2 rounded hover:bg-slate-700 transition text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-download mb-1"></i> Backup
+                    </button>
+                    <label
+                        class="flex flex-col items-center bg-slate-800 p-2 rounded hover:bg-slate-700 transition cursor-pointer text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-upload mb-1"></i> Restaurar
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
+                </div>
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group pt-2 justify-center">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- MOBILE HEADER -->
+        <header class="md:hidden fixed w-full bg-white z-20 shadow-sm px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <span class="font-bold text-slate-800 tracking-tight">Orça<span
+                        class="text-indigo-600">Pro</span></span>
+            </div>
+            <button @click="isMenuOpen = !isMenuOpen"
+                class="w-10 h-10 flex items-center justify-center text-slate-600 rounded-full hover:bg-slate-100 transition">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
         </header>
 
-        <!-- FORM -->
-        <div class="p-6 flex-grow">
+        <!-- MOBILE OVERLAY MENU -->
+        <transition name="fade">
+            <div v-if="isMenuOpen" class="fixed inset-0 z-50 md:hidden">
+                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMenuOpen = false"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-2xl p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-8">
+                        <span class="font-bold text-xl text-slate-800">Menu</span>
+                        <button @click="isMenuOpen = false"
+                            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 transition">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <nav class="flex-col space-y-4 flex-1">
+                        <button
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-indigo-50 text-indigo-700 w-full">
+                            <i class="fa-solid fa-pen-to-square"></i> Novo Orçamento
+                        </button>
+                        <div class="border-t border-slate-100 pt-4">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Histórico Recente</p>
+                            <div v-for="(h, idx) in history.slice(0, 3)" :key="idx"
+                                class="py-2 text-sm text-slate-600 border-b border-slate-50 last:border-0 truncate">
+                                {{ h.client }} - R$ {{ h.total.toFixed(2) }}
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button @click="backupData"
+                            class="py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm text-center">Backup</button>
+                        <label
+                            class="py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm text-center block cursor-pointer">
+                            Restaurar <input type="file" @change="restoreData" class="hidden" accept=".json">
+                        </label>
+                    </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
+                    <a href="../../../index.html"
+                        class="mt-auto flex items-center justify-center gap-2 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-800 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Sair do App
+                    </a>
+                </div>
+            </div>
+        </transition>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-64 pt-20 md:pt-8 px-4 md:px-12 pb-32 max-w-5xl mx-auto w-full">
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Cliente</label>
-                    <input v-model="clientName" type="text"
-                        class="w-full border-b-2 border-gray-200 p-2 outline-none focus:border-blue-500 font-bold"
-                        placeholder="Nome do Cliente">
+                    <h2 class="text-2xl font-bold text-slate-800">Novo Orçamento</h2>
+                    <p class="text-slate-500 text-sm">Crie propostas profissionais e envie via WhatsApp.</p>
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Validade</label>
-                    <select v-model="validity" class="w-full border-b-2 border-gray-200 p-2 bg-white">
-                        <option value="7 dias">7 dias</option>
-                        <option value="15 dias">15 dias</option>
-                        <option value="30 dias">30 dias</option>
-                    </select>
+                <button @click="clear"
+                    class="group text-slate-400 hover:text-red-500 transition text-sm font-bold flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50">
+                    <i class="fa-solid fa-trash-can group-hover:rotate-12 transition-transform"></i> Limpar Tudo
+                </button>
+            </div>
+
+            <!-- CLIENT FORM -->
+            <div
+                class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Nome do
+                            Cliente</label>
+                        <input v-model="clientName" type="text"
+                            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-700 placeholder-slate-400 transition"
+                            placeholder="Ex: João Silva ou Empresa X">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Validade da
+                            Proposta</label>
+                        <div class="relative">
+                            <select v-model="validity"
+                                class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 appearance-none cursor-pointer">
+                                <option value="7 dias">7 dias</option>
+                                <option value="15 dias">15 dias</option>
+                                <option value="30 dias">30 dias</option>
+                            </select>
+                            <i
+                                class="fa-solid fa-chevron-down absolute right-4 top-4 text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- ITEMS -->
-            <div class="bg-blue-50 p-4 rounded-xl mb-6">
-                <h3 class="font-bold text-blue-800 text-sm mb-2">Adicionar Item</h3>
-                <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                    <input v-model="newItemDesc" @keyup.enter="addItem" type="text"
-                        placeholder="Descrição (ex: Criação de Logo)" class="flex-grow p-2 border rounded">
-                    <input v-model.number="newItemPrice" @keyup.enter="addItem" type="number" placeholder="Valor"
-                        class="w-24 p-2 border rounded">
-                    <button @click="addItem"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold"><i
-                            class="fa-solid fa-plus"></i></button>
+            <!-- ITEMS SECTION -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-24">
+
+                <!-- Add Bar -->
+                <div class="p-6 bg-slate-50 border-b border-slate-200">
+                    <label class="block text-xs font-bold text-sky-600 uppercase mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Adicionar Item
+                    </label>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input v-model="newItemDesc" @keyup.enter="addItem" type="text"
+                            placeholder="Descrição do serviço ou produto..."
+                            class="flex-[2] p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)] transition shadow-sm">
+
+                        <div class="flex gap-3 flex-1">
+                            <input v-model.number="newItemPrice" @keyup.enter="addItem" type="number"
+                                placeholder="Valor (R$)"
+                                class="w-full p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)] transition shadow-sm"
+                                step="0.01">
+
+                            <button @click="addItem"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List -->
+                <div v-if="items.length > 0">
+                    <ul class="divide-y divide-slate-100">
+                        <li v-for="(item, idx) in items" :key="idx"
+                            class="p-4 md:p-5 hover:bg-slate-50 transition flex items-center justify-between group">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs font-bold">
+                                    {{ idx + 1 }}
+                                </div>
+                                <span class="font-medium text-slate-700">{{ item.desc }}</span>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <span class="font-bold font-mono text-slate-800">R$ {{ item.price.toFixed(2) }}</span>
+                                <button @click="remItem(idx)"
+                                    class="w-8 h-8 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition opacity-50 group-hover:opacity-100">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="bg-slate-50 p-6 md:p-8 flex justify-end items-center border-t border-slate-200">
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Valor
+                                Total</span>
+                            <span class="text-3xl font-extrabold text-indigo-600 block">R$ {{ total.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="p-16 text-center text-slate-400">
+                    <i class="fa-solid fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+                    <p class="font-medium">Adicione itens para compor o orçamento.</p>
                 </div>
             </div>
 
-            <div v-if="items.length > 0" class="mb-8">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="border-b text-gray-400 uppercase text-xs">
-                            <th class="py-2">Descrição</th>
-                            <th class="py-2 text-right">Valor</th>
-                            <th class="py-2 w-10"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, idx) in items" :key="idx" class="border-b last:border-0 hover:bg-gray-50">
-                            <td class="py-3 font-medium">{{ item.desc }}</td>
-                            <td class="py-3 text-right">R$ {{ item.price.toFixed(2) }}</td>
-                            <td class="text-right py-3"><button @click="remItem(idx)"
-                                    class="text-red-300 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr class="text-lg font-bold">
-                            <td class="py-4 text-gray-600">TOTAL</td>
-                            <td class="py-4 text-right text-blue-900">R$ {{ total.toFixed(2) }}</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+        </main>
+
+        <!-- FLOATING ACTION BAR -->
+        <div
+            class="fixed bottom-0 left-0 md:left-64 right-0 p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
+            <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+                <div class="hidden md:block">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Total Estimado</span>
+                    <div class="text-xl font-bold text-slate-800">R$ {{ total.toFixed(2) }}</div>
+                </div>
+                <button @click="shareWhatsapp"
+                    class="flex-1 md:flex-none md:w-64 bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-500/30 transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar no WhatsApp
+                </button>
             </div>
-
-            <div v-if="items.length === 0" class="text-center text-gray-400 italic py-10">Adicione itens para compor o
-                orçamento.</div>
-
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="p-4 bg-gray-50 border-t flex justify-between items-center">
-            <button @click="clear" class="text-gray-500 font-bold text-sm hover:text-red-500">Limpar</button>
-            <button @click="shareWhatsapp"
-                class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold shadow flex items-center gap-2">
-                <i class="fa-brands fa-whatsapp text-xl"></i> Enviar Orçamento
-            </button>
         </div>
 
     </div>
@@ -121,6 +271,7 @@
 
         createApp({
             setup() {
+                const isMenuOpen = ref(false);
                 const clientName = ref('');
                 const validity = ref('15 dias');
                 const items = ref([]);
@@ -140,29 +291,33 @@
                 const remItem = (idx) => items.value.splice(idx, 1);
 
                 const clear = () => {
-                    if (confirm("Limpar tudo?")) {
+                    if (confirm("Limpar todo o orçamento atual?")) {
                         items.value = [];
                         clientName.value = '';
                     }
                 };
 
                 const shareWhatsapp = () => {
-                    if (items.value.length === 0) return alert("Adicione itens!");
+                    if (items.value.length === 0) return alert("Adicione itens ao orçamento primeiro!");
 
-                    let text = `📋 *ORÇAMENTO*\n` +
-                        `👤 Cliente: ${clientName.value}\n` +
+                    let text = `📋 *ORÇAMENTO PROFISSIONAL*\n` +
+                        `👤 Cliente: ${clientName.value || 'Não informado'}\n` +
                         `📅 Validade: ${validity.value}\n\n` +
-                        `*ITENS:*\n`;
+                        `*DETALHES DO SERVIÇO:*\n`;
 
                     items.value.forEach(i => {
                         text += `▪️ ${i.desc}: R$ ${i.price.toFixed(2)}\n`;
                     });
 
                     text += `\n💰 *TOTAL: R$ ${total.value.toFixed(2)}*\n\n` +
-                        `_Fico à disposição para fechar negócio!_`;
+                        `_Fico à disposição para fechar negócio! 🚀_`;
 
-                    // Save to history automatically
-                    history.value.unshift({ date: new Date().toLocaleDateString(), client: clientName.value, total: total.value });
+                    // Generate history entry
+                    history.value.unshift({
+                        date: new Date().toLocaleDateString(),
+                        client: clientName.value || 'Cliente',
+                        total: total.value
+                    });
 
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
@@ -172,7 +327,7 @@
                     const blob = new Blob([JSON.stringify(history.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `backup_orcamentos_${Date.now()}.json`;
+                    a.download = `backup_orcamentos_${new Date().toISOString().slice(0, 10)}.json`;
                     a.click();
                 };
 
@@ -180,7 +335,7 @@
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (v) => { try { history.value = JSON.parse(v.target.result); alert("Histórico Restaurado!"); } catch (e) { alert("Erro!"); } };
+                    r.onload = (v) => { try { history.value = JSON.parse(v.target.result); alert("Histórico Restaurado com Sucesso!"); } catch (e) { alert("Erro ao importar."); } };
                     r.readAsText(f);
                 };
 
@@ -192,7 +347,8 @@
                 watch(history, () => localStorage.setItem('plena_orc_hist', JSON.stringify(history.value)), { deep: true });
 
                 return {
-                    clientName, validity, items, newItemDesc, newItemPrice, total,
+                    isMenuOpen,
+                    clientName, validity, items, newItemDesc, newItemPrice, total, history,
                     addItem, remItem, clear, shareWhatsapp, backupData, restoreData
                 };
             }

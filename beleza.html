@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema para Salões de Beleza e Barbearias | Kit Estética Pro</title>
+    <meta name="description"
+        content="Agenda Digital, Comissões e Ficha de Anamnese. O sistema completo para seu salão ou barbearia sem mensalidade.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body class="bg-stone-50 text-stone-900">
+
+    <div id="app">
+        <!-- HEADER -->
+        <header class="bg-white/90 backdrop-blur-md fixed w-full z-50 border-b border-stone-200">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2 text-pink-600">
+                    <i class="fa-solid fa-spa text-2xl"></i>
+                    <span class="font-serif text-xl font-bold tracking-wide text-stone-800">Plena<span
+                            class="text-pink-600 italic">Estética</span></span>
+                </div>
+                <button @click="scrollTo('offer')"
+                    class="bg-stone-800 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-pink-600 transition">Comprar
+                    Acesso</button>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero-bg min-h-screen flex items-center pt-20">
+            <div class="container mx-auto px-4 text-center text-white">
+                <span
+                    class="inline-block border border-white/50 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 animate-fade-in">Para
+                    Salões, Barbearias e SPA</span>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 font-serif italic">
+                    Beleza é Organização
+                </h1>
+                <p class="text-xl md:text-2xl font-light max-w-2xl mx-auto mb-10 text-stone-100">
+                    Gerencie sua agenda, calcule comissões automaticamente e fidelize suas clientes com um sistema
+                    elegante e sem mensalidades.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button @click="scrollTo('kit')"
+                        class="bg-pink-600 hover:bg-pink-500 text-white py-4 px-10 rounded-full text-lg font-bold shadow-2xl transition transform hover:-translate-y-1">
+                        Conhecer o Sistema
+                    </button>
+                    <a href="https://wa.me/5567993333999"
+                        class="bg-white/10 backdrop-blur border border-white/30 hover:bg-white/20 text-white py-4 px-10 rounded-full text-lg font-bold transition">
+                        Falar no WhatsApp
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROBLEMS -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-serif font-bold text-stone-800 mb-4">Sua agenda ainda é de papel?</h2>
+                    <p class="text-stone-500 italic max-w-xl mx-auto">Um salão moderno não pode depender do caderno.
+                        Você perde histórico das clientes e erra contas no final do dia.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div class="text-center p-8">
+                        <div
+                            class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center text-pink-600 text-2xl mx-auto mb-6">
+                            <i class="fa-regular fa-calendar-xmark"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Furos na Agenda</h3>
+                        <p class="text-sm text-stone-600">Sem confirmação automática e lembretes fáceis, o cliente
+                            esquece e você perde dinheiro.</p>
+                    </div>
+                    <div class="text-center p-8">
+                        <div
+                            class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center text-pink-600 text-2xl mx-auto mb-6">
+                            <i class="fa-solid fa-calculator"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Briga por Comissão</h3>
+                        <p class="text-sm text-stone-600">Fazer a conta do profissional na mão sempre dá erro. O sistema
+                            precisa ser automático.</p>
+                    </div>
+                    <div class="text-center p-8">
+                        <div
+                            class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center text-pink-600 text-2xl mx-auto mb-6">
+                            <i class="fa-solid fa-user-xmark"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Cliente Sumiu?</h3>
+                        <p class="text-sm text-stone-600">Se você não tem o histórico de serviços, não sabe quando
+                            chamar a cliente para o retorno.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- THE KIT -->
+        <section id="kit" class="py-20 bg-stone-100">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <span class="text-pink-600 font-bold uppercase tracking-widest text-xs">O Pacote Completo</span>
+                    <h2 class="text-4xl font-serif font-bold mt-2">Kit Estética Pro</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+                    <!-- App 1: Agenda -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <i class="fa-regular fa-calendar-check text-4xl text-pink-500"></i>
+                            <span class="bg-stone-100 text-stone-500 text-xs px-2 py-1 rounded">Essencial</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Agenda Digital</h3>
+                        <p class="text-stone-500 text-sm mb-6">Organize horários por profissional. Visualização simples
+                            de dia, semana e mês.</p>
+                        <a href="apps/servicos/agenda/index.html" target="_blank"
+                            class="text-pink-600 font-bold text-sm hover:underline">Ver Funcionando &rarr;</a>
+                    </div>
+
+                    <!-- App 2: Ficha Anamnese -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <i class="fa-solid fa-clipboard-user text-4xl text-purple-500"></i>
+                            <span class="bg-stone-100 text-stone-500 text-xs px-2 py-1 rounded">Gestão</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Ficha de Cliente</h3>
+                        <p class="text-stone-500 text-sm mb-6">Histórico de procedimentos, alergias, fotos de
+                            antes/depois e preferências.</p>
+                        <a href="apps/beleza/pro/index.html" target="_blank"
+                            class="text-purple-600 font-bold text-sm hover:underline">Ver Funcionando &rarr;</a>
+                    </div>
+
+                    <!-- App 3: Comissões -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <i class="fa-solid fa-percent text-4xl text-green-500"></i>
+                            <span class="bg-stone-100 text-stone-500 text-xs px-2 py-1 rounded">Financeiro</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Cálculo de Comissões</h3>
+                        <p class="text-stone-500 text-sm mb-6">Defina % por serviço ou profissional. Relatório de
+                            fechamento automático.</p>
+                        <a href="apps/gestao/comissao/index.html" target="_blank"
+                            class="text-green-600 font-bold text-sm hover:underline">Ver Funcionando &rarr;</a>
+                    </div>
+
+                    <!-- App 4: Comanda (Produtos) -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <i class="fa-solid fa-basket-shopping text-4xl text-orange-400"></i>
+                            <span class="bg-stone-100 text-stone-500 text-xs px-2 py-1 rounded">Vendas</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Comanda & Produtos</h3>
+                        <p class="text-stone-500 text-sm mb-6">Venda shampoos, cremes e combos. Adicione na conta da
+                            cliente junto com o serviço.</p>
+                        <a href="apps/food/comanda/index.html" target="_blank"
+                            class="text-orange-500 font-bold text-sm hover:underline">Ver Funcionando &rarr;</a>
+                    </div>
+
+                    <!-- App 5: BioLink -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <i class="fa-solid fa-link text-4xl text-indigo-500"></i>
+                            <span class="bg-stone-100 text-stone-500 text-xs px-2 py-1 rounded">Marketing</span>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">BioLink Instagram</h3>
+                        <p class="text-stone-500 text-sm mb-6">Uma página profissional para por na Bio do Insta. Botões
+                            de Agendar, WhatsApp e Localização.</p>
+                        <a href="apps/mkt/biolink/index.html" target="_blank"
+                            class="text-indigo-600 font-bold text-sm hover:underline">Ver Funcionando &rarr;</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- OFFER -->
+        <section id="offer" class="py-20 bg-stone-900 text-white relative">
+            <div class="container mx-auto px-4 text-center max-w-4xl">
+                <i class="fa-solid fa-crown text-6xl text-yellow-400 mb-6 animate-bounce"></i>
+                <h2 class="text-5xl font-serif font-bold mb-4">Seu Salão em Outro Nível</h2>
+                <p class="text-stone-300 text-lg mb-12">Leve o Kit Completo com os 5 Aplicativos hoje.</p>
+
+                <div class="bg-white text-stone-900 rounded-3xl p-8 max-w-md mx-auto shadow-2xl relative">
+                    <div
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-600 text-white px-6 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                        Oferta Vitalícia</div>
+
+                    <div class="text-stone-400 line-through text-sm mt-4">De R$ 597,00 por</div>
+                    <div class="text-6xl font-bold text-stone-800 mb-2">R$ 97</div>
+                    <div class="text-xs text-stone-500 mb-8 uppercase tracking-widest font-bold">Pagamento Único • Sem
+                        Mensalidade</div>
+
+                    <a href="https://wa.me/5567993333999?text=Quero%20o%20Kit%20Estetica%20por%2097"
+                        class="block w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-105">
+                        DESBLOQUEAR ACESSO
+                    </a>
+                    <p class="text-[10px] text-stone-400 mt-4">Pagamento via Pix ou Cartão. Envio Imediato no WhatsApp.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-stone-950 text-stone-600 py-8 border-t border-stone-900 text-center text-xs">
+            &copy; 2024 Plena Estética. Todos os direitos reservados.
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            setup() {
+                const scrollTo = (id) => {
+                    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+                };
+                return { scrollTo };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

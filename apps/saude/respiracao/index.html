@@ -4,22 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Respiração Guiada | Plena Apps</title>
+    <title>Respiração Guiada | Plena Health</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter for UI, Quicksand for Content -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quicksand:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-calm {
             font-family: 'Quicksand', sans-serif;
-            background-color: #ecfeff;
-            color: #164e63;
         }
 
         [v-cloak] {
             display: none;
         }
 
-        /* Breathing Animation Classes */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.5s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Animation Keyframes */
+        @keyframes blob {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0px, 0px) scale(1);
+            }
+        }
+
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        /* Breathing Circle */
         .circle-container {
             width: 300px;
             height: 300px;
@@ -31,93 +78,189 @@
 
         .circle {
             background-color: #a5f3fc;
-            /* Cyan-200 */
             border-radius: 50%;
             position: absolute;
             z-index: 10;
-        }
-
-        .instruction-text {
-            position: absolute;
-            z-index: 20;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0e7490;
+            box-shadow: 0 0 40px rgba(165, 243, 252, 0.6);
         }
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col">
+<body class="bg-cyan-50 text-cyan-900 h-screen overflow-hidden flex flex-col md:flex-row">
 
-    <div id="app" v-cloak class="flex-grow flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div id="app" v-cloak class="flex-1 flex h-full w-full relative">
 
-        <!-- Background Elements -->
-        <div
-            class="absolute top-0 left-0 w-64 h-64 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob">
-        </div>
-        <div
-            class="absolute top-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000">
-        </div>
-        <div
-            class="absolute bottom-0 left-20 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000">
-        </div>
+        <!-- SIDEBAR -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed md:relative md:translate-x-0 w-64 bg-slate-900 text-white h-full z-30 transition-transform duration-300 flex flex-col border-r border-slate-800 shadow-2xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+                <div
+                    class="w-8 h-8 bg-cyan-600 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid fa-lungs text-white text-sm"></i>
+                </div>
+                <!-- brand text -->
+                <span class="font-bold text-lg tracking-tight">Plena<span class="text-cyan-400">Health</span></span>
+            </div>
 
-        <!-- HEADER -->
-        <header v-if="!isRunning" class="text-center mb-10 z-10 max-w-md">
-            <h1 class="text-3xl font-bold mb-2">Respire Fundo</h1>
-            <p class="text-cyan-800/60 mb-8">Escolha uma técnica para acalmar a mente e o corpo.</p>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Técnicas</div>
+                <button @click="stopBreathing(); startBreathing('relax')"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium text-sm">
+                    <i class="fa-solid fa-moon w-5 text-cyan-400"></i> Relaxamento (4-7-8)
+                </button>
+                <button @click="stopBreathing(); startBreathing('focus')"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium text-sm">
+                    <i class="fa-solid fa-bullseye w-5 text-cyan-400"></i> Foco (Quadrada)
+                </button>
+                <button @click="stopBreathing(); startBreathing('balance')"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium text-sm">
+                    <i class="fa-solid fa-scale-balanced w-5 text-cyan-400"></i> Equilíbrio (Coerência)
+                </button>
+            </nav>
 
-            <div class="space-y-4">
-                <button @click="startBreathing('relax')"
-                    class="w-full bg-white hover:bg-cyan-50 p-6 rounded-2xl shadow-sm border border-cyan-100 flex items-center gap-4 transition group">
-                    <div
-                        class="bg-cyan-100 text-cyan-600 w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition">
-                        🌙</div>
-                    <div class="text-left">
-                        <h3 class="font-bold text-lg">Relaxamento (4-7-8)</h3>
-                        <p class="text-xs text-cyan-600/70">Ideal para dormir e reduzir ansiedade.</p>
+            <div class="p-4 border-t border-slate-800 text-xs">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- OVERLAY -->
+        <div v-if="sidebarOpen" @click="sidebarOpen = false"
+            class="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm"></div>
+
+        <!-- MAIN CONTENT -->
+        <main
+            class="flex-1 h-full flex flex-col relative w-full overflow-hidden bg-gradient-to-br from-cyan-50 to-blue-50">
+
+            <!-- Background Blobs -->
+            <div
+                class="absolute top-0 left-0 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob pointer-events-none">
+            </div>
+            <div
+                class="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000 pointer-events-none">
+            </div>
+            <div
+                class="absolute -bottom-32 left-20 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000 pointer-events-none">
+            </div>
+
+            <!-- MOBILE HEADER -->
+            <header
+                class="md:hidden h-16 bg-white/80 backdrop-blur border-b border-cyan-100 flex items-center justify-between px-4 z-20 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-cyan-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fa-solid fa-wind text-xs"></i>
                     </div>
+                    <span class="font-bold text-slate-800 tracking-tight">Plena<span
+                            class="text-cyan-600">Zen</span></span>
+                </div>
+                <button @click="sidebarOpen = !sidebarOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-cyan-50 rounded-full transition">
+                    <i class="fa-solid fa-bars text-xl"></i>
                 </button>
+            </header>
 
-                <button @click="startBreathing('focus')"
-                    class="w-full bg-white hover:bg-cyan-50 p-6 rounded-2xl shadow-sm border border-cyan-100 flex items-center gap-4 transition group">
-                    <div
-                        class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition">
-                        🎯</div>
-                    <div class="text-left">
-                        <h3 class="font-bold text-lg">Foco (Quadrada)</h3>
-                        <p class="text-xs text-cyan-600/70">Para concentração e clareza mental.</p>
+            <!-- APP INTERFACE -->
+            <div class="flex-1 flex flex-col items-center justify-center p-6 relative z-10 w-full font-calm">
+
+                <transition name="fade" mode="out-in">
+
+                    <!-- MENU -->
+                    <div v-if="!isRunning" class="text-center max-w-md w-full animate-fade-in-up">
+                        <div
+                            class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-6 shadow-xl shadow-cyan-200/50">
+                            <span class="text-4xl">🧘</span>
+                        </div>
+                        <h1 class="text-4xl font-bold mb-3 text-cyan-900">Respire Fundo</h1>
+                        <p class="text-cyan-800/60 mb-10 text-lg">Escolha uma técnica para acalmar a mente.</p>
+
+                        <div class="grid gap-4">
+                            <button @click="startBreathing('relax')"
+                                class="bg-white hover:bg-cyan-50 p-6 rounded-3xl shadow-sm border border-cyan-100 hover:border-cyan-300 flex items-center gap-5 transition group hover:shadow-md transform hover:-translate-y-1">
+                                <div
+                                    class="bg-indigo-100 text-indigo-600 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition">
+                                    🌙</div>
+                                <div class="text-left">
+                                    <h3 class="font-bold text-xl text-indigo-900">Relaxamento</h3>
+                                    <p class="text-sm text-cyan-600/70">4-7-8 • Melhora o sono</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right ml-auto text-cyan-200"></i>
+                            </button>
+
+                            <button @click="startBreathing('focus')"
+                                class="bg-white hover:bg-cyan-50 p-6 rounded-3xl shadow-sm border border-cyan-100 hover:border-cyan-300 flex items-center gap-5 transition group hover:shadow-md transform hover:-translate-y-1">
+                                <div
+                                    class="bg-blue-100 text-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition">
+                                    🎯</div>
+                                <div class="text-left">
+                                    <h3 class="font-bold text-xl text-blue-900">Foco Mental</h3>
+                                    <p class="text-sm text-cyan-600/70">Quadrada • Clareza</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right ml-auto text-cyan-200"></i>
+                            </button>
+
+                            <button @click="startBreathing('balance')"
+                                class="bg-white hover:bg-cyan-50 p-6 rounded-3xl shadow-sm border border-cyan-100 hover:border-cyan-300 flex items-center gap-5 transition group hover:shadow-md transform hover:-translate-y-1">
+                                <div
+                                    class="bg-emerald-100 text-emerald-600 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition">
+                                    ⚖️</div>
+                                <div class="text-left">
+                                    <h3 class="font-bold text-xl text-emerald-900">Equilíbrio</h3>
+                                    <p class="text-sm text-cyan-600/70">Coerência • Calma</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right ml-auto text-cyan-200"></i>
+                            </button>
+                        </div>
                     </div>
-                </button>
+
+                    <!-- ACTIVE BREATHING -->
+                    <div v-else class="flex flex-col items-center justify-between h-full py-8 w-full max-w-lg mx-auto">
+
+                        <div class="text-center pt-8">
+                            <div
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur rounded-full text-sm font-bold text-cyan-800 shadow-sm mb-4">
+                                <i class="fa-solid fa-wave-square"></i> {{ activeTechnique.name }}
+                            </div>
+                        </div>
+
+                        <div class="circle-container my-auto relative">
+                            <!-- Guide Ring -->
+                            <div class="w-[300px] h-[300px] border-4 border-white/50 rounded-full absolute"></div>
+                            <div
+                                class="w-[280px] h-[280px] border border-cyan-200/50 rounded-full absolute animate-ping opacity-20">
+                            </div>
+
+                            <!-- Animated Circle -->
+                            <div class="circle transition-colors duration-1000" :class="circleColor"
+                                :style="animationStyle"></div>
+
+                            <!-- Text -->
+                            <div
+                                class="absolute z-20 text-3xl md:text-4xl font-bold text-cyan-900 drop-shadow-sm text-center w-full px-4 animate-fade-in-up">
+                                {{ currentInstruction }}
+                            </div>
+                        </div>
+
+                        <div class="text-center pb-8 w-full px-8">
+                            <div class="mb-12">
+                                <div class="text-xs font-bold text-cyan-600/50 uppercase tracking-widest mb-2">Ciclos
+                                    Restantes</div>
+                                <div class="text-3xl font-bold text-cyan-800">{{ cycles }}</div>
+                            </div>
+
+                            <button @click="stopBreathing"
+                                class="w-full bg-white text-cyan-600 py-4 rounded-2xl font-bold border border-cyan-100 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition shadow-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-stop"></i> Encerrar Sessão
+                            </button>
+                        </div>
+
+                    </div>
+                </transition>
+
             </div>
-        </header>
 
-        <!-- BREATHING INTERFACE -->
-        <div v-else class="flex flex-col items-center z-10">
-
-            <div class="circle-container mb-8">
-                <!-- Outer Ring -->
-                <div class="w-full h-full border-4 border-cyan-100 rounded-full absolute"></div>
-
-                <!-- Animated Circle -->
-                <div class="circle" :style="animationStyle"></div>
-
-                <!-- Text -->
-                <div class="instruction-text">{{ currentInstruction }}</div>
-            </div>
-
-            <div class="text-center">
-                <h2 class="text-xl font-bold mb-1">{{ activeTechnique.name }}</h2>
-                <div class="text-sm text-cyan-600/50 mb-8">Ciclos restantes: {{ cycles }}</div>
-
-                <button @click="stopBreathing"
-                    class="bg-white text-cyan-600 px-8 py-2 rounded-full font-bold border border-cyan-200 hover:bg-cyan-50 transition shadow-sm">
-                    Encerrar
-                </button>
-            </div>
-
-        </div>
-
+        </main>
     </div>
 
     <script>
@@ -125,44 +268,56 @@
 
         createApp({
             setup() {
+                const sidebarOpen = ref(false);
                 const isRunning = ref(false);
                 const activeMode = ref(null);
                 const currentInstruction = ref('Prepare-se...');
-                const scale = ref(1); // 0.5 to 1.0
+                const scale = ref(1);
                 const cycles = ref(0);
+                const transitionDuration = ref(1000); // ms
 
                 let timeoutId = null;
 
                 const techniques = {
                     relax: {
                         name: 'Técnica 4-7-8',
+                        color: 'bg-indigo-300',
                         steps: [
-                            { text: 'Inspire', duration: 4000, scale: 1.0 },
+                            { text: 'Inspire...', duration: 4000, scale: 1.0 },
                             { text: 'Segure', duration: 7000, scale: 1.0 },
-                            { text: 'Expire', duration: 8000, scale: 0.4 }
+                            { text: 'Expire...', duration: 8000, scale: 0.4 }
                         ]
                     },
                     focus: {
                         name: 'Respiração Quadrada',
+                        color: 'bg-blue-300',
                         steps: [
-                            { text: 'Inspire', duration: 4000, scale: 1.0 },
+                            { text: 'Inspire...', duration: 4000, scale: 1.0 },
                             { text: 'Segure', duration: 4000, scale: 1.0 },
-                            { text: 'Expire', duration: 4000, scale: 0.4 },
+                            { text: 'Expire...', duration: 4000, scale: 0.4 },
                             { text: 'Segure', duration: 4000, scale: 0.4 }
+                        ]
+                    },
+                    balance: { // Coherent Breathing (approx 5.5s in/out) but used 5s for simplicity
+                        name: 'Coerência Cardíaca',
+                        color: 'bg-emerald-300',
+                        steps: [
+                            { text: 'Inspire...', duration: 5000, scale: 1.0 },
+                            { text: 'Expire...', duration: 5000, scale: 0.4 }
                         ]
                     }
                 };
 
                 const activeTechnique = computed(() => techniques[activeMode.value] || {});
 
+                const circleColor = computed(() => activeTechnique.value.color || 'bg-cyan-300');
+
                 const animationStyle = computed(() => ({
                     width: '300px',
                     height: '300px',
                     transform: `scale(${scale.value})`,
-                    transition: `transform ${transitionDuration.value}ms linear` // Dynamic transition based on step duration
+                    transition: `transform ${transitionDuration.value}ms cubic-bezier(0.4, 0.0, 0.2, 1) ` // Smooth breathing curve
                 }));
-
-                const transitionDuration = ref(1000);
 
                 const runstep = async (stepIndex) => {
                     if (!isRunning.value) return;
@@ -170,52 +325,59 @@
                     const steps = activeTechnique.value.steps;
                     const step = steps[stepIndex];
 
-                    // Set state
+                    // UPDATE STATE
                     currentInstruction.value = step.text;
                     scale.value = step.scale;
                     transitionDuration.value = step.duration;
 
-                    // Wait
+                    // WAIT
                     await new Promise(r => timeoutId = setTimeout(r, step.duration));
 
                     if (!isRunning.value) return;
 
-                    // Next step
+                    // NEXT STEP
                     const nextIndex = (stepIndex + 1) % steps.length;
+
+                    // Decrease cycle ONLY when full loop completes
                     if (nextIndex === 0) cycles.value--;
 
                     if (cycles.value > 0) {
                         runstep(nextIndex);
                     } else {
-                        currentInstruction.value = "Muito bem!";
-                        setTimeout(stopBreathing, 2000);
+                        currentInstruction.value = "Sessão Concluída";
+                        scale.value = 0.8;
+                        transitionDuration.value = 1000;
+                        setTimeout(stopBreathing, 3000);
                     }
                 };
 
                 const startBreathing = (mode) => {
                     activeMode.value = mode;
                     isRunning.value = true;
-                    cycles.value = 5; // Default cycles
-                    scale.value = 0.4; // Start small
+                    cycles.value = 5; // Fixed cycles for demo
+                    scale.value = 0.4; // Start empty
 
                     // Initial pause
+                    currentInstruction.value = "Inspire..."; // Start immediately? No, wait 1s
                     currentInstruction.value = "Prepare-se...";
                     transitionDuration.value = 0;
+                    sidebarOpen.value = false;
 
                     setTimeout(() => {
                         runstep(0);
-                    }, 2000);
+                    }, 1500);
                 };
 
                 const stopBreathing = () => {
                     clearTimeout(timeoutId);
                     isRunning.value = false;
                     activeMode.value = null;
+                    scale.value = 1;
                 };
 
                 return {
-                    isRunning, startBreathing, stopBreathing,
-                    currentInstruction, animationStyle, activeTechnique, cycles
+                    sidebarOpen, isRunning, activeMode, startBreathing, stopBreathing,
+                    currentInstruction, animationStyle, activeTechnique, cycles, circleColor
                 };
             }
         }).mount('#app');

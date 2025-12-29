@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gerador de Senhas | Plena Aplicativos</title>
+    <title>Gerador de Senhas | Plena Tools</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap"
@@ -32,15 +32,21 @@
             }
         }
     </script>
+
     <style>
         body {
-            background-color: #0f172a;
-            color: #f1f5f9;
             font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        [v-cloak] {
+            display: none;
+        }
+
+        /* Custom Scrollbar for Dark Theme */
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -52,6 +58,29 @@
             border-radius: 3px;
         }
 
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .anim-pop {
+            animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.9);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Slider Styling */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -76,174 +105,184 @@
             background: #334155;
             border-radius: 2px;
         }
-
-        .anim-pop {
-            animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes pop {
-            0% {
-                transform: scale(0.9);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
     </style>
 </head>
 
-<body class="h-screen overflow-hidden flex flex-col items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-200 h-screen overflow-hidden flex flex-col md:flex-row">
 
-    <div id="app" class="w-full max-w-lg">
+    <div id="app" v-cloak class="flex-1 flex h-full w-full relative">
 
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div
-                class="w-16 h-16 bg-cyber-card rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-cyber-accent/10 border border-slate-700">
-                <i class="fa-solid fa-shield-halved text-3xl text-cyber-accent"></i>
-            </div>
-            <h1 class="text-3xl font-bold tracking-tight text-white">Gerador <span
-                    class="text-cyber-accent">Seguro</span></h1>
-            <p class="text-cyber-muted text-sm mt-1">Crie senhas fortes e inquebráveis instantaneamente.</p>
-        </div>
-
-        <!-- Main Card -->
-        <div class="bg-cyber-card border border-slate-700 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-
-            <!-- Result Display -->
-            <div class="relative mb-6 group">
+        <!-- DESKTOP SIDEBAR -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed md:relative md:translate-x-0 w-64 bg-slate-900 text-white h-full z-30 transition-transform duration-300 flex flex-col border-r border-slate-800 shadow-2xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
                 <div
-                    class="bg-[#0b1120] rounded-xl p-5 border border-slate-700 flex items-center justify-between transition-colors group-hover:border-cyber-accent/50">
-                    <div class="font-mono text-xl md:text-2xl break-all text-white font-bold tracking-wide mr-4"
-                        :class="password ? '' : 'text-slate-600'">
-                        {{ password || 'Sua senha aparecerá aqui' }}
-                    </div>
-
-                    <button @click="copyToClipboard"
-                        class="text-slate-400 hover:text-white transition p-2 rounded-lg hover:bg-white/10 relative"
-                        title="Copiar Senha">
-                        <i class="fa-regular" :class="copied ? 'fa-circle-check text-green-400' : 'fa-copy'"></i>
-                        <span v-if="copied"
-                            class="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded shadow-lg anim-pop">Copiado!</span>
-                    </button>
-
-                    <button @click="generate" class="md:hidden text-cyber-accent hover:text-white transition p-2 ml-2">
-                        <i class="fa-solid fa-rotate"></i>
-                    </button>
+                    class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid fa-lock text-slate-900 text-sm"></i>
                 </div>
-
-                <!-- Strength Bar -->
-                <div class="flex gap-1 mt-2 h-1.5 px-1">
-                    <div class="flex-1 rounded-full transition-all duration-500"
-                        :class="strengthScore >= 1 ? strengthColor : 'bg-slate-700'"></div>
-                    <div class="flex-1 rounded-full transition-all duration-500"
-                        :class="strengthScore >= 2 ? strengthColor : 'bg-slate-700'"></div>
-                    <div class="flex-1 rounded-full transition-all duration-500"
-                        :class="strengthScore >= 3 ? strengthColor : 'bg-slate-700'"></div>
-                    <div class="flex-1 rounded-full transition-all duration-500"
-                        :class="strengthScore >= 4 ? strengthColor : 'bg-slate-700'"></div>
-                </div>
-                <div class="flex justify-between px-1 mt-1">
-                    <span class="text-[10px] text-cyber-muted uppercase font-bold">Força</span>
-                    <span class="text-[10px] font-bold uppercase transition-colors" :class="strengthTextColor">{{
-                        strengthLabel }}</span>
-                </div>
+                <!-- brand text -->
+                <span class="font-bold text-lg tracking-tight">Plena<span class="text-cyan-400">Tools</span></span>
             </div>
 
-            <!-- Controls -->
-            <div class="space-y-6">
-
-                <!-- Length Slider -->
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-sm font-bold text-cyber-muted uppercase">Comprimento</label>
-                        <span
-                            class="text-cyber-accent font-mono font-bold text-lg bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">{{
-                            length }}</span>
-                    </div>
-                    <input type="range" v-model.number="length" min="6" max="64" step="1" class="w-full">
-                </div>
-
-                <!-- Toggles -->
-                <div class="grid grid-cols-2 gap-3">
-                    <button @click="toggle('uppercase')"
-                        class="p-3 rounded-xl border border-slate-700 flex items-center justify-between transition hover:bg-slate-800"
-                        :class="options.uppercase ? 'bg-slate-800 border-cyber-accent text-white' : 'text-slate-400'">
-                        <span class="text-sm font-medium">ABC Maísculas</span>
-                        <i class="fa-solid"
-                            :class="options.uppercase ? 'fa-check-circle text-cyber-accent' : 'fa-circle text-slate-600'"></i>
-                    </button>
-
-                    <button @click="toggle('lowercase')"
-                        class="p-3 rounded-xl border border-slate-700 flex items-center justify-between transition hover:bg-slate-800"
-                        :class="options.lowercase ? 'bg-slate-800 border-cyber-accent text-white' : 'text-slate-400'">
-                        <span class="text-sm font-medium">abc Minúsculas</span>
-                        <i class="fa-solid"
-                            :class="options.lowercase ? 'fa-check-circle text-cyber-accent' : 'fa-circle text-slate-600'"></i>
-                    </button>
-
-                    <button @click="toggle('numbers')"
-                        class="p-3 rounded-xl border border-slate-700 flex items-center justify-between transition hover:bg-slate-800"
-                        :class="options.numbers ? 'bg-slate-800 border-cyber-accent text-white' : 'text-slate-400'">
-                        <span class="text-sm font-medium">123 Números</span>
-                        <i class="fa-solid"
-                            :class="options.numbers ? 'fa-check-circle text-cyber-accent' : 'fa-circle text-slate-600'"></i>
-                    </button>
-
-                    <button @click="toggle('symbols')"
-                        class="p-3 rounded-xl border border-slate-700 flex items-center justify-between transition hover:bg-slate-800"
-                        :class="options.symbols ? 'bg-slate-800 border-cyber-accent text-white' : 'text-slate-400'">
-                        <span class="text-sm font-medium">!@# Símbolos</span>
-                        <i class="fa-solid"
-                            :class="options.symbols ? 'fa-check-circle text-cyber-accent' : 'fa-circle text-slate-600'"></i>
-                    </button>
-                </div>
-
-            </div>
-
-            <!-- Action -->
-            <div class="mt-8">
-                <button @click="generate"
-                    class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-cyan-500/20 transition transform active:scale-95 flex items-center justify-center gap-2 text-lg">
-                    <i class="fa-solid fa-bolt"></i> GERAR NOVA SENHA
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <button
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium shadow-inner border border-slate-700">
+                    <i class="fa-solid fa-key w-5 text-cyan-400"></i> Gerador Seguro
                 </button>
-            </div>
-
-        </div>
-
-        <!-- History footer (optional) -->
-        <div class="mt-6 text-center">
-            <button @click="showHistory = !showHistory"
-                class="text-cyber-muted text-xs hover:text-white transition underline decoration-slate-700 decoration-dashed">
-                {{ showHistory ? 'Ocultar' : 'Ver' }} Histórico Recente
-            </button>
-
-            <div v-if="showHistory"
-                class="mt-4 bg-cyber-card border border-slate-700 rounded-xl p-4 text-left max-h-40 overflow-y-auto">
-                <div v-for="(pw, idx) in history" :key="idx"
-                    class="flex justify-between items-center py-2 border-b border-slate-800 last:border-0">
-                    <span class="font-mono text-xs text-slate-300 truncate w-4/5">{{ pw }}</span>
-                    <button @click="copyHistory(pw)" class="text-xs text-cyber-accent hover:text-white"><i
-                            class="fa-regular fa-copy"></i></button>
+                <div class="mt-8 px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Histórico Recente
                 </div>
-                <div v-if="history.length === 0" class="text-xs text-slate-500 text-center py-2">Nenhuma senha gerada
-                    ainda.</div>
-            </div>
-        </div>
+                <div class="space-y-1">
+                    <div v-for="(pw, idx) in history.slice(0, 5)" :key="idx"
+                        class="px-4 py-2 text-xs text-slate-400 hover:text-white transition cursor-pointer font-mono truncate border-l-2 border-transparent hover:border-cyan-500"
+                        @click="copyHistory(pw)">
+                        {{ pw }}
+                    </div>
+                    <div v-if="history.length === 0" class="px-4 text-xs text-slate-600 italic">Vazio</div>
+                </div>
+            </nav>
 
+            <div class="p-4 border-t border-slate-800 text-xs">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- OVERLAY -->
+        <div v-if="sidebarOpen" @click="sidebarOpen = false"
+            class="fixed inset-0 bg-black/50 z-20 md:hidden backdrop-blur-sm"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 h-full flex flex-col bg-slate-950 relative w-full overflow-y-auto">
+
+            <!-- MOBILE HEADER -->
+            <header
+                class="md:hidden h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 z-10 shrink-0 shadow-md">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center text-slate-900">
+                        <i class="fa-solid fa-shield-halved text-xs"></i>
+                    </div>
+                    <span class="font-bold text-white tracking-tight">Plena<span class="text-cyan-400">Sec</span></span>
+                </div>
+                <button @click="sidebarOpen = !sidebarOpen"
+                    class="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </header>
+
+            <div
+                class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 min-h-[calc(100vh-4rem)] md:min-h-screen">
+
+                <div class="w-full max-w-lg animate-fade-in-up">
+                    <div class="text-center mb-8">
+                        <div
+                            class="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl mb-4 border border-slate-800 shadow-xl shadow-cyan-500/10">
+                            <i class="fa-solid fa-fingerprint text-3xl text-cyan-400"></i>
+                        </div>
+                        <h1 class="text-3xl font-bold text-white mb-2">Gerador <span
+                                class="text-cyan-400">Inquebrável</span></h1>
+                        <p class="text-slate-500">Crie senhas de alta segurança com um clique.</p>
+                    </div>
+
+                    <!-- Generator Card -->
+                    <div
+                        class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-sm bg-opacity-80">
+
+                        <!-- Blob decoration -->
+                        <div
+                            class="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500 rounded-full blur-[80px] opacity-10 pointer-events-none">
+                        </div>
+
+                        <!-- Result Display -->
+                        <div class="relative mb-8 group">
+                            <div
+                                class="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between transition-all group-hover:border-cyan-500/50 shadow-inner">
+                                <div class="font-mono text-xl md:text-2xl break-all text-white font-bold tracking-wide mr-4 truncate"
+                                    :class="password ? '' : 'text-slate-600'">
+                                    {{ password || '••••••••••••••••' }}
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <button @click="generate"
+                                        class="md:hidden w-10 h-10 rounded-lg bg-slate-900 text-cyan-500 hover:text-white flex items-center justify-center transition border border-slate-800">
+                                        <i class="fa-solid fa-rotate"></i>
+                                    </button>
+                                    <button @click="copyToClipboard"
+                                        class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-900 transition flex items-center justify-center relative"
+                                        title="Copiar">
+                                        <i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-copy'"></i>
+                                        <span v-if="copied"
+                                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-900 text-xs font-bold px-3 py-1 rounded shadow-lg anim-pop">Copiado!</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Strength Bar -->
+                            <div class="flex gap-1.5 mt-3 px-1">
+                                <div v-for="i in 4" :key="i"
+                                    class="flex-1 h-1.5 rounded-full transition-all duration-500 bg-slate-800 overflow-hidden">
+                                    <div class="h-full w-full transition-transform duration-500 origin-left"
+                                        :class="strengthScore >= i ? strengthColor : 'scale-x-0'"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between px-1 mt-2">
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Força da
+                                    Senha</span>
+                                <span class="text-[10px] font-bold uppercase transition-colors"
+                                    :class="strengthTextColor">{{ strengthLabel }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="space-y-6">
+                            <!-- Length Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <label
+                                        class="text-xs font-bold text-slate-400 uppercase tracking-wider">Comprimento</label>
+                                    <span
+                                        class="text-cyan-400 font-mono font-bold text-lg bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 min-w-[3rem] text-center">{{
+                                        length }}</span>
+                                </div>
+                                <input type="range" v-model.number="length" min="6" max="64" step="1" class="w-full">
+                            </div>
+
+                            <!-- Toggles -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <button v-for="(val, key) in displayOptions" :key="key" @click="toggle(key)"
+                                    class="p-3 rounded-xl border flex items-center justify-between transition group hover:bg-slate-800"
+                                    :class="options[key] ? 'bg-slate-800 border-cyan-500/50 text-white shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]' : 'bg-transparent border-slate-800 text-slate-500'">
+                                    <span class="text-sm font-medium">{{ val.label }}</span>
+                                    <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors"
+                                        :class="options[key] ? 'border-cyan-500 bg-cyan-500' : 'border-slate-600'">
+                                        <i class="fa-solid fa-check text-slate-900 text-[10px]" v-if="options[key]"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action -->
+                        <div class="mt-8">
+                            <button @click="generate"
+                                class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-cyan-500/20 transition transform active:scale-[0.98] flex items-center justify-center gap-3 text-lg group">
+                                <i class="fa-solid fa-bolt group-hover:animate-pulse"></i> GERAR NOVA SENHA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
         const { createApp, ref, computed, onMounted, watch } = Vue;
-        const DB_KEY = 'plena_senha_config_v1';
+        const DB_KEY = 'plena_senha_config_v2';
 
         createApp({
             setup() {
+                const sidebarOpen = ref(false);
                 const length = ref(16);
                 const options = ref({
                     uppercase: true,
@@ -252,18 +291,26 @@
                     symbols: true
                 });
 
+                const displayOptions = {
+                    uppercase: { label: 'ABC Maiúsculas' },
+                    lowercase: { label: 'abc Minúsculas' },
+                    numbers: { label: '123 Números' },
+                    symbols: { label: '!@# Símbolos' }
+                };
+
                 const password = ref('');
                 const copied = ref(false);
                 const history = ref([]);
-                const showHistory = ref(false);
 
                 // Load config
                 onMounted(() => {
                     const d = localStorage.getItem(DB_KEY);
                     if (d) {
-                        const parsed = JSON.parse(d);
-                        length.value = parsed.length;
-                        options.value = parsed.options;
+                        try {
+                            const parsed = JSON.parse(d);
+                            length.value = parsed.length || 16;
+                            if (parsed.options) options.value = parsed.options;
+                        } catch (e) { }
                     }
                     generate(); // Generate one on start
                 });
@@ -274,7 +321,6 @@
 
                 const toggle = (key) => {
                     options.value[key] = !options.value[key];
-                    // Ensure at least one is selected
                     if (!Object.values(options.value).some(v => v)) {
                         options.value[key] = true;
                     }
@@ -291,17 +337,12 @@
                     let chars = '';
                     let result = '';
 
-                    // Add mandatory chars first to ensure at least one of each selected type exists?
-                    // Or just simple pool picking. Simple pool is usually fine, but to be "strict" we can force.
-                    // Let's do pool picking for simplicity and UX speed, but using crypto API.
-
                     Object.keys(options.value).forEach(key => {
                         if (options.value[key]) chars += sets[key];
                     });
 
-                    if (!chars) return; // Should not happen due to toggle check
+                    if (!chars) return;
 
-                    // Use crypto for better randomness
                     const array = new Uint32Array(length.value);
                     window.crypto.getRandomValues(array);
 
@@ -328,7 +369,9 @@
                 };
 
                 const copyHistory = (pw) => {
-                    navigator.clipboard.writeText(pw);
+                    navigator.clipboard.writeText(pw).then(() => {
+                        alert('Senha copiada!');
+                    });
                 };
 
                 // Strength Scoring
@@ -338,7 +381,6 @@
                     if (length.value >= 12) score++;
                     if (length.value >= 16) score++;
 
-                    // Variety bonus
                     let variety = 0;
                     if (options.value.uppercase) variety++;
                     if (options.value.lowercase) variety++;
@@ -348,28 +390,28 @@
                     if (variety >= 3) score++;
 
                     if (score > 4) score = 4;
-                    if (length.value < 8) score = 1; // Penalty for short
+                    if (length.value < 8) score = 1;
 
                     return score;
                 });
 
                 const strengthLabel = computed(() => {
-                    const labels = ['Muito Fraca', 'Fraca', 'Média', 'Forte', 'Inquebrável'];
+                    const labels = ['Muito Fraca', 'Fraca', 'Média', 'Forte', 'Inquebrável 🔒'];
                     return labels[strengthScore.value];
                 });
 
                 const strengthColor = computed(() => {
-                    const colors = ['bg-red-500', 'bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-cyan-500'];
+                    const colors = ['bg-red-500', 'bg-red-500', 'bg-yellow-500', 'bg-emerald-500', 'bg-cyan-500'];
                     return colors[strengthScore.value];
                 });
 
                 const strengthTextColor = computed(() => {
-                    const colors = ['text-red-500', 'text-red-500', 'text-yellow-500', 'text-green-500', 'text-cyan-500'];
+                    const colors = ['text-red-500', 'text-red-500', 'text-yellow-500', 'text-emerald-500', 'text-cyan-400'];
                     return colors[strengthScore.value];
                 });
 
                 return {
-                    length, options, password, copied, history, showHistory,
+                    sidebarOpen, length, options, displayOptions, password, copied, history,
                     toggle, generate, copyToClipboard, copyHistory,
                     strengthScore, strengthLabel, strengthColor, strengthTextColor
                 };

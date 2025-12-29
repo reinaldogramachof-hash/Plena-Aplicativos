@@ -4,187 +4,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cardápio Digital | Plena Apps</title>
+    <title>Cardápio Digital | Plena Food</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Oswald for headings, Inter for UI -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
         rel="stylesheet">
     <style>
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0a09;
+            /* stone-950 */
+            color: #fafaf9;
+            /* stone-50 */
         }
 
-        h1,
-        h2,
-        h3,
-        .brand {
+        .font-brand {
             font-family: 'Oswald', sans-serif;
         }
 
         [v-cloak] {
             display: none;
         }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="overflow-hidden flex flex-col md:flex-row h-screen">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-neutral-900 shadow-2xl flex flex-col relative">
+    <div id="app" v-cloak class="flex-1 flex h-full w-full relative">
 
-        <!-- HEADER / COVER -->
-        <div class="h-48 bg-cover bg-center relative" :style="{ backgroundImage: 'url(' + coverImage + ')' }">
-            <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent"></div>
-            <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                <div>
-                    <h1 class="text-3xl font-bold brand text-yellow-500">{{ restaurantName || 'Sua Lanchonete' }}</h1>
-                    <p class="text-gray-300 text-sm"><i class="fa-solid fa-location-dot"></i> {{ address || 'Endereço do
-                        Local' }}</p>
+        <!-- DESKTOP SIDEBAR -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed md:relative md:translate-x-0 w-64 bg-stone-900 text-white h-full z-30 transition-transform duration-300 flex flex-col border-r border-stone-800 shadow-2xl">
+            <div class="p-6 flex items-center gap-3 border-b border-stone-800">
+                <div
+                    class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid fa-utensils text-stone-900 text-sm"></i>
                 </div>
-                <!-- Admin Toggle -->
+                <span class="font-bold text-lg tracking-tight font-brand">Plena<span
+                        class="text-amber-500">Food</span></span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <div class="px-4 py-2 text-xs font-bold text-stone-500 uppercase tracking-wider">Gestão</div>
+
                 <button @click="adminMode = !adminMode"
-                    class="bg-black/50 p-2 rounded-full text-white/50 hover:text-white transition">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ADMIN PANEL -->
-        <div v-if="adminMode" class="bg-neutral-800 p-4 border-b border-neutral-700 animate-fade-in">
-            <h3 class="font-bold text-yellow-500 mb-2"><i class="fa-solid fa-user-shield"></i> Painel do Dono</h3>
-
-            <div class="grid grid-cols-2 gap-2 mb-4">
-                <input v-model="restaurantName" placeholder="Nome Restaurante"
-                    class="bg-neutral-700 p-2 rounded text-sm text-white border border-neutral-600">
-                <input v-model="address" placeholder="Endereço"
-                    class="bg-neutral-700 p-2 rounded text-sm text-white border border-neutral-600">
-            </div>
-
-            <div class="bg-neutral-700 p-3 rounded mb-4">
-                <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Adicionar Item</h4>
-                <div class="flex gap-2 mb-2">
-                    <input v-model="newItem.name" placeholder="Nome (Ex: X-Bacon)"
-                        class="flex-grow bg-neutral-600 p-2 rounded text-sm text-white">
-                    <input v-model.number="newItem.price" placeholder="R$"
-                        class="w-16 bg-neutral-600 p-2 rounded text-sm text-white">
-                </div>
-                <div class="flex gap-2">
-                    <input v-model="newItem.desc" placeholder="Descrição"
-                        class="flex-grow bg-neutral-600 p-2 rounded text-sm text-white">
-                    <select v-model="newItem.cat" class="bg-neutral-600 p-2 rounded text-sm text-white w-24">
-                        <option value="Lanches">Lanches</option>
-                        <option value="Bebidas">Bebidas</option>
-                        <option value="Sobres">Sobres</option>
-                    </select>
-                    <button @click="addItem" class="bg-green-600 px-3 rounded text-white"><i
-                            class="fa-solid fa-plus"></i></button>
-                </div>
-            </div>
-
-            <div class="flex gap-2 justify-end">
-                <button @click="backupData"
-                    class="bg-blue-600 px-3 py-1 rounded text-xs font-bold hover:bg-blue-500">Backup</button>
-                <label class="bg-blue-600 px-3 py-1 rounded text-xs font-bold hover:bg-blue-500 cursor-pointer">
-                    Restaurar <input type="file" @change="restoreData" class="hidden" accept=".json">
-                </label>
-            </div>
-        </div>
-
-        <!-- MENU TABS -->
-        <div class="sticky top-0 bg-neutral-900 z-10 p-2 flex gap-2 overflow-x-auto shadow-md">
-            <button v-for="cat in categories" :key="cat" @click="activeCat = cat"
-                :class="activeCat === cat ? 'bg-yellow-500 text-black' : 'bg-neutral-800 text-gray-400'"
-                class="px-4 py-2 rounded-full font-bold text-sm whitespace-nowrap transition">
-                {{ cat }}
-            </button>
-        </div>
-
-        <!-- MENU LIST -->
-        <div class="p-4 flex-grow space-y-4">
-            <div v-for="(item, idx) in filteredItems" :key="idx"
-                class="bg-neutral-800 p-4 rounded-xl flex justify-between items-center group">
-                <div class="flex-grow pr-4">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-bold text-lg text-white">{{ item.name }}</h3>
-                        <span class="text-xs bg-neutral-700 px-1 rounded text-gray-400">{{ item.cat }}</span>
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-stone-800 text-stone-300 hover:text-white transition font-medium text-sm group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-user-shield w-5 text-amber-500 group-hover:scale-110 transition"></i>
+                        <span>Modo Admin</span>
                     </div>
-                    <p class="text-gray-400 text-sm leading-tight mt-1">{{ item.desc }}</p>
-                    <p class="text-yellow-500 font-bold mt-2">R$ {{ item.price.toFixed(2) }}</p>
+                    <div class="w-8 h-4 bg-stone-800 rounded-full relative border border-stone-700">
+                        <div class="absolute top-0.5 w-3 h-3 rounded-full transition-all duration-300"
+                            :class="adminMode ? 'left-4 bg-amber-500' : 'left-0.5 bg-stone-500'"></div>
+                    </div>
+                </button>
+
+                <div v-if="adminMode" class="animate-fade-in-up space-y-2 mt-2 border-l-2 border-stone-800 ml-4 pl-2">
+                    <button @click="backupData"
+                        class="w-full text-left px-3 py-2 text-xs text-stone-400 hover:text-amber-400 transition flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Backup Cardápio
+                    </button>
+                    <label
+                        class="w-full text-left px-3 py-2 text-xs text-stone-400 hover:text-amber-400 transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload"></i> Restaurar
+                        <input type="file" @change="restoreData" class="hidden" accept=".json">
+                    </label>
+                </div>
+            </nav>
+
+            <div class="p-4 border-t border-stone-800 text-xs text-stone-500">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- OVERLAY -->
+        <div v-if="sidebarOpen" @click="sidebarOpen = false"
+            class="fixed inset-0 bg-stone-900/80 z-20 md:hidden backdrop-blur-sm"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 h-full flex flex-col bg-stone-950 relative w-full overflow-hidden">
+
+            <!-- MOBILE HEADER -->
+            <header
+                class="md:hidden h-16 bg-stone-900 border-b border-stone-800 flex items-center justify-between px-4 z-20 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-stone-900">
+                        <i class="fa-solid fa-utensils text-xs"></i>
+                    </div>
+                    <span class="font-bold text-white tracking-tight font-brand">Plena<span
+                            class="text-amber-500">Food</span></span>
+                </div>
+                <!-- Cart Icon Mobile -->
+                <div class="flex items-center gap-3">
+                    <button @click="showCart = true"
+                        class="relative w-10 h-10 flex items-center justify-center text-stone-400 hover:text-white transition">
+                        <i class="fa-solid fa-cart-shopping text-lg"></i>
+                        <span v-if="cartCount > 0"
+                            class="absolute top-1 right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{
+                            cartCount }}</span>
+                    </button>
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="w-10 h-10 flex items-center justify-center text-stone-400 hover:bg-stone-800 rounded-lg transition">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE AREA -->
+            <div class="flex-1 overflow-y-auto relative custom-scrollbar">
+
+                <!-- HERO / COVER -->
+                <div class="relative h-48 md:h-64 bg-cover bg-center"
+                    :style="{ backgroundImage: 'url(' + config.coverImage + ')' }">
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/60 to-transparent"></div>
+
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-col md:flex-row justify-between items-end gap-4">
+                        <div class="w-full">
+                            <h1 v-if="!adminMode"
+                                class="text-3xl md:text-5xl font-bold text-white font-brand drop-shadow-lg mb-1">{{
+                                config.restaurantName }}</h1>
+                            <input v-else v-model="config.restaurantName"
+                                class="text-3xl md:text-5xl font-bold text-white font-brand bg-white/10 border border-white/20 rounded px-2 w-full mb-2 outline-none focus:bg-black/50"
+                                placeholder="Nome do Restaurante">
+
+                            <p v-if="!adminMode" class="text-stone-300 text-sm flex items-center gap-2"><i
+                                    class="fa-solid fa-location-dot text-amber-500"></i> {{ config.address }}</p>
+                            <input v-else v-model="config.address"
+                                class="text-stone-300 text-sm bg-white/10 border border-white/20 rounded px-2 w-full outline-none focus:bg-black/50"
+                                placeholder="Endereço">
+                        </div>
+
+                        <div v-if="adminMode" class="w-full md:w-auto">
+                            <label class="text-xs font-bold text-stone-400 uppercase block mb-1">URL da Capa</label>
+                            <input v-model="config.coverImage"
+                                class="bg-black/50 border border-white/20 rounded p-2 text-xs text-white w-full md:w-64 outline-none">
+                        </div>
+                    </div>
                 </div>
 
-                <div v-if="adminMode" class="flex flex-col gap-2">
-                    <button @click="deleteItem(item)"
-                        class="bg-red-900/50 text-red-500 w-8 h-8 rounded flex items-center justify-center hover:bg-red-900"><i
-                            class="fa-solid fa-trash text-xs"></i></button>
-                </div>
-                <div v-else>
-                    <button @click="addToCart(item)"
-                        class="bg-yellow-500 text-black w-10 h-10 rounded-full flex items-center justify-center shadow hover:bg-yellow-400 transition active:scale-95">
+                <!-- CATEGORY TABS -->
+                <div
+                    class="sticky top-0 z-10 bg-stone-950/95 backdrop-blur-sm border-b border-stone-900 py-3 px-4 md:px-8 flex gap-3 overflow-x-auto no-scrollbar">
+                    <button v-for="cat in categories" :key="cat" @click="activeCat = cat"
+                        class="px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap transition border"
+                        :class="activeCat === cat ? 'bg-amber-500 border-amber-500 text-stone-950' : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-white hover:border-stone-700'">
+                        {{ cat }}
+                    </button>
+                    <button v-if="adminMode" @click="addCategory"
+                        class="px-4 py-2 rounded-full border border-stone-800 text-stone-500 hover:text-amber-500 hover:border-amber-500 transition text-sm">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
-            </div>
-            <div v-if="filteredItems.length === 0" class="text-center text-gray-500 py-10 italic">
-                Nenhum item nesta categoria.
-            </div>
-        </div>
 
-        <!-- CART BUTTON (Floating) -->
-        <div v-if="!adminMode && cart.length > 0" class="fixed bottom-4 left-4 right-4 z-50 animate-bounce-in">
-            <button @click="showCart = true"
-                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold p-4 rounded-xl shadow-2xl flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="bg-black/20 w-8 h-8 rounded-full flex items-center justify-center text-sm">{{ cartCount
-                        }}</div>
-                    <span>Ver Pedido</span>
-                </div>
-                <span>R$ {{ cartTotal.toFixed(2) }}</span>
-            </button>
-        </div>
+                <!-- MENU GRID -->
+                <div class="p-4 md:p-8 pb-32 max-w-7xl mx-auto">
 
-        <!-- CART MODAL -->
-        <div v-if="showCart" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col justify-end">
-            <div class="bg-white text-gray-900 rounded-t-3xl p-6 animate-slide-up h-[80vh] flex flex-col">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 class="font-bold text-2xl brand px-2 border-l-4 border-yellow-500">Seu Pedido</h2>
-                    <button @click="showCart = false" class="text-gray-400 hover:text-black"><i
-                            class="fa-solid fa-xmark text-2xl"></i></button>
-                </div>
-
-                <div class="flex-grow overflow-y-auto space-y-4 pr-2">
-                    <div v-for="(item, idx) in cart" :key="idx" class="flex justify-between items-center">
-                        <div>
-                            <p class="font-bold">{{ item.qty }}x {{ item.name }}</p>
-                            <p class="text-xs text-gray-500">R$ {{ (item.price * item.qty).toFixed(2) }}</p>
+                    <!-- Admin Add Item -->
+                    <div v-if="adminMode" class="mb-8 bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-amber-500 font-bold mb-4 flex items-center gap-2 font-brand text-lg">
+                            <i class="fa-solid fa-plus-circle"></i> Adicionar ao Cardápio
+                        </h3>
+                        <div class="grid md:grid-cols-4 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-stone-500 uppercase">Nome</label>
+                                <input v-model="newItem.name"
+                                    class="w-full bg-stone-950 border border-stone-800 rounded-lg p-3 text-white focus:border-amber-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-stone-500 uppercase">Preço (R$)</label>
+                                <input v-model.number="newItem.price" type="number" step="0.50"
+                                    class="w-full bg-stone-950 border border-stone-800 rounded-lg p-3 text-white focus:border-amber-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-stone-500 uppercase">Categoria</label>
+                                <select v-model="newItem.cat"
+                                    class="w-full bg-stone-950 border border-stone-800 rounded-lg p-3 text-white focus:border-amber-500 outline-none transition appearance-none">
+                                    <option v-for="cat in categories" :value="cat">{{ cat }}</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-4">
+                                <label class="text-xs font-bold text-stone-500 uppercase">Descrição</label>
+                                <div class="flex gap-2">
+                                    <input v-model="newItem.desc"
+                                        class="flex-1 bg-stone-950 border border-stone-800 rounded-lg p-3 text-white focus:border-amber-500 outline-none transition"
+                                        placeholder="Ingredientes, detalhes...">
+                                    <button @click="addItem"
+                                        class="bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold px-6 rounded-lg transition">Salvar</button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Items Display -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        <div v-for="(item, idx) in filteredItems" :key="item.id"
+                            class="bg-stone-900 border border-stone-800 rounded-2xl p-4 md:p-5 flex gap-4 hover:border-amber-500/30 transition shadow-lg group relative overflow-hidden">
+
+                            <!-- Highlight bar on hover -->
+                            <div
+                                class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300">
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h3 class="font-brand font-bold text-xl text-white truncate">{{ item.name }}</h3>
+                                    <span class="font-mono font-bold text-amber-500 whitespace-nowrap">R$ {{
+                                        item.price.toFixed(2) }}</span>
+                                </div>
+                                <p class="text-stone-400 text-sm leading-relaxed line-clamp-2 md:line-clamp-3 mb-4">{{
+                                    item.desc }}</p>
+
+                                <div class="flex items-center justify-between mt-auto">
+                                    <span
+                                        class="text-[10px] uppercase font-bold text-stone-600 bg-stone-950 px-2 py-1 rounded border border-stone-800">{{
+                                        item.cat }}</span>
+
+                                    <button v-if="!adminMode" @click="addToCart(item)"
+                                        class="bg-stone-800 hover:bg-amber-500 hover:text-stone-900 text-white w-8 h-8 rounded-full flex items-center justify-center transition shadow-lg active:scale-95">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+
+                                    <button v-else @click="deleteItem(item)"
+                                        class="text-stone-600 hover:text-red-500 transition px-2 py-1">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="filteredItems.length === 0" class="py-20 text-center text-stone-600">
+                        <i class="fa-solid fa-utensils text-5xl mb-4 opacity-20"></i>
+                        <p class="font-medium">Nenhum item nesta categoria.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FLOATING CART BAR (Desktop/Mobile) -->
+            <transition name="slide-up">
+                <div v-if="!adminMode && cart.length > 0 && !showCart"
+                    class="absolute bottom-6 left-6 right-6 md:left-auto md:right-8 md:w-96 z-40">
+                    <button @click="showCart = true"
+                        class="w-full bg-amber-500 hover:bg-amber-400 text-stone-950 p-4 rounded-2xl shadow-xl flex items-center justify-between transition group">
                         <div class="flex items-center gap-3">
-                            <button @click="item.qty > 1 ? item.qty-- : removeFromCart(idx)"
-                                class="w-8 h-8 bg-gray-200 rounded-full font-bold text-gray-600">-</button>
-                            <span class="w-4 text-center font-bold">{{ item.qty }}</span>
-                            <button @click="item.qty++"
-                                class="w-8 h-8 bg-gray-200 rounded-full font-bold text-gray-600">+</button>
+                            <div
+                                class="bg-stone-900/10 w-10 h-10 rounded-full flex items-center justify-center text-stone-900 font-bold group-hover:bg-stone-900/20 transition">
+                                {{ cartCount }}</div>
+                            <div class="text-left leading-tight">
+                                <span class="block font-bold text-sm uppercase tracking-wide">Meu Pedido</span>
+                                <span class="text-xs font-medium opacity-80">Ver detalhes</span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 border-t pt-4">
-                    <textarea v-model="obs" placeholder="Observações (ex: sem cebola, ponto da carne...)"
-                        class="w-full bg-gray-100 p-3 rounded mb-4 text-sm"></textarea>
-
-                    <div class="flex justify-between items-end mb-4">
-                        <span class="text-gray-500 uppercase font-bold text-xs">Total</span>
-                        <span class="text-3xl font-bold text-green-600">R$ {{ cartTotal.toFixed(2) }}</span>
-                    </div>
-
-                    <button @click="sendOrder"
-                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Pedido
+                        <span class="font-mono font-bold text-xl">R$ {{ cartTotal.toFixed(2) }}</span>
                     </button>
                 </div>
+            </transition>
+
+        </main>
+
+        <!-- CART SIDEBAR/MODAL -->
+        <transition name="fade">
+            <div v-if="showCart" class="fixed inset-0 z-50 flex justify-end">
+                <div class="absolute inset-0 bg-stone-950/80 backdrop-blur-sm" @click="showCart = false"></div>
+
+                <div
+                    class="relative w-full md:w-[480px] bg-stone-900 h-full shadow-2xl flex flex-col border-l border-stone-800 md:rounded-l-3xl overflow-hidden animate-slide-left">
+
+                    <div class="p-6 border-b border-stone-800 flex justify-between items-center bg-stone-900 z-10">
+                        <h2 class="font-brand font-bold text-2xl text-white flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-amber-500"></i> Seu Pedido
+                        </h2>
+                        <button @click="showCart = false"
+                            class="w-8 h-8 rounded-full bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                        <div v-for="(item, idx) in cart" :key="idx"
+                            class="flex gap-4 items-start bg-stone-950/50 p-4 rounded-xl border border-stone-800/50">
+                            <div
+                                class="w-8 h-8 bg-amber-500/10 text-amber-500 rounded flex items-center justify-center font-bold text-sm shrink-0">
+                                {{ item.qty }}x
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-white text-sm">{{ item.name }}</h4>
+                                <p class="text-xs text-stone-500 mt-1">Unit: R$ {{ item.price.toFixed(2) }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono font-bold text-amber-500">R$ {{ (item.price * item.qty).toFixed(2)
+                                    }}</p>
+                                <div class="flex items-center gap-2 mt-2 justify-end">
+                                    <button @click="item.qty > 1 ? item.qty-- : removeFromCart(idx)"
+                                        class="size-6 rounded bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white flex items-center justify-center text-xs"><i
+                                            class="fa-solid fa-minus"></i></button>
+                                    <button @click="item.qty++"
+                                        class="size-6 rounded bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white flex items-center justify-center text-xs"><i
+                                            class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-stone-900 border-t border-stone-800 z-10">
+                        <div class="mb-4">
+                            <label class="text-xs font-bold text-stone-500 uppercase block mb-2">Observações</label>
+                            <textarea v-model="obs" rows="2"
+                                class="w-full bg-stone-950 border border-stone-800 rounded-lg p-3 text-sm text-white resize-none outline-none focus:border-amber-500"
+                                placeholder="Ex: Sem cebola, capricha no molho..."></textarea>
+                        </div>
+
+                        <div class="flex justify-between items-end mb-6">
+                            <span class="text-stone-400 text-sm font-medium">Total a Pagar</span>
+                            <span class="text-3xl font-brand font-bold text-amber-500">R$ {{ cartTotal.toFixed(2)
+                                }}</span>
+                        </div>
+
+                        <button @click="sendOrder"
+                            class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-600/20 transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Pedido
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </transition>
+
 
     </div>
 
@@ -193,31 +355,36 @@
 
         createApp({
             setup() {
-                // Config
-                const restaurantName = ref('Burger House');
-                const address = ref('Rua dos Sabores, 123');
-                const coverImage = ref('https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&q=80');
+                const sidebarOpen = ref(false);
                 const adminMode = ref(false);
-
-                // Data
-                const items = ref([
-                    { id: 1, name: 'X-Burger Clássico', desc: 'Pão, carne artesanal 150g, queijo e molho especial.', price: 22.00, cat: 'Lanches' },
-                    { id: 2, name: 'X-Salada', desc: 'Pão, carne 150g, queijo, alface, tomate e maionese.', price: 24.00, cat: 'Lanches' },
-                    { id: 3, name: 'Coca-Cola Lata', desc: '350ml gelada.', price: 6.00, cat: 'Bebidas' },
-                    { id: 4, name: 'Batata Frita', desc: 'Porção individual crocante.', price: 12.00, cat: 'Lanches' }
-                ]);
-
-                const categories = ref(['Lanches', 'Bebidas', 'Sobres']);
-                const activeCat = ref('Lanches');
-                const cart = ref([]);
                 const showCart = ref(false);
+                const cart = ref([]);
                 const obs = ref('');
 
-                // Admin State
+                const config = ref({
+                    restaurantName: 'Burger House',
+                    address: 'Rua dos Sabores, 123 - Centro',
+                    coverImage: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80'
+                });
+
+                const categories = ref(['Destaques', 'Lanches', 'Acompanhamentos', 'Bebidas', 'Sobremesas']);
+                const activeCat = ref('Lanches');
+
+                const items = ref([
+                    { id: 1, name: 'X-Burger Clássico', desc: 'Pão brioche, blend 150g, queijo cheddar e maionese da casa.', price: 22.00, cat: 'Lanches' },
+                    { id: 2, name: 'X-Salada', desc: 'Pão brioche, blend 150g, queijo, alface americana, tomate e maionese.', price: 24.00, cat: 'Lanches' },
+                    { id: 3, name: 'Coca-Cola Lata', desc: 'Lata 350ml gelada.', price: 6.00, cat: 'Bebidas' },
+                    { id: 4, name: 'Batata Frita', desc: 'Porção individual (200g) crocante e sequinha.', price: 12.00, cat: 'Acompanhamentos' },
+                    { id: 5, name: 'Combo Casal', desc: '2 X-Burgers + 2 Batatas + 1 Coca 2L', price: 65.00, cat: 'Destaques' }
+                ]);
+
                 const newItem = ref({ name: '', desc: '', price: null, cat: 'Lanches' });
 
                 // Computed
-                const filteredItems = computed(() => items.value.filter(i => i.cat === activeCat.value));
+                const filteredItems = computed(() => {
+                    return items.value.filter(i => i.cat === activeCat.value);
+                });
+
                 const cartTotal = computed(() => cart.value.reduce((acc, i) => acc + (i.price * i.qty), 0));
                 const cartCount = computed(() => cart.value.reduce((acc, i) => acc + i.qty, 0));
 
@@ -226,6 +393,9 @@
                     const existing = cart.value.find(c => c.id === item.id);
                     if (existing) existing.qty++;
                     else cart.value.push({ ...item, qty: 1 });
+
+                    // Optional: Auto open cart on first add? Maybe intrusive.
+                    // showCart.value = true;
                 };
 
                 const removeFromCart = (idx) => cart.value.splice(idx, 1);
@@ -239,31 +409,41 @@
                         price: parseFloat(newItem.value.price),
                         cat: newItem.value.cat
                     });
-                    // Reset but keep cat
+                    // Reset
                     newItem.value.name = ''; newItem.value.desc = ''; newItem.value.price = null;
                 };
 
                 const deleteItem = (item) => {
-                    if (confirm("Remover item?")) {
+                    if (confirm("Remover este item do cardápio?")) {
                         items.value = items.value.filter(i => i.id !== item.id);
                     }
                 };
 
+                const addCategory = () => {
+                    const name = prompt("Nome da nova categoria:");
+                    if (name && !categories.value.includes(name)) {
+                        categories.value.push(name);
+                    }
+                };
+
                 const sendOrder = () => {
-                    let text = `🍔 *Novo Pedido - ${restaurantName.value}*\n\n`;
+                    if (cart.value.length === 0) return;
+
+                    let text = `🍔 *NOVO PEDIDO - ${config.value.restaurantName.toUpperCase()}*\n`;
+                    text += `────────────────────\n`;
                     cart.value.forEach(i => {
-                        text += `▪️ ${i.qty}x ${i.name} - R$ ${(i.qty * i.price).toFixed(2)}\n`;
+                        text += `▪️ ${i.qty}x *${i.name}*\n   R$ ${(i.qty * i.price).toFixed(2)}\n`;
                     });
-                    text += `\n📝 *Obs:* ${obs.value || 'Nenhuma'}\n`;
-                    text += `\n💰 *TOTAL: R$ ${cartTotal.value.toFixed(2)}*\n\n`;
-                    text += `_Endereço de entrega a combinar_`;
+                    text += `────────────────────\n`;
+                    if (obs.value) text += `📝 *Obs:* ${obs.value}\n`;
+                    text += `💰 *TOTAL: R$ ${cartTotal.value.toFixed(2)}*\n\n`;
+                    text += `📍 *Endereço:* A combinar`;
 
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                // Backup
                 const backupData = () => {
-                    const data = { config: { name: restaurantName.value, addr: address.value }, items: items.value };
+                    const data = { config: config.value, items: items.value, categories: categories.value };
                     const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
@@ -279,34 +459,35 @@
                         try {
                             const d = JSON.parse(v.target.result);
                             if (d.items) items.value = d.items;
-                            if (d.config) { restaurantName.value = d.config.name; address.value = d.config.addr; }
-                            alert("Cardápio Atualizado!");
-                        } catch (e) { alert("Erro!"); }
+                            if (d.config) config.value = d.config;
+                            if (d.categories) categories.value = d.categories;
+                            alert("Cardápio Restaurado!");
+                        } catch (e) { alert("Erro arquivo inválido!"); }
                     };
                     r.readAsText(f);
                 };
 
                 // Storage
                 onMounted(() => {
-                    const d = localStorage.getItem('plena_menu');
+                    const d = localStorage.getItem('plena_cardapio_v2');
                     if (d) {
-                        const parsed = JSON.parse(d);
-                        items.value = parsed.items || [];
-                        if (parsed.config) {
-                            restaurantName.value = parsed.config.name;
-                            address.value = parsed.config.addr;
-                        }
+                        try {
+                            const parsed = JSON.parse(d);
+                            if (parsed.items) items.value = parsed.items;
+                            if (parsed.config) config.value = parsed.config;
+                            if (parsed.categories) categories.value = parsed.categories;
+                        } catch (e) { }
                     }
                 });
 
-                watch([items, restaurantName, address], () => {
-                    localStorage.setItem('plena_menu', JSON.stringify({ items: items.value, config: { name: restaurantName.value, addr: address.value } }));
+                watch([items, config, categories], () => {
+                    localStorage.setItem('plena_cardapio_v2', JSON.stringify({ items: items.value, config: config.value, categories: categories.value }));
                 }, { deep: true });
 
                 return {
-                    restaurantName, address, coverImage, adminMode, items, categories, activeCat, cart, showCart, obs,
+                    sidebarOpen, adminMode, showCart, cart, obs, config, categories, activeCat,
                     filteredItems, cartTotal, cartCount, newItem,
-                    addToCart, removeFromCart, addItem, deleteItem, sendOrder, backupData, restoreData
+                    addToCart, removeFromCart, addItem, deleteItem, addCategory, sendOrder, backupData, restoreData
                 };
             }
         }).mount('#app');

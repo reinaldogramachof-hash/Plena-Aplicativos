@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Plena Playground - Ferramentas gratuitas, jogos e utilitários para o seu dia a dia.">
+    <title>Plena Playground | Apps Gratuitos e Divertidos</title>
+
+    <!-- STACK: Tailwind + Vue 3 + FontAwesome -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FONTES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Fredoka:wght@400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-indigo-50 text-slate-800 antialiased">
+
+    <div id="app" v-cloak>
+
+        <!-- HEADER -->
+        <header :class="{'bg-white/90 backdrop-blur shadow-sm': scrolled, 'bg-transparent': !scrolled}"
+            class="fixed w-full top-0 z-50 transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="bg-gradient-to-br from-pink-500 to-purple-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-purple-500/30">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <div class="leading-tight">
+                            <span class="block font-bold text-lg tracking-tight text-slate-800">PLENA</span>
+                            <span
+                                class="block text-[10px] text-purple-600 uppercase tracking-widest font-bold">Playground</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu Desktop -->
+                    <nav class="hidden md:flex gap-8 text-sm font-bold text-slate-600">
+                        <a href="#apps" class="hover:text-purple-600 transition">Apps</a>
+                        <a href="#games" class="hover:text-purple-600 transition">Jogos</a>
+                        <a href="#educacao" class="hover:text-purple-600 transition">Educação</a>
+                    </nav>
+
+                    <!-- CTA Header -->
+                    <div class="hidden md:block">
+                        <a href="index.html"
+                            class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-slate-900/20 transition flex items-center gap-2">
+                            Para Empresas <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="hero-bg pt-32 pb-20 md:pt-40 md:pb-28 text-white text-center px-4 relative">
+            <div class="absolute inset-0 hero-pattern opacity-30"></div>
+            <div class="max-w-4xl mx-auto relative z-10">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider mb-6 animate-bounce">
+                    ✨ 100% Gratuito & Divertido
+                </span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                    Ferramentas Úteis.<br>
+                    <span class="text-yellow-300">Jogos Incríveis.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto leading-relaxed font-light">
+                    Explore nossa coleção de utilitários para o dia a dia, jogos casuais e ferramentas educativas. Sem
+                    cadastro, sem burocracia.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#catalogo"
+                        class="bg-white text-purple-700 px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-purple-900/20 transition transform hover:-translate-y-1 hover:shadow-2xl">
+                        Explorar Apps
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATÁLOGO -->
+        <section id="catalogo" class="py-16 -mt-10 relative z-20 px-4">
+            <div class="max-w-7xl mx-auto">
+
+                <!-- Filtros -->
+                <div
+                    class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-10 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto no-scrollbar">
+                        <button v-for="cat in categories" :key="cat" @click="filterCategory = cat"
+                            :class="filterCategory === cat ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-transparent text-slate-500 border-transparent hover:bg-slate-50'"
+                            class="px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap border transition">
+                            {{ cat }}
+                        </button>
+                    </div>
+                    <div class="relative w-full md:w-64">
+                        <i class="fa-solid fa-search absolute left-3 top-3 text-slate-300"></i>
+                        <input v-model="search" type="text" placeholder="Buscar..."
+                            class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div v-for="product in filteredProducts" :key="product.id"
+                        class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden card-hover">
+                        <div class="h-40 bg-slate-100 relative overflow-hidden">
+                            <div v-if="product.badge"
+                                class="absolute top-3 right-3 bg-yellow-400 text-yellow-900 text-[10px] font-black px-2 py-1 rounded-lg shadow-sm z-10 uppercase tracking-wide transform rotate-3">
+                                {{ product.badge }}
+                            </div>
+                            <img :src="product.image" :alt="product.name"
+                                class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <div class="text-[10px] font-black text-purple-500 uppercase tracking-wide mb-1">{{
+                                product.category }}</div>
+                            <h3 class="font-title font-bold text-lg text-slate-800 mb-2 leading-tight">{{ product.name
+                                }}</h3>
+                            <p class="text-sm text-slate-500 line-clamp-2 mb-4 h-10">{{ product.desc }}</p>
+
+                            <a :href="product.link"
+                                class="block w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-center py-2.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play text-xs"></i> Acessar Agora
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div v-if="filteredProducts.length === 0" class="text-center py-20">
+                    <div class="text-6xl mb-4">🙈</div>
+                    <h3 class="text-xl font-bold text-slate-700">Nada por aqui...</h3>
+                    <p class="text-slate-500">Tente buscar outra coisa!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-100 py-12 mt-12">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <div class="inline-flex items-center gap-2 mb-6 opacity-50 grayscale hover:grayscale-0 transition">
+                    <div
+                        class="bg-blue-600 text-white w-6 h-6 rounded flex items-center justify-center font-bold text-xs">
+                        P</div>
+                    <span class="font-bold text-slate-700">Plena Aplicativos</span>
+                </div>
+                <p class="text-slate-400 text-sm mb-6">Procurando softwares para gestão do seu negócio?<br>
+                    <a href="index.html" class="text-purple-600 font-bold hover:underline">Ir para a Loja Oficial</a>
+                </p>
+                <div class="text-xs text-slate-300">
+                    &copy; 2025 Plena Playground. Parte do Grupo Plena.
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const scrolled = ref(false);
+                const search = ref('');
+                const filterCategory = ref('Todos');
+
+                // Mapeamento de categorias no Playground
+                const categories = ['Todos', 'Utilidades', 'Lazer', 'Games', 'Família', 'Educação', 'Saúde', 'Produtividade'];
+
+                // LISTA DE APPS "FREE/VIRAL/UTILITÁRIOS"
+                const products = ref([
+                    // PRODUTIVIDADE (Utilitários Simples)
+                    {
+                        id: 50, name: "Pomodoro Focus", category: "Produtividade", link: "apps/produtividade/pomodoro/index.html",
+                        image: "https://images.unsplash.com/photo-1593344484962-796055d4a3a4?w=600&q=80",
+                        desc: "Timer Pomodoro para focar nos estudos ou trabalho.",
+                        badge: "Foco"
+                    },
+                    // SAÚDE (Bem-estar pessoal)
+                    {
+                        id: 740, name: "Diário da Gratidão", category: "Saúde", link: "apps/saude/gratidao/index.html",
+                        image: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=600&q=80",
+                        desc: "Registre 3 coisas boas por dia e cultive a positividade.",
+                        badge: "Zen"
+                    },
+                    {
+                        id: 741, name: "Respiração Guiada", category: "Saúde", link: "apps/saude/respiracao/index.html",
+                        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80",
+                        desc: "Exercícios visuais de respiração para ansiedade.",
+                        badge: "Relax"
+                    },
+                    {
+                        id: 742, name: "Mood Tracker", category: "Saúde", link: "apps/saude/humor/index.html",
+                        image: "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=600&q=80",
+                        desc: "Acompanhe suas emoções em um calendário de pixels.",
+                    },
+                    {
+                        id: 745, name: "Calculadora Saúde", category: "Saúde", link: "apps/saude/imc/index.html",
+                        image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80",
+                        desc: "Cálculos de IMC, Água e TMB em um só lugar.",
+                    },
+                    {
+                        id: 603, name: "Jejum Intermitente", category: "Saúde", link: "apps/saude/jejum/index.html",
+                        image: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&q=80",
+                        desc: "Timer simples para acompanhar suas janelas de jejum.",
+                    },
+                    {
+                        id: 961, name: "Sleep Tracker", category: "Saúde", link: "apps/saude/sono/index.html",
+                        image: "https://images.unsplash.com/photo-1517163071329-84f937e296c0?w=600&q=80",
+                        desc: "Monitore a qualidade e duração do seu sono.",
+                    },
+
+                    // EDUCAÇÃO
+                    {
+                        id: 791, name: "Redação Nota 1000", category: "Educação", link: "apps/educacao/redacao/index.html",
+                        image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=80",
+                        desc: "Assistente passo a passo para estruturar redações.",
+                        badge: "ENEM"
+                    },
+                    {
+                        id: 790, name: "Fração Visual", category: "Educação", link: "apps/educacao/fracao/index.html",
+                        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80",
+                        desc: "Aprenda frações visualmente com formas interativas.",
+                    },
+                    {
+                        id: 700, name: "Expresso Emoção", category: "Educação", link: "apps/educacao/expresso/index.html",
+                        image: "https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=600&q=80",
+                        desc: "Jogo para ajudar a identificar e nomear emoções.",
+                        badge: "Social"
+                    },
+                    {
+                        id: 701, name: "Tabuada Divertida", category: "Educação", link: "apps/educacao/tabuada/index.html",
+                        image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
+                        desc: "Pratique matemática básica de forma gamificada.",
+                    },
+                    {
+                        id: 702, name: "Flashcards Estudo", category: "Educação", link: "apps/educacao/flashcards/index.html",
+                        image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
+                        desc: "Crie cartões de resposta para memorizar conteúdos.",
+                        badge: "Estudo"
+                    },
+                    {
+                        id: 703, name: "Calc Notas Escolares", category: "Educação", link: "apps/educacao/notas/index.html",
+                        image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80",
+                        desc: "Calcule médias e quanto falta para passar.",
+                    },
+
+                    // UTILIDADES & TECH
+                    {
+                        id: 801, name: "Gerador de Senhas", category: "Utilidades", link: "apps/utils/senha/index.html",
+                        image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80",
+                        desc: "Gere senhas fortes e seguras instantaneamente.",
+                    },
+                    {
+                        id: 991, name: "Manipulador Texto", category: "Utilidades", link: "apps/utils/texto/index.html",
+                        image: "https://images.unsplash.com/photo-1555421689-49263307f3dd?w=600&q=80",
+                        desc: "Limpe, formate e transforme textos (Maiúsculas, Espaços).",
+                    },
+                    {
+                        id: 992, name: "Conversor Universal", category: "Utilidades", link: "apps/utils/conversor/index.html",
+                        image: "https://images.unsplash.com/photo-1581242163695-19d0acacd429?w=600&q=80",
+                        desc: "Converta unidades de medida (Peso, Metro, Litro).",
+                    },
+                    {
+                        id: 962, name: "Contador de Palavras", category: "Utilidades", link: "apps/utils/contador/index.html",
+                        image: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&q=80",
+                        desc: "Estatísticas de texto em tempo real para redatores.",
+                    },
+                    {
+                        id: 970, name: "Formatador JSON", category: "Utilidades", link: "apps/tech/json/index.html",
+                        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80",
+                        desc: "Ferramenta developer para formatar e validar JSON.",
+                        badge: "Dev"
+                    },
+                    {
+                        id: 971, name: "Lorem Ipsum Gen", category: "Utilidades", link: "apps/tech/lorem/index.html",
+                        image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
+                        desc: "Gerador de texto placeholder para designers.",
+                    },
+                    {
+                        id: 972, name: "Base64 & Hash", category: "Utilidades", link: "apps/tech/base64/index.html",
+                        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80",
+                        desc: "Codifique e decodifique Base64, MD5 e SHA.",
+                        badge: "Dev"
+                    },
+                    {
+                        id: 641, name: "Lista Smart", category: "Utilidades", link: "apps/utilidades/compras/index.html",
+                        image: "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=600&q=80",
+                        desc: "Lista de supermercado que organiza itens por corredor.",
+                    },
+                    {
+                        id: 642, name: "Medida Certa", category: "Utilidades", link: "apps/utilidades/cozinha/index.html",
+                        image: "https://images.unsplash.com/photo-1590796855152-41f2746b107e?w=600&q=80",
+                        desc: "Conversor culinário (Xícaras para Gramas).",
+                    },
+                    {
+                        id: 643, name: "Faxina Express", category: "Utilidades", link: "apps/utilidades/faxina/index.html",
+                        image: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=600&q=80",
+                        desc: "Checklist de limpeza doméstica dividido por cômodos.",
+                    },
+
+                    // GAMES & LAZER
+                    {
+                        id: 301, name: "Dragon Soundboard", category: "Games", link: "apps/games/dragon/index.html",
+                        image: "https://images.unsplash.com/photo-1577493340887-b7bfff550145?w=600&q=80",
+                        desc: "Efeitos sonoros para suas sessões de RPG.",
+                    },
+                    {
+                        id: 302, name: "Sky Glider", category: "Games", link: "apps/games/glider/index.html",
+                        image: "https://images.unsplash.com/photo-1505664063603-28e48ca204eb?w=600&q=80",
+                        desc: "Jogo casual: Voe e desvie dos obstáculos.",
+                    },
+                    {
+                        id: 303, name: "Quiz Curiosidades", category: "Games", link: "apps/games/curiosidades/index.html",
+                        image: "https://images.unsplash.com/photo-1598556776374-ba3676574f82?w=600&q=80",
+                        desc: "Teste seus conhecimentos gerais com perguntas rápidas.",
+                    },
+                    {
+                        id: 304, name: "Caça Palavras", category: "Games", link: "apps/games/caca-palavras/index.html",
+                        image: "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?w=600&q=80",
+                        desc: "Clássico jogo de encontrar palavras.",
+                    },
+                    {
+                        id: 305, name: "Cruzadinha Pocket", category: "Games", link: "apps/games/cruzadinha/index.html",
+                        image: "https://images.unsplash.com/photo-1632297129525-4557997424bd?w=600&q=80",
+                        desc: "Palavras cruzadas rápidas para o celular.",
+                    },
+                    {
+                        id: 963, name: "Teste de Digitação", category: "Games", link: "apps/lazer/typer/index.html",
+                        image: "https://images.unsplash.com/photo-1587829741301-308231f890f5?w=600&q=80",
+                        desc: "Quantas palavras por minuto você digita?",
+                        badge: "Desafio"
+                    },
+                    {
+                        id: 802, name: "Placar Universal", category: "Lazer", link: "apps/lazer/placar/index.html",
+                        image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&q=80",
+                        desc: "Marcador de pontos para esportes e jogos.",
+                    },
+                    {
+                        id: 804, name: "Dados RPG", category: "Games", link: "apps/lazer/dados/index.html",
+                        image: "https://images.unsplash.com/photo-1632948155949-bb20b6e15964?w=600&q=80",
+                        desc: "Rolador de dados (D6, D20) com física 3D simulada.",
+                    },
+                    {
+                        id: 795, name: "Churrasco Mestre", category: "Lazer", link: "apps/lazer/churrasco/index.html",
+                        image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80",
+                        desc: "Calcule a carne e bebida ideal para seu churrasco.",
+                        badge: "Viral"
+                    },
+                    {
+                        id: 803, name: "Biblioteca Pessoal", category: "Lazer", link: "apps/lazer/livros/index.html",
+                        image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&q=80",
+                        desc: "Organize seus livros lidos e lista de desejos.",
+                    },
+                    {
+                        id: 901, name: "Mala Inteligente", category: "Lazer", link: "apps/viagem/malas/index.html",
+                        image: "https://images.unsplash.com/photo-1565514020176-dbf2277470a6?w=600&q=80",
+                        desc: "Checklist de bagagem para não esquecer nada ao viajar.",
+                    },
+
+                    // FAMÍLIA & ESOTÉRICO
+                    {
+                        id: 850, name: "Countdown Eventos", category: "Família", link: "apps/eventos/countdown/index.html",
+                        image: "https://images.unsplash.com/photo-1580983566005-ecb9be158aba?w=600&q=80",
+                        desc: "Contagem regressiva para datas especiais.",
+                    },
+                    {
+                        id: 955, name: "Idade Pet", category: "Família", link: "apps/pets/idade/index.html",
+                        image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80",
+                        desc: "Descubra a idade humana do seu pet.",
+                        badge: "Cute"
+                    },
+                    {
+                        id: 951, name: "Carteirinha Pet", category: "Família", link: "apps/pets/vacinas/index.html",
+                        image: "https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?w=600&q=80",
+                        desc: "Controle de vacinas para cães e gatos.",
+                    },
+                    {
+                        id: 952, name: "Diário do Bebê", category: "Família", link: "apps/familia/bebe/index.html",
+                        image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&q=80",
+                        desc: "Registro de crescimento e marcos do bebê.",
+                    },
+                    {
+                        id: 310, name: "Tarot do Dia", category: "Lazer", link: "apps/lazer/tarot/index.html",
+                        image: "https://images.unsplash.com/photo-1620066224169-373bedda56e6?w=600&q=80",
+                        desc: "Tire sua carta do dia e veja o conselho.",
+                        badge: "Místico"
+                    },
+                    {
+                        id: 311, name: "Numerologia", category: "Lazer", link: "apps/lazer/numerologia/index.html",
+                        image: "https://images.unsplash.com/photo-1549488497-60e03b22cf05?w=600&q=80",
+                        desc: "Significado do seu nome segundo a numerologia.",
+                    },
+                    {
+                        id: 312, name: "Calc do Amor", category: "Lazer", link: "apps/lazer/amor/index.html",
+                        image: "https://images.unsplash.com/photo-1516574187841-693083f94453?w=600&q=80",
+                        desc: "Teste de compatibilidade amorosa (Brincadeira).",
+                    },
+                    {
+                        id: 313, name: "Mapa Astral", category: "Lazer", link: "apps/lazer/mapa-astral/index.html",
+                        image: "https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=600&q=80",
+                        desc: "Descubra seu signo solar e ascendente.",
+                    },
+                    {
+                        id: 314, name: "Match Signos", category: "Lazer", link: "apps/lazer/sinastria/index.html",
+                        image: "https://images.unsplash.com/photo-1516575150278-77136aed6920?w=600&q=80",
+                        desc: "Veja se o signo dele(a) combina com o seu.",
+                    },
+                    {
+                        id: 315, name: "Calendário Lunar", category: "Lazer", link: "apps/lazer/lua/index.html",
+                        image: "https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?w=600&q=80",
+                        desc: "Fase da lua atual e suas influências.",
+                    },
+                    {
+                        id: 921, name: "Caixinha Promessas", category: "Lazer", link: "apps/lazer/biblia/index.html",
+                        image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&q=80",
+                        desc: "Versículo bíblico do dia para inspiração.",
+                        badge: "Fé"
+                    },
+                    {
+                        id: 922, name: "Diário Oração", category: "Lazer", link: "apps/lazer/oracao/index.html",
+                        image: "https://images.unsplash.com/photo-1602622776822-79c293f9ef1d?w=600&q=80",
+                        desc: "Anote seus pedidos de oração e gratidão.",
+                    },
+                    {
+                        id: 923, name: "Quiz Bíblico", category: "games", link: "apps/lazer/quiz-biblico/index.html",
+                        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=600&q=80",
+                        desc: "Perguntas e respostas sobre a Bíblia.",
+                    },
+                    {
+                        id: 924, name: "Hinário", category: "Lazer", link: "apps/lazer/hinario/index.html",
+                        image: "https://images.unsplash.com/photo-1507838153414-b4b713384ebd?w=600&q=80",
+                        desc: "Letras de hinos cristãos.",
+                    },
+                    {
+                        id: 925, name: "Bíblia 365", category: "Lazer", link: "apps/lazer/biblia365/index.html",
+                        image: "https://images.unsplash.com/photo-1534234828569-fa36329759d5?w=600&q=80",
+                        desc: "Plano de leitura da Bíblia em um ano.",
+                    },
+                    {
+                        id: 926, name: "Minha Célula", category: "Lazer", link: "apps/lazer/celula/index.html",
+                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80",
+                        desc: "Gestão para pequenos grupos religiosos.",
+                    },
+
+                ]);
+
+                window.addEventListener('scroll', () => { scrolled.value = window.scrollY > 50; });
+
+                const filteredProducts = computed(() => {
+                    let result = products.value;
+                    if (filterCategory.value !== 'Todos') {
+                        result = result.filter(p => p.category === filterCategory.value);
+                    }
+                    if (search.value) {
+                        const q = search.value.toLowerCase();
+                        result = result.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
+                    }
+                    return result;
+                });
+
+                return { scrolled, search, filterCategory, categories, filteredProducts };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

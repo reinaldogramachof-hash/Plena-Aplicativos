@@ -4,128 +4,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Fiado | Plena Apps</title>
+    <title>Controle de Fiado | Plena Business</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #fff1f2;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Rose theme */
         [v-cloak] {
             display: none;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        .slide-up-enter-active,
+        .slide-up-leave-active {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .slide-up-enter-from,
+        .slide-up-leave-to {
+            transform: translateY(20px);
+            opacity: 0;
         }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
+    <div id="app" v-cloak class="flex min-h-screen">
 
-        <!-- HEADER -->
-        <header class="bg-rose-600 text-white p-6 shadow-md rounded-b-3xl mb-6">
-            <div class="flex justify-between items-start mb-4">
-                <h1 class="text-2xl font-bold"><i class="fa-solid fa-book-open mr-2"></i>Caderno de Fiado</h1>
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white fixed h-full z-20 shadow-2xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-700/50">
+                <div
+                    class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center shadow-lg shadow-rose-500/30">
+                    <i class="fa-solid fa-book-open text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Deu<span class="text-rose-400">Fiado</span></span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Menu Principal</div>
+                <button
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium shadow-inner">
+                    <i class="fa-solid fa-users w-5 text-rose-400"></i> Clientes
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700/50 space-y-4">
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-inner">
+                    <p class="text-xs text-slate-400 uppercase font-bold mb-2 tracking-wider">Total a Receber</p>
+                    <div class="text-2xl font-mono font-bold text-rose-400">
+                        R$ {{ totalDebt.toFixed(2) }}
+                    </div>
+                </div>
+
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- MOBILE HEADER -->
+        <header class="md:hidden fixed w-full bg-white z-20 shadow-sm px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <span class="font-bold text-slate-800 tracking-tight">Deu<span class="text-rose-500">Fiado</span></span>
+            </div>
+            <button @click="isMenuOpen = !isMenuOpen"
+                class="w-10 h-10 flex items-center justify-center text-slate-600 rounded-full hover:bg-slate-100 transition">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </header>
+
+        <!-- MOBILE OVERLAY MENU -->
+        <transition name="fade">
+            <div v-if="isMenuOpen" class="fixed inset-0 z-50 md:hidden">
+                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMenuOpen = false"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-2xl p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-8">
+                        <span class="font-bold text-xl text-slate-800">Menu</span>
+                        <button @click="isMenuOpen = false"
+                            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 transition">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+
+                    <nav class="flex-col space-y-2 flex-1">
+                        <button
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-rose-50 text-rose-700 w-full">
+                            <i class="fa-solid fa-users"></i> Clientes
+                        </button>
+                    </nav>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6 text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Total a Receber</p>
+                        <p class="font-mono font-bold text-2xl text-rose-600">
+                            R$ {{ totalDebt.toFixed(2) }}
+                        </p>
+                    </div>
+
+                    <a href="../../../index.html"
+                        class="mt-auto flex items-center justify-center gap-2 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-800 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Sair do App
+                    </a>
+                </div>
+            </div>
+        </transition>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-64 pt-20 md:pt-8 px-4 md:px-8 pb-32 max-w-5xl mx-auto w-full">
+
+            <!-- HEADER & ACTIONS -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Caderno de Fiados</h2>
+                    <p class="text-slate-500 text-sm">Gerencie dívidas de clientes com segurança.</p>
+                </div>
                 <div class="flex gap-2">
-                    <button @click="backupData" class="bg-rose-500 hover:bg-rose-400 p-2 rounded-full transition"><i
-                            class="fa-solid fa-download text-sm"></i></button>
-                    <label class="bg-rose-500 hover:bg-rose-400 p-2 rounded-full transition cursor-pointer">
-                        <i class="fa-solid fa-upload text-sm"></i>
+                    <button @click="backupData"
+                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2 shadow-sm"
+                        title="Salvar Backup">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Backup</span>
+                    </button>
+                    <label
+                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2 cursor-pointer shadow-sm"
+                        title="Restaurar de arquivo">
+                        <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Restaurar</span>
                         <input type="file" @change="restoreData" class="hidden" accept=".json">
                     </label>
                 </div>
             </div>
-            <div>
-                <p class="text-rose-200 text-xs uppercase font-bold">Total a Receber</p>
-                <p class="text-4xl font-bold">R$ {{ totalDebt.toFixed(2) }}</p>
-            </div>
-        </header>
 
-        <!-- ADD CUSTOMER -->
-        <div class="px-6 mb-6">
-            <div class="flex gap-2">
-                <input v-model="newClient" @keyup.enter="addClient" type="text" placeholder="Nome do Cliente"
-                    class="flex-grow bg-rose-50 p-3 rounded-xl outline-none focus:ring-2 focus:ring-rose-500">
-                <button @click="addClient" class="bg-rose-600 hover:bg-rose-700 text-white px-4 rounded-xl font-bold"><i
-                        class="fa-solid fa-plus"></i></button>
+            <!-- ADD CUSTOMER BAR -->
+            <div
+                class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex gap-3 sticky top-20 z-10 transition-shadow focus-within:shadow-md focus-within:border-rose-300">
+                <input v-model="newClient" @keyup.enter="addClient" type="text" placeholder="Nome do Novo Cliente..."
+                    class="flex-1 bg-transparent border-none outline-none text-slate-700 font-medium placeholder-slate-400">
+                <button @click="addClient"
+                    class="w-10 h-10 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg shadow-rose-500/30 flex items-center justify-center transition transform active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
             </div>
-        </div>
 
-        <!-- CUSTOMER LIST -->
-        <div class="flex-grow px-6 pb-6 space-y-4 overflow-y-auto">
-            <div v-for="(client, idx) in sortedClients" :key="client.id"
-                class="bg-white border text-gray-800 rounded-xl p-4 shadow-sm relative group hover:shadow-md transition">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-lg">{{ client.name }}</h3>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold text-rose-600">R$ {{ client.debt.toFixed(2) }}</span>
-                        <button @click="deleteClient(client.id)" class="text-gray-300 hover:text-red-500"><i
-                                class="fa-solid fa-trash"></i></button>
+            <!-- CUSTOMER LIST -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+                <div v-for="(client, idx) in sortedClients" :key="client.id"
+                    class="bg-white border text-slate-800 rounded-2xl p-6 shadow-sm relative group hover:shadow-lg hover:border-rose-200 transition-all duration-300 flex flex-col justify-between">
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 line-clamp-1">{{ client.name }}</h3>
+                            <p class="text-xs text-slate-400 font-medium">Débito Atual</p>
+                        </div>
+                        <button @click="deleteClient(client.id)"
+                            class="text-slate-300 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded flex items-center justify-center transition"
+                            title="Excluir">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-6">
+                        <span class="text-3xl font-extrabold font-mono text-rose-600 block mb-1">R$ {{
+                            client.debt.toFixed(2) }}</span>
+                    </div>
+
+                    <!-- ACTIONS -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <button @click="openModal(client, 'add')"
+                            class="col-span-2 bg-rose-50 text-rose-600 py-3 rounded-xl font-bold text-xs uppercase tracking-wide hover:bg-rose-100 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Dívida
+                        </button>
+                        <button @click="openModal(client, 'pay')"
+                            class="col-span-2 bg-green-50 text-green-600 py-3 rounded-xl font-bold text-xs uppercase tracking-wide hover:bg-green-100 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Receber
+                        </button>
+                        <button @click="cobrarZap(client)"
+                            class="col-span-4 mt-2 py-3 rounded-xl font-bold text-sm text-white bg-green-500 hover:bg-green-600 shadow-md shadow-green-500/20 transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> Cobrar no WhatsApp
+                        </button>
                     </div>
                 </div>
-
-                <!-- QUICK ACTIONS -->
-                <div class="flex gap-2 mt-2">
-                    <button @click="openModal(client, 'add')"
-                        class="flex-1 bg-rose-100 text-rose-700 py-2 rounded-lg font-bold text-sm hover:bg-rose-200 transition">
-                        <i class="fa-solid fa-plus"></i> Adicionar
-                    </button>
-                    <button @click="openModal(client, 'pay')"
-                        class="flex-1 bg-green-100 text-green-700 py-2 rounded-lg font-bold text-sm hover:bg-green-200 transition">
-                        <i class="fa-solid fa-check"></i> Receber
-                    </button>
-                    <button @click="cobrarZap(client)"
-                        class="w-10 bg-green-500 text-white rounded-lg flex items-center justify-center hover:bg-green-600">
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </button>
-                </div>
             </div>
 
-            <div v-if="clients.length === 0" class="text-center text-gray-400 italic py-10">
-                Ninguém devendo. Que beleza!
-            </div>
-        </div>
-
-        <!-- MODAL (Add/Pay) -->
-        <div v-if="activeClient"
-            class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50">
-            <div class="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-slide-up">
-                <h3 class="font-bold text-xl mb-1">{{ activeMode === 'add' ? 'Anotar Dívida' : 'Receber Pagamento' }}
-                </h3>
-                <p class="text-gray-500 text-sm mb-4">{{ activeClient.name }}</p>
-
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Valor</label>
-                    <input v-model.number="amount" type="number"
-                        class="w-full text-3xl font-bold border-b-2 outline-none p-2 font-mono"
-                        :class="activeMode === 'add' ? 'border-rose-500 text-rose-600' : 'border-green-500 text-green-600'"
-                        placeholder="0.00" autoFocus>
+            <div v-if="clients.length === 0"
+                class="flex flex-col items-center justify-center py-24 text-slate-400 bg-white/50 rounded-2xl border border-dashed border-slate-200">
+                <div
+                    class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300 text-3xl">
+                    <i class="fa-solid fa-face-smile-wink"></i>
                 </div>
+                <h3 class="text-lg font-bold text-slate-600 mb-1">Tudo em dia!</h3>
+                <p class="text-sm">Nenhum cliente devendo no momento.</p>
+            </div>
 
-                <div class="flex gap-3">
-                    <button @click="activeClient = null"
-                        class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold">Cancelar</button>
-                    <button @click="confirmAction" class="flex-1 text-white py-3 rounded-xl font-bold"
-                        :class="activeMode === 'add' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-green-600 hover:bg-green-700'">Confirmar</button>
+        </main>
+
+        <!-- ACTION MODAL -->
+        <transition name="fade">
+            <div v-if="activeClient"
+                class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div
+                    class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-slide-up relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2"
+                        :class="activeMode === 'add' ? 'bg-rose-500' : 'bg-green-500'"></div>
+
+                    <h3 class="font-bold text-xl mb-1 mt-2 text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid"
+                            :class="activeMode === 'add' ? 'fa-plus-circle text-rose-500' : 'fa-check-circle text-green-500'"></i>
+                        {{ activeMode === 'add' ? 'Anotar Dívida' : 'Receber Pagamento' }}
+                    </h3>
+                    <p
+                        class="text-slate-500 text-sm mb-6 font-medium bg-slate-50 inline-block px-3 py-1 rounded-full border border-slate-100">
+                        {{ activeClient.name }}</p>
+
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Valor da
+                            Operação</label>
+                        <div class="relative">
+                            <span class="absolute left-0 top-2 text-2xl font-bold opacity-30">R$</span>
+                            <input v-model.number="amount" type="number" step="0.01"
+                                class="w-full text-4xl font-extrabold border-b-2 outline-none py-2 pl-10 font-mono bg-transparent transition-colors"
+                                :class="activeMode === 'add' ? 'border-rose-200 focus:border-rose-500 text-rose-600 placeholder-rose-200' : 'border-green-200 focus:border-green-500 text-green-600 placeholder-green-200'"
+                                placeholder="0.00" autofocus ref="amountInput">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button @click="activeClient = null"
+                            class="flex-1 bg-white border-2 border-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-700 py-3 rounded-xl font-bold transition">Cancelar</button>
+                        <button @click="confirmAction"
+                            class="flex-1 text-white py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2"
+                            :class="activeMode === 'add' ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/20' : 'bg-green-600 hover:bg-green-700 shadow-green-500/20'">
+                            <i class="fa-solid fa-check"></i> Confirmar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
+
+        <!-- WHATSAPP FAB (Support) -->
+        <a href="https://wa.me/5511999999999?text=Ajuda%20App%20Fiado" target="_blank"
+            class="fixed bottom-6 right-6 bg-slate-800 hover:bg-slate-900 text-white w-14 h-14 rounded-full shadow-lg shadow-slate-900/30 flex items-center justify-center transition-transform hover:scale-110 z-40 group md:hidden">
+            <i class="fa-solid fa-headset text-xl"></i>
+        </a>
 
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
 
         createApp({
             setup() {
+                const isMenuOpen = ref(false);
                 const clients = ref([]);
                 const newClient = ref('');
                 const activeClient = ref(null);
                 const activeMode = ref('add'); // add or pay
                 const amount = ref(null);
+                const amountInput = ref(null);
 
                 // Computed
                 const totalDebt = computed(() => clients.value.reduce((acc, c) => acc + c.debt, 0));
@@ -134,7 +286,7 @@
                 // Actions
                 const addClient = () => {
                     if (!newClient.value) return;
-                    clients.value.push({
+                    clients.value.unshift({
                         id: Date.now(),
                         name: newClient.value,
                         debt: 0
@@ -143,15 +295,17 @@
                 };
 
                 const deleteClient = (id) => {
-                    if (confirm("Apagar cliente e histórico?")) {
+                    if (confirm("Apagar cliente e todo histórico de dívida?")) {
                         clients.value = clients.value.filter(c => c.id !== id);
                     }
                 };
 
-                const openModal = (client, mode) => {
+                const openModal = async (client, mode) => {
                     activeClient.value = client;
                     activeMode.value = mode;
                     amount.value = null;
+                    await nextTick();
+                    if (amountInput.value) amountInput.value.focus();
                 };
 
                 const confirmAction = () => {
@@ -166,7 +320,7 @@
                 };
 
                 const cobrarZap = (client) => {
-                    if (client.debt <= 0) return alert("Cliente não possui débito.");
+                    if (client.debt <= 0) return alert("Este cliente não possui débito pendente.");
                     const text = `Olá ${client.name}, tudo bem? \n\nPassando para lembrar que seu saldo devedor atual é de *R$ ${client.debt.toFixed(2)}*. \n\nPodemos combinar o pagamento? Obrigado!`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
@@ -176,7 +330,7 @@
                     const blob = new Blob([JSON.stringify(clients.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `backup_fiado_${Date.now()}.json`;
+                    a.download = `backup_fiado_${new Date().toISOString().slice(0, 10)}.json`;
                     a.click();
                 };
 
@@ -184,7 +338,7 @@
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (v) => { try { clients.value = JSON.parse(v.target.result); alert("Dados Restaurados!"); } catch (e) { alert("Erro!"); } };
+                    r.onload = (v) => { try { clients.value = JSON.parse(v.target.result); alert("Dados Restaurados com Sucesso!"); } catch (e) { alert("Erro ao ler arquivo de backup."); } };
                     r.readAsText(f);
                 };
 
@@ -196,7 +350,8 @@
                 watch(clients, () => localStorage.setItem('plena_fiado', JSON.stringify(clients.value)), { deep: true });
 
                 return {
-                    clients, newClient, sortedClients, totalDebt, activeClient, activeMode, amount,
+                    isMenuOpen,
+                    clients, newClient, sortedClients, totalDebt, activeClient, activeMode, amount, amountInput,
                     addClient, deleteClient, openModal, confirmAction, cobrarZap, backupData, restoreData
                 };
             }

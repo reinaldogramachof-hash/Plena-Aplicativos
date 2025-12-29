@@ -4,64 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Plena Aplicativos - Softwares profissionais sem mensalidade. Pague uma vez, use para sempre.">
-    <title>Plena Aplicativos | Softwares Sem Mensalidade</title>
-
-    <!-- STACK: Tailwind + Vue 3 + FontAwesome -->
+    <title>Plena Aplicativos | Soluções Empresariais</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- FONTES -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Poppins:wght@500;700&display=swap"
-        rel="stylesheet">
-
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
         }
 
-        h1,
-        h2,
-        h3,
-        .font-title {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Animações suaves */
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: opacity 0.3s ease;
-        }
-
-        .fade-enter-from,
-        .fade-leave-to {
-            opacity: 0;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Gradiente Hero */
-        .hero-bg {
+        .hero-gradient {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
         }
 
         [v-cloak] {
@@ -70,1093 +25,309 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-800">
 
     <div id="app" v-cloak>
 
-        <!-- HEADER -->
-        <header :class="{'bg-slate-900/95 backdrop-blur shadow-lg': scrolled, 'bg-transparent': !scrolled}"
-            class="fixed w-full top-0 z-50 transition-all duration-300 border-b border-white/10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-20">
-                    <!-- Logo -->
-                    <div class="flex items-center gap-2">
-                        <div
-                            class="bg-gradient-to-br from-blue-500 to-blue-700 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">
-                            P
-                        </div>
-                        <div class="text-white leading-tight">
-                            <span class="block font-bold text-lg tracking-tight">PLENA</span>
-                            <span
-                                class="block text-[10px] text-blue-200 uppercase tracking-widest font-semibold">Aplicativos</span>
-                        </div>
+        <!-- HEADER PROFISSIONAL -->
+        <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl">P
                     </div>
-
-                    <!-- Menu Desktop -->
-                    <nav class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
-                        <a href="#loja" class="hover:text-white transition">Catálogo</a>
-                        <a href="#como-funciona" class="hover:text-white transition">Como Funciona</a>
-                        <a href="#garantia" class="hover:text-white transition">Garantia</a>
-                    </nav>
-
-                    <!-- CTA Header -->
-                    <div class="hidden md:block">
-                        <a href="https://wa.me/5567993333999" target="_blank"
-                            class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-full text-sm font-bold border border-white/20 transition flex items-center gap-2">
-                            <i class="fa-brands fa-whatsapp"></i> Falar com Suporte
-                        </a>
+                    <div>
+                        <h1 class="font-bold text-lg leading-none tracking-tight">PLENA</h1>
+                        <p class="text-[10px] text-blue-300 uppercase tracking-widest">Business Solutions</p>
                     </div>
+                </div>
+
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-300">
+                    <a href="#catalogo" class="hover:text-white transition">Softwares</a>
+                    <a href="#plr"
+                        class="text-yellow-400 hover:text-yellow-300 font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-code"></i> Área Developer (PLR)
+                    </a>
+                    <a href="playground.html"
+                        class="text-orange-400 hover:text-orange-300 flex items-center gap-2 border border-orange-500/30 px-3 py-1 rounded-full bg-orange-500/10">
+                        <i class="fa-solid fa-rocket"></i> Grátis
+                    </a>
                 </div>
             </div>
         </header>
 
-        <!-- HERO SECTION (A Promessa) -->
-        <section class="hero-bg pt-32 pb-20 md:pt-48 md:pb-32 text-white text-center px-4 relative">
+        <!-- HERO B2B -->
+        <section class="hero-gradient py-20 px-4 text-center text-white relative overflow-hidden">
             <div class="max-w-4xl mx-auto relative z-10">
                 <span
-                    class="inline-block py-1 px-3 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold uppercase tracking-wider mb-6 animate-pulse">
-                    🚀 Tecnologia MicroSaaS
+                    class="bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 inline-block">
+                    Tecnologia MicroSaaS
                 </span>
-                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                    Softwares Profissionais.<br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">Sem
-                        Mensalidade.</span>
-                </h1>
-                <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    Pare de alugar ferramentas. Tenha sistemas leves, rápidos e seguros que rodam direto no seu
-                    navegador. Pague uma vez, use para sempre.
+                <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                    Gestão Profissional.<br>Sem Mensalidade.
+                </h2>
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+                    Softwares definitivos para substituir planilhas e cadernos. Pague uma única vez e tenha o controle
+                    total do seu negócio no celular ou PC.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#loja"
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-blue-600/30 transition transform hover:-translate-y-1">
-                        Ver Catálogo
+                <div class="flex justify-center gap-4">
+                    <a href="#catalogo"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition">
+                        Ver Catálogo Oficial
                     </a>
-                    <a href="#demo" @click="openDemoModal"
-                        class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg border border-slate-700 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-play"></i> Ver Demonstração
-                    </a>
-                </div>
-
-                <!-- Trust Badges -->
-                <div class="mt-12 flex flex-wrap justify-center gap-6 text-sm text-slate-500 font-medium">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-400"></i>
-                        Pagamento Único</span>
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> Acesso
-                        Imediato</span>
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-lock text-green-400"></i> Compra
-                        Segura</span>
                 </div>
             </div>
         </section>
 
-        <!-- A LOJA (CATÁLOGO) -->
-        <section id="loja" class="py-20 bg-slate-50 -mt-10 rounded-t-[3rem] relative z-20">
-            <div class="max-w-7xl mx-auto px-4">
+        <!-- CATÁLOGO (FILTRADO) -->
+        <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4">
 
-                <!-- Controles de Filtro -->
-                <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-                    <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto no-scrollbar scroll-smooth">
-                        <button v-for="cat in categories" :key="cat" @click="filterCategory = cat"
-                            :class="filterCategory === cat ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'"
-                            class="px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition">
-                            {{ cat }}
-                        </button>
-                    </div>
-
-                    <div class="relative w-full md:w-80">
-                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                        <input v-model="search" type="text" placeholder="Buscar ferramenta..."
-                            class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm">
-                    </div>
-                </div>
-
-                <!-- Grid de Produtos -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    <div v-for="product in filteredProducts" :key="product.id"
-                        class="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-2xl transition duration-300 flex flex-col overflow-hidden card-hover">
-
-                        <!-- Capa do Produto -->
-                        <div class="h-48 bg-slate-100 relative overflow-hidden group-hover:opacity-90 transition">
-                            <!-- Badge Promocional -->
-                            <div v-if="product.badge"
-                                class="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-10 uppercase tracking-wide">
-                                {{ product.badge }}
-                            </div>
-                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover">
-                            <!-- Overlay Hover -->
+            <!-- KITS PROMOCIONAIS -->
+            <div class="mb-16 animate-fade-in-up">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-gift text-orange-500"></i> Kits Promocionais
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <a v-for="kit in kits" :key="kit.name" :href="kit.link"
+                        class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 block h-64">
+                        <img :src="kit.img"
+                            class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
                             <div
-                                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                <button @click="openProduct(product)"
-                                    class="bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition duration-300">
-                                    Ver Detalhes
-                                </button>
+                                class="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full w-max mb-2 uppercase">
+                                {{ kit.badge }}</div>
+                            <h4 class="text-white font-bold text-xl leading-tight mb-1">{{ kit.name }}</h4>
+                            <p class="text-slate-300 text-sm line-clamp-2 mb-2">{{ kit.desc }}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-400 line-through text-xs">R$ {{ kit.oldPrice }}</span>
+                                <span class="text-white font-bold text-lg">R$ {{ kit.price }}</span>
                             </div>
                         </div>
-
-                        <!-- Info -->
-                        <div class="p-6 flex-grow flex flex-col">
-                            <div class="text-xs font-bold text-blue-600 uppercase mb-1">{{ product.category }}</div>
-                            <h3 class="font-title font-bold text-lg text-slate-800 mb-2 leading-tight">{{ product.name
-                                }}</h3>
-                            <p class="text-sm text-slate-500 line-clamp-2 mb-4">{{ product.desc }}</p>
-
-                            <!-- Rating -->
-                            <div class="flex items-center gap-1 mb-4 text-xs text-yellow-400">
-                                <i v-for="n in 5" :key="n" class="fa-solid fa-star"></i>
-                                <span class="text-slate-400 ml-1">({{ product.reviews }})</span>
-                            </div>
-
-                            <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-                                <div>
-                                    <span class="block text-xs text-slate-400 line-through">R$ {{ product.oldPrice
-                                        }}</span>
-                                    <span class="block text-xl font-bold text-slate-800">R$ {{ product.price }}</span>
-                                </div>
-                                <button @click="openProduct(product)"
-                                    class="bg-orange-500 hover:bg-orange-600 text-white w-10 h-10 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/30 transition">
-                                    <i class="fa-solid fa-cart-shopping"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-
-                <!-- Estado Vazio -->
-                <div v-if="filteredProducts.length === 0" class="text-center py-20">
-                    <div
-                        class="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-3xl">
-                        <i class="fa-solid fa-ghost"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-600">Nenhum produto encontrado</h3>
-                    <p class="text-slate-500">Tente buscar por outro termo.</p>
-                </div>
-
             </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
+                    <button v-for="cat in categories" :key="cat" @click="filter = cat"
+                        :class="filter === cat ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'"
+                        class="px-5 py-2 rounded-full text-sm font-bold transition whitespace-nowrap">
+                        {{ cat }}
+                    </button>
+                </div>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
+                    <input v-model="search" placeholder="Buscar software..."
+                        class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="app in filteredApps" :key="app.name"
+                    class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden group flex flex-col">
+                    <div class="h-40 bg-slate-100 relative overflow-hidden">
+                        <div
+                            class="absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
+                            {{ app.category }}</div>
+                        <img :src="app.img"
+                            class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">{{ app.name }}</h3>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">{{ app.desc }}</p>
+                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-xs text-slate-400 line-through block">R$ {{ app.oldPrice }}</span>
+                                <span class="text-xl font-bold text-blue-600">R$ {{ app.price }}</span>
+                            </div>
+                            <a :href="app.link"
+                                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md transition">
+                                Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
-        <!-- SEÇÃO PLR (High Ticket) -->
-        <section class="py-20 bg-slate-900 text-white relative overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
-            </div>
+        <!-- SEÇÃO PLR (DEVELOPER PACK) -->
+        <section id="plr" class="py-20 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
             <div class="max-w-6xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-12">
                 <div class="md:w-1/2">
-                    <span class="text-blue-400 font-bold tracking-widest uppercase text-sm mb-2 block">Área do
-                        Desenvolvedor</span>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Tenha sua própria Software House</h2>
+                    <span
+                        class="text-yellow-400 font-bold tracking-widest uppercase text-sm mb-2 block flex items-center gap-2">
+                        <i class="fa-solid fa-code"></i> Área do Desenvolvedor
+                    </span>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 leading-tight">Tenha sua própria <br>Software House
+                    </h2>
                     <p class="text-slate-400 mb-8 text-lg leading-relaxed">
-                        Não quer apenas usar? Quer vender? Adquira o código-fonte (White-Label) das nossas ferramentas e
-                        revenda com a sua marca, ficando com 100% do lucro.
+                        Não quer apenas usar? Quer vender? Adquira o <strong>Pack Developer Completo</strong> com o
+                        código-fonte (White-Label) de todas as nossas 50+ ferramentas.
                     </p>
-                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
-                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Código
-                            limpo e editável (HTML/JS)</li>
-                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Direito de
-                            revenda ilimitada</li>
-                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Sem
-                            royalties ou taxas</li>
-                    </ul>
-                    <a href="https://wa.me/5567993333999?text=Quero%20saber%20sobre%20PLR%20Codigo%20Fonte"
-                        target="_blank"
-                        class="inline-block bg-white text-slate-900 px-8 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition">
-                        Falar sobre Licenciamento
-                    </a>
-                </div>
-                <div class="md:w-1/2 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl relative">
-                    <div
-                        class="absolute -top-4 -right-4 bg-yellow-400 text-slate-900 font-bold px-4 py-2 rounded-lg shadow-lg text-xs transform rotate-3">
-                        ALTA LUCRATIVIDADE
+                    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
+                        <h4 class="font-bold text-white mb-4">O que está incluído no Pack:</h4>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Código
+                                Fonte HTML/JS/CSS (Sem ofuscação)</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Direito
+                                de Revenda Vitalício (PLR)</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> Manual
+                                de Instalação e Edição</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-400"></i> 100% do
+                                Lucro é seu</li>
+                        </ul>
                     </div>
-                    <pre class="text-xs text-green-400 font-mono overflow-hidden">
-&lt;!-- Seu Sistema Aqui --&gt;
-&lt;div id="app"&gt;
-   &lt;h1&gt;Sua Marca Ltda&lt;/h1&gt;
-   &lt;product-grid :data="items" /&gt;
-&lt;/div&gt;
-&lt;script&gt;
-   const profit = "100%";
-   startBusiness();
-&lt;/script&gt;
-                    </pre>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <a href="https://wa.me/5567993333999?text=Tenho%20interesse%20no%20Pack%20Developer%20PLR"
+                            target="_blank"
+                            class="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-400 text-slate-900 px-8 py-4 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20">
+                            <i class="fa-brands fa-whatsapp"></i> Falar com Consultor
+                        </a>
+                        <span class="text-slate-500 text-sm">Investimento Único</span>
+                    </div>
+                </div>
+
+                <!-- Card Visual do Código -->
+                <div class="md:w-1/2 relative group">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
+                    </div>
+                    <div class="bg-slate-950 p-8 rounded-2xl border border-slate-700 shadow-2xl relative">
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                            <div class="flex gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <span class="text-xs text-slate-500 font-mono">app.js</span>
+                        </div>
+                        <pre class="text-xs text-green-400 font-mono overflow-hidden leading-relaxed">
+<span class="text-purple-400">const</span> app = <span class="text-blue-400">new</span> Vue({
+  <span class="text-yellow-400">data</span>() {
+    <span class="text-purple-400">return</span> {
+      <span class="text-blue-300">appName</span>: <span class="text-orange-400">"Sua Marca Aqui"</span>,
+      <span class="text-blue-300">profit</span>: <span class="text-orange-400">"100%"</span>,
+      <span class="text-blue-300">cost</span>: <span class="text-orange-400">0</span>
+    }
+  },
+  <span class="text-yellow-400">methods</span>: {
+    <span class="text-blue-400">startBusiness</span>() {
+      <span class="text-slate-400">// Seu negócio pronto em 24h</span>
+      <span class="text-purple-400">this</span>.launch();
+    }
+  }
+});
+</pre>
+                        <div
+                            class="absolute -bottom-6 -right-6 bg-white text-slate-900 font-bold px-6 py-3 rounded-xl shadow-xl transform rotate-3 border-4 border-slate-900">
+                            <span class="text-xs text-slate-500 block uppercase tracking-wider">Acesso Total</span>
+                            50+ Apps
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- FOOTER -->
-        <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-900">
-            <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8 mb-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div
-                            class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold">
-                            P</div>
-                        <span class="text-white font-bold text-lg">PLENA</span>
-                    </div>
-                    <p class="text-sm max-w-xs">Democratizando o acesso à tecnologia para pequenos negócios no Brasil.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4">Links Úteis</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-blue-400">Sobre Nós</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Central de Ajuda</a></li>
-                        <li><a href="#" class="hover:text-blue-400">Política de Privacidade</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4">Formas de Pagamento</h4>
-                    <div class="flex gap-2 text-2xl">
-                        <i class="fa-brands fa-cc-visa"></i>
-                        <i class="fa-brands fa-cc-mastercard"></i>
-                        <i class="fa-brands fa-pix text-green-500"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="text-center text-xs border-t border-slate-900 pt-8">
-                &copy; 2025 Plena Aplicativos. Uma empresa do Grupo Plena Informática.
-            </div>
+        <!-- FOOTER LINK -->
+        <footer class="bg-slate-950 text-slate-400 py-12 text-center border-t border-slate-800">
+            <p class="mb-4">&copy; 2025 Plena Aplicativos. Todos os direitos reservados.</p>
+            <a href="playground.html"
+                class="inline-block mt-4 text-sm text-orange-400 hover:text-orange-300 border-b border-orange-400/30 pb-1 transition">
+                Procurando ferramentas gratuitas e jogos? <strong>Acesse o Playground</strong>
+            </a>
+            <!-- PASSAGEM SECRETA DO ADMIN -->
+            <div class="fixed top-0 left-0 w-4 h-4 z-[9999]" ondblclick="window.location.href='admin.html'"
+                title="Área Restrita" style="cursor: pointer;"></div>
         </footer>
-
-        <!-- MODAL DE PRODUTO (Detalhes) -->
-        <div v-if="selectedProduct" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-                @click="selectedProduct = null"></div>
-            <div
-                class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-10 grid md:grid-cols-2 shadow-2xl animate-fade-in-up">
-
-                <button @click="selectedProduct = null"
-                    class="absolute top-4 right-4 bg-slate-100 p-2 rounded-full hover:bg-slate-200 z-20">
-                    <i class="fa-solid fa-times text-slate-500"></i>
-                </button>
-
-                <!-- Lado Esquerdo: Visual -->
-                <div class="bg-slate-100 p-8 flex items-center justify-center relative">
-                    <img :src="selectedProduct.image" :alt="selectedProduct.name"
-                        class="shadow-2xl rounded-lg max-w-full max-h-64 object-cover">
-                    <!-- Badge de Categoria Flutuante -->
-                    <span
-                        class="absolute top-4 left-4 bg-white/90 backdrop-blur text-slate-900 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                        {{ selectedProduct.category }}
-                    </span>
-                </div>
-
-                <!-- Lado Direito: Venda -->
-                <div class="p-8 md:p-12 flex flex-col h-full">
-                    <div class="text-xs font-bold text-blue-600 uppercase mb-2">MicroSystem v3.0</div>
-                    <h2 class="text-3xl font-bold text-slate-900 mb-4 font-title">{{ selectedProduct.name }}</h2>
-                    <p class="text-slate-600 mb-6 leading-relaxed">{{ selectedProduct.desc }}</p>
-
-                    <div class="space-y-3 mb-8">
-                        <div v-for="feat in selectedProduct.features" :key="feat"
-                            class="flex items-center gap-3 text-sm text-slate-700">
-                            <i class="fa-solid fa-check-circle text-green-500"></i> {{ feat }}
-                        </div>
-                    </div>
-
-                    <div class="mt-auto pt-6 border-t border-slate-100">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <span class="text-sm text-slate-400 line-through">De R$ {{ selectedProduct.oldPrice
-                                    }}</span>
-                                <div class="text-3xl font-bold text-slate-900">Por R$ {{ selectedProduct.price }}</div>
-                                <span class="text-xs text-green-600 font-bold">Pagamento Único • Vitalício</span>
-                            </div>
-                        </div>
-
-                        <!-- BOTÃO DE ABRIR APP -->
-                        <a :href="selectedProduct.link"
-                            class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-bold text-lg shadow-xl shadow-blue-500/30 transition transform hover:-translate-y-1">
-                            ACESSAR AGORA (DEMO)
-                        </a>
-                        <p class="text-center text-xs text-slate-400 mt-3">
-                            <i class="fa-solid fa-lock"></i> Ambiente Seguro SSL
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 
-    <!-- LÓGICA VUE -->
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, computed } = Vue;
 
         createApp({
             setup() {
-                const scrolled = ref(false);
+                const filter = ref('Todos');
                 const search = ref('');
-                const filterCategory = ref('Todos');
-                const selectedProduct = ref(null);
+                const categories = ['Todos', 'Gestão', 'Food', 'Serviços', 'Marketing', 'RH', 'Saúde Pro', 'Transporte', 'Segurança'];
 
-                const categories = ['Todos', 'Gestão', 'Serviços', 'Comércio', 'Food', 'Marketing', 'RH', 'Saúde', 'Educação', 'Utilidades', 'Lazer', 'Games', 'Família', 'Transporte', 'Produtividade'];
-
-                // DADOS POPULADOS COMPLETOS DA PLENA APPS FACTORY
-                const products = ref([
-                    // PRODUTIVIDADE
-                    {
-                        id: 50, name: "Pomodoro Focus", category: "Produtividade", link: "apps/produtividade/pomodoro/index.html",
-                        image: "https://images.unsplash.com/photo-1593344484962-796055d4a3a4?w=600&q=80",
-                        desc: "Aumente sua produtividade usando a técnica Pomodoro com timers personalizáveis.",
-                        price: "19,90", oldPrice: "39,00", reviews: 45, badge: "Foco",
-                        features: ["Timer Personalizável", "Histórico de Ciclos", "Sons de Alerta", "Modo Escuro"]
-                    },
-                    // GESTÃO
-                    {
-                        id: 101, name: "OS Express", category: "Gestão", link: "apps/gestao/os/index.html",
-                        image: "https://images.unsplash.com/photo-1581092921461-eab6245b09dc?w=600&q=80",
-                        desc: "Gestão completa de Ordens de Serviço com impressão térmica e controle de status.",
-                        price: "49,90", oldPrice: "97,00", reviews: 52, badge: "Best Seller",
-                        features: ["Impressão Térmica", "Controle de Status", "Kanban Visual", "Cadastro de Clientes"]
-                    },
-                    {
-                        id: 102, name: "Recibo Pro", category: "Gestão", link: "apps/gestao/recibo/index.html",
-                        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80",
-                        desc: "Emissor de recibos digitais profissionais em PDF instantâneo.",
-                        price: "29,90", oldPrice: "59,00", reviews: 140, badge: "Essencial",
-                        features: ["PDF Automático", "Assinatura Digital", "Envio WhatsApp", "Histórico"]
-                    },
-                    {
-                        id: 103, name: "Estoque Fácil", category: "Gestão", link: "apps/gestao/estoque/index.html",
-                        image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
-                        desc: "Controle de entrada e saída de mercadorias com cálculo de lucro.",
-                        price: "39,90", oldPrice: "79,00", reviews: 30, badge: "Novo",
-                        features: ["Entrada/Saída", "Alerta de Baixo Estoque", "Cálculo de Margem", "Relatórios"]
-                    },
-                    {
-                        id: 104, name: "Fluxo de Caixa", category: "Gestão", link: "apps/gestao/caixa/index.html",
-                        image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80",
-                        desc: "Livro caixa digital para acompanhar receitas e despesas diárias.",
-                        price: "37,90", oldPrice: "89,00", reviews: 25,
-                        features: ["Receitas vs Despesas", "Saldo Diário", "Gráfico Simples", "Exportação"]
-                    },
-                    {
-                        id: 105, name: "PDV Frente de Caixa", category: "Gestão", link: "apps/gestao/pdv/index.html",
-                        image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=600&q=80",
-                        desc: "Terminal de vendas rápido com catálogo visual e carrinho.",
-                        price: "59,90", oldPrice: "120,00", reviews: 88, badge: "Hot",
-                        features: ["Catálogo Visual", "Carrinho Rápido", "Calculadora de Troco", "Cupom Não Fiscal"]
-                    },
-                    {
-                        id: 106, name: "Gerador de Orçamentos", category: "Gestão", link: "apps/gestao/orcamento/index.html",
-                        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80",
-                        desc: "Crie orçamentos formais e profissionais em PDF para seus clientes.",
-                        price: "34,90", oldPrice: "69,00", reviews: 45,
-                        features: ["PDF A4 Profissional", "Validade Automática", "Termos Editáveis", "Duplicação"]
-                    },
-                    {
-                        id: 107, name: "Controle de Fiado", category: "Gestão", link: "apps/gestao/fiado/index.html",
-                        image: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=600&q=80",
-                        desc: "Gerencie dívidas de clientes com lembretes de cobrança via WhatsApp.",
-                        price: "24,90", oldPrice: "40,00", reviews: 200, badge: null,
-                        features: ["Cobrança WhatsApp", "Saldo Devedor", "Histórico de Pagamentos", "Perfil do Cliente"]
-                    },
-
-                    // FOOD
-                    {
-                        id: 510, name: "Confeitaria Lucrativa", category: "Food", link: "apps/food/confeitaria/index.html",
-                        image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80",
-                        desc: "Precificação automática de bolos e doces com envio de cardápio.",
-                        price: "24,90", oldPrice: "49,00", reviews: 88, badge: "Novo",
-                        features: ["Custo da Receita", "Sugestão de Preço", "Cardápio Zap", "Fofo"]
-                    },
-                    {
-                        id: 501, name: "Gorjeta Pro", category: "Food", link: "apps/food/gorjeta/index.html",
-                        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",
-                        desc: "Calculadora de gorjetas e divisão de contas para restaurantes e bares.",
-                        price: "14,90", oldPrice: "29,00", reviews: 30, badge: "Novo",
-                        features: ["Cálculo Automático", "Divisão de Conta", "Personalizável", "Rápido"]
-                    },
-                    {
-                        id: 201, name: "Comanda Digital", category: "Food", link: "apps/food/comanda/index.html",
-                        image: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&q=80",
-                        desc: "Substitua o papel. Comandas digitais para bares e restaurantes.",
-                        price: "45,90", oldPrice: "99,00", reviews: 75, badge: "Top Food",
-                        features: ["Mesas numeradas", "Adicionar Pedidos", "Fechar Conta", "Taxa de Serviço"]
-                    },
-                    {
-                        id: 202, name: "Cardápio Digital", category: "Food", link: "apps/food/cardapio/index.html",
-                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80",
-                        desc: "Cardápio interativo via QR Code para autoatendimento.",
-                        price: "39,90", oldPrice: "80,00", reviews: 60,
-                        features: ["Fotos dos Pratos", "Categorias", "Sem Taxas", "Edição Fácil"]
-                    },
-                    {
-                        id: 203, name: "Ficha Técnica", category: "Food", link: "apps/food/ficha/index.html",
-                        image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=600&q=80",
-                        desc: "Padronize suas receitas e calcule o custo exato de produção.",
-                        price: "49,90", oldPrice: "110,00", reviews: 40,
-                        features: ["Custo por Porção", "Modo de Preparo", "Margem de Lucro", "Impressão A4"]
-                    },
-                    {
-                        id: 204, name: "Gestor de Pedidos KDS", category: "Food", link: "apps/food/pedidos/index.html",
-                        image: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=600&q=80",
-                        desc: "Tela de cozinha para organizar a produção de pedidos.",
-                        price: "55,90", oldPrice: "150,00", reviews: 25, badge: "Pro",
-                        features: ["Fila de Pedidos", "Cronômetro de Atraso", "Separação por Setor", "Concluídos"]
-                    },
-
-                    // SERVIÇOS
-                    {
-                        id: 310, name: "Pet Sitter Pro", category: "Serviços", link: "apps/servicos/petsitter/index.html",
-                        image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80",
-                        desc: "Relatório de passeios e cuidados para Dog Walkers e Sitters.",
-                        price: "19,90", oldPrice: "39,00", reviews: 50, badge: "Novo",
-                        features: ["Diário de Bordo", "Checklist Xixi/Cocô", "Botão Zap", "Profissional"]
-                    },
-                    {
-                        id: 300, name: "Obra Fácil", category: "Serviços", link: "apps/servicos/obra/index.html",
-                        image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80",
-                        desc: "Orçamentos e lista de materiais para pedreiros e eletricistas.",
-                        price: "29,90", oldPrice: "49,00", reviews: 10, badge: "Profissional",
-                        features: ["Orçamento PDF/Zap", "Lista Materiais", "Cálculo Rápido", "Profissional"]
-                    },
-                    {
-                        id: 305, name: "Diarista Pro", category: "Serviços", link: "apps/servicos/diarista/index.html",
-                        image: "https://images.unsplash.com/photo-1581578731117-10d52b43b124?w=600&q=80",
-                        desc: "Agenda, checklists e controle de ganhos para diaristas.",
-                        price: "19,90", oldPrice: "39,00", reviews: 50, badge: "Novo",
-                        features: ["Checklist por Cliente", "Calculadora de Ganhos", "Agenda Visual", "Fácil"]
-                    },
-                    {
-                        id: 300, name: "Portaria Ágil", category: "Serviços", link: "apps/servicos/portaria/index.html",
-                        image: "https://images.unsplash.com/photo-1555529902-526e14a92721?w=600&q=80",
-                        desc: "Livro de ocorrências e controle de encomendas para porteiros.",
-                        price: "29,90", oldPrice: "59,00", reviews: 5, badge: "Profissional",
-                        features: ["Livro Digital", "Controle de Pacotes", "Avisa Morador (Zap)", "Turnos"]
-                    },
-                    {
-                        id: 301, name: "Agenda Visual", category: "Serviços", link: "apps/servicos/agenda/index.html",
-                        image: "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=600&q=80",
-                        desc: "Agenda estilo Google Calendar para salões e prestadores de serviço.",
-                        price: "39,90", oldPrice: "79,00", reviews: 90, badge: "Essencial",
-                        features: ["Visualização Diária", "Bloqueio de Horário", "Status Coloridos", "Múltiplos Profissionais"]
-                    },
-                    {
-                        id: 302, name: "Checklist Operacional", category: "Serviços", link: "apps/servicos/checklist/index.html",
-                        image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=80",
-                        desc: "Garanta a qualidade com listas de verificação digitais.",
-                        price: "24,90", oldPrice: "49,00", reviews: 33,
-                        features: ["Modelos Salvos", "Exportação PDF", "Conformidade", "Assinatura"]
-                    },
-
-                    // MARKETING
-                    {
-                        id: 401, name: "BioLink Generator", category: "Marketing", link: "apps/mkt/biolink/index.html",
-                        image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80",
-                        desc: "Crie sua árvore de links para Instagram sem mensalidades.",
-                        price: "27,90", oldPrice: "59,00", reviews: 112, badge: "Viral",
-                        features: ["Botões Ilimitados", "Tema Personalizável", "Ícones Sociais", "Sem Anúncios"]
-                    },
-                    {
-                        id: 402, name: "QR Code Pro", category: "Marketing", link: "apps/mkt/qrcode/index.html",
-                        image: "https://images.unsplash.com/photo-1595079686342-61f680a201f6?w=600&q=80",
-                        desc: "Gerador de QR Codes estilizados com cores e logo.",
-                        price: "19,90", oldPrice: "39,00", reviews: 85,
-                        features: ["Cores Customizadas", "Logo Central", "Alta Resolução", "Vários Formatos"]
-                    },
-                    {
-                        id: 403, name: "Sorteador Pro", category: "Marketing", link: "apps/mkt/sorteio/index.html",
-                        image: "https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?w=600&q=80",
-                        desc: "Realize sorteios de números ou nomes de forma transparente.",
-                        price: "14,90", oldPrice: "29,00", reviews: 200,
-                        features: ["Números Aleatórios", "Lista de Nomes", "Modo Roleta", "Animação"]
-                    },
-
-                    // RH
-                    {
-                        id: 501, name: "Gerador de Holerite", category: "RH", link: "apps/rh/holerite/index.html",
-                        image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80",
-                        desc: "Emita demonstrativos de pagamento simples para pequenos negócios.",
-                        price: "34,90", oldPrice: "79,00", reviews: 42,
-                        features: ["Cálculo Automático", "PDF Oficial", "Acumulados", "Descontos"]
-                    },
-                    {
-                        id: 502, name: "Escala de Trabalho", category: "RH", link: "apps/rh/escala/index.html",
-                        image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80",
-                        desc: "Organize turnos e folgas da equipe visualmente.",
-                        price: "29,90", oldPrice: "60,00", reviews: 28,
-                        features: ["Turnos Coloridos", "Contagem de Horas", "PDF da Escala", "Fácil Edição"]
-                    },
-                    {
-                        id: 503, name: "Rescisão Calc", category: "RH", link: "apps/rh/rescisao/index.html",
-                        image: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=600&q=80",
-                        desc: "Simule cálculos rescisórios trabalhistas (CLT).",
-                        price: "24,90", oldPrice: "50,00", reviews: 55,
-                        features: ["Multa 40%", "Férias Proporcionais", "13º Salário", "Aviso Prévio"]
-                    },
-
-                    // SAÚDE
-                    {
-                        id: 605, name: "Personal Admin", category: "Saúde", link: "apps/saude/personal/index.html",
-                        image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=80",
-                        desc: "Gestão simples de alunos e pagamentos para Personal Trainers.",
-                        price: "29,90", oldPrice: "59,00", reviews: 15, badge: "Gestão",
-                        features: ["Controle Mensalidade", "Lista Alunos", "Cobrança Zap", "Dark Mode"]
-                    },
-                    {
-                        id: 601, name: "Ficha de Treino", category: "Saúde", link: "apps/saude/treino/index.html",
-                        image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
-                        desc: "Substitua a ficha de papel da academia pelo celular.",
-                        price: "19,90", oldPrice: "39,00", reviews: 150,
-                        features: ["Séries e Repetições", "Carga", "Cronômetro", "Histórico"]
-                    },
-                    {
-                        id: 740, name: "Diário da Gratidão", category: "Saúde", link: "apps/saude/gratidao/index.html",
-                        image: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=600&q=80",
-                        desc: "Desenvolva o hábito da positividade registrando 3 coisas boas por dia.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 520, badge: "Zen",
-                        features: ["Diário Simples", "Timeline Visual", "Design Calmo", "Offline"]
-                    },
-                    {
-                        id: 741, name: "Respiração Guiada", category: "Saúde", link: "apps/saude/respiracao/index.html",
-                        image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80",
-                        desc: "Controle a ansiedade com exercícios visuais de respiração.",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 750, badge: "SOS",
-                        features: ["Técnica 4-7-8", "Animação Visual", "Modo Noturno", "Anti-Stress"]
-                    },
-                    {
-                        id: 742, name: "Mood Tracker", category: "Saúde", link: "apps/saude/humor/index.html",
-                        image: "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=600&q=80",
-                        desc: "Acompanhe suas emoções diárias e entenda seus padrões.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 330,
-                        features: ["Calendário Emocional", "Notas Diárias", "Gráfico de Cores", "Simples"]
-                    },
-                    {
-                        id: 745, name: "Calculadora Saúde", category: "Saúde", link: "apps/saude/imc/index.html",
-                        image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80",
-                        desc: "Cálculos de IMC, TMB e Água ideal em um só lugar.",
-                        price: "14,90", oldPrice: "29,00", reviews: 95,
-                        features: ["IMC Visual", "Estimativa TMB", "Lembrete de Água", "Perfil de Saúde"]
-                    },
-
-                    // CASA & COZINHA
-                    {
-                        id: 641, name: "Lista Smart", category: "Utilidades", link: "apps/utilidades/compras/index.html",
-                        image: "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=600&q=80",
-                        desc: "Lista de compras inteligente que organiza por setor e soma o total.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 1500, badge: "Top",
-                        features: ["Auto Categoria", "Estimativa Preço", "Limpeza Fácil"]
-                    },
-                    {
-                        id: 642, name: "Medida Certa", category: "Utilidades", link: "apps/utilidades/cozinha/index.html",
-                        image: "https://images.unsplash.com/photo-1590796855152-41f2746b107e?w=600&q=80",
-                        desc: "Converta xícaras em gramas com precisão para cada ingrediente.",
-                        price: "Gratuito", oldPrice: "12,00", reviews: 800, badge: "Chef",
-                        features: ["Farinha/Açúcar/etc", "Gramas para Xícaras", "Tabela Densidade"]
-                    },
-                    {
-                        id: 643, name: "Faxina Express", category: "Utilidades", link: "apps/utilidades/faxina/index.html",
-                        image: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=600&q=80",
-                        desc: "Checklists de limpeza por cômodo. A casa brilha, você descansa.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 600,
-                        features: ["Progresso Visual", "Lista por Cômodo", "Salva Status"]
-                    },
-                    // EDUCAÇÃO
-                    {
-                        id: 710, name: "Diário do Professor", category: "Educação", link: "apps/educacao/diario/index.html",
-                        image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=600&q=80",
-                        desc: "Faça a chamada e envie alertas de falta para os pais no Zap.",
-                        price: "19,90", oldPrice: "39,00", reviews: 88, badge: "Gestão",
-                        features: ["Chamada Rápida", "Alerta Pais (Zap)", "Controle Tarefas", "Turmas"]
-                    },
-                    {
-                        id: 711, name: "Lesson Planner", category: "Educação", link: "apps/educacao/planner/index.html",
-                        image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
-                        desc: "Planeje suas aulas da semana com grade visual e códigos BNCC.",
-                        price: "24,90", oldPrice: "49,00", reviews: 60,
-                        features: ["Grade Semanal", "Campos BNCC", "Imprimir PDF", "Organizador"]
-                    },
-                    {
-                        id: 712, name: "Gerador de Provas", category: "Educação", link: "apps/educacao/provas/index.html",
-                        image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&q=80",
-                        desc: "Crie provas formatadas com cabeçalho automaticamente.",
-                        price: "29,90", oldPrice: "59,00", reviews: 150, badge: "Pro",
-                        features: ["Layout A4", "Cabeçalho Auto", "Questões Objetivas", "Sem Word"]
-                    },
-                    {
-                        id: 791, name: "Redação Nota 1000", category: "Educação", link: "apps/educacao/redacao/index.html",
-                        image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=80",
-                        desc: "Estruture sua redação passo a passo com nosso assistente.",
-                        price: "Gratuito", oldPrice: "39,90", reviews: 55, badge: "ENEM",
-                        features: ["Wizard Guiado", "Live Preview", "Modelo Dissertativo", "Exportar"]
-                    },
-                    {
-                        id: 790, name: "Fração Visual", category: "Educação", link: "apps/educacao/fracao/index.html",
-                        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80",
-                        desc: "Descomplique frações com pizzas e barras interativas.",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 50, badge: "Matemática",
-                        features: ["Visual 3 em 1", "Conversão %", "Interativo", "Fácil"]
-                    },
-                    {
-                        id: 700, name: "Expresso Emoção", category: "Educação", link: "apps/educacao/expresso/index.html",
-                        image: "https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=600&q=80",
-                        desc: "Jogo inclusivo para aprender a identificar emoções. (Piloto)",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 5, badge: "Novo",
-                        features: ["Acessibilidade de Voz", "3 Níveis", "Inclusivo", "Offline"]
-                    },
-                    {
-                        id: 701, name: "Tabuada Divertida", category: "Educação", link: "apps/educacao/tabuada/index.html",
-                        image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
-                        desc: "App gamificado para crianças aprenderem matemática.",
-                        price: "19,90", oldPrice: "40,00", reviews: 300, badge: "Kids",
-                        features: ["Gamificação", "Ranking", "Sons Divertidos", "Todas Operações"]
-                    },
-                    {
-                        id: 702, name: "Flashcards Estudo", category: "Educação", link: "apps/educacao/flashcards/index.html",
-                        image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
-                        desc: "Crie cartões de memorização para estudar para provas.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 120, badge: "Estudo",
-                        features: ["Frente/Verso", "Modo Quiz", "Organizar", "Simples"]
-                    },
-
-                    // GAMES & DIVERSÃO
-                    {
-                        id: 301, name: "Dragon Soundboard", category: "Games", link: "apps/games/dragon/index.html",
-                        image: "https://images.unsplash.com/photo-1577493340887-b7bfff550145?w=600&q=80",
-                        desc: "Efeitos sonoros épicos para suas sessões de RPG.",
-                        price: "Gratuito", oldPrice: "5,90", reviews: 1024,
-                        features: ["Dragões", "Magias", "Ambiente", "Batalha"]
-                    },
-                    {
-                        id: 302, name: "Sky Glider", category: "Games", link: "apps/games/glider/index.html",
-                        image: "https://images.unsplash.com/photo-1505664063603-28e48ca204eb?w=600&q=80",
-                        desc: "Desvie dos obstáculos e voe o mais longe que puder.",
-                        price: "Gratuito", oldPrice: "9,90", reviews: 450, badge: "Novo",
-                        features: ["Infinito", "Pixel Art", "Ranking Local"]
-                    },
-                    {
-                        id: 303, name: "Quiz Curiosidades", category: "Games", link: "apps/games/curiosidades/index.html",
-                        image: "https://images.unsplash.com/photo-1598556776374-ba3676574f82?w=600&q=80",
-                        desc: "Você sabia? Teste seus conhecimentos e aprenda fatos incríveis.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 900, badge: "Edu",
-                        features: ["Fatos Curiosos", "Quiz Interativo", "Você Sabia", "Diversão"]
-                    },
-                    {
-                        id: 304, name: "Caça Palavras", category: "Games", link: "apps/games/caca-palavras/index.html",
-                        image: "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?w=600&q=80",
-                        desc: "Encontre as palavras escondidas em diversos temas.",
-                        price: "Gratuito", oldPrice: "10,00", reviews: 500,
-                        features: ["Temas Variados", "Geração Infinita", "Clássico"]
-                    },
-                    {
-                        id: 305, name: "Cruzadinha Pocket", category: "Games", link: "apps/games/cruzadinha/index.html",
-                        image: "https://images.unsplash.com/photo-1632297129525-4557997424bd?w=600&q=80",
-                        desc: "Mini palavras cruzadas para exercitar a mente rapidinho.",
-                        price: "Gratuito", oldPrice: "10,00", reviews: 600,
-                        features: ["Nível Fácil", "Dicas", "Teclado Rápido"]
-                    },
-
-                    // UTILIDADES & LAZER
-                    {
-                        id: 795, name: "Churrasco Mestre", category: "Lazer", link: "apps/lazer/churrasco/index.html",
-                        image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80",
-                        desc: "Calculadora de carne e bebida para o churrasco perfeito.",
-                        price: "Gratuito", oldPrice: "9,90", reviews: 500, badge: "Viral",
-                        features: ["Calc por Pessoa", "Lista Compras", "Divisão de Custos", "Infalível"]
-                    },
-
-                    {
-                        id: 801, name: "Gerador de Senhas", category: "Utilidades", link: "apps/utils/senha/index.html",
-                        image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80",
-                        desc: "Crie senhas ultra seguras e inquebráveis.",
-                        price: "9,90", oldPrice: "19,00", reviews: 50,
-                        features: ["Comprimento Ajustável", "Símbolos Especiais", "Copiar Rápido", "Sem Logs"]
-                    },
-                    {
-                        id: 802, name: "Placar Universal", category: "Lazer", link: "apps/lazer/placar/index.html",
-                        image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&q=80",
-                        desc: "Marcador de pontos para esportes e jogos de tabuleiro.",
-                        price: "14,90", oldPrice: "29,00", reviews: 110,
-                        features: ["Times Editáveis", "Histórico", "Cronômetro", "Sons de Apito"]
-                    },
-                    {
-                        id: 803, name: "Biblioteca Pessoal", category: "Lazer", link: "apps/lazer/livros/index.html",
-                        image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&q=80",
-                        desc: "Organize sua coleção de livros e leituras.",
-                        price: "29,90", oldPrice: "50,00", reviews: 65,
-                        features: ["Status de Leitura", "Avaliação", "Estante Virtual", "Anotações"]
-                    },
-
-                    // VIAGEM & TRANSPORTE
-                    {
-                        id: 905, name: "Driver Pro", category: "Transporte", link: "apps/transporte/driver/index.html",
-                        image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80",
-                        desc: "Gestão financeira para motoristas de aplicativo (Uber/99).",
-                        price: "19,90", oldPrice: "39,00", reviews: 120, badge: "Essencial",
-                        features: ["Lucro Líquido", "Meta Diária", "Gastos Combustível", "Relatório Zap"]
-                    },
-                    {
-                        id: 906, name: "Moto Lucro", category: "Transporte", link: "apps/transporte/moto/index.html",
-                        image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&q=80",
-                        desc: "Controle de corridas e entregas para motoboys.",
-                        price: "15,90", oldPrice: "29,00", reviews: 88,
-                        features: ["Ganhos do Dia", "KM Rodado", "Manutenção", "Histórico"]
-                    },
-                    {
-                        id: 901, name: "Mala Inteligente", category: "Lazer", link: "apps/viagem/malas/index.html",
-                        image: "https://images.unsplash.com/photo-1565514020176-dbf2277470a6?w=600&q=80",
-                        desc: "Nunca mais esqueça nada na sua viagem.",
-                        price: "19,90", oldPrice: "39,00", reviews: 210, badge: "Travel",
-                        features: ["Checklists Prontos", "Modo Praia/Frio", "Progresso", "Categorias"]
-                    },
-                    {
-                        id: 902, name: "Calc Combustível", category: "Transporte", link: "apps/transporte/combustivel/index.html",
-                        image: "https://images.unsplash.com/photo-1625902382903-516d7a221fcc?w=600&q=80",
-                        desc: "Divida os custos da viagem com amigos sem brigas.",
-                        price: "15,90", oldPrice: "29,00", reviews: 99,
-                        features: ["Custo por Pessoa", "Pedágio", "Consumo", "Relatório"]
-                    },
-                    {
-                        id: 903, name: "Manutenção Auto", category: "Transporte", link: "apps/transporte/manutencao/index.html",
-                        image: "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=600&q=80",
-                        desc: "Histórico completo de serviços do seu carro.",
-                        price: "25,90", oldPrice: "49,00", reviews: 44,
-                        features: ["Troca de Óleo", "Pneus", "KM", "Mecânicos"]
-                    },
-
-                    // FAMÍLIA & PETS
-                    {
-                        id: 955, name: "Calculadora Idade Pet", category: "Família", link: "apps/pets/idade/index.html",
-                        image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80",
-                        desc: "Descubra a idade real (humana) do seu cão ou gato.",
-                        price: "Gratuito", oldPrice: "9,90", reviews: 500, badge: "Viral",
-                        features: ["Conversão por Porte", "Curiosidade", "Compartilhar", "Divertido"]
-                    },
-                    {
-                        id: 951, name: "Carteirinha Pet", category: "Família", link: "apps/pets/vacinas/index.html",
-                        image: "https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?w=600&q=80",
-                        desc: "Carteirinha de vacinação digital para seu melhor amigo.",
-                        price: "19,90", oldPrice: "39,00", reviews: 300, badge: "Essencial",
-                        features: ["Lembrete de Doses", "Vacinas", "Vermífugos", "Histórico"]
-                    },
-                    {
-                        id: 952, name: "Diário do Bebê", category: "Família", link: "apps/familia/bebe/index.html",
-                        image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&q=80",
-                        desc: "Acompanhe o crescimento e marcos do seu bebê.",
-                        price: "29,90", oldPrice: "59,00", reviews: 150,
-                        features: ["Curva de Crescimento", "Primeiros Passos", "Temas", "Fotos"]
-                    },
-
-                    // ÚLTIMOS LANÇAMENTOS (FINAL SPRINT)
-                    {
-                        id: 960, name: "Gerador de Contrato", category: "Gestão", link: "apps/gestao/contrato/index.html",
-                        image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80",
-                        desc: "Crie contratos de prestação de serviços prontos para imprimir.",
-                        price: "39,90", oldPrice: "80,00", reviews: 22,
-                        features: ["Preenchimento Fácil", "PDF Pronto", "Modelo Jurídico", "Edição Rápida"]
-                    },
-                    {
-                        id: 961, name: "Sleep Tracker", category: "Saúde", link: "apps/saude/sono/index.html",
-                        image: "https://images.unsplash.com/photo-1517163071329-84f937e296c0?w=600&q=80",
-                        desc: "Monitore suas noites de sono e acorde melhor.",
-                        price: "19,90", oldPrice: "35,00", reviews: 55,
-                        features: ["Gráfico Semanal", "Calculadora de Horas", "Diário de Qualidade", "Histórico"]
-                    },
-                    {
-                        id: 962, name: "Contador de Palavras", category: "Utilidades", link: "apps/utils/contador/index.html",
-                        image: "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&q=80",
-                        desc: "Ferramenta essencial para redatores e estudantes.",
-                        price: "9,90", oldPrice: "19,90", reviews: 120,
-                        features: ["Contagem Real-time", "Tempo de Leitura", "Densidade", "Limpeza"]
-                    },
-                    {
-                        id: 963, name: "Teste de Digitação", category: "Lazer", link: "apps/lazer/typer/index.html",
-                        image: "https://images.unsplash.com/photo-1587829741301-308231f890f5?w=600&q=80",
-                        desc: "Descubra sua velocidade (WPM) e treine sua precisão.",
-                        price: "14,90", oldPrice: "29,00", reviews: 300, badge: "Fun",
-                        features: ["WPM Checker", "Timer", "Modo Escuro", "Ranking Local"]
-                    },
-
-                    // TECH & DEVTOOLS (NOVOS)
-                    {
-                        id: 970, name: "Formatador JSON", category: "Utilidades", link: "apps/tech/json/index.html",
-                        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80",
-                        desc: "Formate, valide e minifique JSONs complexos.",
-                        price: "Gratuito", oldPrice: "19,00", reviews: 10,
-                        features: ["Syntax Highlight", "Minify", "Error Check", "Copy"]
-                    },
-                    {
-                        id: 971, name: "Lorem Ipsum Gen", category: "Utilidades", link: "apps/tech/lorem/index.html",
-                        image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
-                        desc: "Gere textos de preenchimento (placeholder) rápidos.",
-                        price: "Gratuito", oldPrice: "9,00", reviews: 5,
-                        features: ["Parágrafos/Palavras", "HTML Tags", "Copy", "Custom"]
-                    },
-                    {
-                        id: 972, name: "Base64 & Hash", category: "Utilidades", link: "apps/tech/base64/index.html",
-                        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80",
-                        desc: "Codifique Texto/Arquivos e gere Hashes MD5/SHA.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 8,
-                        features: ["Base64 Encode", "Base64 Decode", "MD5/SHA256", "Real-time"]
-                    },
-
-                    // OUTROS APPS AUDITADOS (Adicionados Pós-Audit)
-                    {
-                        id: 703, name: "Calc Notas Escolares", category: "Educação", link: "apps/educacao/notas/index.html",
-                        image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80",
-                        desc: "Calcule médias escolares e saiba quanto precisa na prova final.",
-                        price: "9,90", oldPrice: "19,00", reviews: 15,
-                        features: ["Média Ponderada", "Previsão", "Histórico", "Simples"]
-                    },
-                    {
-                        id: 850, name: "Countdown Eventos", category: "Família", link: "apps/eventos/countdown/index.html",
-                        image: "https://images.unsplash.com/photo-1580983566005-ecb9be158aba?w=600&q=80",
-                        desc: "Contagem regressiva para datas importantes.",
-                        price: "Gratuito", oldPrice: "10,00", reviews: 40,
-                        features: ["Dias/Horas/Min", "Temas", "Festas", "Viagens"]
-                    },
-                    {
-                        id: 250, name: "Gestão de Mesas", category: "Food", link: "apps/food/mesas/index.html",
-                        image: "https://images.unsplash.com/photo-1550966871-3ed3c6221741?w=600&q=80",
-                        desc: "Mapa visual de mesas livres e ocupadas para restaurantes.",
-                        price: "49,90", oldPrice: "99,00", reviews: 12,
-                        features: ["Status Visual", "Tempo Ocupado", "Reserva", "Capacidade"]
-                    },
-                    {
-                        id: 150, name: "Calc Comissões", category: "Gestão", link: "apps/gestao/comissao/index.html",
-                        image: "https://images.unsplash.com/photo-1554672723-b27b2f520930?w=600&q=80",
-                        desc: "Calcule comissões de vendedores com faixas e metas.",
-                        price: "29,90", oldPrice: "59,00", reviews: 30,
-                        features: ["Metas", "Porcentagem Variável", "Bônus", "Relatório"]
-                    },
-                    {
-                        id: 151, name: "Precificação Pro", category: "Gestão", link: "apps/gestao/precificacao/index.html",
-                        image: "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=600&q=80",
-                        desc: "Defina o preço de venda ideal baseado em custos e margem.",
-                        price: "34,90", oldPrice: "69,00", reviews: 55,
-                        features: ["Custos Fixos/Var", "Markup", "Lucro Real", "Ponto de Equilíbrio"]
-                    },
-                    {
-                        id: 152, name: "Controle Validade", category: "Gestão", link: "apps/gestao/validade/index.html",
-                        image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80",
-                        desc: "Não perca produtos vencidos. Alertas visuais de validade.",
-                        price: "39,90", oldPrice: "79,00", reviews: 18,
-                        features: ["Cores de Alerta", "Lista de Produtos", "Lotes", "Baixa Rápida"]
-                    },
-                    // UTILIDADES & LAZER -// ESOTÉRICO & ASTROLOGIA
-                    {
-                        id: 310, name: "Tarot do Dia", category: "Lazer", link: "apps/lazer/tarot/index.html",
-                        image: "https://images.unsplash.com/photo-1620066224169-373bedda56e6?w=600&q=80",
-                        desc: "Tire sua carta do dia e receba um conselho místico.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 1500, badge: "Novo",
-                        features: ["Carta Diária", "Significado Completo", "Compartilhável", "Místico"]
-                    },
-                    {
-                        id: 311, name: "Numerologia Express", category: "Lazer", link: "apps/lazer/numerologia/index.html",
-                        image: "https://images.unsplash.com/photo-1549488497-60e03b22cf05?w=600&q=80",
-                        desc: "Descubra o número da sua alma através do seu nome.",
-                        price: "Gratuito", oldPrice: "9,90", reviews: 800,
-                        features: ["Cálculo Pitagórico", "Missão de Vida", "Destino", "Fácil"]
-                    },
-                    {
-                        id: 312, name: "Calculadora do Amor", category: "Lazer", link: "apps/lazer/amor/index.html",
-                        image: "https://images.unsplash.com/photo-1516574187841-693083f94453?w=600&q=80",
-                        desc: "Descubra a compatibilidade com seu crush agora mesmo.",
-                        price: "Gratuito", oldPrice: "9,90", reviews: 2000, badge: "Fun",
-                        features: ["Algoritmo de Match", "Frases Divertidas", "Prank", "Social"]
-                    },
-                    {
-                        id: 313, name: "Meu Mapa Astral", category: "Lazer", link: "apps/lazer/mapa-astral/index.html",
-                        image: "https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=600&q=80",
-                        desc: "Descubra seu Sol, Ascendente e essência astral.",
-                        price: "Gratuito", oldPrice: "39,90", reviews: 2500, badge: "Viral",
-                        features: ["Sol & Ascendente", "Card para Postar", "Design Galáxia"]
-                    },
-                    {
-                        id: 314, name: "Match dos Signos", category: "Lazer", link: "apps/lazer/sinastria/index.html",
-                        image: "https://images.unsplash.com/photo-1516575150278-77136aed6920?w=600&q=80",
-                        desc: "Combinação amorosa entre signos (Sinastria Básica).",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 1200,
-                        features: ["Compatibilidade", "Amor & Amizade", "Elementos"]
-                    },
-                    {
-                        id: 315, name: "Calendário Lunar", category: "Lazer", link: "apps/lazer/lua/index.html",
-                        image: "https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?w=600&q=80",
-                        desc: "Veja a fase da lua hoje e receba dicas (cabelo, negócios).",
-                        price: "Gratuito", oldPrice: "10,00", reviews: 600, badge: "Útil",
-                        features: ["Fase Atual", "Dicas Diárias", "Iluminação %"]
-                    },
-                    // ESPIRITUALIDADE & RELIGIÃO
-                    {
-                        id: 921, name: "Caixinha de Promessas", category: "Lazer", link: "apps/lazer/biblia/index.html",
-                        image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=600&q=80",
-                        desc: "Receba uma palavra bíblica diária e compartilhe em imagem.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 8000, badge: "Fé",
-                        features: ["Versículos", "Cards para Zap", "Temas", "Inspiração"]
-                    },
-                    {
-                        id: 922, name: "Diário de Oração", category: "Lazer", link: "apps/lazer/oracao/index.html",
-                        image: "https://images.unsplash.com/photo-1602622776822-79c293f9ef1d?w=600&q=80",
-                        desc: "Organize seus pedidos e registre suas graças alcançadas.",
-                        price: "Gratuito", oldPrice: "25,00", reviews: 600,
-                        features: ["Lista de Pedidos", "Histórico de Bênçãos", "Categorias", "Offline"]
-                    },
-                    {
-                        id: 923, name: "Quiz Bíblico", category: "Lazer", link: "apps/lazer/quiz-biblico/index.html",
-                        image: "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=600&q=80",
-                        desc: "Teste seus conhecimentos sobre a Bíblia neste jogo educativo.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 450, badge: "Game",
-                        features: ["Perguntas Desafiadoras", "Placar", "Feedbacks Interativos"]
-                    },
-                    {
-                        id: 924, name: "Hinário de Bolso", category: "Lazer", link: "apps/lazer/hinario/index.html",
-                        image: "https://images.unsplash.com/photo-1507838153414-b4b713384ebd?w=600&q=80",
-                        desc: "Letras de hinos clássicos no seu bolso. Modo noturno e busca fácil.",
-                        price: "Gratuito", oldPrice: "20,00", reviews: 900,
-                        features: [" Busca Rápida", "Modo Escuro", "Aumentar Letra", "Harpa"]
-                    },
-                    {
-                        id: 925, name: "Bíblia 365 Tracker", category: "Lazer", link: "apps/lazer/biblia365/index.html",
-                        image: "https://images.unsplash.com/photo-1534234828569-fa36329759d5?w=600&q=80",
-                        desc: "Acompanhe seu progresso de leitura da Bíblia toda em um ano.",
-                        price: "Gratuito", oldPrice: "10,00", reviews: 300, badge: "365",
-                        features: ["Checklist Capítulos", "Barra Progresso", "Velho/Novo Test."]
-                    },
-                    {
-                        id: 926, name: "Minha Célula", category: "Lazer", link: "apps/lazer/celula/index.html",
-                        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80",
-                        desc: "Gestão completa para líderes de pequenos grupos.",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 150, badge: "Líder",
-                        features: ["Chamada", "Escala Lanche", "Avisos Grupo", "Membros"]
-                    },
-                    {
-                        id: 804, name: "Dados RPG & Sorte", category: "Lazer", link: "apps/lazer/dados/index.html",
-                        image: "https://images.unsplash.com/photo-1632948155949-bb20b6e15964?w=600&q=80",
-                        desc: "Rolador de dados 3D virtuais para jogos de mesa.",
-                        price: "Gratuito", oldPrice: "15,00", reviews: 70,
-                        features: ["D4, D6, D8, D20", "Soma Auto", "Histórico", "Física 3D"]
-                    },
-                    {
-                        id: 603, name: "Jejum Intermitente", category: "Saúde", link: "apps/saude/jejum/index.html",
-                        image: "https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&q=80",
-                        desc: "Timer para protocolos de jejum (16/8, 18/6, etc).",
-                        price: "19,90", oldPrice: "39,00", reviews: 110,
-                        features: ["Protocolos", "Notificações", "Peso", "Estado Físico"]
-                    },
-                    // SERVIÇOS PROFISSIONAIS - GESTÃO & ORÇAMENTO
-                    {
-                        id: 504, name: "Ateliê Digital", category: "Serviços", link: "apps/servicos/costura/index.html",
-                        image: "https://images.unsplash.com/photo-1528646067710-5645e3ea1e00?w=600&q=80",
-                        desc: "Para costureiras: Organize medidas, provas e status de encomendas.",
-                        price: "Gratuito", oldPrice: "34,90", reviews: 500, badge: "Novo",
-                        features: ["Ficha Medidas", "Status Pedido", "Avisar Whatsapp", "Gestão"]
-                    },
-                    {
-                        id: 505, name: "Jardim Pro", category: "Serviços", link: "apps/servicos/jardim/index.html",
-                        image: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=600&q=80",
-                        desc: "Calculadora de orçamento para jardineiros (m² ou hora).",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 300,
-                        features: ["Cálculo m²", "Agenda Clientes", "Orçamento Zap", "Rápido"]
-                    },
-                    {
-                        id: 506, name: "SOS Reparos", category: "Serviços", link: "apps/servicos/reparos/index.html",
-                        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&q=80",
-                        desc: "Gere orçamentos rápidos para elétrica, hidráulica e reparos.",
-                        price: "Gratuito", oldPrice: "39,90", reviews: 650, badge: "Pro",
-                        features: ["Mão de Obra", "Lista Materiais", "PDF Zap", "Profissional"]
-                    },
-                    {
-                        id: 502, name: "Agenda de Procedimentos", category: "Serviços", link: "apps/servicos/agenda/index.html",
-                        image: "https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=600&q=80",
-                        desc: "Agenda simplificada para controlar horários de clientes.",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 450,
-                        features: ["Calendário", "Cadastro Cliente", "Histórico", "Simples"]
-                    },
-                    {
-                        id: 503, name: "Diarista Pro", category: "Serviços", link: "apps/servicos/diarista/index.html",
-                        image: "https://images.unsplash.com/photo-1581579186913-45ac3e6e3dd2?w=600&q=80",
-                        desc: "Calcule o valor da sua diária baseado no tamanho do imóvel.",
-                        price: "Gratuito", oldPrice: "19,90", reviews: 600, badge: "Útil",
-                        features: ["Calc por Cômodo", "Passagem", "Alimentação", "Orçamento"]
-                    },
-                    {
-                        id: 501, name: "Orçamento de Obra", category: "Serviços", link: "apps/servicos/obra/index.html",
-                        image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80",
-                        desc: "Calcule a quantidade de tijolos e cimento para sua parede.",
-                        price: "Gratuito", oldPrice: "29,90", reviews: 1200, badge: "Top",
-                        features: ["Quantitativo", "Tijolos", "Cimento", "Areia"]
-                    },
-                    {
-                        id: 350, name: "Controle KM", category: "Serviços", link: "apps/servicos/km/index.html",
-                        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80",
-                        desc: "Controle de rodagem para frotas ou reembolso.",
-                        price: "24,90", oldPrice: "49,00", reviews: 40,
-                        features: ["Rota", "Odômetro", "Valor/KM", "Exportar"]
-                    },
-                    {
-                        id: 351, name: "Calc Materiais", category: "Serviços", link: "apps/servicos/materiais/index.html",
-                        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80",
-                        desc: "Orçamento de materiais de construção ou reforma.",
-                        price: "29,90", oldPrice: "59,00", reviews: 25,
-                        features: ["Área m²", "Tinta/Piso", "Quantidade", "Custo Total"]
-                    },
-                    {
-                        id: 352, name: "Ponto Simples", category: "Serviços", link: "apps/servicos/ponto/index.html",
-                        image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
-                        desc: "Registro de entrada e saída simplificado para freelancers.",
-                        price: "19,90", oldPrice: "39,00", reviews: 30,
-                        features: ["Entrada/Saída", "Pausas", "Total Horas", "Semana"]
-                    },
-                    {
-                        id: 353, name: "Timer Tarefas", category: "Serviços", link: "apps/servicos/timer/index.html",
-                        image: "https://images.unsplash.com/photo-1495364141860-b0d03eccd065?w=600&q=80",
-                        desc: "Cronômetro de tarefas para cobrar por hora trabalhada.",
-                        price: "24,90", oldPrice: "49,00", reviews: 45,
-                        features: ["Múltiplos Projetos", "Valor/Hora", "Relatório", "Play/Pause"]
-                    },
-
-                    // MAIS APPS GENÉRICOS DE UTILIDADE
-                    {
-                        id: 991, name: "Manipulador Texto", category: "Utilidades", link: "apps/utils/texto/index.html",
-                        image: "https://images.unsplash.com/photo-1555421689-49263307f3dd?w=600&q=80",
-                        desc: "Limpe, formate e organize textos bagunçados.",
-                        price: "12,90", oldPrice: "25,00", reviews: 20,
-                        features: ["Maiúscula/Minúscula", "Remover Espaços", "Contador", "Find/Replace"]
-                    },
-                    {
-                        id: 992, name: "Conversor Universal", category: "Utilidades", link: "apps/utils/conversor/index.html",
-                        image: "https://images.unsplash.com/photo-1581242163695-19d0acacd429?w=600&q=80",
-                        desc: "Converta qualquer unidade de medida facilmente.",
-                        price: "12,90", oldPrice: "25,00", reviews: 35,
-                        features: ["Medidas Culinárias", "Distância", "Peso", "Temperatura"]
-                    },
-
+                // KITS (BUNDLES) - Destaque
+                const kits = ref([
+                    { name: "Kit Gastronomia Pro", link: "restaurantes.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80", desc: "Comanda, Cardápio, KDS e Delivery.", price: "97,00", oldPrice: "551,00", badge: "80% OFF" },
+                    { name: "Kit Oficina & Serviços", link: "servicos.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80", desc: "OS, Recibo, Vistoria e Orçamento.", price: "97,00", oldPrice: "497,00", badge: "BEST SELLER" },
+                    { name: "Kit Beleza & Estética", link: "beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80", desc: "Agenda, Ficha, Comissões e BioLink.", price: "97,00", oldPrice: "597,00", badge: "NOVO" }
                 ]);
 
-                // Efeito Scroll Header
-                window.addEventListener('scroll', () => {
-                    scrolled.value = window.scrollY > 50;
+                // LISTA COMPLETA DE APPS PROFISSIONAIS
+                const apps = ref([
+                    // GESTÃO
+                    { name: "OS Express", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão completa de ordens de serviço." },
+                    { name: "Recibo Pro", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos profissionais em PDF." },
+                    { name: "Estoque Fácil", category: "Gestão", price: "29,90", oldPrice: "69,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída simplificado." },
+                    { name: "Fluxo de Caixa", category: "Gestão", price: "37,90", oldPrice: "89,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500", desc: "Livro caixa digital receitas e despesas." },
+                    { name: "PDV Frente de Caixa", category: "Gestão", price: "59,90", oldPrice: "120,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Terminal de vendas rápido com catálogo." },
+                    { name: "Gerador Orçamento", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Propostas comerciais formais em PDF." },
+                    { name: "Controle de Fiado", category: "Gestão", price: "24,90", oldPrice: "40,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Gerencie dívidas e cobranças no Zap." },
+                    { name: "Gerador Contrato", category: "Gestão", price: "39,90", oldPrice: "80,00", link: "apps/gestao/contrato/index.html", img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=500", desc: "Crie contratos de serviço prontos." },
+                    { name: "Calc Comissões", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/comissao/index.html", img: "https://images.unsplash.com/photo-1554672723-b27b2f520930?w=500", desc: "Calcule comissões de vendedores." },
+                    { name: "Precificação Pro", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/precificacao/index.html", img: "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=500", desc: "Defina preço de venda ideal." },
+
+                    // FOOD
+                    { name: "Comanda Digital", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/comanda/index.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500", desc: "Controle de mesas e pedidos." },
+                    { name: "Cardápio QR", category: "Food", price: "39,90", oldPrice: "80,00", link: "apps/food/cardapio/index.html", img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500", desc: "Cardápio digital para autoatendimento." },
+                    { name: "KDS Cozinha", category: "Food", price: "55,90", oldPrice: "150,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=500", desc: "Tela de pedidos para cozinha." },
+                    { name: "Ficha Técnica", category: "Food", price: "49,90", oldPrice: "110,00", link: "apps/food/ficha/index.html", img: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500", desc: "Custo exato de receitas." },
+                    { name: "Confeitaria Pro", category: "Food", price: "24,90", oldPrice: "49,00", link: "apps/food/confeitaria/index.html", img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500", desc: "Precificação de bolos e doces." },
+                    { name: "Gorjeta Pro", category: "Food", price: "14,90", oldPrice: "29,00", link: "apps/food/gorjeta/index.html", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500", desc: "Divisão de contas e gorjetas." },
+                    { name: "Gestão Mesas", category: "Food", price: "49,90", oldPrice: "99,00", link: "apps/food/mesas/index.html", img: "https://images.unsplash.com/photo-1550966871-3ed3c6221741?w=500", desc: "Mapa de ocupação do salão." },
+
+                    // SERVIÇOS
+                    { name: "Checklist Vistoria", category: "Serviços", price: "27,90", oldPrice: "50,00", link: "apps/servicos/checklist/index.html", img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500", desc: "Vistorias veiculares e imobiliárias." },
+                    { name: "Agenda Visual", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/agenda/index.html", img: "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=500", desc: "Agenda para salões e consultórios." },
+                    { name: "Orçamento Obra", category: "Serviços", price: "29,90", oldPrice: "49,00", link: "apps/servicos/obra/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Cálculo de materiais e mão de obra." },
+                    { name: "Pet Sitter", category: "Serviços", price: "19,90", oldPrice: "39,00", link: "apps/servicos/petsitter/index.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500", desc: "Relatório de passeios pet." },
+                    { name: "Diarista Pro", category: "Serviços", price: "19,90", oldPrice: "39,00", link: "apps/servicos/diarista/index.html", img: "https://images.unsplash.com/photo-1581578731117-10d52b43b124?w=500", desc: "Controle de diárias e ganhos." },
+                    { name: "Ateliê Costura", category: "Serviços", price: "19,90", oldPrice: "34,90", link: "apps/servicos/costura/index.html", img: "https://images.unsplash.com/photo-1528646067710-5645e3ea1e00?w=500", desc: "Gestão de encomendas e medidas." },
+                    { name: "Jardim Pro", category: "Serviços", price: "15,90", oldPrice: "29,90", link: "apps/servicos/jardim/index.html", img: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=500", desc: "Orçamento de jardinagem." },
+                    { name: "SOS Reparos", category: "Serviços", price: "19,90", oldPrice: "39,90", link: "apps/servicos/reparos/index.html", img: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500", desc: "Orçamentos rápidos de manutenção." },
+                    { name: "Controle KM", category: "Serviços", price: "24,90", oldPrice: "49,00", link: "apps/servicos/km/index.html", img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500", desc: "Controle de rodagem e reembolso." },
+                    { name: "Timer Tarefas", category: "Serviços", price: "24,90", oldPrice: "49,00", link: "apps/servicos/timer/index.html", img: "https://images.unsplash.com/photo-1495364141860-b0d03eccd065?w=500", desc: "Cobrança por hora trabalhada." },
+
+                    // MARKETING
+                    { name: "BioLink Generator", category: "Marketing", price: "27,90", oldPrice: "59,00", link: "apps/mkt/biolink/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Árvore de links para Instagram." },
+                    { name: "QR Code Pro", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/mkt/qrcode/index.html", img: "https://images.unsplash.com/photo-1595079686342-61f680a201f6?w=500", desc: "Gerador de QR Codes personalizados." },
+                    { name: "Sorteador Pro", category: "Marketing", price: "14,90", oldPrice: "29,00", link: "apps/mkt/sorteio/index.html", img: "https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?w=500", desc: "Realize sorteios transparentes." },
+
+                    // RH
+                    { name: "Holerite Maker", category: "RH", price: "19,90", oldPrice: "39,00", link: "apps/rh/holerite/index.html", img: "https://images.unsplash.com/photo-1554224154-260327c00c4b?w=500", desc: "Geração de recibos de pagamento." },
+                    { name: "Ponto Eletrônico", category: "RH", price: "29,90", oldPrice: "59,00", link: "apps/servicos/ponto/index.html", img: "https://images.unsplash.com/photo-1501139083538-0139583c61df?w=500", desc: "Registro de horas trabalhadas." },
+                    { name: "Escala Trabalho", category: "RH", price: "29,90", oldPrice: "60,00", link: "apps/rh/escala/index.html", img: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500", desc: "Organização de turnos." },
+                    { name: "Rescisão Calc", category: "RH", price: "24,90", oldPrice: "50,00", link: "apps/rh/rescisao/index.html", img: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=500", desc: "Simulador de rescisão trabalhista." },
+                    { name: "Diário Professor", category: "RH", price: "19,90", oldPrice: "39,00", link: "apps/educacao/diario/index.html", img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=500", desc: "Chamada e controle escolar." },
+
+                    // SAUDE
+                    { name: "Personal Admin", category: "Saúde Pro", price: "29,90", oldPrice: "59,00", link: "apps/saude/personal/index.html", img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500", desc: "Gestão simples para Personal Trainers." },
+                    { name: "Ficha de Treino", category: "Saúde Pro", price: "29,90", oldPrice: "67,00", link: "apps/saude/treino/index.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Montador de treinos." },
+
+                    // TRANSPORTE
+                    { name: "Driver Pro", category: "Transporte", price: "19,90", oldPrice: "39,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para Uber/99." },
+                    { name: "Moto Lucro", category: "Transporte", price: "15,90", oldPrice: "29,00", link: "apps/transporte/moto/index.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle financeiro motoboy." },
+                    { name: "Calc Combustível", category: "Transporte", price: "15,90", oldPrice: "29,00", link: "apps/transporte/combustivel/index.html", img: "https://images.unsplash.com/photo-1625902382903-516d7a221fcc?w=500", desc: "Divisão de custos de viagem." },
+
+                    // SEGURANCA
+                    { name: "Controle Portaria", category: "Segurança", price: "47,90", oldPrice: "120,00", link: "apps/servicos/portaria/index.html", img: "https://images.unsplash.com/photo-1555963283-da4cb9710cc8?w=500", desc: "Registro de visitantes e prestadores." },
+                ]);
+
+                const filteredApps = computed(() => {
+                    let list = apps.value;
+                    if (filter.value !== 'Todos') list = list.filter(a => a.category === filter.value);
+                    if (search.value) list = list.filter(a => a.name.toLowerCase().includes(search.value.toLowerCase()));
+                    return list;
                 });
 
-                const filteredProducts = computed(() => {
-                    let result = products.value;
-
-                    // Filtro Categoria
-                    if (filterCategory.value !== 'Todos') {
-                        result = result.filter(p => p.category === filterCategory.value);
-                    }
-
-                    // Filtro Busca
-                    if (search.value) {
-                        const q = search.value.toLowerCase();
-                        result = result.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
-                    }
-
-                    return result;
-                });
-
-                const openProduct = (product) => {
-                    selectedProduct.value = product;
-                };
-
-                const openDemoModal = () => {
-                    alert('Em breve: Vídeo de apresentação institucional!');
-                };
-
-                return {
-                    scrolled, search, filterCategory, selectedProduct, categories, filteredProducts,
-                    openProduct, openDemoModal
-                };
+                return { filter, search, categories, filteredApps, kits };
             }
         }).mount('#app');
     </script>

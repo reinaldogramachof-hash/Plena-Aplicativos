@@ -4,258 +4,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo Pro | Plena Apps</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Recibo Pro | Plena</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
         rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f7fee7;
+            font-family: 'Inter', sans-serif;
         }
 
         .font-serif {
             font-family: 'Playfair Display', serif;
         }
 
-        [v-cloak] {
-            display: none;
-        }
-
         .receipt-paper {
             background-color: #fdfbf7;
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 20px 20px;
+            border: 1px solid #e5e7eb;
         }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800">
 
-    <div id="app" v-cloak class="max-w-2xl mx-auto min-h-screen bg-white shadow-2xl flex flex-col relative">
+    <div id="app" class="flex min-h-screen">
 
-        <!-- HEADER -->
-        <header class="bg-emerald-800 text-white p-6 shadow-md z-10">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-serif italic"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Recibo Pro
-                </h1>
-                <div class="flex gap-2">
-                    <button @click="backupData" class="bg-emerald-700 p-2 rounded hover:bg-emerald-600 transition"
-                        title="Backup"><i class="fa-solid fa-download"></i></button>
-                    <label class="bg-emerald-700 p-2 rounded hover:bg-emerald-600 transition cursor-pointer"
-                        title="Restaurar">
-                        <i class="fa-solid fa-upload"></i>
-                        <input type="file" @change="restoreData" class="hidden" accept=".json">
-                    </label>
-                </div>
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 text-white hidden lg:flex flex-col fixed inset-y-0 left-0">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <span class="font-bold text-lg">Recibo Pro</span>
             </div>
-            <p class="text-emerald-200 text-sm mt-1">Emissor de Recibos Profissionais</p>
-        </header>
-
-        <!-- MAIN EDITOR -->
-        <div class="p-6 flex-grow space-y-6">
-
-            <!-- CONFIG -->
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Emitente (Sua Empresa)</label>
-                    <input v-model="emitter" type="text"
-                        class="w-full border-b-2 border-emerald-100 p-2 outline-none focus:border-emerald-500 font-bold text-emerald-900"
-                        placeholder="Seu Nome / Empresa">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">CPF / CNPJ</label>
-                    <input v-model="emitterDoc" type="text"
-                        class="w-full border-b-2 border-emerald-100 p-2 outline-none focus:border-emerald-500"
-                        placeholder="000.000.000-00">
-                </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <div class="px-4 py-2 text-white/50 text-xs uppercase font-bold">Menu</div>
+                <a href="#" class="block px-4 py-2 bg-white/10 rounded-lg text-white font-bold">Criar Recibo</a>
+            </nav>
+            <div class="p-4 border-t border-slate-800">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition px-4 py-2">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
+                </a>
             </div>
+        </aside>
 
-            <!-- RECEIPT FORM -->
-            <div class="bg-white p-6 rounded-xl shadow border-l-4 border-emerald-500">
-                <h3 class="font-bold text-emerald-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-pen"></i> Novo
-                    Recibo</h3>
+        <!-- MAIN -->
+        <main class="flex-1 lg:ml-64 p-8">
+            <h2 class="text-2xl font-bold mb-6">Novo Recibo</h2>
 
-                <div class="grid grid-cols-1 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Pagador (Cliente)</label>
-                        <input v-model="client" type="text"
-                            class="w-full bg-gray-50 rounded p-3 outline-none focus:ring-2 focus:ring-emerald-200"
-                            placeholder="Nome do Cliente">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- FORM -->
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
+                        <h3 class="font-bold text-sm text-slate-400 uppercase">Emitente</h3>
+                        <input v-model="emitter" placeholder="Seu Nome / Empresa" class="w-full border p-2 rounded">
+                        <input v-model="emitterDoc" placeholder="CPF/CNPJ" class="w-full border p-2 rounded">
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
+                        <h3 class="font-bold text-sm text-slate-400 uppercase">Dados do Recibo</h3>
+                        <input v-model="client" placeholder="Nome do Cliente" class="w-full border p-2 rounded">
+                        <input v-model.number="value" type="number" placeholder="Valor R$"
+                            class="w-full border p-2 rounded">
+                        <textarea v-model="desc" placeholder="Referente a..."
+                            class="w-full border p-2 rounded"></textarea>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Valor (R$)</label>
-                        <input v-model="value" type="number"
-                            class="w-full bg-gray-50 rounded p-3 outline-none focus:ring-2 focus:ring-emerald-200 font-mono font-bold text-lg"
-                            placeholder="0.00">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Data</label>
-                        <input v-model="date" type="date"
-                            class="w-full bg-gray-50 rounded p-3 outline-none focus:ring-2 focus:ring-emerald-200">
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Referente à</label>
-                    <textarea v-model="desc" rows="2"
-                        class="w-full bg-gray-50 rounded p-3 outline-none focus:ring-2 focus:ring-emerald-200"
-                        placeholder="Serviços prestados de..."></textarea>
-                </div>
-            </div>
-
-            <!-- PREVIEW CARD -->
-            <div
-                class="receipt-paper p-8 shadow-lg border border-gray-200 relative transform rotate-1 transition hover:rotate-0 duration-500">
-                <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 -mt-3 w-16 h-6 bg-emerald-800/10 rounded-full blur-xl">
-                </div>
-
-                <div class="text-center mb-6 border-b-2 border-emerald-800 pb-4">
-                    <h2 class="text-3xl font-serif text-emerald-900 font-bold">RECIBO</h2>
-                    <p class="font-mono text-emerald-700 font-bold text-xl">R$ {{ parseFloat(value||0).toFixed(2) }}</p>
-                </div>
-
-                <p class="leading-relaxed text-gray-800 text-justify mb-6">
-                    Recebi(emos) de <span class="font-bold border-b border-dashed border-gray-400 px-1">{{ client ||
-                        '...................' }}</span>
-                    a importância de <span class="font-bold">R$ {{ parseFloat(value||0).toFixed(2) }}</span>,
-                    referente à <span class="italic">{{ desc || '...................' }}</span>.
-                </p>
-
-                <div class="flex justify-between items-end mt-12 text-sm">
-                    <div class="text-center">
-                        <p>{{ dateFormatted }}</p>
-                        <p class="text-xs text-gray-400 uppercase">Data</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-emerald-900">{{ emitter || 'Assinatura' }}</p>
-                        <p class="text-xs">{{ emitterDoc }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <button @click="shareWhatsapp"
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 transition transform hover:scale-[1.02]">
-                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Recibo
-            </button>
-
-            <!-- HISTÓRICO -->
-            <div class="mt-8 border-t border-gray-200 pt-6">
-                <h3 class="font-bold text-gray-500 text-sm uppercase mb-4">Últimos Recibos</h3>
-                <div class="space-y-2">
-                    <div v-for="(rec, idx) in history" :key="idx"
-                        class="flex justify-between items-center bg-gray-50 p-3 rounded hover:bg-gray-100 cursor-pointer"
-                        @click="loadReceipt(rec)">
-                        <div>
-                            <p class="font-bold text-gray-800">{{ rec.client }}</p>
-                            <p class="text-xs text-gray-500">{{ rec.date }}</p>
+                <!-- PREVIEW -->
+                <div class="space-y-4">
+                    <div class="receipt-paper p-8 shadow-lg text-center space-y-6">
+                        <h2 class="text-3xl font-serif font-bold">RECIBO</h2>
+                        <div class="text-2xl font-mono font-bold">R$ {{ parseFloat(value||0).toFixed(2) }}</div>
+                        <p class="text-justify leading-relaxed">
+                            Recebi(emos) de <b>{{ client || '................' }}</b> a importância supra de
+                            <b>R$ {{ parseFloat(value||0).toFixed(2) }}</b> referente a
+                            <i>{{ desc || '................' }}</i>.
+                        </p>
+                        <div class="flex justify-between text-sm pt-8">
+                            <div>{{ new Date().toLocaleDateString() }}</div>
+                            <div>{{ emitter || 'Assinatura' }}</div>
                         </div>
-                        <div class="font-mono font-bold text-emerald-600">R$ {{ rec.value }}</div>
                     </div>
+
+                    <button @click="shareWhatsapp"
+                        class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 transition">
+                        <i class="fa-brands fa-whatsapp"></i> Enviar Recibo
+                    </button>
                 </div>
             </div>
-
-        </div>
+        </main>
 
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
-
+        const { createApp, ref } = Vue;
         createApp({
             setup() {
-                // STATE
                 const emitter = ref("");
                 const emitterDoc = ref("");
                 const client = ref("");
                 const value = ref(0);
                 const desc = ref("");
-                const date = ref(new Date().toISOString().split('T')[0]);
-                const history = ref([]);
 
-                // COMPUTED
-                const dateFormatted = computed(() => {
-                    const parts = date.value.split('-');
-                    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                });
-
-                // ACTIONS
                 const shareWhatsapp = () => {
-                    const text = `🧾 *RECIBO PAGAMENTO* 🧾\n\n` +
-                        `Emitente: ${emitter.value}\nCPF/CNPJ: ${emitterDoc.value}\n\n` +
-                        `Pagador: ${client.value}\n` +
-                        `Valor: *R$ ${parseFloat(value.value).toFixed(2)}*\n` +
-                        `Data: ${dateFormatted.value}\n\n` +
-                        `Ref: ${desc.value}\n\n` +
-                        `_Comprovante gerado digitalmente._`;
-
-                    // Save to history before sharing
-                    history.value.unshift({ client: client.value, value: parseFloat(value.value).toFixed(2), date: dateFormatted.value, desc: desc.value });
-
+                    const text = `🧾 RECIBO\nValor: R$ ${parseFloat(value.value || 0).toFixed(2)}\nDe: ${emitter.value}\nPara: ${client.value}\nRef: ${desc.value}`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                const loadReceipt = (rec) => {
-                    client.value = rec.client;
-                    value.value = rec.value;
-                    desc.value = rec.desc;
-                    // Note: Date parsing back to input format omitted for simplicity, keeps current date or needs logic
-                };
-
-                // DATA MGMT
-                const backupData = () => {
-                    const data = { history: history.value, config: { emitter: emitter.value, doc: emitterDoc.value } };
-                    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `backup_recibo_${Date.now()}.json`;
-                    a.click();
-                };
-
-                const restoreData = (e) => {
-                    const f = e.target.files[0];
-                    if (!f) return;
-                    const r = new FileReader();
-                    r.onload = (v) => {
-                        try {
-                            const d = JSON.parse(v.target.result);
-                            if (d.history) history.value = d.history;
-                            if (d.config) { emitter.value = d.config.emitter; emitterDoc.value = d.config.doc; }
-                            alert("Restaurado!");
-                        } catch (er) { alert("Erro arquivo"); }
-                    };
-                    r.readAsText(f);
-                };
-
-                // STORAGE
-                onMounted(() => {
-                    const s = localStorage.getItem('plena_recibo');
-                    if (s) {
-                        const d = JSON.parse(s);
-                        history.value = d.history || [];
-                        emitter.value = d.emitter || "";
-                        emitterDoc.value = d.emitterDoc || "";
-                    }
-                });
-
-                watch([history, emitter, emitterDoc], () => {
-                    localStorage.setItem('plena_recibo', JSON.stringify({
-                        history: history.value, emitter: emitter.value, emitterDoc: emitterDoc.value
-                    }));
-                }, { deep: true });
-
-                return {
-                    emitter, emitterDoc, client, value, desc, date, dateFormatted, history,
-                    shareWhatsapp, loadReceipt, backupData, restoreData
-                };
+                return { emitter, emitterDoc, client, value, desc, shareWhatsapp };
             }
         }).mount('#app');
     </script>
