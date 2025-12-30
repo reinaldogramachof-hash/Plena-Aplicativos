@@ -4,217 +4,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Pro | Plena Apps</title>
+    <title>Driver Lite | Plena Apps</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #0f172a;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         [v-cloak] {
             display: none;
         }
-
-        input {
-            color-scheme: dark;
-        }
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen flex flex-col">
+    <div id="app" v-cloak class="flex min-h-screen">
 
-        <header class="bg-slate-900 border-b border-slate-700 p-6 flex justify-between items-center">
-            <div>
-                <h1 class="font-bold text-xl text-yellow-400"><i class="fa-solid fa-taxi"></i> Driver Pro</h1>
-                <p class="text-xs text-slate-400">Gestão para Motoristas</p>
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white fixed h-full z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-700/50">
+                <div
+                    class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/30">
+                    <i class="fa-solid fa-car text-slate-900 text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Driver<span class="text-yellow-400">Lite</span></span>
             </div>
-            <div class="flex gap-2">
-                <button @click="backupData" class="text-slate-400 hover:text-white" title="Backup"><i
-                        class="fa-solid fa-download"></i></button>
-                <label class="text-slate-400 hover:text-white cursor-pointer" title="Restaurar"><i
-                        class="fa-solid fa-upload"></i><input type="file" @change="restoreData" class="hidden"
-                        accept=".json"></label>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <button
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium shadow-inner border border-slate-700">
+                    <i class="fa-solid fa-coins w-5 text-yellow-400"></i> Meu Caixa
+                </button>
+            </nav>
+            <div class="p-4 border-t border-slate-700/50">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
             </div>
+        </aside>
+
+        <!-- MOBILE HEADER -->
+        <header
+            class="md:hidden fixed w-full bg-slate-900 text-white z-20 shadow-md px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center text-slate-900">
+                    <i class="fa-solid fa-car"></i>
+                </div>
+                <span class="font-bold tracking-tight">Driver<span class="text-yellow-400">Lite</span></span>
+            </div>
+            <a href="../../../index.html" class="text-slate-300 hover:text-white"><i
+                    class="fa-solid fa-arrow-left text-xl"></i></a>
         </header>
 
-        <!-- DASHBOARD -->
-        <div class="p-6 bg-slate-800 m-4 rounded-xl shadow-lg border border-slate-700">
-            <div class="flex justify-between items-end mb-2">
-                <span class="text-xs uppercase text-slate-400 font-bold">Lucro do Dia</span>
-                <span class="text-xs bg-slate-700 px-2 py-1 rounded text-green-400 font-mono">{{ profitMargin }}%
-                    Margem</span>
-            </div>
-            <div class="text-4xl font-bold text-green-500 mb-1">R$ {{ netProfit.toFixed(2) }}</div>
-            <div class="text-xs text-slate-500 flex justify-between">
-                <span>Bruto: R$ {{ totalEarnings.toFixed(2) }}</span>
-                <span>Gastos: R$ {{ totalExpenses.toFixed(2) }}</span>
-            </div>
-        </div>
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-64 pt-20 md:pt-8 px-4 md:px-8 pb-32 max-w-4xl mx-auto w-full">
 
-        <!-- INPUTS -->
-        <div class="px-4 space-y-4">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">Controle Diário</h2>
+                <p class="text-slate-500 text-sm">Registre corridas e gastos rapidamente.</p>
+            </div>
 
-            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                <h3 class="text-sm font-bold text-slate-300 mb-3 uppercase"><i
-                        class="fa-solid fa-plus text-green-500"></i> Ganhos</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-slate-500 uppercase">Uber/99 (R$)</label>
-                        <input v-model.number="entry.earnings" type="number" step="0.01"
-                            class="w-full bg-slate-800 border-slate-600 rounded p-2 text-white focus:border-yellow-500 outline-none">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <!-- CARD GANHOS -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Ganhos do Dia</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl font-bold text-slate-300">R$</span>
+                            <input v-model.number="daily.income" type="number"
+                                class="w-full text-4xl font-bold text-green-600 outline-none placeholder-slate-200"
+                                placeholder="0.00">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-500 uppercase">Gorjetas (R$)</label>
-                        <input v-model.number="entry.tips" type="number" step="0.01"
-                            class="w-full bg-slate-800 border-slate-600 rounded p-2 text-white focus:border-yellow-500 outline-none">
+
+                    <!-- CARD GASTOS -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Combustível /
+                            Gastos</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl font-bold text-slate-300">R$</span>
+                            <input v-model.number="daily.expense" type="number"
+                                class="w-full text-4xl font-bold text-red-600 outline-none placeholder-slate-200"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <button @click="closeDay"
+                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-4 rounded-xl shadow-lg shadow-yellow-500/30 transition transform active:scale-[0.98]">
+                        Fechar o Dia
+                    </button>
+                </div>
+
+                <!-- RESUMO / HISTORY -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Últimos 7 Dias</h3>
+
+                    <div v-if="history.length === 0"
+                        class="p-8 bg-slate-100 rounded-xl text-center text-slate-400 border border-slate-200 border-dashed">
+                        <i class="fa-solid fa-road text-3xl mb-2"></i>
+                        <p>Sem histórico recente.</p>
+                    </div>
+
+                    <div v-for="(day, idx) in history" :key="idx"
+                        class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
+                        <div>
+                            <span class="font-bold text-slate-700 block">{{ day.date }}</span>
+                            <span class="text-xs text-red-400 font-medium">Gastos: -R$ {{ day.expense.toFixed(2)
+                                }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-black text-green-600 block">+ R$ {{ (day.income - day.expense).toFixed(2)
+                                }}</span>
+                            <span class="text-xs text-green-500/70 font-bold">Líquido</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                <h3 class="text-sm font-bold text-slate-300 mb-3 uppercase"><i
-                        class="fa-solid fa-minus text-red-500"></i> Despesas</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-slate-500 uppercase">Combustível (R$)</label>
-                        <input v-model.number="entry.fuel" type="number" step="0.01"
-                            class="w-full bg-slate-800 border-slate-600 rounded p-2 text-white focus:border-red-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-500 uppercase">Alimentação (R$)</label>
-                        <input v-model.number="entry.food" type="number" step="0.01"
-                            class="w-full bg-slate-800 border-slate-600 rounded p-2 text-white focus:border-red-500 outline-none">
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <label class="block text-[10px] text-slate-500 uppercase">KM Rodado</label>
-                    <input v-model.number="entry.km" type="number"
-                        class="w-full bg-transparent text-white font-bold outline-none">
-                </div>
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <label class="block text-[10px] text-slate-500 uppercase">Horas Trab.</label>
-                    <input v-model.number="entry.hours" type="number"
-                        class="w-full bg-transparent text-white font-bold outline-none">
-                </div>
-            </div>
-
-            <button @click="saveDay"
-                class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg shadow-lg">
-                <i class="fa-solid fa-save"></i> Fechar o Dia
-            </button>
-
-        </div>
-
-        <!-- HISTORY (Recent 3) -->
-        <div class="mt-8 px-4">
-            <h3 class="text-xs text-slate-500 uppercase font-bold mb-2">Histórico Recente</h3>
-            <div class="space-y-2">
-                <div v-for="(day, idx) in history.slice(0,3)" :key="idx"
-                    class="bg-slate-800 p-3 rounded flex justify-between items-center text-sm border-l-4 border-green-500">
-                    <span class="text-slate-300">{{ formatDate(day.date) }}</span>
-                    <span class="font-bold text-green-400">R$ {{ day.net.toFixed(2) }}</span>
-                </div>
-                <div v-if="history.length === 0" class="text-slate-600 text-xs italic text-center py-2">Nenhum dia
-                    registrado.</div>
-            </div>
-
-            <button v-if="history.length > 0" @click="shareReport"
-                class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2">
-                <i class="fa-brands fa-whatsapp"></i> Relatório Semanal
-            </button>
-        </div>
-
+        </main>
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const { createApp, ref, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                const entry = ref({ earnings: 0, tips: 0, fuel: 0, food: 0, km: 0, hours: 0 });
+                const daily = ref({ income: null, expense: null });
                 const history = ref([]);
 
-                const totalEarnings = computed(() => (entry.value.earnings || 0) + (entry.value.tips || 0));
-                const totalExpenses = computed(() => (entry.value.fuel || 0) + (entry.value.food || 0));
-                const netProfit = computed(() => totalEarnings.value - totalExpenses.value);
-
-                const profitMargin = computed(() => {
-                    if (totalEarnings.value === 0) return 0;
-                    return ((netProfit.value / totalEarnings.value) * 100).toFixed(0);
-                });
-
-                const saveDay = () => {
-                    if (totalEarnings.value === 0 && totalExpenses.value === 0) return alert("Preencha os valores!");
+                const closeDay = () => {
+                    if (!daily.value.income && !daily.value.expense) return;
 
                     history.value.unshift({
-                        date: new Date().toISOString(),
-                        ...entry.value,
-                        net: netProfit.value
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        income: daily.value.income || 0,
+                        expense: daily.value.expense || 0
                     });
 
-                    alert(`Dia salvo! Lucro: R$ ${netProfit.value.toFixed(2)}`);
-                    entry.value = { earnings: 0, tips: 0, fuel: 0, food: 0, km: 0, hours: 0 }; // Reset
+                    daily.value = { income: null, expense: null };
+                    // Keep just last 7 days for "Basic" version
+                    if (history.value.length > 7) history.value.pop();
                 };
 
-                const formatDate = (iso) => {
-                    const d = new Date(iso);
-                    return d.toLocaleDateString('pt-BR');
-                };
-
-                const shareReport = () => {
-                    const last7 = history.value.slice(0, 7);
-                    const sum = last7.reduce((acc, d) => acc + d.net, 0);
-                    const km = last7.reduce((acc, d) => acc + (d.km || 0), 0);
-
-                    let text = `🚕 *Relatório Driver Pro*\n\n`;
-                    text += `Últimos ${last7.length} dias:\n`;
-                    text += `💰 *Lucro Total: R$ ${sum.toFixed(2)}*\n`;
-                    text += `🛣️ KM Total: ${km} km\n\n`;
-                    text += `*Destalhes:*\n`;
-                    last7.forEach(d => {
-                        text += `- ${formatDate(d.date)}: R$ ${d.net.toFixed(2)}\n`;
-                    });
-
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                };
-
-                // Backup/Restore
-                const backupData = () => {
-                    const blob = new Blob([JSON.stringify(history.value)], { type: "application/json" });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `driver_backup_${Date.now()}.json`;
-                    a.click();
-                };
-
-                const restoreData = (e) => {
-                    const f = e.target.files[0];
-                    if (!f) return;
-                    const r = new FileReader();
-                    r.onload = (v) => { history.value = JSON.parse(v.target.result); alert("Restaurado!"); };
-                    r.readAsText(f);
-                };
-
-                // Persist
                 onMounted(() => {
-                    const d = localStorage.getItem('plena_driver');
+                    const d = localStorage.getItem('plena_driver_lite');
                     if (d) history.value = JSON.parse(d);
-                });
-                watch(history, () => localStorage.setItem('plena_driver', JSON.stringify(history.value)), { deep: true });
 
-                return {
-                    entry, totalEarnings, totalExpenses, netProfit, profitMargin, history,
-                    saveDay, formatDate, shareReport, backupData, restoreData
-                };
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Driver Lite',
+                            plusName: 'Plena Driver',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_driver.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80'
+                        });
+                    }
+                });
+
+                watch(history, () => localStorage.setItem('plena_driver_lite', JSON.stringify(history.value)), { deep: true });
+
+                return { daily, history, closeDay };
             }
         }).mount('#app');
     </script>

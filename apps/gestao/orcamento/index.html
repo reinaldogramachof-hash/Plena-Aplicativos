@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Orçamentos | Plena Business</title>
+    <title>Orçamentos Simples | Plena Business</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -45,7 +46,7 @@
                     <i class="fa-solid fa-file-invoice text-white text-sm"></i>
                 </div>
                 <!-- brand text -->
-                <span class="font-bold text-lg tracking-tight">Orça<span class="text-indigo-400">Pro</span></span>
+                <span class="font-bold text-lg tracking-tight">Orça<span class="text-indigo-400">Simples</span></span>
             </div>
 
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
@@ -89,7 +90,7 @@
                     <i class="fa-solid fa-file-invoice"></i>
                 </div>
                 <span class="font-bold text-slate-800 tracking-tight">Orça<span
-                        class="text-indigo-600">Pro</span></span>
+                        class="text-indigo-600">Simples</span></span>
             </div>
             <button @click="isMenuOpen = !isMenuOpen"
                 class="w-10 h-10 flex items-center justify-center text-slate-600 rounded-full hover:bg-slate-100 transition">
@@ -343,6 +344,15 @@
                 onMounted(() => {
                     const h = localStorage.getItem('plena_orc_hist');
                     if (h) history.value = JSON.parse(h);
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Orçamentos Simples',
+                            plusName: 'Plena Orçamentos',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_orcamentos.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+                        });
+                    }
                 });
                 watch(history, () => localStorage.setItem('plena_orc_hist', JSON.stringify(history.value)), { deep: true });
 

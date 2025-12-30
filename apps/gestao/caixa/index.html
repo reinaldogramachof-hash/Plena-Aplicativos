@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxo de Caixa | Plena Business</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Fluxo Simples | Plena Business</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -72,7 +73,7 @@
                     class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/30">
                     <i class="fa-solid fa-wallet text-white text-sm"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight">Fluxo<span class="text-green-400">Caixa</span></span>
+                <span class="font-bold text-lg tracking-tight">Fluxo<span class="text-green-400">Simples</span></span>
             </div>
 
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
@@ -106,7 +107,7 @@
                     <i class="fa-solid fa-wallet"></i>
                 </div>
                 <span class="font-bold text-slate-800 tracking-tight">Fluxo<span
-                        class="text-green-500">Caixa</span></span>
+                        class="text-green-500">Simples</span></span>
             </div>
             <button @click="isMenuOpen = !isMenuOpen"
                 class="w-10 h-10 flex items-center justify-center text-slate-600 rounded-full hover:bg-slate-100 transition">
@@ -156,7 +157,7 @@
             <!-- HEADER & ACTIONS -->
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Fluxo de Caixa</h2>
+                    <h2 class="text-2xl font-bold text-slate-800">Fluxo Simples</h2>
                     <p class="text-slate-500 text-sm">Controle financeiro simples para o dia a dia.</p>
                 </div>
                 <div class="flex gap-2">
@@ -447,6 +448,15 @@
                 onMounted(() => {
                     const d = localStorage.getItem('plena_caixa');
                     if (d) transactions.value = JSON.parse(d);
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Fluxo Simples',
+                            plusName: 'Plena Finanças',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_financas.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80'
+                        });
+                    }
                 });
 
                 watch(transactions, () => localStorage.setItem('plena_caixa', JSON.stringify(transactions.value)), { deep: true });

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Comanda Digital | Plena</title>
+    <title>Comanda Sorvete | Plena</title>
     <!-- CDNs -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,36 +31,36 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
+<body class="bg-pink-50 text-slate-800 h-screen overflow-hidden">
 
     <div id="app" v-cloak class="flex h-full">
 
         <!-- SIDEBAR -->
         <aside
-            :class="['fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transition-transform lg:static lg:translate-x-0 flex flex-col', isMenuOpen ? 'translate-x-0' : '-translate-x-full']">
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-utensils"></i></div>
-                <span class="font-bold text-lg leading-tight">Comanda Pro</span>
+            :class="['fixed inset-y-0 left-0 z-50 w-64 bg-fuchsia-900 text-white transition-transform lg:static lg:translate-x-0 flex flex-col', isMenuOpen ? 'translate-x-0' : '-translate-x-full']">
+            <div class="p-6 border-b border-fuchsia-800 flex items-center gap-3">
+                <div class="bg-pink-500 p-2 rounded-lg"><i class="fa-solid fa-ice-cream"></i></div>
+                <span class="font-bold text-lg leading-tight">Comanda Sorvete</span>
             </div>
             <nav class="flex-1 p-4 space-y-2">
                 <button
                     class="w-full text-left px-4 py-3 rounded-xl bg-white/10 text-white font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells"></i> Mesas
+                    <i class="fa-solid fa-ticket"></i> Comandas
                 </button>
-                <div class="px-4 py-2 text-slate-500 text-xs uppercase font-bold mt-4">Gestão</div>
+                <div class="px-4 py-2 text-fuchsia-300 text-xs uppercase font-bold mt-4">Gestão</div>
                 <button @click="backupData"
-                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+                    class="w-full text-left px-4 py-2 rounded-lg text-fuchsia-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
                     <i class="fa-solid fa-cloud-arrow-down"></i> Backup
                 </button>
                 <label
-                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2 cursor-pointer">
+                    class="w-full text-left px-4 py-2 rounded-lg text-fuchsia-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Restaurar
                     <input type="file" @change="restoreData" class="hidden" accept=".json">
                 </label>
             </nav>
-            <div class="p-4 border-t border-slate-800">
+            <div class="p-4 border-t border-fuchsia-800">
                 <a href="../../../index.html"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition px-4 py-2">
+                    class="flex items-center gap-2 text-fuchsia-300 hover:text-white transition px-4 py-2">
                     <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
                 </a>
             </div>
@@ -75,28 +75,28 @@
             <header class="lg:hidden bg-white p-4 border-b flex justify-between items-center shadow-sm z-30">
                 <button @click="isMenuOpen = true" class="text-slate-600"><i
                         class="fa-solid fa-bars text-xl"></i></button>
-                <span class="font-bold text-slate-800">Comanda Pro</span>
+                <span class="font-bold text-slate-800">Comanda Sorvete</span>
                 <span class="w-6"></span>
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 lg:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Salão de Mesas</h2>
-                        <p class="text-sm text-slate-500">Toque em uma mesa para abrir a comanda.</p>
+                        <h2 class="text-2xl font-bold text-slate-800">Comandas e Cartões</h2>
+                        <p class="text-sm text-slate-500">Toque em um cartão para lançar pedidos.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
                     <div v-for="t in tables" :key="t.id" @click="openTable(t)"
                         class="table-card p-4 rounded-2xl cursor-pointer relative h-32 flex flex-col justify-between shadow-sm border transaction hover:shadow-md"
-                        :class="t.items.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200 hover:border-blue-300'">
+                        :class="t.items.length > 0 ? 'bg-pink-100 border-pink-300' : 'bg-white border-slate-200 hover:border-pink-300'">
 
                         <div class="flex justify-between items-start">
                             <span class="text-2xl font-bold"
-                                :class="t.items.length > 0 ? 'text-red-600' : 'text-slate-700'">{{ t.id }}</span>
-                            <i class="fa-solid fa-users text-xl"
-                                :class="t.items.length > 0 ? 'text-red-300' : 'text-slate-200'"></i>
+                                :class="t.items.length > 0 ? 'text-pink-600' : 'text-slate-600'">{{ t.id }}</span>
+                            <i class="fa-solid fa-stopwatch text-xl"
+                                :class="t.items.length > 0 ? 'text-pink-300' : 'text-slate-200'"></i>
                         </div>
 
                         <div class="text-right">
@@ -114,19 +114,19 @@
         <div v-if="selectedTable"
             class="absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl border-l border-slate-200 z-50 flex flex-col transform transition-transform duration-300">
             <!-- Header -->
-            <div class="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
+            <div class="bg-fuchsia-900 text-white p-4 flex justify-between items-center shrink-0">
                 <div>
-                    <span class="text-xs font-bold text-slate-400 uppercase">Comanda</span>
-                    <h2 class="font-bold text-xl leading-none">Mesa {{ selectedTable.id }}</h2>
+                    <span class="text-xs font-bold text-fuchsia-300 uppercase">Cartão / Mesa</span>
+                    <h2 class="font-bold text-xl leading-none">Número {{ selectedTable.id }}</h2>
                 </div>
-                <button @click="selectedTable = null" class="text-slate-400 hover:text-white transition p-2"><i
+                <button @click="selectedTable = null" class="text-fuchsia-300 hover:text-white transition p-2"><i
                         class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
             <!-- Items List -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50">
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-pink-50">
                 <div v-for="(item, idx) in selectedTable.items" :key="idx"
-                    class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                    class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-pink-100">
                     <div>
                         <p class="font-bold text-slate-800 text-sm">{{ item.name }}</p>
                         <p class="text-xs text-slate-500">R$ {{ item.price.toFixed(2) }}</p>
@@ -136,7 +136,7 @@
                 </div>
                 <div v-if="selectedTable.items.length === 0"
                     class="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
-                    <i class="fa-solid fa-basket-shopping text-4xl opacity-20"></i>
+                    <i class="fa-solid fa-ice-cream text-4xl opacity-20"></i>
                     <p class="text-sm">Nenhum pedido lançado</p>
                 </div>
             </div>
@@ -146,12 +146,12 @@
                 <label class="block text-xs font-bold text-slate-400 uppercase">Adicionar Produto</label>
                 <div class="flex gap-2">
                     <select v-model="selectedProduct"
-                        class="flex-grow bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        class="flex-grow bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-pink-500">
                         <option :value="null">Selecione...</option>
-                        <option v-for="p in menu" :value="p">{{ p.name }} - {{ p.price }}</option>
+                        <option v-for="p in menu" :value="p">{{ p.name }} - R$ {{ p.price.toFixed(2) }}</option>
                     </select>
                     <button @click="addItem"
-                        class="bg-blue-600 hover:bg-blue-700 text-white w-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"><i
+                        class="bg-pink-600 hover:bg-pink-700 text-white w-12 rounded-xl flex items-center justify-center shadow-lg shadow-pink-500/20"><i
                             class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
@@ -181,19 +181,20 @@
         createApp({
             setup() {
                 const isMenuOpen = ref(false);
-                const tables = ref(Array.from({ length: 20 }, (_, i) => ({ id: i + 1, items: [] })));
+                const tables = ref(Array.from({ length: 50 }, (_, i) => ({ id: i + 1, items: [] })));
                 const selectedTable = ref(null);
                 const selectedProduct = ref(null);
 
                 const menu = ref([
-                    { name: 'Cerveja 600ml', price: 12.00 },
-                    { name: 'Refrigerante Lata', price: 6.00 },
-                    { name: 'Água Cristal', price: 4.00 },
-                    { name: 'Porção Fritas', price: 25.00 },
-                    { name: 'Porção Isca Peixe', price: 45.00 },
-                    { name: 'Hamburguer Artesanal', price: 28.00 },
-                    { name: 'Suco Natural', price: 10.00 },
-                    { name: 'Caipirinha', price: 18.00 }
+                    { name: 'Sorvete 1 Bola', price: 7.00 },
+                    { name: 'Sorvete 2 Bolas', price: 12.00 },
+                    { name: 'Milkshake P', price: 15.00 },
+                    { name: 'Milkshake G', price: 20.00 },
+                    { name: 'Açaí 300ml', price: 18.00 },
+                    { name: 'Açaí 500ml', price: 24.00 },
+                    { name: 'Sundae', price: 16.00 },
+                    { name: 'Banana Split', price: 28.00 },
+                    { name: 'Água Mineral', price: 4.00 }
                 ]);
 
                 const openTable = (t) => selectedTable.value = t;
@@ -202,11 +203,10 @@
                 const addItem = () => {
                     if (!selectedProduct.value || !selectedTable.value) return;
                     selectedTable.value.items.push({ ...selectedProduct.value });
-                    // selectedProduct.value = null; // Optional: keep selection for quick add
                 };
 
                 const closeTable = () => {
-                    if (confirm(`Encerrar mesa ${selectedTable.value.id} e limpar comanda?`)) {
+                    if (confirm(`Encerrar comanda ${selectedTable.value.id} e limpar?`)) {
                         selectedTable.value.items = [];
                         selectedTable.value = null;
                     }
@@ -214,7 +214,7 @@
 
                 const shareWhatsapp = () => {
                     const t = selectedTable.value;
-                    let text = `🧾 *Conta - Mesa ${t.id}*\n\n`;
+                    let text = `🍦 *Sorveteria - Comanda ${t.id}*\n\n`;
 
                     const grouped = {};
                     t.items.forEach(i => {
@@ -235,7 +235,7 @@
                     const blob = new Blob([JSON.stringify(tables.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `backup_comandas_${Date.now()}.json`;
+                    a.download = `backup_sorveteria_${Date.now()}.json`;
                     a.click();
                 };
 
@@ -248,19 +248,19 @@
                 };
 
                 onMounted(() => {
-                    const d = localStorage.getItem('plena_comanda_tables');
+                    const d = localStorage.getItem('plena_sorvete_data');
                     if (d) tables.value = JSON.parse(d);
 
                     if (window.PlenaUpsell) {
                         PlenaUpsell.init({
-                            appName: 'Comanda Digital',
-                            plusName: 'Plena Restaurante',
-                            plusLink: '../../../../Mercado Livre/apps.plus/plena_restaurante.html',
-                            dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
+                            appName: 'Comanda Sorvete',
+                            plusName: 'Plena Sorveteria',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_sorveteria.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=800&q=80'
                         });
                     }
                 });
-                watch(tables, () => localStorage.setItem('plena_comanda_tables', JSON.stringify(tables.value)), { deep: true });
+                watch(tables, () => localStorage.setItem('plena_sorvete_data', JSON.stringify(tables.value)), { deep: true });
 
                 return {
                     isMenuOpen, tables, selectedTable, menu, selectedProduct,

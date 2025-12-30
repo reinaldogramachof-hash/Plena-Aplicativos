@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDV Frente de Caixa | Plena Business</title>
+    <title>Caixa Express | Plena Business</title>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -94,7 +95,7 @@
                     class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
                     <i class="fa-solid fa-store text-white text-sm"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight">PDV<span class="text-blue-400">Pro</span></span>
+                <span class="font-bold text-lg tracking-tight">Caixa<span class="text-blue-400">Express</span></span>
             </div>
 
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
@@ -148,8 +149,8 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
                         <i class="fa-solid fa-store text-xs"></i>
                     </div>
-                    <span class="font-bold text-slate-800 tracking-tight">PDV<span
-                            class="text-blue-600">Pro</span></span>
+                    <span class="font-bold text-slate-800 tracking-tight">Caixa<span
+                            class="text-blue-600">Express</span></span>
                 </div>
                 <button @click="sidebarOpen = !sidebarOpen"
                     class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-full transition">
@@ -579,6 +580,15 @@
                 onMounted(() => {
                     const savedProds = localStorage.getItem(DB_KEY_PRODUCTS);
                     if (savedProds) products.value = JSON.parse(savedProds);
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Caixa Express',
+                            plusName: 'Plena PDV',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_pdv.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=800&q=80'
+                        });
+                    }
                     else {
                         // Seed basic products
                         products.value = [

@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
@@ -247,6 +248,15 @@
                 onMounted(() => {
                     const d = localStorage.getItem(DB_KEY);
                     if (d) history.value = JSON.parse(d);
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Ponto Eletrônico',
+                            plusName: 'Plena RH',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_financas.html', // Mapping to Financas as fallback or RH if exists
+                            dashboardPreview: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80'
+                        });
+                    }
                 });
                 watch(history, () => localStorage.setItem(DB_KEY, JSON.stringify(history.value)), { deep: true });
 

@@ -11,7 +11,9 @@
     <!-- Google Fonts: Oswald for headings, Inter for UI -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
         rel="stylesheet">
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -477,6 +479,15 @@
                             if (parsed.config) config.value = parsed.config;
                             if (parsed.categories) categories.value = parsed.categories;
                         } catch (e) { }
+                    }
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Cardápio Digital',
+                            plusName: 'Plena Fast Food',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_restaurante.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
+                        });
                     }
                 });
 

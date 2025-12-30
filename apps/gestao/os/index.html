@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <!-- Fontes -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&family=Roboto:wght@400;700&display=swap"
@@ -310,7 +311,8 @@
                             <div class="flex justify-between text-sm"><span>Mão de Obra:</span> <span>R$ {{
                                     (os.labor||0).toFixed(2) }}</span></div>
                             <div class="flex justify-between text-sm text-red-600" v-if="os.discount">
-                                <span>Desconto:</span> <span>- R$ {{ (os.discount||0).toFixed(2) }}</span></div>
+                                <span>Desconto:</span> <span>- R$ {{ (os.discount||0).toFixed(2) }}</span>
+                            </div>
                             <div class="flex justify-between border-t-2 border-black pt-2 font-black text-2xl mt-4">
                                 <span>TOTAL</span> <span>R$ {{ totalFormatted }}</span>
                             </div>
@@ -426,6 +428,16 @@
                 onMounted(() => {
                     const h = localStorage.getItem('plena_os_history');
                     if (h) history.value = JSON.parse(h);
+
+                    // Inicializa Upsell para Versão Plus
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'OS Express',
+                            plusName: 'Plena Assistência',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_assistencia.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1551288049-bbbda5366fd9?w=800'
+                        });
+                    }
                 });
                 watch(history, () => localStorage.setItem('plena_os_history', JSON.stringify(history.value)), { deep: true });
 

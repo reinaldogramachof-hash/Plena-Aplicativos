@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda Express | Plena Business</title>
+    <title>Agenda Beauty | Plena</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../../../assets/js/plena_upsell.js"></script>
@@ -37,53 +37,54 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #fdf2f8;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #fbcfe8;
             border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #f9a8d4;
         }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-rose-50 text-stone-800">
 
     <div id="app" v-cloak class="flex min-h-screen">
 
         <!-- DESKTOP SIDEBAR -->
-        <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white fixed h-full z-20 shadow-2xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-700/50">
+        <aside
+            class="hidden md:flex w-64 flex-col bg-white text-rose-900 border-r border-rose-100 fixed h-full z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-rose-100">
                 <div
-                    class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid fa-calendar-days text-white text-sm"></i>
+                    class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center shadow-lg shadow-rose-500/30">
+                    <i class="fa-solid fa-spa text-white text-sm"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight">Agenda<span class="text-indigo-400">Express</span></span>
+                <span class="font-bold text-lg tracking-tight">Agenda<span class="text-rose-500">Beauty</span></span>
             </div>
 
             <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
                 <button @click="view = 'agenda'"
-                    :class="view === 'agenda' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                    :class="view === 'agenda' ? 'bg-rose-500 text-white shadow-md' : 'text-stone-500 hover:bg-rose-50 hover:text-rose-700'"
                     class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium">
                     <i class="fa-solid fa-list-check w-5"></i> Agendamentos
                 </button>
             </nav>
 
-            <div class="p-4 border-t border-slate-700/50 space-y-4">
-                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-inner">
-                    <p class="text-xs text-slate-400 uppercase font-bold mb-2 tracking-wider">Hoje</p>
+            <div class="p-4 border-t border-rose-100 space-y-4">
+                <div class="bg-rose-50 rounded-xl p-4 border border-rose-100 shadow-inner">
+                    <p class="text-xs text-rose-400 uppercase font-bold mb-2 tracking-wider">Hoje</p>
                     <div class="flex justify-between text-sm mb-2">
-                        <span class="text-slate-300">Agendados:</span>
-                        <span class="font-bold font-mono text-indigo-400">{{ todayCount }}</span>
+                        <span class="text-stone-500">Agendados:</span>
+                        <span class="font-bold font-mono text-rose-600">{{ todayCount }}</span>
                     </div>
                 </div>
 
                 <a href="../../../index.html"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    class="flex items-center gap-2 text-stone-400 hover:text-rose-600 transition text-sm px-2 group">
                     <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
                 </a>
             </div>
@@ -92,14 +93,14 @@
         <!-- MOBILE HEADER -->
         <header class="md:hidden fixed w-full bg-white z-20 shadow-sm px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                    <i class="fa-solid fa-calendar-days"></i>
+                <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-spa"></i>
                 </div>
-                <span class="font-bold text-slate-800 tracking-tight">Agenda<span
-                        class="text-indigo-600">Express</span></span>
+                <span class="font-bold text-stone-800 tracking-tight">Agenda<span
+                        class="text-rose-500">Beauty</span></span>
             </div>
             <button @click="isMenuOpen = !isMenuOpen"
-                class="w-10 h-10 flex items-center justify-center text-slate-600 rounded-full hover:bg-slate-100 transition">
+                class="w-10 h-10 flex items-center justify-center text-stone-600 rounded-full hover:bg-rose-50 transition">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </header>
@@ -107,25 +108,25 @@
         <!-- MOBILE OVERLAY MENU -->
         <transition name="fade">
             <div v-if="isMenuOpen" class="fixed inset-0 z-50 md:hidden">
-                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMenuOpen = false"></div>
+                <div class="absolute inset-0 bg-stone-900/50 backdrop-blur-sm" @click="isMenuOpen = false"></div>
                 <div class="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-2xl p-6 flex flex-col">
                     <div class="flex justify-between items-center mb-8">
-                        <span class="font-bold text-xl text-slate-800">Menu</span>
+                        <span class="font-bold text-xl text-stone-800">Menu</span>
                         <button @click="isMenuOpen = false"
-                            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 transition">
+                            class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 hover:text-red-500 transition">
                             <i class="fa-solid fa-times"></i>
                         </button>
                     </div>
 
                     <nav class="flex-col space-y-2 flex-1">
                         <button @click="view = 'agenda'; isMenuOpen = false"
-                            class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
-                            <i class="fa-solid fa-list-check text-indigo-500"></i> Agendamentos
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
+                            <i class="fa-solid fa-list-check text-rose-500"></i> Agendamentos
                         </button>
                     </nav>
 
                     <a href="../../../index.html"
-                        class="mt-4 flex items-center justify-center gap-2 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-800 transition">
+                        class="mt-4 flex items-center justify-center gap-2 py-3 border border-stone-200 rounded-xl text-stone-600 font-bold hover:bg-stone-50 hover:text-stone-800 transition">
                         <i class="fa-solid fa-arrow-left"></i> Sair do App
                     </a>
                 </div>
@@ -137,21 +138,21 @@
 
             <!-- TOOLBAR -->
             <div
-                class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-check text-indigo-500"></i> Agenda
+                    <h2 class="text-2xl font-bold text-stone-800 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-rose-500"></i> Agenda Beauty
                     </h2>
-                    <p class="text-slate-500 text-sm mt-1">Gerencie seus horários e clientes.</p>
+                    <p class="text-stone-500 text-sm mt-1">Gerencie seu salão com facilidade.</p>
                 </div>
                 <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                     <button @click="backupData"
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2 whitespace-nowrap"
+                        class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-sm transition flex items-center gap-2 whitespace-nowrap"
                         title="Salvar Backup">
                         <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Backup</span>
                     </button>
                     <label
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                        class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-sm transition flex items-center gap-2 cursor-pointer whitespace-nowrap"
                         title="Restaurar de arquivo">
                         <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Restaurar</span>
                         <input type="file" @change="restoreData" class="hidden" accept=".json">
@@ -163,46 +164,46 @@
 
                 <!-- FORM -->
                 <div>
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 sticky top-24">
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-rose-100 sticky top-24">
                         <div class="flex items-center gap-3 mb-6">
                             <div
-                                class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                class="w-10 h-10 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center font-bold">
                                 +
                             </div>
-                            <h3 class="font-bold text-slate-800 text-lg">Novo Agendamento</h3>
+                            <h3 class="font-bold text-stone-800 text-lg">Novo Agendamento</h3>
                         </div>
 
                         <div class="space-y-4">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Data</label>
+                                        class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Data</label>
                                     <input v-model="form.date" type="date"
-                                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition font-medium text-slate-700">
+                                        class="w-full p-3 bg-rose-50/50 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition font-medium text-stone-700">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hora</label>
+                                        class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Hora</label>
                                     <input v-model="form.time" type="time"
-                                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition font-medium text-slate-700">
+                                        class="w-full p-3 bg-rose-50/50 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition font-medium text-stone-700">
                                 </div>
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cliente</label>
+                                    class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Cliente</label>
                                 <input v-model="form.client" type="text" placeholder="Nome do cliente"
-                                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition font-medium">
+                                    class="w-full p-3 bg-rose-50/50 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition font-medium">
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Procedimento</label>
-                                <input v-model="form.procedure" type="text" placeholder="Ex: Corte de Cabelo"
-                                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition font-medium">
+                                    class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Procedimento</label>
+                                <input v-model="form.procedure" type="text" placeholder="Ex: Manicure e Pedicure"
+                                    class="w-full p-3 bg-rose-50/50 border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition font-medium">
                             </div>
 
                             <button @click="add"
-                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/30 transition transform active:scale-95 flex items-center justify-center gap-2 mt-4">
-                                <i class="fa-solid fa-check"></i> Confirmar Agendamento
+                                class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-rose-500/30 transition transform active:scale-95 flex items-center justify-center gap-2 mt-4">
+                                <i class="fa-solid fa-check"></i> Agendar
                             </button>
                         </div>
                     </div>
@@ -211,28 +212,28 @@
                 <!-- LIST -->
                 <div class="space-y-6">
                     <div v-if="Object.keys(groupedAppointments).length === 0"
-                        class="flex flex-col items-center justify-center py-16 text-slate-400 bg-white/50 rounded-2xl border border-dashed border-slate-200">
-                        <i class="fa-regular fa-calendar-xmark text-4xl mb-3 text-slate-300"></i>
-                        <p>Nenhum agendamento encontrado.</p>
+                        class="flex flex-col items-center justify-center py-16 text-stone-400 bg-white/50 rounded-2xl border border-dashed border-rose-200">
+                        <i class="fa-regular fa-calendar-xmark text-4xl mb-3 text-rose-200"></i>
+                        <p>Agenda livre por enquanto.</p>
                     </div>
 
                     <div v-for="(group, date) in groupedAppointments" :key="date" class="animate-fade-in">
                         <h4
-                            class="font-bold text-slate-500 text-sm border-b border-slate-200 pb-2 mb-4 uppercase tracking-wider flex items-center gap-2">
+                            class="font-bold text-stone-500 text-sm border-b border-rose-100 pb-2 mb-4 uppercase tracking-wider flex items-center gap-2">
                             <i class="fa-regular fa-calendar"></i> {{ formatDate(date) }}
                         </h4>
 
                         <div class="space-y-3">
                             <div v-for="app in group" :key="app.id"
-                                class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-indigo-200 transition">
+                                class="bg-white p-4 rounded-xl shadow-sm border border-rose-100 flex items-center justify-between group hover:border-rose-300 transition">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="bg-indigo-50 text-indigo-600 font-bold px-3 py-2 rounded-lg font-mono text-lg border border-indigo-100">
+                                        class="bg-rose-50 text-rose-500 font-bold px-3 py-2 rounded-lg font-mono text-lg border border-rose-100">
                                         {{ app.time }}
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-800">{{ app.client }}</p>
-                                        <p class="text-sm text-slate-500">{{ app.procedure }}</p>
+                                        <p class="font-bold text-stone-800">{{ app.client }}</p>
+                                        <p class="text-sm text-stone-500">{{ app.procedure }}</p>
                                     </div>
                                 </div>
                                 <div
@@ -271,7 +272,7 @@
 
                 // Actions
                 const add = () => {
-                    if (!form.value.client || !form.value.time) return alert("Preencha os dados obrigatórios (Cliente e Hora)!");
+                    if (!form.value.client || !form.value.time) return alert("Preencha cliente e hora!");
                     appointments.value.push({
                         id: Date.now(),
                         ...form.value
@@ -279,11 +280,11 @@
                     form.value.client = '';
                     form.value.procedure = '';
                     form.value.time = '';
-                    alert("Agendado com sucesso!");
+                    alert("Agendamento criado!");
                 };
 
                 const remove = (id) => {
-                    if (confirm("Excluir este agendamento?")) appointments.value = appointments.value.filter(a => a.id !== id);
+                    if (confirm("Cancelar procedimento?")) appointments.value = appointments.value.filter(a => a.id !== id);
                 };
 
                 const sortedAppointments = computed(() => {
@@ -296,16 +297,10 @@
 
                 const groupedAppointments = computed(() => {
                     const groups = {};
-                    // Sort descending keys or ascending? Ascending date usually.
-                    // sortedAppointments is chronological.
                     sortedAppointments.value.forEach(app => {
                         if (!groups[app.date]) groups[app.date] = [];
                         groups[app.date].push(app);
                     });
-                    // Need to return object but let's see iteration order.
-                    // Vue v-for on object iterates keys. Order not guaranteed but usually insertion order in modern JS.
-                    // Better to return array of objects if order matters, but for now Object is fine or we can sort keys in template?
-                    // Let's rely on standard iteration.
                     return Object.keys(groups).sort().reduce((obj, key) => {
                         obj[key] = groups[key];
                         return obj;
@@ -324,7 +319,7 @@
                 };
 
                 const remind = (app) => {
-                    const text = `Olá ${app.client}, lembrete do seu horário para *${app.procedure}* dia ${formatDate(app.date)} às *${app.time}*. Confirmado?`;
+                    const text = `Oi ${app.client}, tudo bem? Lembrete do seu horário: *${app.procedure}* dia ${formatDate(app.date)} às *${app.time}*.`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
@@ -333,7 +328,7 @@
                     const blob = new Blob([JSON.stringify(appointments.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `agenda_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                    a.download = `agenda_beauty_${new Date().toISOString().slice(0, 10)}.json`;
                     a.click();
                 };
 
@@ -344,27 +339,27 @@
                     r.onload = (v) => {
                         try {
                             appointments.value = JSON.parse(v.target.result);
-                            alert("Agenda restaurada com sucesso!");
+                            alert("Agenda restaurada!");
                         } catch (er) { alert("Erro ao ler arquivo."); }
                     };
                     r.readAsText(f);
                 };
 
                 onMounted(() => {
-                    const d = localStorage.getItem('plena_agenda');
+                    const d = localStorage.getItem('plena_agenda_beauty');
                     if (d) appointments.value = JSON.parse(d);
 
                     if (window.PlenaUpsell) {
                         PlenaUpsell.init({
-                            appName: 'Agenda Express',
-                            plusName: 'Plena Barbearia',
-                            plusLink: '../../../../Mercado Livre/apps.plus/plena_barbearia.html',
-                            dashboardPreview: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80'
+                            appName: 'Agenda Beauty',
+                            plusName: 'Plena Beleza',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_beleza.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80'
                         });
                     }
                 });
 
-                watch(appointments, () => localStorage.setItem('plena_agenda', JSON.stringify(appointments.value)), { deep: true });
+                watch(appointments, () => localStorage.setItem('plena_agenda_beauty', JSON.stringify(appointments.value)), { deep: true });
 
                 return {
                     isMenuOpen, view, form, groupedAppointments, add, remove, formatDate, remind, backupData, restoreData, todayCount

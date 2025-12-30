@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="../../../assets/js/plena_upsell.js"></script>
 
     <script>
         tailwind.config = {
@@ -440,6 +441,15 @@
                     } else {
                         // Might try to migrate old key? For now fresh start or manual migration if needed
                         generateTables();
+                    }
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Mesas Express',
+                            plusName: 'Plena Restaurante',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_restaurante.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
+                        });
                     }
 
                     // Sync count

@@ -19,6 +19,12 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
 
+        .premium-card {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #fbbf24, #f59e0b) border-box;
+        }
+
         [v-cloak] {
             display: none;
         }
@@ -78,7 +84,7 @@
             </div>
         </section>
 
-        <!-- CATÁLOGO (FILTRADO) -->
+        <!-- CATÁLOGO (ESTRATIFICADO) -->
         <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4">
 
             <!-- KITS PROMOCIONAIS -->
@@ -107,6 +113,7 @@
                 </div>
             </div>
 
+            <!-- FILTROS -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                 <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
                     <button v-for="cat in categories" :key="cat" @click="filter = cat"
@@ -122,28 +129,106 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="app in filteredApps" :key="app.name"
-                    class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden group flex flex-col">
-                    <div class="h-40 bg-slate-100 relative overflow-hidden">
-                        <div
-                            class="absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
-                            {{ app.category }}</div>
-                        <img :src="app.img"
-                            class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h3 class="font-bold text-lg text-slate-900 mb-2">{{ app.name }}</h3>
-                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">{{ app.desc }}</p>
-                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
-                            <div>
-                                <span class="text-xs text-slate-400 line-through block">R$ {{ app.oldPrice }}</span>
-                                <span class="text-xl font-bold text-blue-600">R$ {{ app.price }}</span>
+            <!-- SEÇÃO ESSENCIAL (FERRAMENTAS UTILITY) -->
+            <div v-if="essentialApps.length > 0" class="mb-16">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        </span>
+                        Ferramentas Essenciais
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="app in essentialApps" :key="app.name"
+                        class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden group flex flex-col">
+                        <div class="h-40 bg-slate-100 relative overflow-hidden">
+                            <div
+                                class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded uppercase z-10">
+                                {{ app.category }}</div>
+                            <img :src="app.img"
+                                class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-lg text-slate-900">{{ app.name }}</h3>
+                                <span class="text-[10px] font-bold text-blue-500 uppercase">Essencial</span>
                             </div>
-                            <a :href="app.link"
-                                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md transition">
-                                Acessar
-                            </a>
+                            <p class="text-sm text-slate-500 mb-4 line-clamp-2 leading-relaxed">{{ app.desc }}</p>
+                            <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
+                                <div>
+                                    <span
+                                        class="text-xs text-slate-400 line-through block uppercase tracking-tighter">Oferta</span>
+                                    <span class="text-xl font-bold text-blue-600 font-mono italic">R$ {{ app.price
+                                        }}</span>
+                                </div>
+                                <a :href="app.link"
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm transition">
+                                    Abrir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO PREMIUM (SISTEMAS PLUS) -->
+            <div v-if="premiumApps.length > 0" class="mb-16">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                            <i class="fa-solid fa-crown"></i>
+                        </span>
+                        Sistemas Premium Plus
+                    </h3>
+                    <span
+                        class="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+                        Tecnologia Avançada & Dashboards
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div v-for="app in premiumApps" :key="app.name"
+                        class="premium-card bg-white rounded-2xl shadow-xl hover:shadow-2xl transition duration-500 overflow-hidden group flex flex-col md:flex-row">
+                        <div class="md:w-2/5 h-48 md:h-auto overflow-hidden relative">
+                            <img :src="app.img"
+                                class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <span
+                                    class="bg-amber-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase">
+                                    SISTEMA PLUS
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6 md:w-3/5 flex flex-col">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-xl text-slate-900">{{ app.name }}</h4>
+                            </div>
+                            <p class="text-sm text-slate-500 mb-6 leading-relaxed">{{ app.desc }}</p>
+
+                            <!-- Features Rápidas -->
+                            <div class="grid grid-cols-2 gap-2 mb-6">
+                                <div class="flex items-center gap-2 text-[11px] text-slate-600 font-medium">
+                                    <i class="fa-solid fa-chart-line text-blue-500"></i> Dashboards
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] text-slate-600 font-medium">
+                                    <i class="fa-solid fa-layer-group text-blue-500"></i> Relatórios
+                                </div>
+                            </div>
+
+                            <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
+                                <div>
+                                    <span class="text-xs text-slate-400 line-through block">De R$ {{ app.oldPrice
+                                        }}</span>
+                                    <span class="text-2xl font-black text-slate-900">R$ {{ app.price }}</span>
+                                </div>
+                                <a :href="app.link"
+                                    class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition transform hover:scale-105">
+                                    Ver Demo Plus
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,62 +347,51 @@
 
                 // LISTA COMPLETA DE APPS PROFISSIONAIS
                 const apps = ref([
-                    // GESTÃO
-                    { name: "OS Express", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão completa de ordens de serviço." },
-                    { name: "Recibo Pro", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos profissionais em PDF." },
-                    { name: "Estoque Fácil", category: "Gestão", price: "29,90", oldPrice: "69,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída simplificado." },
-                    { name: "Fluxo de Caixa", category: "Gestão", price: "37,90", oldPrice: "89,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500", desc: "Livro caixa digital receitas e despesas." },
-                    { name: "PDV Frente de Caixa", category: "Gestão", price: "59,90", oldPrice: "120,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Terminal de vendas rápido com catálogo." },
-                    { name: "Gerador Orçamento", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Propostas comerciais formais em PDF." },
-                    { name: "Controle de Fiado", category: "Gestão", price: "24,90", oldPrice: "40,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Gerencie dívidas e cobranças no Zap." },
-                    { name: "Gerador Contrato", category: "Gestão", price: "39,90", oldPrice: "80,00", link: "apps/gestao/contrato/index.html", img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=500", desc: "Crie contratos de serviço prontos." },
-                    { name: "Calc Comissões", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/comissao/index.html", img: "https://images.unsplash.com/photo-1554672723-b27b2f520930?w=500", desc: "Calcule comissões de vendedores." },
-                    { name: "Precificação Pro", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/precificacao/index.html", img: "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=500", desc: "Defina preço de venda ideal." },
+                    // APPS PLUS (TIER GOLD)
+                    { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_alugueis.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
+                    { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_assistencia.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
+                    { name: "Plena Artesanato", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "../Mercado Livre/apps.plus/plena_artesanato.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
+                    { name: "Plena Barbearia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_barbearia.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
+                    { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
+                    { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "../Mercado Livre/apps.plus/plena_card.html", img: "https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=500", desc: "Cartão de visita digital interativo e biometria." },
+                    { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "../Mercado Livre/apps.plus/plena_controle.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
+                    { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "../Mercado Livre/apps.plus/plena_delivery.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
+                    { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "../Mercado Livre/apps.plus/plena_distribuidora.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
+                    { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_driver.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
+                    { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "../Mercado Livre/apps.plus/plena_estoque.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
+                    { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "../Mercado Livre/apps.plus/plena_financas.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
+                    { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "../Mercado Livre/apps.plus/plena_obras.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
+                    { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "../Mercado Livre/apps.plus/plena_orcamentos.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
+                    { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "../Mercado Livre/apps.plus/plena_pdv.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
+                    { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_sorveteria.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." },
 
-                    // FOOD
-                    { name: "Comanda Digital", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/comanda/index.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500", desc: "Controle de mesas e pedidos." },
-                    { name: "Cardápio QR", category: "Food", price: "39,90", oldPrice: "80,00", link: "apps/food/cardapio/index.html", img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500", desc: "Cardápio digital para autoatendimento." },
-                    { name: "KDS Cozinha", category: "Food", price: "55,90", oldPrice: "150,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=500", desc: "Tela de pedidos para cozinha." },
-                    { name: "Ficha Técnica", category: "Food", price: "49,90", oldPrice: "110,00", link: "apps/food/ficha/index.html", img: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500", desc: "Custo exato de receitas." },
-                    { name: "Confeitaria Pro", category: "Food", price: "24,90", oldPrice: "49,00", link: "apps/food/confeitaria/index.html", img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500", desc: "Precificação de bolos e doces." },
-                    { name: "Gorjeta Pro", category: "Food", price: "14,90", oldPrice: "29,00", link: "apps/food/gorjeta/index.html", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500", desc: "Divisão de contas e gorjetas." },
-                    { name: "Gestão Mesas", category: "Food", price: "49,90", oldPrice: "99,00", link: "apps/food/mesas/index.html", img: "https://images.unsplash.com/photo-1550966871-3ed3c6221741?w=500", desc: "Mapa de ocupação do salão." },
+                    // GESTÃO (TIER ESSENTIAL)
+                    // { name: "OS Express", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão simples de ordens de serviço." },
+                    // { name: "Recibo Pro", tier: "essential", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos rápidos em PDF." },
+                    // { name: "Caixa Express", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "PDV simples para vendas rápidas." },
+                    // { name: "Estoque Fácil", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "69,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída simplificado." },
+                    // { name: "Fluxo Simples", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "89,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500", desc: "Livro caixa digital receitas e despesas." },
+                    // { name: "Orçamentos Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Propostas comerciais formais em PDF." },
+                    // { name: "Controle de Fiado", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "40,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Gerencie dívidas e cobranças no Zap." },
 
-                    // SERVIÇOS
-                    { name: "Checklist Vistoria", category: "Serviços", price: "27,90", oldPrice: "50,00", link: "apps/servicos/checklist/index.html", img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500", desc: "Vistorias veiculares e imobiliárias." },
-                    { name: "Agenda Visual", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/agenda/index.html", img: "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=500", desc: "Agenda para salões e consultórios." },
-                    { name: "Orçamento Obra", category: "Serviços", price: "29,90", oldPrice: "49,00", link: "apps/servicos/obra/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Cálculo de materiais e mão de obra." },
-                    { name: "Pet Sitter", category: "Serviços", price: "19,90", oldPrice: "39,00", link: "apps/servicos/petsitter/index.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500", desc: "Relatório de passeios pet." },
-                    { name: "Diarista Pro", category: "Serviços", price: "19,90", oldPrice: "39,00", link: "apps/servicos/diarista/index.html", img: "https://images.unsplash.com/photo-1581578731117-10d52b43b124?w=500", desc: "Controle de diárias e ganhos." },
-                    { name: "Ateliê Costura", category: "Serviços", price: "19,90", oldPrice: "34,90", link: "apps/servicos/costura/index.html", img: "https://images.unsplash.com/photo-1528646067710-5645e3ea1e00?w=500", desc: "Gestão de encomendas e medidas." },
-                    { name: "Jardim Pro", category: "Serviços", price: "15,90", oldPrice: "29,90", link: "apps/servicos/jardim/index.html", img: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=500", desc: "Orçamento de jardinagem." },
-                    { name: "SOS Reparos", category: "Serviços", price: "19,90", oldPrice: "39,90", link: "apps/servicos/reparos/index.html", img: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500", desc: "Orçamentos rápidos de manutenção." },
-                    { name: "Controle KM", category: "Serviços", price: "24,90", oldPrice: "49,00", link: "apps/servicos/km/index.html", img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500", desc: "Controle de rodagem e reembolso." },
-                    { name: "Timer Tarefas", category: "Serviços", price: "24,90", oldPrice: "49,00", link: "apps/servicos/timer/index.html", img: "https://images.unsplash.com/photo-1495364141860-b0d03eccd065?w=500", desc: "Cobrança por hora trabalhada." },
+                    // FOOD (TIER ESSENTIAL)
+                    // { name: "KDS Express", tier: "essential", category: "Food", price: "47,90", oldPrice: "97,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=500", desc: "Tela de pedidos para cozinha." },
+                    // { name: "Mesas Express", tier: "essential", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/mesas/index.html", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500", desc: "Gestão visual de mesas e status." },
+                    // { name: "Cardápio QR", tier: "essential", category: "Food", price: "39,90", oldPrice: "80,00", link: "apps/food/cardapio/index.html", img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500", desc: "Cardápio digital para autoatendimento." },
+                    // { name: "Gorjeta Pro", tier: "essential", category: "Food", price: "14,90", oldPrice: "29,00", link: "apps/food/gorjeta/index.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Divisão de contas e gorjetas." },
+                    // { name: "Comanda Digital", tier: "essential", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/comanda/index.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500", desc: "Controle de mesas e pedidos." },
 
-                    // MARKETING
-                    { name: "BioLink Generator", category: "Marketing", price: "27,90", oldPrice: "59,00", link: "apps/mkt/biolink/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Árvore de links para Instagram." },
-                    { name: "QR Code Pro", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/mkt/qrcode/index.html", img: "https://images.unsplash.com/photo-1595079686342-61f680a201f6?w=500", desc: "Gerador de QR Codes personalizados." },
-                    { name: "Sorteador Pro", category: "Marketing", price: "14,90", oldPrice: "29,00", link: "apps/mkt/sorteio/index.html", img: "https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?w=500", desc: "Realize sorteios transparentes." },
+                    // SERVIÇOS (TIER ESSENTIAL)
+                    // { name: "Checklist Vistoria", tier: "essential", category: "Serviços", price: "27,90", oldPrice: "50,00", link: "apps/servicos/checklist/index.html", img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500", desc: "Vistorias veiculares e imobiliárias." },
+                    // { name: "Agenda Express", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/agenda/index.html", img: "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=500", desc: "Agenda para salões e consultórios." },
+                    // { name: "Ponto Eletrônico", tier: "essential", category: "RH", price: "29,90", oldPrice: "59,00", link: "apps/servicos/ponto/index.html", img: "https://images.unsplash.com/photo-1501139083538-0139583c61df?w=500", desc: "Registro de horas trabalhadas." },
 
-                    // RH
-                    { name: "Holerite Maker", category: "RH", price: "19,90", oldPrice: "39,00", link: "apps/rh/holerite/index.html", img: "https://images.unsplash.com/photo-1554224154-260327c00c4b?w=500", desc: "Geração de recibos de pagamento." },
-                    { name: "Ponto Eletrônico", category: "RH", price: "29,90", oldPrice: "59,00", link: "apps/servicos/ponto/index.html", img: "https://images.unsplash.com/photo-1501139083538-0139583c61df?w=500", desc: "Registro de horas trabalhadas." },
-                    { name: "Escala Trabalho", category: "RH", price: "29,90", oldPrice: "60,00", link: "apps/rh/escala/index.html", img: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500", desc: "Organização de turnos." },
-                    { name: "Rescisão Calc", category: "RH", price: "24,90", oldPrice: "50,00", link: "apps/rh/rescisao/index.html", img: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=500", desc: "Simulador de rescisão trabalhista." },
-                    { name: "Diário Professor", category: "RH", price: "19,90", oldPrice: "39,00", link: "apps/educacao/diario/index.html", img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=500", desc: "Chamada e controle escolar." },
-
-                    // SAUDE
-                    { name: "Personal Admin", category: "Saúde Pro", price: "29,90", oldPrice: "59,00", link: "apps/saude/personal/index.html", img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500", desc: "Gestão simples para Personal Trainers." },
-                    { name: "Ficha de Treino", category: "Saúde Pro", price: "29,90", oldPrice: "67,00", link: "apps/saude/treino/index.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Montador de treinos." },
-
-                    // TRANSPORTE
-                    { name: "Driver Pro", category: "Transporte", price: "19,90", oldPrice: "39,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para Uber/99." },
-                    { name: "Moto Lucro", category: "Transporte", price: "15,90", oldPrice: "29,00", link: "apps/transporte/moto/index.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle financeiro motoboy." },
-                    { name: "Calc Combustível", category: "Transporte", price: "15,90", oldPrice: "29,00", link: "apps/transporte/combustivel/index.html", img: "https://images.unsplash.com/photo-1625902382903-516d7a221fcc?w=500", desc: "Divisão de custos de viagem." },
-
-                    // SEGURANCA
-                    { name: "Controle Portaria", category: "Segurança", price: "47,90", oldPrice: "120,00", link: "apps/servicos/portaria/index.html", img: "https://images.unsplash.com/photo-1555963283-da4cb9710cc8?w=500", desc: "Registro de visitantes e prestadores." },
+                    // NEW BASIC APPS
+                    // { name: "Precificação Simples", tier: "essential", category: "Serviços", price: "29,90", oldPrice: "59,00", link: "apps/servicos/precificacao/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Calculadora de custo para produtos e artesanato." },
+                    // { name: "BioLink Simples", tier: "essential", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/marketing/biocard/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Links e bio simplificada para redes sociais." },
+                    // { name: "Diário de Obra Lite", tier: "essential", category: "Gestão", price: "39,90", oldPrice: "79,00", link: "apps/gestao/diario_obras/index.html", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500", desc: "Registro diário de progresso de obras." },
+                    // { name: "Driver Lite", tier: "essential", category: "Transporte", price: "24,90", oldPrice: "49,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Controle financeiro simples para motoristas." },
+                    // { name: "Rota Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/atacado/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Lista de entregas e rotas básicas." }
                 ]);
 
                 const filteredApps = computed(() => {
@@ -327,7 +401,48 @@
                     return list;
                 });
 
-                return { filter, search, categories, filteredApps, kits };
+                const premiumApps = computed(() => {
+                    return filteredApps.value.filter(a => a.tier === 'plus');
+                });
+
+                const essentialApps = computed(() => {
+                    return [
+                        // 1. Plena Aluguéis -> Recibo Aluguel
+                        { name: "Recibo Aluguel", tier: "essential", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos de aluguel em PDF." },
+                        // 2. Plena Artesanato -> Precificação Simples
+                        { name: "Precificação Simples", tier: "essential", category: "Serviços", price: "29,90", oldPrice: "59,00", link: "apps/servicos/precificacao/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Calculadora de custo para produtos e artesanato." },
+                        // 3. Plena Assistência -> OS Express
+                        { name: "OS Express", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão simples de ordens de serviço." },
+                        // 4. Plena Barbearia -> Agenda Barber
+                        { name: "Agenda Barber", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/barber/index.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda simplificada para barbearias." },
+                        // 5. Plena Beleza -> Agenda Beauty
+                        { name: "Agenda Beauty", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/beauty/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Agenda para salões de beleza." },
+                        // 6. Plena Card -> BioLink Simples
+                        { name: "BioLink Simples", tier: "essential", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/marketing/biocard/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Links e bio simplificada para redes sociais." },
+                        // 7. Plena Controle -> Fiado Apreço
+                        { name: "Fiado Apreço", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "49,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Controle de dívidas e cobranças no Zap." },
+                        // 8. Plena Delivery -> Pedidos Zap
+                        { name: "Pedidos Zap", tier: "essential", category: "Food", price: "29,90", oldPrice: "59,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500", desc: "Recepção de pedidos para delivery simples." },
+                        // 9. Plena Distribuidora -> Rota Simples
+                        { name: "Rota Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/atacado/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Lista de entregas e rotas básicas." },
+                        // 10. Plena Driver -> Driver Lite
+                        { name: "Driver Lite", tier: "essential", category: "Transporte", price: "19,90", oldPrice: "39,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Controle financeiro para motoristas." },
+                        // 11. Plena Estoque -> Estoque Fácil
+                        { name: "Estoque Fácil", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída de produtos." },
+                        // 12. Plena Finanças -> Fluxo Simples
+                        { name: "Fluxo Simples", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Livro caixa simples e eficiente." },
+                        // 13. Plena Obras -> Diário de Obra Lite
+                        { name: "Diário de Obra Lite", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/diario_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Registro diário de atividades da obra." },
+                        // 14. Plena Orçamentos -> Orçamentos Simples
+                        { name: "Orçamentos Simples", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "49,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500", desc: "Gerador de orçamentos em PDF." },
+                        // 15. Plena PDV -> Caixa Express
+                        { name: "Caixa Express", tier: "essential", category: "Gestão", price: "39,90", oldPrice: "79,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa (PDV) para vendas rápidas." },
+                        // 16. Plena Sorveteria -> Comanda Sorvete
+                        { name: "Comanda Sorvete", tier: "essential", category: "Food", price: "24,90", oldPrice: "49,00", link: "apps/food/sorvete/index.html", img: "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=500", desc: "Controle de comandas e cartões para sorveterias." }
+                    ];
+                });
+
+                return { filter, search, categories, filteredApps, premiumApps, essentialApps, kits };
             }
         }).mount('#app');
     </script>

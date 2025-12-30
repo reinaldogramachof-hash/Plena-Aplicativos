@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário de Obra Lite | Plena Apps</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" v-cloak class="flex min-h-screen">
+
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="hidden md:flex w-64 flex-col bg-slate-900 text-white fixed h-full z-20 shadow-xl">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-700/50">
+                <div
+                    class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-helmet-safety text-slate-900 text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Diário<span class="text-orange-400">Lite</span></span>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                <button
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium shadow-inner border border-slate-700">
+                    <i class="fa-solid fa-book w-5 text-orange-400"></i> Registros
+                </button>
+            </nav>
+            <div class="p-4 border-t border-slate-700/50">
+                <a href="../../../index.html"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm px-2 group">
+                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- MOBILE HEADER -->
+        <header
+            class="md:hidden fixed w-full bg-slate-900 text-white z-20 shadow-md px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-slate-900">
+                    <i class="fa-solid fa-helmet-safety"></i>
+                </div>
+                <span class="font-bold tracking-tight">Diário<span class="text-orange-400">Lite</span></span>
+            </div>
+            <a href="../../../index.html" class="text-slate-300 hover:text-white"><i
+                    class="fa-solid fa-arrow-left text-xl"></i></a>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-64 pt-20 md:pt-8 px-4 md:px-8 pb-32 max-w-4xl mx-auto w-full">
+
+            <div class="mb-8 flex justify-between items-end">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Diário de Obra</h2>
+                    <p class="text-slate-500 text-sm">Registre o progresso da sua construção.</p>
+                </div>
+                <button @click="showForm = true"
+                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-orange-500/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Novo Registro
+                </button>
+            </div>
+
+            <!-- TIMELINE -->
+            <div class="space-y-6">
+                <div v-for="(entry, idx) in logs" :key="idx"
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative pl-8">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-0 top-0 bottom-0 w-2 bg-slate-100 rounded-l-2xl"></div>
+                    <div
+                        class="absolute left-[-5px] top-6 w-4 h-4 rounded-full bg-orange-500 border-4 border-white shadow-sm">
+                    </div>
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">{{ entry.date }}</h3>
+                            <span class="text-xs text-slate-400 uppercase font-bold">{{ entry.weather }}</span>
+                        </div>
+                        <button @click="logs.splice(idx,1)" class="text-slate-400 hover:text-red-500 transition"><i
+                                class="fa-solid fa-trash"></i></button>
+                    </div>
+
+                    <p class="text-slate-600 leading-relaxed text-sm mb-4">{{ entry.text }}</p>
+
+                    <div v-if="entry.photo"
+                        class="h-48 w-full bg-slate-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition">
+                        <img :src="entry.photo" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div v-if="logs.length === 0"
+                    class="text-center py-20 bg-slate-100 rounded-2xl border-dashed border-2 border-slate-200">
+                    <i class="fa-solid fa-helmet-safety text-4xl text-slate-300 mb-4"></i>
+                    <p class="text-slate-400 font-medium">Nenhum registro ainda.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- MODAL -->
+        <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showForm = false"></div>
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10 p-6">
+                <h3 class="font-bold text-xl mb-4">Novo Registro</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Clima</label>
+                        <select v-model="newEntry.weather"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none">
+                            <option>Ensolarado</option>
+                            <option>Nublado</option>
+                            <option>Chuvoso</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Ocorrências</label>
+                        <textarea v-model="newEntry.text" rows="4"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none"
+                            placeholder="O que foi feito hoje?"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Foto (URL)</label>
+                        <input v-model="newEntry.photo"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none"
+                            placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button @click="addEntry"
+                        class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition">Salvar</button>
+                    <button @click="showForm = false"
+                        class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const showForm = ref(false);
+                const logs = ref([]);
+                const newEntry = ref({ weather: 'Ensolarado', text: '', photo: '' });
+
+                const addEntry = () => {
+                    if (!newEntry.value.text) return;
+                    logs.value.unshift({
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        ...newEntry.value
+                    });
+                    newEntry.value = { weather: 'Ensolarado', text: '', photo: '' };
+                    showForm.value = false;
+                };
+
+                onMounted(() => {
+                    const d = localStorage.getItem('plena_diario_lite');
+                    if (d) logs.value = JSON.parse(d);
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Diário de Obra Lite',
+                            plusName: 'Plena Obras',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_obras.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80'
+                        });
+                    }
+                });
+
+                watch(logs, () => localStorage.setItem('plena_diario_lite', JSON.stringify(logs.value)), { deep: true });
+
+                return { showForm, logs, newEntry, addEntry };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

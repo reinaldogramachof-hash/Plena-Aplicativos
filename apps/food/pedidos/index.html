@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor de Pedidos (KDS) | Plena Aplicativos</title>
+    <title>Pedidos Zap | Plena Food</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="../../../assets/js/plena_upsell.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -84,15 +85,15 @@
     <div id="app" class="flex-1 flex flex-col h-full relative">
 
         <!-- Header -->
-        <header class="h-16 bg-ui-800 border-b border-gray-700 flex items-center justify-between px-6 z-20 shrink-0">
+        <header class="h-16 bg-slate-900 border-b border-gray-700 flex items-center justify-between px-6 z-20 shrink-0">
             <div class="flex items-center gap-3">
                 <div
                     class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-600/20">
                     <i class="fa-solid fa-fire-burner text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-tech font-bold text-xl text-white tracking-wider">KDS <span
-                            class="text-brand-500">PRO</span></h1>
+                    <h1 class="font-tech font-bold text-xl text-white tracking-wider">PEDIDOS <span
+                            class="text-brand-500">ZAP</span></h1>
                     <div class="text-[10px] text-gray-400 font-mono">{{ currentTime }}</div>
                 </div>
             </div>
@@ -323,7 +324,7 @@
 
         .input:focus {
             border-color: #10b981;
-            ring: 1px solid #10b981;
+            box-shadow: 0 0 0 1px #10b981;
         }
 
         .animate-fade-in {
@@ -367,6 +368,15 @@
                         const parsed = JSON.parse(d);
                         orders.value = parsed.orders || [];
                         nextOrderNum.value = parsed.nextNum || 1;
+                    }
+
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Pedidos Zap',
+                            plusName: 'Plena Delivery',
+                            plusLink: '../../../../Mercado Livre/apps.plus/plena_delivery.html',
+                            dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
+                        });
                     }
 
                     // Clock
