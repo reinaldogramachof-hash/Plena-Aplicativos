@@ -1,0 +1,20 @@
+{
+  "name": "Plena Controle",
+  "short_name": "Controle",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6600",
+  "icons": [
+    {
+      "src": "https://unpkg.com/lucide-static@0.16.29/icons/check-square.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://unpkg.com/lucide-static@0.16.29/icons/check-square.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -3,15 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ponto Simples | Plena Apps</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ponto Simples | Plena</title>
+    <!-- CDNs Padrão -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Upsell Script -->
+    <script src="../../../assets/js/plena_upsell.js"></script>
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+
     <style>
         body {
-            background-color: #f3f4f6;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'Share Tech Mono', monospace;
         }
 
         [v-cloak] {
@@ -20,79 +30,214 @@
     </style>
 </head>
 
-<body class="pb-20">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
+    <div id="app" v-cloak class="flex h-full">
 
-    <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
-
-        <header class="bg-gray-800 text-white p-6 shadow-md rounded-b-3xl mb-6">
-            <h1 class="text-2xl font-bold mb-2"><i class="fa-solid fa-clock"></i> Ponto Simples</h1>
-            <div class="flex justify-between items-end">
-                <div class="text-4xl font-mono">{{ currentTime }}</div>
-                <div class="flex gap-2">
-                    <button @click="backupData" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition"
-                        title="Backup"><i class="fa-solid fa-download text-xs"></i></button>
-                    <label class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition cursor-pointer"
-                        title="Restaurar">
-                        <i class="fa-solid fa-upload text-xs"></i>
-                        <input type="file" @change="restoreData" class="hidden" accept=".json">
-                    </label>
+        <!-- SIDEBAR -->
+        <aside
+            :class="['fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transition-transform lg:static lg:translate-x-0 flex flex-col', isMenuOpen ? 'translate-x-0' : '-translate-x-full']">
+            <!-- Logo -->
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-clock"></i></div>
+                <div>
+                    <span class="font-bold text-lg leading-tight block">Ponto Simples</span>
+                    <span class="text-[10px] text-blue-300 uppercase tracking-widest">Basic Limits</span>
                 </div>
             </div>
-            <p class="text-gray-400 text-sm mt-1">{{ currentDate }}</p>
-        </header>
 
-        <!-- ACTION BUTTONS -->
-        <div class="px-6 mb-8 grid grid-cols-2 gap-4">
-            <button @click="registerLog('entrada')"
-                class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
-                <i class="fa-solid fa-right-to-bracket text-2xl"></i> Entrada
-            </button>
-            <button @click="registerLog('saida_almoco')"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
-                <i class="fa-solid fa-utensils text-2xl"></i> Almoço
-            </button>
-            <button @click="registerLog('volta_almoco')"
-                class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
-                <i class="fa-solid fa-person-walking-arrow-loop-left text-2xl"></i> Volta
-            </button>
-            <button @click="registerLog('saida')"
-                class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-xl shadow font-bold flex flex-col items-center gap-2 transition">
-                <i class="fa-solid fa-right-from-bracket text-2xl"></i> Saída
-            </button>
-        </div>
+            <!-- Menu -->
+            <nav class="flex-1 p-4 space-y-2">
+                <button @click="currentView = 'home'"
+                    class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 text-white font-bold transition flex items-center gap-2"
+                    :class="{'bg-white/10': currentView === 'home'}">
+                    <i class="fa-solid fa-stopwatch"></i> Registrar Ponto
+                </button>
+                <div class="px-4 pt-4 text-xs text-slate-500 uppercase font-bold">Relatórios</div>
+                <button @click="showUpsell('Relatórios Avançados')"
+                    class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 font-bold transition flex items-center gap-2 group">
+                    <i class="fa-solid fa-chart-pie group-hover:text-amber-500 transition"></i>
+                    <span>Relatórios <i class="fa-solid fa-lock text-[10px] ml-1"></i></span>
+                </button>
+                <button @click="showUpsell('Exportar Excel')"
+                    class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 font-bold transition flex items-center gap-2 group">
+                    <i class="fa-solid fa-file-excel group-hover:text-green-500 transition"></i>
+                    <span>Exportar Excel <i class="fa-solid fa-lock text-[10px] ml-1"></i></span>
+                </button>
 
-        <!-- HISTORY -->
-        <div class="px-6 flex-grow">
-            <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex justify-between">
-                Registros de Hoje
-                <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-500">{{ todayLogs.length }} regs</span>
-            </h3>
+                <div class="px-4 pt-4 text-xs text-slate-500 uppercase font-bold">Dados</div>
+                <button @click="currentView = 'manual'"
+                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+                    <i class="fa-solid fa-book"></i> Manual de Uso
+                </button>
+                <button @click="backupData"
+                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Backup JSON
+                </button>
+                <label
+                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Restaurar
+                    <input type="file" @change="restoreData" class="hidden" accept=".json">
+                </label>
+            </nav>
 
-            <div class="space-y-3">
-                <div v-for="(log, idx) in todayLogs" :key="idx"
-                    class="flex justify-between items-center bg-gray-50 p-3 rounded hover:bg-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-8 rounded-full" :class="getColor(log.type)"></div>
-                        <div>
-                            <p class="font-bold text-gray-800 uppercase text-sm">{{ getLabel(log.type) }}</p>
-                            <p class="text-xs text-gray-400">{{ log.date }}</p>
+            <!-- Copyright Footer -->
+            <div class="p-4 border-t border-slate-800 text-center">
+                <p class="text-[10px] text-slate-500 mb-2">&copy; 2026 Plena Apps</p>
+                <a href="../../../index.html"
+                    class="flex items-center justify-center gap-2 text-slate-400 hover:text-white transition px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
+                </a>
+            </div>
+        </aside>
+
+        <!-- OVERLAY MOBILE -->
+        <div v-if="isMenuOpen" @click="isMenuOpen = false" class="fixed inset-0 bg-black/50 z-40 lg:hidden"></div>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-1 flex flex-col relative w-full transition-all overflow-hidden bg-slate-50">
+            <!-- Header Mobile -->
+            <header class="lg:hidden bg-white p-4 border-b flex justify-between items-center shadow-sm">
+                <button @click="isMenuOpen = true" class="text-slate-600"><i
+                        class="fa-solid fa-bars text-xl"></i></button>
+                <span class="font-bold text-slate-800">Ponto Simples</span>
+                <div class="w-6"></div>
+            </header>
+
+            <!-- VIEW: HOME (REGISTRO) -->
+            <div v-if="currentView === 'home'" class="flex-1 overflow-y-auto p-4 lg:p-8">
+                <div class="max-w-4xl mx-auto">
+
+                    <!-- Relógio Hero -->
+                    <div class="bg-slate-900 rounded-3xl p-8 mb-8 text-white shadow-2xl relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 p-32 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse">
+                        </div>
+                        <div
+                            class="relative z-10 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                            <div>
+                                <p class="text-blue-300 font-medium uppercase tracking-widest text-sm mb-2">{{
+                                    currentDate }}</p>
+                                <h2 class="text-5xl md:text-7xl font-mono font-bold tracking-tighter">{{ currentTime }}
+                                </h2>
+                            </div>
+                            <div class="mt-6 md:mt-0">
+                                <span
+                                    class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-sm text-slate-300">
+                                    <i class="fa-solid fa-user-clock mr-2"></i> Turno Ativo
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    <span class="font-mono font-bold text-xl text-gray-700">{{ log.time }}</span>
+
+                    <!-- Botões de Ação -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <button @click="registerLog('entrada')"
+                            class="bg-white hover:bg-green-50 active:bg-green-100 border border-slate-200 hover:border-green-300 p-6 rounded-2xl shadow-sm hover:shadow-md transition group">
+                            <i
+                                class="fa-solid fa-right-to-bracket text-3xl text-green-500 mb-3 group-hover:scale-110 transition duration-300 block"></i>
+                            <span class="font-bold text-slate-700">Entrada</span>
+                        </button>
+                        <button @click="registerLog('saida_almoco')"
+                            class="bg-white hover:bg-yellow-50 active:bg-yellow-100 border border-slate-200 hover:border-yellow-300 p-6 rounded-2xl shadow-sm hover:shadow-md transition group">
+                            <i
+                                class="fa-solid fa-utensils text-3xl text-yellow-500 mb-3 group-hover:scale-110 transition duration-300 block"></i>
+                            <span class="font-bold text-slate-700">Almoço</span>
+                        </button>
+                        <button @click="registerLog('volta_almoco')"
+                            class="bg-white hover:bg-orange-50 active:bg-orange-100 border border-slate-200 hover:border-orange-300 p-6 rounded-2xl shadow-sm hover:shadow-md transition group">
+                            <i
+                                class="fa-solid fa-person-walking-arrow-loop-left text-3xl text-orange-500 mb-3 group-hover:scale-110 transition duration-300 block"></i>
+                            <span class="font-bold text-slate-700">Volta</span>
+                        </button>
+                        <button @click="registerLog('saida')"
+                            class="bg-white hover:bg-red-50 active:bg-red-100 border border-slate-200 hover:border-red-300 p-6 rounded-2xl shadow-sm hover:shadow-md transition group">
+                            <i
+                                class="fa-solid fa-right-from-bracket text-3xl text-red-500 mb-3 group-hover:scale-110 transition duration-300 block"></i>
+                            <span class="font-bold text-slate-700">Saída</span>
+                        </button>
+                    </div>
+
+                    <!-- Histórico do Dia -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-slate-400"></i> Registros de Hoje
+                            </h3>
+                            <button @click="shareWhatsapp"
+                                class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg hover:bg-green-100 transition">
+                                <i class="fa-brands fa-whatsapp"></i> Compartilhar
+                            </button>
+                        </div>
+                        <div v-if="todayLogs.length > 0" class="divide-y divide-slate-100">
+                            <div v-for="(log, idx) in todayLogs" :key="idx"
+                                class="p-4 flex justify-between items-center hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+                                        :class="getColorClass(log.type)">
+                                        <i :class="getIcon(log.type)"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-800">{{ getLabel(log.type) }}</p>
+                                        <p class="text-xs text-slate-400">ID: {{ log.timestamp.toString().slice(-4) }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="font-mono font-bold text-xl text-slate-700">{{ log.time }}</span>
+                            </div>
+                        </div>
+                        <div v-else class="p-12 text-center text-slate-400">
+                            <i class="fa-regular fa-clock text-4xl mb-3 opacity-20"></i>
+                            <p>Nenhum registro hoje.</p>
+                        </div>
+                    </div>
+
                 </div>
-                <div v-if="todayLogs.length === 0" class="text-center text-gray-400 italic py-4">Nenhum ponto registrado
-                    hoje.</div>
             </div>
-        </div>
 
-        <!-- FOOTER -->
-        <div class="p-6">
-            <button @click="shareWhatsapp"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition">
-                <i class="fa-brands fa-whatsapp text-2xl"></i> Enviar Espelho de Ponto
-            </button>
-        </div>
+            <!-- VIEW: MANUAL -->
+            <div v-if="currentView === 'manual'" class="flex-1 overflow-y-auto p-4 lg:p-8">
+                <div class="max-w-3xl mx-auto space-y-8">
+                    <div class="text-center py-6">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">Manual Basic</h2>
+                        <p class="text-slate-500">Guia de funcionamento do Ponto Simples.</p>
+                    </div>
 
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i
+                                class="fa-solid fa-stopwatch text-blue-500"></i> Como Registrar</h3>
+                        <p class="text-slate-600 leading-relaxed mb-4">
+                            O sistema registra a hora exata do seu dispositivo. Basta clicar no botão correspondente à
+                            sua ação (Entrada, Almoço, Volta ou Saída).
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-100">
+                            <strong>Nota:</strong> Os registros são salvos apenas no seu navegador. Recomenda-se fazer
+                            backup semanalmente.
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i
+                                class="fa-brands fa-whatsapp text-green-500"></i> Compartilhar Espelho</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Ao final do dia, você pode clicar no botão "Compartilhar" na lista de registros para enviar
+                            um resumo formatado via WhatsApp para seu supervisor ou para você mesmo.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i
+                                class="fa-solid fa-lock text-amber-500"></i> Limitações Basic</h3>
+                        <ul class="space-y-2 text-slate-600 list-disc pl-5">
+                            <li>Armazenamento local (apenas neste dispositivo).</li>
+                            <li>Sem cálculo automático de horas extras.</li>
+                            <li>Sem exportação de PDF oficial.</li>
+                            <li><strong>Recomendado para:</strong> Freelancers e controle pessoal.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
@@ -100,28 +245,43 @@
 
         createApp({
             setup() {
+                const isMenuOpen = ref(false);
+                const currentView = ref('home');
                 const logs = ref([]);
                 const currentTime = ref('');
                 const currentDate = ref('');
 
-                const interval = setInterval(() => {
+                // Clock Logic
+                const updateTime = () => {
                     const now = new Date();
-                    currentTime.value = now.toLocaleTimeString();
-                    currentDate.value = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                }, 1000);
-                onUnmounted(() => clearInterval(interval));
+                    currentTime.value = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    currentDate.value = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+                };
+                const timer = setInterval(updateTime, 1000);
+                updateTime();
+                onUnmounted(() => clearInterval(timer));
 
                 // Computed
                 const todayLogs = computed(() => {
                     const today = new Date().toLocaleDateString();
-                    return logs.value.filter(l => l.date === today).reverse(); // Newest first
+                    return logs.value.filter(l => l.date === today).sort((a, b) => b.timestamp - a.timestamp);
                 });
+
+                // Helpers
+                const getLabel = (t) => ({ entrada: 'Entrada', saida_almoco: 'Saída Almoço', volta_almoco: 'Volta Almoço', saida: 'Saída' }[t]);
+                const getIcon = (t) => ({ entrada: 'fa-solid fa-right-to-bracket', saida_almoco: 'fa-solid fa-utensils', volta_almoco: 'fa-solid fa-person-walking-arrow-loop-left', saida: 'fa-solid fa-right-from-bracket' }[t]);
+                const getColorClass = (t) => ({
+                    entrada: 'bg-green-100 text-green-600',
+                    saida_almoco: 'bg-yellow-100 text-yellow-600',
+                    volta_almoco: 'bg-orange-100 text-orange-600',
+                    saida: 'bg-red-100 text-red-600'
+                }[t]);
 
                 // Actions
                 const registerLog = (type) => {
-                    if (confirm(`Registrar ${getLabel(type)}?`)) {
-                        logs.value.push({
-                            type: type,
+                    if (confirm(`Confirmar ${getLabel(type)} às ${currentTime.value}?`)) {
+                        logs.value.unshift({
+                            type,
                             date: new Date().toLocaleDateString(),
                             time: new Date().toLocaleTimeString(),
                             timestamp: Date.now()
@@ -129,35 +289,22 @@
                     }
                 };
 
-                const getLabel = (t) => {
-                    const m = { entrada: 'Entrada', saida_almoco: 'Saída Almoço', volta_almoco: 'Volta Almoço', saida: 'Saída' };
-                    return m[t];
-                };
-
-                const getColor = (t) => {
-                    const m = { entrada: 'bg-green-500', saida_almoco: 'bg-yellow-500', volta_almoco: 'bg-orange-500', saida: 'bg-red-500' };
-                    return m[t];
-                };
-
                 const shareWhatsapp = () => {
-                    let text = `🕐 *Registro de Ponto - ${new Date().toLocaleDateString()}*\n\n`;
-
-                    // Sort by time for report
-                    const sorted = [...todayLogs.value].reverse();
-
-                    sorted.forEach(l => {
-                        text += `${l.time} - ${getLabel(l.type)}\n`;
+                    if (todayLogs.value.length === 0) return alert("Sem registros hoje.");
+                    let text = `⏰ *Ponto - ${currentDate.value}*\n------------------\n`;
+                    [...todayLogs.value].reverse().forEach(l => {
+                        text += `▪ ${l.time} - ${getLabel(l.type)}\n`;
                     });
-
+                    text += `\n_Gerado por Ponto Simples Plena_`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 };
 
-                // Backup
+                // Backup JSON
                 const backupData = () => {
                     const blob = new Blob([JSON.stringify(logs.value)], { type: "application/json" });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `backup_ponto_${Date.now()}.json`;
+                    a.download = `backup_ponto_${new Date().toISOString().slice(0, 10)}.json`;
                     a.click();
                 };
 
@@ -165,20 +312,48 @@
                     const f = e.target.files[0];
                     if (!f) return;
                     const r = new FileReader();
-                    r.onload = (v) => { try { logs.value = JSON.parse(v.target.result); alert("Ponto Restaurado!"); } catch (e) { alert("Erro!"); } };
+                    r.onload = (ev) => {
+                        try {
+                            logs.value = JSON.parse(ev.target.result);
+                            alert("Dados restaurados com sucesso!");
+                        } catch (err) { alert("Arquivo de backup inválido."); }
+                    };
                     r.readAsText(f);
                 };
 
-                // Storage
+                const showUpsell = (feature) => {
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.show({
+                            title: `Recurso Bloqueado: ${feature}`,
+                            message: "Esta funcionalidade é exclusiva da versão Plena RH Plus. Tenha relatórios completos, exportação fiscal e controle de ausências.",
+                            plusName: "Plena RH Plus",
+                            plusLink: "../../../rh.html" // Generic link placeholder
+                        });
+                    } else {
+                        alert("Recurso disponível apenas na versão Plus.");
+                    }
+                };
+
+                // Persist
                 onMounted(() => {
-                    const d = localStorage.getItem('plena_ponto');
-                    if (d) logs.value = JSON.parse(d);
+                    const saved = localStorage.getItem('plena_ponto');
+                    if (saved) logs.value = JSON.parse(saved);
+
+                    // Init Global Upsell
+                    if (window.PlenaUpsell) {
+                        PlenaUpsell.init({
+                            appName: 'Ponto Simples',
+                            plusName: 'Plena RH Plus',
+                            plusLink: '../../../rh.html'
+                        });
+                    }
                 });
                 watch(logs, () => localStorage.setItem('plena_ponto', JSON.stringify(logs.value)), { deep: true });
 
                 return {
-                    logs, currentTime, currentDate, todayLogs,
-                    registerLog, getLabel, getColor, shareWhatsapp, backupData, restoreData
+                    isMenuOpen, currentView, logs, todayLogs, currentTime, currentDate,
+                    registerLog, getLabel, getIcon, getColorClass, shareWhatsapp,
+                    backupData, restoreData, showUpsell
                 };
             }
         }).mount('#app');

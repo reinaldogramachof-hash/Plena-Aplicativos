@@ -1,0 +1,20 @@
+{
+    "name": "Plena Sorveteria",
+    "short_name": "Plena Sorveteria",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#F0F9FF",
+    "theme_color": "#36B5E8",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

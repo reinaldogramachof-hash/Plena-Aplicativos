@@ -3,133 +3,1007 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo Aluguel | Plena</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Aluguéis Basic</title>
+
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Plena Aluguéis Basic">
+
+    <link rel="manifest"
+        href='data:application/manifest+json,{"name":"Plena Aluguéis Basic","short_name":"Plena Basic","start_url":".","display":"standalone","background_color":"#F3F4F6","theme_color":"#7C3AED","icons":[{"src":"https://unpkg.com/lucide-static@0.16.29/icons/home.svg","sizes":"192x192","type":"image/svg+xml"}]}'>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
-        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            purple: '#7C3AED',
+                            dark: '#5b21b6',
+                            black: '#1a1a1a',
+                            blue: '#3B82F6',
+                            green: '#10B981',
+                            red: '#EF4444',
+                            yellow: '#F59E0B'
+                        },
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s infinite',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
+    <!-- FontAwesome for Upsell Script -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script src="../../../assets/js/plena_upsell.js"></script>
+
     <style>
+        /* CSS Otimizado - Igual ao Plus */
+        :root {
+            --plena-purple: #7C3AED;
+            --plena-dark: #5b21b6;
+            --plena-black: #1a1a1a;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #F3F4F6;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .font-serif {
-            font-family: 'Playfair Display', serif;
+        .hide {
+            display: none !important;
         }
 
-        .receipt-paper {
-            background-color: #fdfbf7;
-            border: 1px solid #e5e7eb;
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Sidebar Mobile */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+                width: 280px;
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .sidebar {
+                width: 280px;
+                position: fixed;
+                height: 100vh;
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+        }
+
+        /* Locked Feature Style */
+        .locked-feature {
+            opacity: 0.6;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .locked-feature::after {
+            content: '👑';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
         }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="text-gray-800 antialiased">
+    <!-- Overlay para sidebar mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 transition-opacity" onclick="toggleSidebar()"></div>
 
-    <div id="app" class="flex min-h-screen">
-
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-slate-900 text-white hidden lg:flex flex-col fixed inset-y-0 left-0">
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <span class="font-bold text-lg">Recibo Aluguel</span>
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="sidebar bg-plena-black text-white transition-transform duration-300 flex flex-col shadow-2xl">
+        <div
+            class="h-20 flex items-center px-6 bg-gradient-to-r from-plena-purple to-plena-dark relative overflow-hidden">
+            <div
+                class="absolute right-2 top-2 bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold border border-white/30">
+                BASIC</div>
+            <i data-lucide="home" class="w-8 h-8 mr-3 relative z-10"></i>
+            <div class="relative z-10">
+                <h1 class="text-xl font-bold tracking-tight">PLENA ALUGUÉIS</h1>
+                <p class="text-xs text-white/90 font-medium">Gestão Básica</p>
             </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <div class="px-4 py-2 text-white/50 text-xs uppercase font-bold">Menu</div>
-                <a href="#" class="block px-4 py-2 bg-white/10 rounded-lg text-white font-bold">Criar Recibo</a>
-            </nav>
-            <div class="p-4 border-t border-slate-800">
-                <a href="../../../index.html"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition px-4 py-2">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
-                </a>
+        </div>
+
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+            <button onclick="router('dashboard')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group active-nav"
+                id="nav-dashboard">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Dashboard
+            </button>
+            <button onclick="router('properties')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-properties">
+                <i data-lucide="building-2" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Imóveis
+            </button>
+            <button onclick="router('tenants')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-tenants">
+                <i data-lucide="users" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Inquilinos
+            </button>
+            <button onclick="router('transactions')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-transactions">
+                <i data-lucide="wallet" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Financeiro
+            </button>
+            <div class="relative group">
+                <button onclick="showUpsell()"
+                    class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/5 transition-all group opacity-60 cursor-not-allowed"
+                    id="nav-reports">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-gray-500"></i>
+                    <span class="text-gray-400">Relatórios</span>
+                    <span class="ml-auto text-[10px] bg-plena-yellow text-black px-1.5 rounded font-bold">PLUS</span>
+                </button>
             </div>
-        </aside>
+            <button onclick="router('settings')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-settings">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Configurações
+            </button>
+            <button onclick="router('manual')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-manual">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Manual de Uso
+            </button>
+            <button onclick="router('about')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-about">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Sobre a Plena
+            </button>
+        </nav>
 
-        <!-- MAIN -->
-        <main class="flex-1 lg:ml-64 p-8">
-            <h2 class="text-2xl font-bold mb-6">Novo Recibo de Aluguel</h2>
+        <div class="p-6 border-t border-white/10 text-center">
+            <a href="../../../index.html"
+                class="flex items-center justify-center gap-2 text-xs text-gray-400 hover:text-white transition-colors mb-4">
+                <i data-lucide="arrow-left" class="w-3 h-3"></i> Voltar à Loja
+            </a>
+            <p class="text-xs text-gray-500">Plena Soluções Digitais &copy; 2026</p>
+        </div>
+    </aside>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- FORM -->
-                <div class="space-y-4">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
-                        <h3 class="font-bold text-sm text-slate-400 uppercase">Locador (Proprietário)</h3>
-                        <input v-model="emitter" placeholder="Nome do Proprietário" class="w-full border p-2 rounded">
-                        <input v-model="emitterDoc" placeholder="CPF/CNPJ" class="w-full border p-2 rounded">
+    <!-- Main Content -->
+    <main class="main-content min-h-screen flex flex-col">
+        <!-- Header -->
+        <header
+            class="bg-white h-20 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30 shadow-sm border-b border-gray-100">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <h2 id="page-title" class="text-xl font-bold text-gray-800 hidden sm:block">Dashboard</h2>
+                <div class="sm:hidden px-2 py-1 bg-gray-100 rounded text-xs text-gray-500 font-bold">BASIC</div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="openPropertyModal()"
+                    class="flex items-center px-4 py-2.5 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-all shadow-lg shadow-purple-200 active:scale-95">
+                    <i data-lucide="plus" class="w-5 h-5 sm:mr-2"></i>
+                    <span class="hidden sm:inline">Novo Imóvel</span>
+                    <span class="sm:hidden">Novo</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
+
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Imóveis</p>
+                        <h3 id="dash-occupancy" class="text-3xl font-bold text-gray-900">0/1</h3>
+                        <p class="text-xs text-gray-500 mt-1">Limite do plano Basic</p>
                     </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
-                        <h3 class="font-bold text-sm text-slate-400 uppercase">Dados da Locação</h3>
-                        <input v-model="client" placeholder="Nome do Inquilino" class="w-full border p-2 rounded">
-                        <input v-model.number="value" type="number" placeholder="Valor do Aluguel R$"
-                            class="w-full border p-2 rounded">
-                        <textarea v-model="desc" placeholder="Referente ao aluguel do mês..."
-                            class="w-full border p-2 rounded"></textarea>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Saldo Atual</p>
+                        <h3 id="dash-balance" class="text-2xl font-bold text-blue-600">R$ 0,00</h3>
+                        <p class="text-xs text-gray-500 mt-1">Disponível</p>
                     </div>
                 </div>
 
-                <!-- PREVIEW -->
-                <div class="space-y-4">
-                    <div class="receipt-paper p-8 shadow-lg text-center space-y-6">
-                        <h2 class="text-3xl font-serif font-bold">RECIBO DE ALUGUEL</h2>
-                        <div class="text-2xl font-mono font-bold">R$ {{ parseFloat(value||0).toFixed(2) }}</div>
-                        <p class="text-justify leading-relaxed">
-                            Recebi(emos) de <b>{{ client || '................' }}</b> a importância supra de
-                            <b>R$ {{ parseFloat(value||0).toFixed(2) }}</b> referente ao aluguel:
-                            <i>{{ desc || '................' }}</i>.
-                        </p>
-                        <div class="flex justify-between text-sm pt-8">
-                            <div>{{ new Date().toLocaleDateString() }}</div>
-                            <div>{{ emitter || 'Assinatura' }}</div>
+                <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-6">
+                    <div class="flex items-start gap-4">
+                        <i data-lucide="crown" class="w-8 h-8 text-plena-yellow shrink-0"></i>
+                        <div>
+                            <h3 class="font-bold text-blue-800 mb-1">Upgrade para o Plano Plus</h3>
+                            <p class="text-sm text-blue-600 mb-3">Gerencie imóveis ilimitados, acesse relatórios, gere
+                                recibos automáticos e muito mais.</p>
+                            <button onclick="showUpsell()"
+                                class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700">Conhecer
+                                Vantagens</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-4">Seus Imóveis</h3>
+                    <div id="dashboard-properties-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Properties View -->
+            <section id="view-properties" class="view-section hide fade-in">
+                <div id="properties-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- Tenants View -->
+            <section id="view-tenants" class="view-section hide fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                                <tr>
+                                    <th class="px-6 py-3">Inquilino</th>
+                                    <th class="px-6 py-3">Imóvel</th>
+                                    <th class="px-6 py-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenants-table-body" class="divide-y divide-gray-100 text-sm"></tbody>
+                        </table>
+                    </div>
+                    <div id="tenants-empty-msg" class="hidden p-8 text-center text-gray-400">
+                        <p>Nenhum inquilino cadastrado.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions View -->
+            <section id="view-transactions" class="view-section hide fade-in">
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800">Financeiro</h2>
+                    <button onclick="openTransactionModal()"
+                        class="px-4 py-2 bg-plena-purple text-white rounded-lg text-sm font-bold">
+                        Nova Movimentação
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div id="trans-list" class="divide-y divide-gray-100"></div>
+                    <div id="trans-empty-msg" class="hidden p-8 text-center text-gray-400">
+                        <p>Nenhuma movimentação registrada.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Manual View -->
+            <section id="view-manual" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center justify-center p-3 bg-plena-purple/10 rounded-2xl mb-4">
+                            <i data-lucide="book-open" class="w-8 h-8 text-plena-purple"></i>
+                        </div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">Manual do Usuário</h1>
+                        <p class="text-gray-500">Guia rápido para aproveitar ao máximo o Plena Aluguéis Basic.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Card 1 -->
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800">Dashboard Interativo</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Acompanhe o status do seu imóvel e o saldo financeiro em tempo real. O Dashboard avisa
+                                quando você atinge o limite do plano Basic e oferece atalhos rápidos.
+                            </p>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800">Gestão de Imóveis</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Cadastre seu imóvel com detalhes de valor, vencimento e inquilino. No plano Basic, você
+                                gerencia 1 unidade com total controle. Para mais unidades, confira o plano Plus.
+                            </p>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800">Controle Financeiro</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Registre receitas (aluguéis recebidos) e despesas (manutenções, taxas). Organize suas
+                                finanças de forma simples e direta, sem planilhas complicadas.
+                            </p>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div
+                            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-800">Segurança de Dados</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Seus dados ficam salvos no seu navegador. Use a função de <strong>Backup</strong> nas
+                                Configurações para salvar um arquivo seguro e restaurar em outro dispositivo quando
+                                precisar.
+                            </p>
                         </div>
                     </div>
 
-                    <button @click="shareWhatsapp"
-                        class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 transition">
-                        <i class="fa-brands fa-whatsapp"></i> Enviar Recibo
-                    </button>
+                    <div
+                        class="mt-8 bg-gradient-to-r from-plena-purple to-plena-dark rounded-2xl p-8 text-white text-center">
+                        <h3 class="text-2xl font-bold mb-2">Precisa de mais poder?</h3>
+                        <p class="text-white/80 mb-6">A versão Plus oferece imóveis ilimitados, contratos automáticos e
+                            relatórios avançados.</p>
+                        <button onclick="showUpsell()"
+                            class="bg-white text-plena-purple px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-lg">
+                            Conhecer Versão Plus
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </section>
 
+            <!-- Settings View -->
+            <section id="view-settings" class="view-section hide fade-in">
+                <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-6">Configurações Pessoais</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Nome / Imobiliária</label>
+                            <input type="text" id="set-owner-name" class="w-full border p-3 rounded-xl mt-1 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase">CPF / CNPJ</label>
+                            <input type="text" id="set-owner-doc" class="w-full border p-3 rounded-xl mt-1 text-sm">
+                        </div>
+                        <button onclick="saveSettings()"
+                            class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold mt-4">
+                            Salvar Dados
+                        </button>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-4">Backup & Dados</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="exportData()"
+                                class="flex flex-col items-center justify-center p-4 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors border border-blue-200">
+                                <i data-lucide="download" class="w-6 h-6 mb-2"></i>
+                                <span class="font-bold text-sm">Fazer Backup</span>
+                            </button>
+                            <button onclick="document.getElementById('restore-input').click()"
+                                class="flex flex-col items-center justify-center p-4 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors border border-green-200">
+                                <i data-lucide="upload" class="w-6 h-6 mb-2"></i>
+                                <span class="font-bold text-sm">Restaurar Dados</span>
+                            </button>
+                            <input type="file" id="restore-input" accept=".json" class="hidden"
+                                onchange="importData(this)">
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-4 text-red-600">Zona de Perigo</h3>
+                        <button onclick="factoryReset()"
+                            class="w-full border border-red-200 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50">
+                            Resetar Aplicativo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About View -->
+            <section id="view-about" class="view-section hide fade-in">
+                <div class="max-w-2xl mx-auto text-center py-12">
+                    <div
+                        class="w-20 h-20 bg-plena-purple rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-200">
+                        <i data-lucide="home" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Plena Soluções</h1>
+                    <p class="text-gray-500 mb-8">Tecnologia que simplifica sua gestão.</p>
+
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-left">
+                        <h3 class="font-bold text-gray-800 mb-4">Contato & Suporte</h3>
+                        <div class="space-y-4">
+                            <a href="mailto:tecnologia@plenainformatica.com.br"
+                                class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div
+                                    class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+                                    <i data-lucide="mail" class="w-5 h-5 text-plena-purple"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-800">E-mail</p>
+                                    <p class="text-sm text-gray-600">tecnologia@plenainformatica.com.br</p>
+                                </div>
+                            </a>
+                            <a href="https://www.plenaaplicativos.com.br" target="_blank"
+                                class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <div
+                                    class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4">
+                                    <i data-lucide="globe" class="w-5 h-5 text-plena-blue"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-800">Website</p>
+                                    <p class="text-sm text-gray-600">www.plenaaplicativos.com.br</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Property Modal -->
+    <div id="propertyModal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slide-in">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-xl text-gray-800" id="prop-modal-title">Novo Imóvel</h3>
+                <button onclick="closeModal('propertyModal')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form onsubmit="submitProperty(event)" class="p-6 overflow-y-auto max-h-[70vh]">
+                <input type="hidden" id="p-id">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Nome / Apelido</label>
+                        <input type="text" id="p-name" required placeholder="Ex: Apartamento Centro"
+                            class="w-full border p-3 rounded-xl mt-1 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Endereço</label>
+                        <input type="text" id="p-address" placeholder="Rua, Número, Bairro"
+                            class="w-full border p-3 rounded-xl mt-1 text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Valor Aluguel</label>
+                            <input type="number" id="p-value" required step="0.01"
+                                class="w-full border p-3 rounded-xl mt-1 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Dia Venc.</label>
+                            <input type="number" id="p-due" required min="1" max="31"
+                                class="w-full border p-3 rounded-xl mt-1 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <input type="checkbox" id="p-occupied" class="w-4 h-4 text-plena-purple rounded"
+                                onchange="toggleTenantFields()">
+                            <label for="p-occupied" class="ml-2 text-sm font-bold text-gray-700">Imóvel Ocupado?</label>
+                        </div>
+
+                        <div id="tenant-fields" class="hidden space-y-3 pt-2 border-t border-gray-200">
+                            <input type="text" id="p-tenant" placeholder="Nome do Inquilino"
+                                class="w-full border p-2 rounded-lg text-sm bg-white">
+                            <input type="text" id="p-phone" placeholder="WhatsApp (somente números)"
+                                class="w-full border p-2 rounded-lg text-sm bg-white">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button type="button" onclick="deleteProperty()" id="btn-delete-prop"
+                        class="hidden px-4 py-3 border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50">Excluir</button>
+                    <button type="submit"
+                        class="flex-1 bg-plena-purple text-white py-3 rounded-xl font-bold hover:bg-plena-dark">Salvar
+                        Imóvel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slide-in">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-xl text-gray-800">Nova Movimentação</h3>
+                <button onclick="closeModal('transactionModal')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form onsubmit="submitTransaction(event)" class="p-6">
+                <input type="hidden" id="t-id">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl">
+                        <label class="cursor-pointer text-center">
+                            <input type="radio" name="t-type" value="income" class="peer hidden" checked>
+                            <span
+                                class="block py-2 text-sm font-bold text-gray-500 rounded-lg peer-checked:bg-green-500 peer-checked:text-white transition-all">Receita</span>
+                        </label>
+                        <label class="cursor-pointer text-center">
+                            <input type="radio" name="t-type" value="expense" class="peer hidden">
+                            <span
+                                class="block py-2 text-sm font-bold text-gray-500 rounded-lg peer-checked:bg-red-500 peer-checked:text-white transition-all">Despesa</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <input type="number" id="t-amount" placeholder="Valor (R$)" required step="0.01"
+                            class="w-full border p-3 rounded-xl text-lg font-bold">
+                    </div>
+                    <div>
+                        <input type="text" id="t-desc" placeholder="Descrição (Ex: Aluguel Jan/24)" required
+                            class="w-full border p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Imóvel Relacionado</label>
+                        <select id="t-property" class="w-full border p-3 rounded-xl mt-1 text-sm bg-white"></select>
+                    </div>
+                    <div>
+                        <input type="date" id="t-date" required class="w-full border p-3 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Salvar
+                        Movimentação</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
-        const { createApp, ref } = Vue;
-        createApp({
-            setup() {
-                const emitter = ref("");
-                const emitterDoc = ref("");
-                const client = ref("");
-                const value = ref(0);
-                const desc = ref("");
+        const DB_KEY = 'plena_alugueis_basic_v1';
+        const MAX_PROPERTIES = 1;
 
-                const shareWhatsapp = () => {
-                    const text = `🧾 RECIBO DE ALUGUEL\nValor: R$ ${parseFloat(value.value || 0).toFixed(2)}\nDe: ${emitter.value}\nPara: ${client.value}\nRef: ${desc.value}`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                };
-
-                const { onMounted } = Vue;
-                onMounted(() => {
-                    if (window.PlenaUpsell) {
-                        PlenaUpsell.init({
-                            appName: 'Recibo Aluguel',
-                            plusName: 'Plena Aluguéis',
-                            plusLink: '../../../../Mercado Livre/apps.plus/plena_alugueis.html',
-                            dashboardPreview: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80'
-                        });
-                    }
-                });
-
-                return { emitter, emitterDoc, client, value, desc, shareWhatsapp };
+        let db = {
+            properties: [],
+            transactions: [],
+            settings: {
+                ownerName: '',
+                ownerDoc: ''
             }
-        }).mount('#app');
+        };
+
+        // --- Core Functions ---
+
+        function init() {
+            load();
+            lucide.createIcons();
+            router('dashboard');
+
+            if (window.PlenaUpsell) {
+                PlenaUpsell.init({
+                    appName: 'Plena Aluguéis Basic',
+                    plusName: 'Plena Aluguéis PRO',
+                    plusLink: '../../../../Mercado Livre/apps.plus/plena_alugueis.html',
+                    dashboardPreview: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'
+                });
+            }
+        }
+
+        function showUpsell() {
+            if (window.PlenaUpsell) {
+                PlenaUpsell.showPreview('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800');
+            } else {
+                alert('Versão Premium necessária para esta função.');
+            }
+        }
+
+        function load() {
+            const data = localStorage.getItem(DB_KEY);
+            if (data) db = JSON.parse(data);
+        }
+
+        function save() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        function getID() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function router(view) {
+            if (view === 'reports') {
+                showUpsell();
+                return;
+            }
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.getElementById(`view-${view}`).classList.remove('hide');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10'));
+            const navBtn = document.getElementById(`nav-${view}`);
+            if (navBtn) navBtn.classList.add('active-nav', 'bg-white/10');
+
+            // Close sidebar on mobile
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.remove('open');
+                const overlay = document.getElementById('overlay');
+                if (overlay) overlay.classList.add('hidden');
+            }
+
+            // Render specific view data
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'properties') renderProperties();
+            if (view === 'tenants') renderTenants();
+            if (view === 'transactions') renderTransactions();
+            if (view === 'settings') renderSettings();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function fmtMoney(val) {
+            return parseFloat(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // --- Dashboard ---
+
+        function renderDashboard() {
+            const count = db.properties.length;
+            document.getElementById('dash-occupancy').innerText = `${count}/${MAX_PROPERTIES}`;
+            document.getElementById('dash-occupancy').className = count >= MAX_PROPERTIES ? "text-3xl font-bold text-red-500" : "text-3xl font-bold text-gray-900";
+
+            const balance = db.transactions.reduce((acc, t) => {
+                return t.type === 'income' ? acc + t.amount : acc - t.amount;
+            }, 0);
+            document.getElementById('dash-balance').innerText = fmtMoney(balance);
+
+            const propList = document.getElementById('dashboard-properties-list');
+            if (db.properties.length === 0) {
+                propList.innerHTML = '<p class="text-gray-400 text-sm">Nenhum imóvel.</p>';
+            } else {
+                propList.innerHTML = db.properties.map(p => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                             <p class="font-bold text-gray-800 text-sm">${p.name}</p>
+                             <p class="text-xs text-gray-500">${p.tenant || 'Vago'}</p>
+                        </div>
+                        <span class="text-sm font-bold text-plena-purple">${fmtMoney(p.value)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- Properties ---
+
+        function renderProperties() {
+            const container = document.getElementById('properties-list');
+            if (db.properties.length === 0) {
+                container.innerHTML = '<p class="col-span-3 text-center text-gray-400">Nenhum imóvel cadastrado.</p>';
+            } else {
+                container.innerHTML = db.properties.map(p => `
+                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm cursor-pointer" onclick="openPropertyModal('${p.id}')">
+                        <h3 class="font-bold text-gray-800">${p.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2">${p.address || ''}</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="font-bold text-plena-purple text-lg">${fmtMoney(p.value)}</span>
+                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">${p.tenant ? 'Ocupado' : 'Vago'}</span>
+                        </div>
+                     </div>
+                `).join('');
+            }
+        }
+
+        function openPropertyModal(id = null) {
+            if (!id && db.properties.length >= MAX_PROPERTIES) {
+                showUpsell();
+                return;
+            }
+
+            const modal = document.getElementById('propertyModal');
+            const form = modal.querySelector('form');
+            const delBtn = document.getElementById('btn-delete-prop');
+
+            if (id) {
+                const p = db.properties.find(x => x.id === id);
+                if (p) {
+                    document.getElementById('prop-modal-title').innerText = 'Editar Imóvel';
+                    document.getElementById('p-id').value = p.id;
+                    document.getElementById('p-name').value = p.name;
+                    document.getElementById('p-address').value = p.address || '';
+                    document.getElementById('p-value').value = p.value;
+                    document.getElementById('p-due').value = p.dueDay;
+                    document.getElementById('p-occupied').checked = !!p.tenant;
+                    toggleTenantFields();
+                    if (p.tenant) {
+                        document.getElementById('p-tenant').value = p.tenant;
+                        document.getElementById('p-phone').value = p.phone || '';
+                    }
+                    delBtn.classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('prop-modal-title').innerText = 'Novo Imóvel';
+                form.reset();
+                document.getElementById('p-id').value = '';
+                toggleTenantFields();
+                delBtn.classList.add('hidden');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function toggleTenantFields() {
+            const chk = document.getElementById('p-occupied').checked;
+            const fields = document.getElementById('tenant-fields');
+            if (chk) fields.classList.remove('hidden'); else fields.classList.add('hidden');
+        }
+
+        function submitProperty(e) {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+            const occupied = document.getElementById('p-occupied').checked;
+
+            const newProp = {
+                id: id || getID(),
+                name: document.getElementById('p-name').value,
+                address: document.getElementById('p-address').value,
+                value: parseFloat(document.getElementById('p-value').value),
+                dueDay: document.getElementById('p-due').value,
+                tenant: occupied ? document.getElementById('p-tenant').value : null,
+                phone: occupied ? document.getElementById('p-phone').value : null
+            };
+
+            if (id) {
+                const idx = db.properties.findIndex(x => x.id === id);
+                if (idx !== -1) db.properties[idx] = newProp;
+            } else {
+                db.properties.push(newProp);
+            }
+
+            save();
+            closeModal('propertyModal');
+            renderDashboard();
+            renderProperties();
+            renderTenants();
+        }
+
+        function deleteProperty() {
+            if (!confirm('Excluir este imóvel?')) return;
+            const id = document.getElementById('p-id').value;
+            db.properties = db.properties.filter(x => x.id !== id);
+            save();
+            closeModal('propertyModal');
+            renderDashboard();
+            renderProperties();
+        }
+
+        // --- Tenants ---
+
+        function renderTenants() {
+            const container = document.getElementById('tenants-table-body');
+            const list = db.properties.filter(p => p.tenant);
+
+            if (list.length === 0) {
+                container.innerHTML = '';
+                document.getElementById('tenants-empty-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('tenants-empty-msg').classList.add('hidden');
+                container.innerHTML = list.map(p => `
+                    <tr class="border-b border-gray-100">
+                        <td class="px-6 py-4 font-bold text-gray-800">${p.tenant}</td>
+                        <td class="px-6 py-4 text-gray-600">${p.name}</td>
+                        <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Ativo</span></td>
+                    </tr>
+                 `).join('');
+            }
+        }
+
+        // --- Transactions ---
+
+        function renderTransactions() {
+            const container = document.getElementById('trans-list');
+            if (db.transactions.length === 0) {
+                container.innerHTML = '';
+                document.getElementById('trans-empty-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('trans-empty-msg').classList.add('hidden');
+                // Sort by date desc
+                const sorted = [...db.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                container.innerHTML = sorted.map(t => `
+                    <div class="p-4 flex justify-between items-center hover:bg-gray-50 group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                <i data-lucide="${t.type === 'income' ? 'arrow-up' : 'arrow-down'}" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">${t.desc}</p>
+                                <p class="text-xs text-gray-500">${t.date.split('-').reverse().join('/')}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                             <p class="font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'} ${fmtMoney(t.amount)}</p>
+                             <button onclick="deleteTransaction('${t.id}')" class="text-xs text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">Excluir</button>
+                        </div>
+                    </div>
+                 `).join('');
+                lucide.createIcons();
+            }
+        }
+
+        function openTransactionModal() {
+            const modal = document.getElementById('transactionModal');
+            const propSelect = document.getElementById('t-property');
+            propSelect.innerHTML = db.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+            modal.querySelector('form').reset();
+            document.getElementById('t-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('t-id').value = '';
+
+            modal.classList.remove('hidden');
+        }
+
+        function submitTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('t-id').value;
+            const type = document.querySelector('input[name="t-type"]:checked').value;
+
+            const trans = {
+                id: id || getID(),
+                type: type,
+                amount: parseFloat(document.getElementById('t-amount').value),
+                desc: document.getElementById('t-desc').value,
+                propertyId: document.getElementById('t-property').value,
+                date: document.getElementById('t-date').value
+            };
+
+            if (id) {
+                // Edit not implemented in basic for simplicity of finding index
+            } else {
+                db.transactions.push(trans);
+            }
+            save();
+            closeModal('transactionModal');
+            renderDashboard();
+            renderTransactions();
+        }
+
+        function deleteTransaction(id) {
+            if (!confirm('Excluir?')) return;
+            db.transactions = db.transactions.filter(t => t.id !== id);
+            save();
+            renderDashboard();
+            renderTransactions();
+        }
+
+        // --- Settings ---
+        function renderSettings() {
+            document.getElementById('set-owner-name').value = db.settings.ownerName || '';
+            document.getElementById('set-owner-doc').value = db.settings.ownerDoc || '';
+        }
+
+        function saveSettings() {
+            db.settings.ownerName = document.getElementById('set-owner-name').value;
+            db.settings.ownerDoc = document.getElementById('set-owner-doc').value;
+            save();
+            alert('Salvo com sucesso!');
+        }
+
+        function factoryReset() {
+            if (confirm('ATENÇÃO: Isso apagará TODOS os seus dados. Continuar?')) {
+                localStorage.removeItem(DB_KEY);
+                location.reload();
+            }
+        }
+
+        // --- Backup & Restore ---
+
+        function exportData() {
+            const dataStr = JSON.stringify(db);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'backup_plena_alugueis_basic.json';
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!confirm('ATENÇÃO: A restauração substituirá todos os dados atuais. Deseja continuar?')) {
+                input.value = ''; // Reset input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const content = e.target.result;
+                    const parsedData = JSON.parse(content);
+
+                    // Basic validation
+                    if (!parsedData.properties || !parsedData.transactions) {
+                        throw new Error('Arquivo de backup inválido.');
+                    }
+
+                    db = parsedData;
+                    save();
+                    alert('Dados restaurados com sucesso!');
+                    location.reload();
+                } catch (error) {
+                    alert('Erro ao restaurar dados: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Initial launch
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+
     </script>
 </body>
 

@@ -15,8 +15,198 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* Tech Grid Background */
+        .tech-grid-bg {
+            background-color: #0a0e27;
+            background-image:
+                linear-gradient(rgba(0, 149, 255, 0.03) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(0, 149, 255, 0.03) 2px, transparent 2px),
+                linear-gradient(rgba(0, 149, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 149, 255, 0.02) 1px, transparent 1px);
+            background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+            background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+            position: relative;
+        }
+
+        .tech-grid-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 149, 255, 0.1) 0%, transparent 50%);
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        .tech-grid-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0) 0%, rgba(10, 14, 39, 0.8) 100%);
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes grid-flow {
+            0% {
+                background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+            }
+
+            100% {
+                background-position: 98px 98px, 98px 98px, 19px 19px, 19px 19px;
+            }
+        }
+
+        .tech-grid-animated {
+            animation: grid-flow 20s linear infinite;
+        }
+
+        /* Neon Glow Effects */
+        .neon-border {
+            box-shadow: 0 0 20px rgba(0, 149, 255, 0.3),
+                0 0 40px rgba(0, 149, 255, 0.2),
+                inset 0 0 20px rgba(0, 149, 255, 0.1);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 149, 255, 0.8),
+                0 0 20px rgba(0, 149, 255, 0.6),
+                0 0 30px rgba(0, 149, 255, 0.4);
+        }
+
+        /* Digital Dust Particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 8px;
+            color: rgba(147, 197, 253, 0.4);
+            text-shadow:
+                0 0 5px rgba(59, 130, 246, 0.6),
+                0 0 10px rgba(147, 197, 253, 0.4);
+            animation: dust-float 8s ease-in-out infinite;
+            filter: blur(1px);
+        }
+
+        @keyframes dust-float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+
+            25% {
+                transform: translate(10px, -5px) scale(1.2);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: translate(-5px, -10px) scale(0.8);
+                opacity: 0.4;
+            }
+
+            75% {
+                transform: translate(15px, -3px) scale(1.1);
+                opacity: 0.5;
+            }
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 25%;
+            top: 60%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(3) {
+            left: 40%;
+            top: 30%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(4) {
+            left: 55%;
+            top: 70%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(5) {
+            left: 70%;
+            top: 40%;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(6) {
+            left: 85%;
+            top: 50%;
+            animation-delay: 5s;
+        }
+
+        .particle:nth-child(7) {
+            left: 15%;
+            top: 80%;
+            animation-delay: 1.5s;
+        }
+
+        .particle:nth-child(8) {
+            left: 60%;
+            top: 15%;
+            animation-delay: 2.5s;
+        }
+
+        .particle:nth-child(9) {
+            left: 80%;
+            top: 65%;
+            animation-delay: 3.5s;
+        }
+
+        .particle:nth-child(10) {
+            left: 30%;
+            top: 45%;
+            animation-delay: 4.5s;
+        }
+
+        .particle:nth-child(11) {
+            left: 50%;
+            top: 85%;
+            animation-delay: 0.5s;
+        }
+
+        .particle:nth-child(12) {
+            left: 90%;
+            top: 25%;
+            animation-delay: 1.8s;
+        }
+
         .hero-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0a0e27 0%, #1e293b 100%);
         }
 
         .premium-card {
@@ -28,56 +218,265 @@
         [v-cloak] {
             display: none;
         }
+
+        /* Binary Matrix Background */
+        .depth-texture-bg {
+            background-color: #ffffff;
+            position: relative;
+        }
+
+        /* Binary Numbers Container */
+        .binary-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .binary-number {
+            position: absolute;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: rgba(59, 130, 246, 0.15);
+            text-shadow:
+                0 0 10px rgba(59, 130, 246, 0.3),
+                0 0 20px rgba(147, 197, 253, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(1px);
+            animation: float-up linear infinite;
+            user-select: none;
+        }
+
+        /* Glassmorphism effect on numbers */
+        .binary-number::before {
+            content: attr(data-value);
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: blur(0.5px);
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            82% {
+                opacity: 1;
+                transform: translateY(-8vh) rotate(340deg) scale(1);
+            }
+
+            88% {
+                opacity: 0.8;
+                transform: translateY(-5vh) rotate(355deg) scale(0.8);
+                filter: blur(2px);
+            }
+
+            94% {
+                opacity: 0.4;
+                transform: translateY(-3vh) rotate(365deg) scale(0.4);
+                filter: blur(5px);
+            }
+
+            97% {
+                opacity: 0.2;
+                transform: translateY(-2vh) rotate(370deg) scale(0.2);
+                filter: blur(8px);
+            }
+
+            100% {
+                transform: translateY(0) rotate(380deg) scale(0);
+                opacity: 0;
+                filter: blur(15px);
+            }
+        }
+
+        /* Pulverization effect */
+        .binary-number.pulverizing::after {
+            content: attr(data-value);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: explode 0.6s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+                filter: blur(10px);
+            }
+        }
+
+        /* Different sizes for depth */
+        .binary-number.small {
+            font-size: 14px;
+            animation-duration: 15s;
+        }
+
+        .binary-number.medium {
+            font-size: 18px;
+            animation-duration: 20s;
+        }
+
+        .binary-number.large {
+            font-size: 24px;
+            animation-duration: 25s;
+        }
+
+        /* Ensure content is above binary numbers */
+        #app>* {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Cards and content sections */
+        .bg-white,
+        .premium-card,
+        [class*="bg-slate"] {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Animated Depth Layers */
+        @keyframes depth-float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.02);
+            }
+        }
+
+        .depth-layer {
+            animation: depth-float 8s ease-in-out infinite;
+        }
+
+        /* Subtle Shimmer Effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .shimmer-effect::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(59, 130, 246, 0.03) 50%,
+                    transparent 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 15s infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="depth-texture-bg text-slate-800 shimmer-effect">
+
+    <!-- Binary Matrix Background -->
+    <div class="binary-matrix" id="binaryMatrix"></div>
 
     <div id="app" v-cloak>
 
-        <!-- HEADER PROFISSIONAL -->
-        <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+        <!-- HEADER PROFISSIONAL COM TECH GRID -->
+        <header
+            class="tech-grid-bg tech-grid-animated text-white sticky top-0 z-50 shadow-lg border-b border-blue-500/20">
+            <div class="particles">
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+                <div class="particle">1</div>
+                <div class="particle">0</div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center relative z-10">
                 <div class="flex items-center gap-3">
-                    <div class="bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl">P
+                    <div
+                        class="bg-gradient-to-br from-blue-500 to-cyan-400 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl neon-border shadow-lg shadow-blue-500/50">
+                        P
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg leading-none tracking-tight">PLENA</h1>
-                        <p class="text-[10px] text-blue-300 uppercase tracking-widest">Business Solutions</p>
+                        <h1 class="font-bold text-lg leading-none tracking-tight neon-text">PLENA</h1>
+                        <p class="text-[10px] text-cyan-300 uppercase tracking-widest">Business Solutions</p>
                     </div>
                 </div>
 
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-300">
-                    <a href="#catalogo" class="hover:text-white transition">Softwares</a>
+                    <a href="#catalogo" class="hover:text-cyan-300 transition hover:neon-text">Softwares</a>
                     <a href="#plr"
                         class="text-yellow-400 hover:text-yellow-300 font-bold transition flex items-center gap-2">
                         <i class="fa-solid fa-code"></i> Área Developer (PLR)
-                    </a>
-                    <a href="playground.html"
-                        class="text-orange-400 hover:text-orange-300 flex items-center gap-2 border border-orange-500/30 px-3 py-1 rounded-full bg-orange-500/10">
-                        <i class="fa-solid fa-rocket"></i> Grátis
                     </a>
                 </div>
             </div>
         </header>
 
-        <!-- HERO B2B -->
-        <section class="hero-gradient py-20 px-4 text-center text-white relative overflow-hidden">
+        <!-- HERO B2B COM TECH GRID -->
+        <section
+            class="tech-grid-bg tech-grid-animated py-20 px-4 text-center text-white relative overflow-hidden border-b border-blue-500/20">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
             <div class="max-w-4xl mx-auto relative z-10">
                 <span
-                    class="bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 inline-block">
+                    class="bg-blue-600/30 border border-cyan-400/50 text-cyan-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 inline-block neon-border">
                     Tecnologia MicroSaaS
                 </span>
-                <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight neon-text">
                     Gestão Profissional.<br>Sem Mensalidade.
                 </h2>
-                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+                <p class="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
                     Softwares definitivos para substituir planilhas e cadernos. Pague uma única vez e tenha o controle
                     total do seu negócio no celular ou PC.
                 </p>
                 <div class="flex justify-center gap-4">
                     <a href="#catalogo"
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition">
+                        class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-blue-500/50 transition neon-border transform hover:scale-105">
                         Ver Catálogo Oficial
                     </a>
                 </div>
@@ -129,58 +528,15 @@
                 </div>
             </div>
 
-            <!-- SEÇÃO ESSENCIAL (FERRAMENTAS UTILITY) -->
-            <div v-if="essentialApps.length > 0" class="mb-16">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                        </span>
-                        Ferramentas Essenciais
-                    </h3>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div v-for="app in essentialApps" :key="app.name"
-                        class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden group flex flex-col">
-                        <div class="h-40 bg-slate-100 relative overflow-hidden">
-                            <div
-                                class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded uppercase z-10">
-                                {{ app.category }}</div>
-                            <img :src="app.img"
-                                class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                        </div>
-                        <div class="p-6 flex-grow flex flex-col">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="font-bold text-lg text-slate-900">{{ app.name }}</h3>
-                                <span class="text-[10px] font-bold text-blue-500 uppercase">Essencial</span>
-                            </div>
-                            <p class="text-sm text-slate-500 mb-4 line-clamp-2 leading-relaxed">{{ app.desc }}</p>
-                            <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
-                                <div>
-                                    <span
-                                        class="text-xs text-slate-400 line-through block uppercase tracking-tighter">Oferta</span>
-                                    <span class="text-xl font-bold text-blue-600 font-mono italic">R$ {{ app.price
-                                        }}</span>
-                                </div>
-                                <a :href="app.link"
-                                    class="bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm transition">
-                                    Abrir
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- SEÇÃO PREMIUM (SISTEMAS PLUS) -->
-            <div v-if="premiumApps.length > 0" class="mb-16">
+            <div class="mb-16">
                 <div class="flex items-center justify-between mb-8">
                     <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
                         <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
                             <i class="fa-solid fa-crown"></i>
                         </span>
-                        Sistemas Premium Plus
+                        Sistemas Plus
                     </h3>
                     <span
                         class="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
@@ -315,13 +671,17 @@
             </div>
         </section>
 
-        <!-- FOOTER LINK -->
-        <footer class="bg-slate-950 text-slate-400 py-12 text-center border-t border-slate-800">
-            <p class="mb-4">&copy; 2025 Plena Aplicativos. Todos os direitos reservados.</p>
-            <a href="playground.html"
-                class="inline-block mt-4 text-sm text-orange-400 hover:text-orange-300 border-b border-orange-400/30 pb-1 transition">
-                Procurando ferramentas gratuitas e jogos? <strong>Acesse o Playground</strong>
-            </a>
+        <!-- FOOTER COM TECH GRID -->
+        <footer
+            class="tech-grid-bg text-slate-400 py-12 text-center border-t border-blue-500/20 relative overflow-hidden">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+            <p class="mb-4 relative z-10">&copy; 2025 Plena Aplicativos. Todos os direitos reservados.</p>
             <!-- PASSAGEM SECRETA DO ADMIN -->
             <div class="fixed top-0 left-0 w-4 h-4 z-[9999]" ondblclick="window.location.href='admin.html'"
                 title="Área Restrita" style="cursor: pointer;"></div>
@@ -336,7 +696,7 @@
             setup() {
                 const filter = ref('Todos');
                 const search = ref('');
-                const categories = ['Todos', 'Gestão', 'Food', 'Serviços', 'Marketing', 'RH', 'Saúde Pro', 'Transporte', 'Segurança'];
+                const categories = ['Todos', 'Gestão', 'Food', 'Serviços', 'Marketing', 'Transporte'];
 
                 // KITS (BUNDLES) - Destaque
                 const kits = ref([
@@ -348,50 +708,22 @@
                 // LISTA COMPLETA DE APPS PROFISSIONAIS
                 const apps = ref([
                     // APPS PLUS (TIER GOLD)
-                    { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_alugueis.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
-                    { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_assistencia.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
-                    { name: "Plena Artesanato", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "../Mercado Livre/apps.plus/plena_artesanato.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
-                    { name: "Plena Barbearia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_barbearia.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
-                    { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
-                    { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "../Mercado Livre/apps.plus/plena_card.html", img: "https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=500", desc: "Cartão de visita digital interativo e biometria." },
-                    { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "../Mercado Livre/apps.plus/plena_controle.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
-                    { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "../Mercado Livre/apps.plus/plena_delivery.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
-                    { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "../Mercado Livre/apps.plus/plena_distribuidora.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
-                    { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_driver.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
-                    { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "../Mercado Livre/apps.plus/plena_estoque.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
-                    { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "../Mercado Livre/apps.plus/plena_financas.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
-                    { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "../Mercado Livre/apps.plus/plena_obras.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
-                    { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "../Mercado Livre/apps.plus/plena_orcamentos.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
-                    { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "../Mercado Livre/apps.plus/plena_pdv.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                    { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "../Mercado Livre/apps.plus/plena_sorveteria.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." },
-
-                    // GESTÃO (TIER ESSENTIAL)
-                    // { name: "OS Express", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão simples de ordens de serviço." },
-                    // { name: "Recibo Pro", tier: "essential", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos rápidos em PDF." },
-                    // { name: "Caixa Express", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "PDV simples para vendas rápidas." },
-                    // { name: "Estoque Fácil", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "69,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída simplificado." },
-                    // { name: "Fluxo Simples", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "89,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500", desc: "Livro caixa digital receitas e despesas." },
-                    // { name: "Orçamentos Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Propostas comerciais formais em PDF." },
-                    // { name: "Controle de Fiado", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "40,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Gerencie dívidas e cobranças no Zap." },
-
-                    // FOOD (TIER ESSENTIAL)
-                    // { name: "KDS Express", tier: "essential", category: "Food", price: "47,90", oldPrice: "97,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=500", desc: "Tela de pedidos para cozinha." },
-                    // { name: "Mesas Express", tier: "essential", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/mesas/index.html", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500", desc: "Gestão visual de mesas e status." },
-                    // { name: "Cardápio QR", tier: "essential", category: "Food", price: "39,90", oldPrice: "80,00", link: "apps/food/cardapio/index.html", img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500", desc: "Cardápio digital para autoatendimento." },
-                    // { name: "Gorjeta Pro", tier: "essential", category: "Food", price: "14,90", oldPrice: "29,00", link: "apps/food/gorjeta/index.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Divisão de contas e gorjetas." },
-                    // { name: "Comanda Digital", tier: "essential", category: "Food", price: "37,90", oldPrice: "89,00", link: "apps/food/comanda/index.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500", desc: "Controle de mesas e pedidos." },
-
-                    // SERVIÇOS (TIER ESSENTIAL)
-                    // { name: "Checklist Vistoria", tier: "essential", category: "Serviços", price: "27,90", oldPrice: "50,00", link: "apps/servicos/checklist/index.html", img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500", desc: "Vistorias veiculares e imobiliárias." },
-                    // { name: "Agenda Express", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/agenda/index.html", img: "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=500", desc: "Agenda para salões e consultórios." },
-                    // { name: "Ponto Eletrônico", tier: "essential", category: "RH", price: "29,90", oldPrice: "59,00", link: "apps/servicos/ponto/index.html", img: "https://images.unsplash.com/photo-1501139083538-0139583c61df?w=500", desc: "Registro de horas trabalhadas." },
-
-                    // NEW BASIC APPS
-                    // { name: "Precificação Simples", tier: "essential", category: "Serviços", price: "29,90", oldPrice: "59,00", link: "apps/servicos/precificacao/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Calculadora de custo para produtos e artesanato." },
-                    // { name: "BioLink Simples", tier: "essential", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/marketing/biocard/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Links e bio simplificada para redes sociais." },
-                    // { name: "Diário de Obra Lite", tier: "essential", category: "Gestão", price: "39,90", oldPrice: "79,00", link: "apps/gestao/diario_obras/index.html", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500", desc: "Registro diário de progresso de obras." },
-                    // { name: "Driver Lite", tier: "essential", category: "Transporte", price: "24,90", oldPrice: "49,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Controle financeiro simples para motoristas." },
-                    // { name: "Rota Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/atacado/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Lista de entregas e rotas básicas." }
+                    { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_alugueis/index.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
+                    { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
+                    { name: "Plena Barba chegar earia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia/index.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
+                    { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
+                    { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card/index.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas." },
+                    { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle/index.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
+                    { name: "Plena Custos", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato/index.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
+                    { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_delivery/index.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
+                    { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
+                    { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
+                    { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
+                    { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
+                    { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
+                    { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
+                    { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
+                    { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." }
                 ]);
 
                 const filteredApps = computed(() => {
@@ -402,49 +734,88 @@
                 });
 
                 const premiumApps = computed(() => {
-                    return filteredApps.value.filter(a => a.tier === 'plus');
+                    return filteredApps.value;
                 });
 
-                const essentialApps = computed(() => {
-                    return [
-                        // 1. Plena Aluguéis -> Recibo Aluguel
-                        { name: "Recibo Aluguel", tier: "essential", category: "Gestão", price: "19,90", oldPrice: "47,00", link: "apps/gestao/recibo/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Emissor de recibos de aluguel em PDF." },
-                        // 2. Plena Artesanato -> Precificação Simples
-                        { name: "Precificação Simples", tier: "essential", category: "Serviços", price: "29,90", oldPrice: "59,00", link: "apps/servicos/precificacao/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Calculadora de custo para produtos e artesanato." },
-                        // 3. Plena Assistência -> OS Express
-                        { name: "OS Express", tier: "essential", category: "Gestão", price: "37,90", oldPrice: "97,00", link: "apps/gestao/os/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão simples de ordens de serviço." },
-                        // 4. Plena Barbearia -> Agenda Barber
-                        { name: "Agenda Barber", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/barber/index.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda simplificada para barbearias." },
-                        // 5. Plena Beleza -> Agenda Beauty
-                        { name: "Agenda Beauty", tier: "essential", category: "Serviços", price: "39,90", oldPrice: "79,00", link: "apps/servicos/beauty/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Agenda para salões de beleza." },
-                        // 6. Plena Card -> BioLink Simples
-                        { name: "BioLink Simples", tier: "essential", category: "Marketing", price: "19,90", oldPrice: "39,00", link: "apps/marketing/biocard/index.html", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500", desc: "Links e bio simplificada para redes sociais." },
-                        // 7. Plena Controle -> Fiado Apreço
-                        { name: "Fiado Apreço", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "49,00", link: "apps/gestao/fiado/index.html", img: "https://images.unsplash.com/photo-1628102491629-778571d893a3?w=500", desc: "Controle de dívidas e cobranças no Zap." },
-                        // 8. Plena Delivery -> Pedidos Zap
-                        { name: "Pedidos Zap", tier: "essential", category: "Food", price: "29,90", oldPrice: "59,00", link: "apps/food/pedidos/index.html", img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500", desc: "Recepção de pedidos para delivery simples." },
-                        // 9. Plena Distribuidora -> Rota Simples
-                        { name: "Rota Simples", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/atacado/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Lista de entregas e rotas básicas." },
-                        // 10. Plena Driver -> Driver Lite
-                        { name: "Driver Lite", tier: "essential", category: "Transporte", price: "19,90", oldPrice: "39,00", link: "apps/transporte/driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Controle financeiro para motoristas." },
-                        // 11. Plena Estoque -> Estoque Fácil
-                        { name: "Estoque Fácil", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de entrada e saída de produtos." },
-                        // 12. Plena Finanças -> Fluxo Simples
-                        { name: "Fluxo Simples", tier: "essential", category: "Gestão", price: "29,90", oldPrice: "59,00", link: "apps/gestao/caixa/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Livro caixa simples e eficiente." },
-                        // 13. Plena Obras -> Diário de Obra Lite
-                        { name: "Diário de Obra Lite", tier: "essential", category: "Gestão", price: "34,90", oldPrice: "69,00", link: "apps/gestao/diario_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Registro diário de atividades da obra." },
-                        // 14. Plena Orçamentos -> Orçamentos Simples
-                        { name: "Orçamentos Simples", tier: "essential", category: "Gestão", price: "24,90", oldPrice: "49,00", link: "apps/gestao/orcamento/index.html", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500", desc: "Gerador de orçamentos em PDF." },
-                        // 15. Plena PDV -> Caixa Express
-                        { name: "Caixa Express", tier: "essential", category: "Gestão", price: "39,90", oldPrice: "79,00", link: "apps/gestao/pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa (PDV) para vendas rápidas." },
-                        // 16. Plena Sorveteria -> Comanda Sorvete
-                        { name: "Comanda Sorvete", tier: "essential", category: "Food", price: "24,90", oldPrice: "49,00", link: "apps/food/sorvete/index.html", img: "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=500", desc: "Controle de comandas e cartões para sorveterias." }
-                    ];
-                });
-
-                return { filter, search, categories, filteredApps, premiumApps, essentialApps, kits };
+                return { filter, search, categories, filteredApps, premiumApps, kits };
             }
         }).mount('#app');
+
+        // Binary Matrix Animation
+        function createBinaryMatrix() {
+            const container = document.getElementById('binaryMatrix');
+            const numberOfNumbers = 100; // Quantidade de números na tela
+
+            function createBinaryNumber() {
+                const number = document.createElement('div');
+                const value = Math.random() > 0.5 ? '1' : '0';
+                const size = ['small', 'medium', 'large'][Math.floor(Math.random() * 3)];
+
+                number.className = `binary-number ${size}`;
+                number.textContent = value;
+                number.setAttribute('data-value', value);
+                number.style.left = Math.random() * 100 + '%';
+                number.style.animationDelay = Math.random() * 5 + 's';
+
+                container.appendChild(number);
+
+                // Calculate duration based on size
+                const duration = size === 'small' ? 15000 : size === 'medium' ? 20000 : 25000;
+
+                // Create pulverization effect near the end
+                setTimeout(() => {
+                    createPulverizationEffect(number);
+                }, duration * 0.88); // 88% of animation
+
+                // Remove after animation completes
+                setTimeout(() => {
+                    number.remove();
+                    createBinaryNumber(); // Create a new one
+                }, duration + (Math.random() * 5000));
+            }
+
+            function createPulverizationEffect(originalNumber) {
+                const rect = originalNumber.getBoundingClientRect();
+                const particleCount = 6;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'binary-number small';
+                    particle.textContent = originalNumber.textContent;
+                    particle.style.position = 'fixed';
+                    particle.style.left = rect.left + 'px';
+                    particle.style.top = rect.top + 'px';
+                    particle.style.fontSize = '6px';
+                    particle.style.animation = 'none';
+
+                    const angle = (360 / particleCount) * i + Math.random() * 30;
+                    const distance = 20 + Math.random() * 30;
+                    const x = Math.cos(angle * Math.PI / 180) * distance;
+                    const y = Math.sin(angle * Math.PI / 180) * distance;
+
+                    particle.style.setProperty('--x', x + 'px');
+                    particle.style.setProperty('--y', y + 'px');
+
+                    document.body.appendChild(particle);
+
+                    setTimeout(() => {
+                        particle.style.animation = 'explode 0.6s ease-out forwards';
+                    }, 10);
+
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 700);
+                }
+            }
+
+            // Create initial numbers
+            for (let i = 0; i < numberOfNumbers; i++) {
+                setTimeout(() => createBinaryNumber(), i * 200);
+            }
+        }
+
+        // Start animation when page loads
+        window.addEventListener('load', createBinaryMatrix);
     </script>
 </body>
 
