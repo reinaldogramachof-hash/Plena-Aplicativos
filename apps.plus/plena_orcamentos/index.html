@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -504,7 +504,7 @@
                         <h3 class="font-bold text-gray-800">Orçamentos Recentes</h3>
                         <button onclick="router('quotes')"
                             class="text-sm text-plena-orange hover:text-plena-dark font-medium">
-                            Ver todos →
+                            Ver todos â†’
                         </button>
                     </div>
                     <div id="recent-quotes" class="space-y-3">
@@ -847,7 +847,7 @@
                             </h3>
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-800 mb-6">
-                                <p class="font-bold mb-2">⚠️ Importante</p>
+                                <p class="font-bold mb-2">âš ï¸ Importante</p>
                                 <p>Seus dados ficam salvos 100% no navegador. Faça backup regularmente para evitar
                                     perdas!</p>
                             </div>
@@ -1016,7 +1016,7 @@
                                                     <i data-lucide="smartphone" class="w-4 h-4"></i> Android
                                                 </div>
                                                 <p class="text-sm text-gray-600">Abra no Chrome, toque nos <strong>3
-                                                        pontinhos</strong> e selecione <strong>"Adicionar à Tela
+                                                        pontinhos</strong> e selecione <strong>"Adicionar Ã  Tela
                                                         Inicial"</strong> ou <strong>"Instalar aplicativo"</strong>.</p>
                                             </div>
                                             <div class="bg-gray-50 p-4 rounded-xl">
@@ -1024,7 +1024,7 @@
                                                     <i data-lucide="apple" class="w-4 h-4"></i> iPhone (iOS)
                                                 </div>
                                                 <p class="text-sm text-gray-600">Abra no Safari, toque no ícone de
-                                                    <strong>Compartilhar</strong> e selecione <strong>"Adicionar à Tela
+                                                    <strong>Compartilhar</strong> e selecione <strong>"Adicionar Ã  Tela
                                                         de Início"</strong>.
                                                 </p>
                                             </div>
@@ -1561,11 +1561,11 @@
                     <span class="text-xs font-bold uppercase text-gray-500 ml-2">Status:</span>
                     <select id="qv-status" onchange="updateStatus(this.value)"
                         class="flex-1 border-none bg-transparent font-bold text-gray-800 outline-none cursor-pointer">
-                        <option value="pending">🟡 Pendente</option>
-                        <option value="sent">🔵 Enviado</option>
-                        <option value="approved">✅ Aprovado</option>
-                        <option value="rejected">❌ Recusado</option>
-                        <option value="closed">⚫ Fechado</option>
+                        <option value="pending">ðŸŸ¡ Pendente</option>
+                        <option value="sent">ðŸ”µ Enviado</option>
+                        <option value="approved">âœ… Aprovado</option>
+                        <option value="rejected">âŒ Recusado</option>
+                        <option value="closed">âš« Fechado</option>
                     </select>
                 </div>
                 <div class="flex gap-3">
@@ -1643,7 +1643,7 @@
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
 
-        // UTILITÁRIOS
+        // UTILITÃRIOS
         const save = () => {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateDataStatus();
@@ -1671,7 +1671,7 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
         };
 
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃƒO
         function init() {
             lucide.createIcons();
 
@@ -1717,7 +1717,7 @@
             loadChecklistState();
         }
 
-        // ROTEAMENTO E NAVEGAÇÃO
+        // ROTEAMENTO E NAVEGAÇÃƒO
         function router(view) {
             // Esconder todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
@@ -2022,7 +2022,7 @@
                                     <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${statusColors[q.status]}">
                                         ${statusLabels[q.status]}
                                     </span>
-                                    <span class="text-xs text-gray-400">• ${fmtDate(q.date)}</span>
+                                    <span class="text-xs text-gray-400">â€¢ ${fmtDate(q.date)}</span>
                                 </div>
                             </div>
                         </div>
@@ -2160,7 +2160,7 @@
             renderQuotes();
         }
 
-        // TRANSAÇÕES
+        // TRANSAÇÃ•ES
         function renderTransactions() {
             const term = document.getElementById('trans-search').value.toLowerCase();
             const filter = document.getElementById('trans-type').value;
@@ -2460,18 +2460,18 @@
 
         function shareQuoteWA() {
             const q = db.quotes.find(x => x.id === currentQuoteId);
-            const msg = `*📑 Proposta de Orçamento* %0A%0A` +
+            const msg = `*ðŸ“‘ Proposta de Orçamento* %0A%0A` +
                 `*${db.settings.companyName}*%0A` +
                 `----------------------------%0A` +
-                `👤 *Cliente:* ${q.client}%0A` +
-                `🛠 *Serviço:* ${q.desc}%0A` +
+                `ðŸ‘¤ *Cliente:* ${q.client}%0A` +
+                `ðŸ›  *Serviço:* ${q.desc}%0A` +
                 `----------------------------%0A` +
-                `👷 Mão de Obra: ${fmtMoney(q.labor)}%0A` +
-                `🧱 Material: ${fmtMoney(q.material)}%0A` +
+                `ðŸ‘· Mão de Obra: ${fmtMoney(q.labor)}%0A` +
+                `ðŸ§± Material: ${fmtMoney(q.material)}%0A` +
                 `----------------------------%0A` +
-                `💰 *TOTAL: ${fmtMoney(q.total)}*%0A` +
-                `📅 Válido até: ${fmtDate(q.validity)}%0A` +
-                `📞 Contato: ${db.settings.phone}%0A%0A` +
+                `ðŸ’° *TOTAL: ${fmtMoney(q.total)}*%0A` +
+                `ðŸ“… Válido até: ${fmtDate(q.validity)}%0A` +
+                `ðŸ“ž Contato: ${db.settings.phone}%0A%0A` +
                 `_Gerado por Plena Orçamentos_`;
 
             if (q.status === 'pending') {
@@ -2492,7 +2492,7 @@
             window.open(`https://wa.me/?text=${msg}`);
         }
 
-        // CRUD TRANSAÇÕES
+        // CRUD TRANSAÇÃ•ES
         function submitTrans(e) {
             e.preventDefault();
 
@@ -2571,7 +2571,7 @@
             }
         }
 
-        // RELATÓRIOS
+        // RELATÃ“RIOS
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -2708,12 +2708,12 @@
             const expense = document.getElementById('rep-exp').textContent;
             const balance = document.getElementById('rep-bal').textContent;
 
-            const message = `*📊 Relatório Financeiro - Plena Orçamentos*%0A%0A` +
+            const message = `*ðŸ“Š Relatório Financeiro - Plena Orçamentos*%0A%0A` +
                 `*${db.settings.companyName}*%0A` +
-                `*Período:* ${fmtDate(start)} à ${fmtDate(end)}%0A%0A` +
-                `✅ *Entradas:* ${income}%0A` +
-                `🔻 *Saídas:* ${expense}%0A` +
-                `💰 *Saldo:* ${balance}%0A%0A` +
+                `*Período:* ${fmtDate(start)} Ã  ${fmtDate(end)}%0A%0A` +
+                `âœ… *Entradas:* ${income}%0A` +
+                `ðŸ”» *Saídas:* ${expense}%0A` +
+                `ðŸ’° *Saldo:* ${balance}%0A%0A` +
                 `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -2729,7 +2729,7 @@
                     <h2 style="text-align: center; color: #666; font-size: 14px;">${db.settings.companyName}</h2>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Orçamentos • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Orçamentos â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2739,7 +2739,7 @@
             router('reports');
         }
 
-        // CONFIGURAÇÕES
+        // CONFIGURAÇÃ•ES
         function loadCompanySettings() {
             document.getElementById('company-name').value = db.settings.companyName || '';
             document.getElementById('company-phone').value = db.settings.phone || '';
@@ -2755,7 +2755,7 @@
             showNotification('Configurações salvas com sucesso!', 'success');
         }
 
-        // EXPORTAÇÃO
+        // EXPORTAÇÃƒO
         function exportQuotesCSV() {
             const headers = ['Data', 'Cliente', 'Serviço', 'Mão de Obra', 'Material', 'Total', 'Status', 'Validade'];
             const rows = db.quotes.map(q => {
@@ -2819,7 +2819,7 @@
                     <h1 style="text-align: center; color: #2563EB;">Orçamentos - ${db.settings.companyName}</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Orçamentos • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Orçamentos â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2829,7 +2829,7 @@
             router('quotes');
         }
 
-        // BACKUP E RESTAURAÇÃO
+        // BACKUP E RESTAURAÇÃƒO
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -2888,13 +2888,13 @@
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            if (confirm('ATENÇÃƒO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // UTILITÁRIOS GERAIS
+        // UTILITÃRIOS GERAIS
         function updateDataStatus() {
             const totalQuotes = db.quotes.length;
             const totalTrans = db.transactions.length;
@@ -2996,7 +2996,7 @@
             // Feedback
             const btn = card.querySelector('button');
             if (btn) {
-                btn.innerText = 'Concluído ✓';
+                btn.innerText = 'Concluído âœ“';
                 btn.classList.replace('text-indigo-600', 'text-green-600');
                 btn.classList.replace('hover:bg-indigo-50', 'hover:bg-green-50');
             }
@@ -3058,7 +3058,7 @@
     <!-- PWA Service Worker Registration & Scripts -->
     <script>
         // SanitizeHTML Security
-        const sanitizeHTML = (str) => {
+        const appSanitizeHTML = (str) => {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, m => ({
                 '&': '&amp;',

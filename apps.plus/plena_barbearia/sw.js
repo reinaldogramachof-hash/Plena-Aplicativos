@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plena-barbearia-v1';
+const CACHE_NAME = 'plena-barbearia-v2-refresh-fix';
 const ASSETS = [
   './',
   './index.html',
@@ -7,9 +7,25 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Força o novo SW a ativar imediatamente
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+  return self.clients.claim(); // Assume o controle da página imediatamente
 });
 
 self.addEventListener('fetch', (e) => {

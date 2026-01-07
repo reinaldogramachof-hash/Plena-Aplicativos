@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -476,7 +476,7 @@
                         <h3 class="font-bold text-gray-800">Corridas Recentes</h3>
                         <button onclick="router('transactions')"
                             class="text-sm text-plena-orange hover:text-plena-dark font-medium">
-                            Ver todas →
+                            Ver todas â†’
                         </button>
                     </div>
                     <div id="recent-transactions" class="space-y-3">
@@ -744,7 +744,7 @@
                             </h3>
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-800 mb-6">
-                                <p class="font-bold mb-2">⚠️ Importante para Motoristas</p>
+                                <p class="font-bold mb-2">âš ï¸ Importante para Motoristas</p>
                                 <p>Seus dados ficam salvos 100% no navegador. Faça backup regularmente para evitar
                                     perdas!</p>
                             </div>
@@ -915,7 +915,7 @@
                                         <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2">
                                             <li>Acesse o link no Chrome.</li>
                                             <li>Toque nos <strong>3 pontos</strong> no canto superior direito.</li>
-                                            <li>Selecione <strong>"Instalar aplicativo"</strong> ou "Adicionar à Tela
+                                            <li>Selecione <strong>"Instalar aplicativo"</strong> ou "Adicionar Ã  Tela
                                                 Inicial".</li>
                                         </ol>
                                     </div>
@@ -925,7 +925,7 @@
                                         </h4>
                                         <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2">
                                             <li>Abra no Safari e toque em <strong>Compartilhar</strong>.</li>
-                                            <li>Selecione <strong>"Adicionar à Tela de Início"</strong>.</li>
+                                            <li>Selecione <strong>"Adicionar Ã  Tela de Início"</strong>.</li>
                                         </ol>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-xl">
@@ -964,7 +964,7 @@
                                     <h4 class="font-bold text-purple-800 mb-2">Categorias Importantes</h4>
                                     <ul class="text-sm text-purple-700 list-disc list-inside space-y-1">
                                         <li><strong>Combustível:</strong> Gasolina, Etanol, GNV.</li>
-                                        <li><strong>Manutenção:</strong> Óleo, Pneus, Lavagem.</li>
+                                        <li><strong>Manutenção:</strong> Ã“leo, Pneus, Lavagem.</li>
                                         <li><strong>Alimentação:</strong> Lanches durante o turno.</li>
                                         <li><strong>Aluguel/Seguro:</strong> Custos fixos do veículo.</li>
                                     </ul>
@@ -1104,7 +1104,7 @@
                                     <i data-lucide="check"
                                         class="w-4 h-4 text-white opacity-0 peer-checked:opacity-100"></i>
                                 </div>
-                                <span class="font-bold text-gray-700">Verificar Óleo e Água</span>
+                                <span class="font-bold text-gray-700">Verificar Ã“leo e Ãgua</span>
                             </label>
                             <label
                                 class="checklist-item flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-all select-none group">
@@ -1446,7 +1446,7 @@
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
 
-        // UTILITÁRIOS
+        // UTILITÃRIOS
         const save = () => {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateDataStatus();
@@ -1479,7 +1479,7 @@
             return ((current - previous) / previous * 100).toFixed(1);
         };
 
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃƒO
         function init() {
             lucide.createIcons();
 
@@ -1508,7 +1508,7 @@
             setInterval(save, 30000); // Salva a cada 30 segundos
         }
 
-        // ROTEAMENTO E NAVEGAÇÃO
+        // ROTEAMENTO E NAVEGAÇÃƒO
         function router(view) {
             // Esconder todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
@@ -1735,8 +1735,8 @@
 
             container.innerHTML = recent.map(t => {
                 const cat = db.categories.find(c => c.id === t.catId);
-                const kmInfo = t.km ? `• ${t.km} km` : '';
-                const litersInfo = t.liters ? `• ${t.liters} L` : '';
+                const kmInfo = t.km ? `â€¢ ${t.km} km` : '';
+                const litersInfo = t.liters ? `â€¢ ${t.liters} L` : '';
                 return `
                     <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-100">
                         <div class="flex items-center">
@@ -1746,7 +1746,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">${t.desc}</p>
-                                <p class="text-xs text-gray-500">${fmtDate(t.date)} • ${cat?.name || 'Geral'} ${kmInfo} ${litersInfo}</p>
+                                <p class="text-xs text-gray-500">${fmtDate(t.date)} â€¢ ${cat?.name || 'Geral'} ${kmInfo} ${litersInfo}</p>
                             </div>
                         </div>
                         <span class="text-sm font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
@@ -1759,7 +1759,7 @@
             lucide.createIcons();
         }
 
-        // TRANSAÇÕES
+        // TRANSAÇÃ•ES
         function renderTransactions() {
             const term = document.getElementById('search-term').value.toLowerCase();
             const filter = document.getElementById('filter-type').value;
@@ -1864,7 +1864,7 @@
             renderTransactions();
         }
 
-        // MODAIS E FORMULÁRIOS
+        // MODAIS E FORMULÃRIOS
         function openTransactionModal(transaction = null) {
             renderCatOptions();
 
@@ -1953,7 +1953,7 @@
             ).join('');
         }
 
-        // CRUD TRANSAÇÕES
+        // CRUD TRANSAÇÃ•ES
         function submitTransaction(e) {
             e.preventDefault();
 
@@ -2036,7 +2036,7 @@
             }
         }
 
-        // RELATÓRIOS
+        // RELATÃ“RIOS
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -2135,7 +2135,7 @@
             }).join('');
         }
 
-        // EXPORTAÇÃO E COMPARTILHAMENTO
+        // EXPORTAÇÃƒO E COMPARTILHAMENTO
         function exportCSV() {
             const headers = ['Data', 'Descrição', 'Categoria', 'Tipo', 'KM', 'Litros', 'Valor'];
             const rows = db.transactions.map(t => {
@@ -2172,12 +2172,12 @@
             const balance = document.getElementById('rep-bal').textContent;
             const km = document.getElementById('rep-km').textContent;
 
-            const message = `*🚖 Relatório de Desempenho - Plena Driver*%0A%0A` +
-                `*Período:* ${fmtDate(start)} à ${fmtDate(end)}%0A%0A` +
-                `✅ *Ganhos:* ${income}%0A` +
-                `🔻 *Gastos:* ${expense}%0A` +
-                `🛣 *KM Rodados:* ${km}%0A` +
-                `💰 *Lucro Líquido:* ${balance}%0A%0A` +
+            const message = `*ðŸš– Relatório de Desempenho - Plena Driver*%0A%0A` +
+                `*Período:* ${fmtDate(start)} Ã  ${fmtDate(end)}%0A%0A` +
+                `âœ… *Ganhos:* ${income}%0A` +
+                `ðŸ”» *Gastos:* ${expense}%0A` +
+                `ðŸ›£ *KM Rodados:* ${km}%0A` +
+                `ðŸ’° *Lucro Líquido:* ${balance}%0A%0A` +
                 `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -2190,13 +2190,13 @@
             const balance = document.getElementById('close-bal').textContent;
             const km = document.getElementById('close-km').textContent;
 
-            const message = `*🏁 Fechamento do Dia - Driver*%0A%0A` +
+            const message = `*ðŸ Fechamento do Dia - Driver*%0A%0A` +
                 `*Data:* ${fmtDate(today)}%0A` +
                 `*Hora:* ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}%0A%0A` +
-                `✅ *Ganhos:* ${income}%0A` +
-                `🔻 *Gastos:* ${expense}%0A` +
-                `🛣 *KM Rodado:* ${km}%0A` +
-                `💰 *Lucro do Dia:* ${balance}%0A%0A` +
+                `âœ… *Ganhos:* ${income}%0A` +
+                `ðŸ”» *Gastos:* ${expense}%0A` +
+                `ðŸ›£ *KM Rodado:* ${km}%0A` +
+                `ðŸ’° *Lucro do Dia:* ${balance}%0A%0A` +
                 `_Plena Driver - Controle para Motoristas_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -2211,7 +2211,7 @@
                     <h1 style="text-align: center; color: #F59E0B;">Relatório de Desempenho</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Driver • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Driver â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2230,7 +2230,7 @@
                     <h1 style="text-align: center; color: #F59E0B;">Corridas e Gastos</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Driver • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Driver â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2249,7 +2249,7 @@
                     <h1 style="text-align: center; color: #F59E0B;">Fechamento do Dia</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Driver • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Driver â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2258,7 +2258,7 @@
             document.body.innerHTML = originalContent;
         }
 
-        // CONFIGURAÇÕES
+        // CONFIGURAÇÃ•ES
         function toggleCatForm() {
             const formBox = document.getElementById('cat-form-box');
             formBox.classList.toggle('hidden');
@@ -2354,7 +2354,7 @@
             }
         }
 
-        // BACKUP E RESTAURAÇÃO
+        // BACKUP E RESTAURAÇÃƒO
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -2426,13 +2426,13 @@
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            if (confirm('ATENÇÃƒO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // UTILITÁRIOS GERAIS
+        // UTILITÃRIOS GERAIS
         function updateDataStatus() {
             const total = db.transactions.length;
             const income = db.transactions.filter(t => t.type === 'income').length;
@@ -2467,7 +2467,7 @@
             }, 3000);
         }
 
-        // MANUAL FUNCTIONS - PADRONIZAÇÃO PLENA
+        // MANUAL FUNCTIONS - PADRONIZAÇÃƒO PLENA
         function scrollToSection(sectionId) {
             const el = document.getElementById(sectionId);
             if (el) {
@@ -2570,7 +2570,7 @@
                 if (!text.includes('Plena')) {
                     document.body.innerHTML = `
                         <div style="height:100vh;background:#1a1a1a;color:#ef4444;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;padding:20px;">
-                            <h1 style="font-size:2rem;margin-bottom:20px;font-weight:bold;">⚠️ VIOLAÇÃO DE SEGURANÇA</h1>
+                            <h1 style="font-size:2rem;margin-bottom:20px;font-weight:bold;">âš ï¸ VIOLAÇÃƒO DE SEGURANÇA</h1>
                             <p style="font-size:1.2rem;">A assinatura digital deste software foi modificada ilegalmente.</p>
                             <p style="margin-top:20px;color:white;font-size:0.9rem;">Entre em contato com o suporte oficial: tecnologia@plenainformatica.com.br</p>
                             <p style="margin-top:10px;color:#666;font-size:0.8rem;">Error Code: INTEGRITY_CHECK_FAILED</p>
@@ -2587,7 +2587,7 @@
     <!-- PWA Service Worker Registration & Scripts -->
     <script>
         // Sanitização XSS (Segurança)
-        const sanitizeHTML = (str) => {
+        const appSanitizeHTML = (str) => {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, m => ({
                 '&': '&amp;',

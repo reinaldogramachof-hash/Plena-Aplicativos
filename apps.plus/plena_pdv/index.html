@@ -50,7 +50,7 @@
         }
     </script>
 
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons (Fixed Version) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -626,7 +626,7 @@
                         <h3 class="font-bold text-gray-800">Transações Recentes</h3>
                         <button onclick="router('transactions')"
                             class="text-sm text-plena-orange hover:text-plena-dark font-medium">
-                            Ver todas →
+                            Ver todas â†’
                         </button>
                     </div>
                     <div id="recent-transactions" class="space-y-3">
@@ -1005,7 +1005,7 @@
                             </h3>
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-800 mb-6">
-                                <p class="font-bold mb-2">⚠️ Importante</p>
+                                <p class="font-bold mb-2">âš ï¸ Importante</p>
                                 <p>Seus dados ficam salvos 100% no navegador. Faça backup regularmente para evitar
                                     perdas!</p>
                             </div>
@@ -1211,7 +1211,7 @@
                                         <ol class="text-sm text-gray-600 space-y-2 list-decimal pl-4">
                                             <li>Abra o sistema no <strong>Google Chrome</strong>.</li>
                                             <li>Toque nos <strong>3 pontinhos</strong> (canto superior direito).</li>
-                                            <li>Selecione <strong>"Adicionar à tela inicial"</strong> ou
+                                            <li>Selecione <strong>"Adicionar Ã  tela inicial"</strong> ou
                                                 <strong>"Instalar
                                                     aplicativo"</strong>.
                                             </li>
@@ -1227,7 +1227,7 @@
                                             <li>Abra o sistema no <strong>Safari</strong>.</li>
                                             <li>Toque no ícone de <strong>Compartilhar</strong> (quadrado com seta).
                                             </li>
-                                            <li>Role para baixo e toque em <strong>"Adicionar à Tela de
+                                            <li>Role para baixo e toque em <strong>"Adicionar Ã  Tela de
                                                     Início"</strong>.</li>
                                             <li>Confirme clicando em <strong>Adicionar</strong>.</li>
                                         </ol>
@@ -1365,7 +1365,7 @@
                                         </div>
                                         <div class="ml-3">
                                             <p class="text-sm text-red-700 font-bold">
-                                                SEUS DADOS SÃO SALVOS APENAS NO SEU NAVEGADOR!
+                                                SEUS DADOS SÃƒO SALVOS APENAS NO SEU NAVEGADOR!
                                             </p>
                                             <p class="text-sm text-red-600 mt-1">
                                                 Se você limpar o histórico ou o navegador der problema, você perderá
@@ -1625,7 +1625,7 @@
                     <label class="text-xs font-bold text-gray-500 uppercase">Descrição</label>
                     <input type="text" id="t-desc" required
                         class="w-full border p-2 rounded-lg text-sm focus:border-plena-orange outline-none"
-                        placeholder="Ex: Venda à vista ou Pagamento de conta">
+                        placeholder="Ex: Venda Ã  vista ou Pagamento de conta">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -1877,7 +1877,7 @@
 
         // --- PWA & UTILS ---
         let deferredPrompt;
-        const sanitizeHTML = (str) => { if (!str) return ''; return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]); };
+        const appSanitizeHTML = (str) => { if (!str) return ''; return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]); };
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         async function installPWA() {
             if (!deferredPrompt) { alert('Instalação não disponível ou já instalada. Verifique se o app já está instalado ou tente pelo menu do navegador.'); return; }
@@ -1901,7 +1901,7 @@
             products: [
                 { id: 'p1', name: 'Refrigerante 2L', code: '789', price: 9.90, stock: 10 },
                 { id: 'p2', name: 'Salgado Assado', code: '101', price: 6.50, stock: 20 },
-                { id: 'p3', name: 'Água Mineral', code: '102', price: 3.00, stock: 30 },
+                { id: 'p3', name: 'Ãgua Mineral', code: '102', price: 3.00, stock: 30 },
                 { id: 'p4', name: 'Chocolate Barra', code: '103', price: 5.99, stock: 15 }
             ],
             sales: [],
@@ -1922,7 +1922,7 @@
         let pdvCart = [];
         let pdvPaymentMethod = 'dinheiro';
 
-        // UTILITÁRIOS
+        // UTILITÃRIOS
         const save = () => {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateDataStatus();
@@ -1955,7 +1955,7 @@
             return ((current - previous) / previous * 100).toFixed(1);
         };
 
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃƒO
         function init() {
             lucide.createIcons();
 
@@ -1988,13 +1988,13 @@
             // Anti-pirataria
             setInterval(() => {
                 if (!document.querySelector('#sidebar') || !document.body.innerHTML.includes('Plena')) {
-                    document.body.innerHTML = '<div class="fixed inset-0 bg-black text-red-500 flex items-center justify-center text-2xl font-bold">⚠️ VIOLAÇÃO DE SEGURANÇA</div>';
+                    document.body.innerHTML = '<div class="fixed inset-0 bg-black text-red-500 flex items-center justify-center text-2xl font-bold">âš ï¸ VIOLAÇÃƒO DE SEGURANÇA</div>';
                     throw new Error("Piracy detected");
                 }
             }, 10000);
         }
 
-        // ROTEAMENTO E NAVEGAÇÃO
+        // ROTEAMENTO E NAVEGAÇÃƒO
         function router(view) {
             // Esconder todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
@@ -2225,7 +2225,7 @@
             container.innerHTML = topExpenses.map(([name, value]) => `
                 <div class="space-y-1">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-700">${name}</span>
+                        <span class="text-sm font-medium text-gray-700">${appSanitizeHTML(name)}</span>
                         <span class="text-sm font-bold text-red-600">${fmtMoney(value)}</span>
                     </div>
                     <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
@@ -2269,7 +2269,7 @@
                     <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
                         <div class="flex items-center">
                             <div class="w-3 h-3 rounded-full mr-2" style="background:${data.color}"></div>
-                            <span class="text-sm text-gray-700">${name}</span>
+                            <span class="text-sm text-gray-700">${appSanitizeHTML(name)}</span>
                         </div>
                         <span class="text-sm font-bold ${net >= 0 ? 'text-green-600' : 'text-red-600'}">
                             ${net >= 0 ? '+' : ''}${fmtMoney(net)}
@@ -2300,8 +2300,8 @@
                                    class="w-4 h-4 ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-800">${t.desc}</p>
-                                <p class="text-xs text-gray-500">${fmtDate(t.date)} • ${cat?.name || 'Geral'}</p>
+                                <p class="text-sm font-medium text-gray-800">${appSanitizeHTML(t.desc)}</p>
+                                <p class="text-xs text-gray-500">${fmtDate(t.date)} • ${appSanitizeHTML(cat?.name || 'Geral')}</p>
                             </div>
                         </div>
                         <span class="text-sm font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
@@ -2314,7 +2314,7 @@
             lucide.createIcons();
         }
 
-        // TRANSAÇÕES (Mantido do plena_controle)
+        // TRANSAÇÃ•ES (Mantido do plena_controle)
         function renderTransactions() {
             const term = document.getElementById('search-term').value.toLowerCase();
             const filter = document.getElementById('filter-type').value;
@@ -2355,16 +2355,16 @@
                     <tr class="hover:bg-gray-50 group border-b border-gray-100">
                         <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${fmtDate(t.date)}</td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-800">${t.desc}</div>
-                            <div class="text-xs text-gray-400">${t.method || 'Não especificado'}</div>
+                            <div class="font-medium text-gray-800">${appSanitizeHTML(t.desc)}</div>
+                            <div class="text-xs text-gray-400">${appSanitizeHTML(t.method || 'Não especificado')}</div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
                                   style="background:${cat?.color || '#6B7280'}20; color:${cat?.color || '#6B7280'}">
-                                ${cat?.name || 'Geral'}
+                                ${appSanitizeHTML(cat?.name || 'Geral')}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">${t.method || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${appSanitizeHTML(t.method || '-')}</td>
                         <td class="px-6 py-4 text-right font-bold ${isIncome ? 'text-green-600' : 'text-red-600'}">
                             ${isIncome ? '+' : '-'} ${fmtMoney(t.amount)}
                         </td>
@@ -2429,9 +2429,9 @@
                 <div onclick="addToPDVCart('${p.id}')" 
                      class="pdv-product-card">
                     <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg mb-3">
-                        ${sanitizeHTML(p.name).charAt(0)}
+                        ${appSanitizeHTML(p.name).charAt(0)}
                     </div>
-                    <h3 class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${sanitizeHTML(p.name)}</h3>
+                    <h3 class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${appSanitizeHTML(p.name)}</h3>
                     <p class="text-emerald-600 font-bold mt-2">${fmtMoney(p.price)}</p>
                     <p class="text-xs text-gray-500 mt-1">Estoque: ${p.stock || 0}</p>
                 </div>
@@ -2502,7 +2502,7 @@
                 return `
                     <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                         <div class="flex-1">
-                            <p class="font-medium text-gray-800 text-sm">${item.name}</p>
+                            <p class="font-medium text-gray-800 text-sm">${appSanitizeHTML(item.name)}</p>
                             <p class="text-xs text-gray-500">${item.quantity} x ${fmtMoney(item.price)}</p>
                         </div>
                         <div class="flex items-center gap-3">
@@ -2688,13 +2688,13 @@
             const paymentText = {
                 'dinheiro': 'DINHEIRO',
                 'pix': 'PIX',
-                'cartao': 'CARTÃO'
+                'cartao': 'CARTÃƒO'
             }[sale.payment] || 'OUTROS';
 
             receipt.innerHTML = `
                 <div style="text-align: center;">
                     <h2 style="font-size: 14px; font-weight: bold; margin: 0;">PLENA MANAGER</h2>
-                    <p style="margin: 0; font-size: 10px;">CUPOM NÃO FISCAL</p>
+                    <p style="margin: 0; font-size: 10px;">CUPOM NÃƒO FISCAL</p>
                     <p style="margin: 2px 0; font-size: 10px;">${date}</p>
                     <p style="margin: 0; font-size: 10px;">Venda #${sale.id}</p>
                     <hr style="border: 0; border-bottom: 1px dashed #000; margin: 8px 0;">
@@ -2703,7 +2703,7 @@
                         ${sale.items.map(item => `
                             <div style="margin-bottom: 4px;">
                                 <div style="display: flex; justify-content: space-between;">
-                                    <span>${item.quantity}x ${item.name.substring(0, 20)}</span>
+                                    <span>${item.quantity}x ${appSanitizeHTML(item.name).substring(0, 20)}</span>
                                     <span>${fmtMoney(item.price * item.quantity)}</span>
                                 </div>
                             </div>
@@ -2753,54 +2753,6 @@
                         </style>
                     </head>
                     <body>${receipt.innerHTML}    <!-- PWA Service Worker Registration & Scripts -->
-    <script>
-        // SanitizeHTML Security
-        const sanitizeHTML = (str) => {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[m]);
-        };
-
-        // PWA Install Logic
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installCard = document.getElementById('install-card');
-            if (installCard) installCard.classList.remove('hidden');
-        });
-
-        async function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                const installCard = document.getElementById('install-card');
-                if (installCard) installCard.classList.add('hidden');
-            }
-            deferredPrompt = null;
-        }
-
-        window.addEventListener('appinstalled', () => {
-            const installCard = document.getElementById('install-card');
-            if (installCard) installCard.classList.add('hidden');
-        });
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(err => console.log('SW failed', err));
-            });
-        }
-    </script>
 </body>
                 </html>
             `);
@@ -3023,7 +2975,7 @@
             }
         }
 
-        // MODAIS E FORMULÁRIOS (Mantido do plena_controle)
+        // MODAIS E FORMULÃRIOS (Mantido do plena_controle)
         function openTransactionModal(transaction = null) {
             renderCatOptions();
 
@@ -3090,7 +3042,7 @@
             ).join('');
         }
 
-        // CRUD TRANSAÇÕES (Mantido do plena_controle)
+        // CRUD TRANSAÇÃ•ES (Mantido do plena_controle)
         function submitTransaction(e) {
             e.preventDefault();
 
@@ -3170,7 +3122,7 @@
             }
         }
 
-        // RELATÓRIOS (Mantido do plena_controle)
+        // RELATÃ“RIOS (Mantido do plena_controle)
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -3267,7 +3219,7 @@
             }).join('');
         }
 
-        // EXPORTAÇÃO E COMPARTILHAMENTO (Mantido do plena_controle)
+        // EXPORTAÇÃƒO E COMPARTILHAMENTO (Mantido do plena_controle)
         function exportCSV() {
             const headers = ['Data', 'Descrição', 'Categoria', 'Tipo', 'Pagamento', 'Valor'];
             const rows = db.transactions.map(t => {
@@ -3302,11 +3254,11 @@
             const expense = document.getElementById('rep-exp').textContent;
             const balance = document.getElementById('rep-bal').textContent;
 
-            const message = `*📊 Relatório Financeiro - Plena Manager*%0A%0A` +
-                `*Período:* ${fmtDate(start)} à ${fmtDate(end)}%0A%0A` +
-                `✅ *Entradas:* ${income}%0A` +
-                `🔻 *Saídas:* ${expense}%0A` +
-                `💰 *Saldo:* ${balance}%0A%0A` +
+            const message = `*ðŸ“Š Relatório Financeiro - Plena Manager*%0A%0A` +
+                `*Período:* ${fmtDate(start)} Ã  ${fmtDate(end)}%0A%0A` +
+                `âœ… *Entradas:* ${income}%0A` +
+                `ðŸ”» *Saídas:* ${expense}%0A` +
+                `ðŸ’° *Saldo:* ${balance}%0A%0A` +
                 `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -3318,12 +3270,12 @@
             const expense = document.getElementById('close-exp').textContent;
             const balance = document.getElementById('close-bal').textContent;
 
-            const message = `*🔒 Fechamento de Caixa*%0A%0A` +
+            const message = `*ðŸ”’ Fechamento de Caixa*%0A%0A` +
                 `*Data:* ${fmtDate(today)}%0A` +
                 `*Hora:* ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}%0A%0A` +
-                `✅ *Entradas:* ${income}%0A` +
-                `🔻 *Saídas:* ${expense}%0A` +
-                `💰 *Saldo Final:* ${balance}%0A%0A` +
+                `âœ… *Entradas:* ${income}%0A` +
+                `ðŸ”» *Saídas:* ${expense}%0A` +
+                `ðŸ’° *Saldo Final:* ${balance}%0A%0A` +
                 `_Plena Manager - Controle Financeiro_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -3338,7 +3290,7 @@
                     <h1 style="text-align: center; color: #FF6600;">Relatório Financeiro</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Manager • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Manager â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -3357,7 +3309,7 @@
                     <h1 style="text-align: center; color: #FF6600;">Transações Financeiras</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Manager • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Manager â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -3376,7 +3328,7 @@
                     <h1 style="text-align: center; color: #FF6600;">Fechamento de Caixa</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Manager • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Manager â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -3393,7 +3345,7 @@
             showNotification('Download PDF em desenvolvimento!', 'info');
         }
 
-        // CONFIGURAÇÕES (Mantido do plena_controle)
+        // CONFIGURAÇÃ•ES (Mantido do plena_controle)
         function toggleCatForm() {
             const formBox = document.getElementById('cat-form-box');
             formBox.classList.toggle('hidden');
@@ -3489,7 +3441,7 @@
             }
         }
 
-        // BACKUP E RESTAURAÇÃO (Mantido do plena_controle)
+        // BACKUP E RESTAURAÇÃƒO (Mantido do plena_controle)
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -3561,13 +3513,13 @@
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            if (confirm('ATENÇÃƒO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // UTILITÁRIOS GERAIS
+        // UTILITÃRIOS GERAIS
         function updateDataStatus() {
             const total = db.transactions.length;
             const income = db.transactions.filter(t => t.type === 'income').length;
@@ -3679,7 +3631,7 @@
 
         // CHECKLIST LOGIC
         const checklistData = [
-            { id: 'chk_app', text: 'Instalar por PWA', sub: 'Adicionar à Tela Inicial' },
+            { id: 'chk_app', text: 'Instalar por PWA', sub: 'Adicionar Ã  Tela Inicial' },
             { id: 'chk_cat', text: 'Cadastrar categorias', sub: 'Ex: Bebidas, Salgados' },
             { id: 'chk_prod', text: 'Cadastrar produtos', sub: 'Com fotos e preços' },
             { id: 'chk_box', text: 'Testar abertura de caixa', sub: 'Definir fundo de troco' },
@@ -3746,54 +3698,6 @@
     </script>
 
     <!-- PWA Service Worker Registration & Scripts -->
-    <script>
-        // SanitizeHTML Security
-        const sanitizeHTML = (str) => {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[m]);
-        };
-
-        // PWA Install Logic
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installCard = document.getElementById('install-card');
-            if (installCard) installCard.classList.remove('hidden');
-        });
-
-        async function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                const installCard = document.getElementById('install-card');
-                if (installCard) installCard.classList.add('hidden');
-            }
-            deferredPrompt = null;
-        }
-
-        window.addEventListener('appinstalled', () => {
-            const installCard = document.getElementById('install-card');
-            if (installCard) installCard.classList.add('hidden');
-        });
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(err => console.log('SW failed', err));
-            });
-        }
-    </script>
 </body>
 
 </html>

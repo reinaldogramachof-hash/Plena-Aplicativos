@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -517,7 +517,7 @@
                         <h3 class="font-bold text-gray-800">Lançamentos Recentes</h3>
                         <button onclick="router('transactions')"
                             class="text-sm text-plena-green hover:text-plena-dark font-medium">
-                            Ver todos →
+                            Ver todos â†’
                         </button>
                     </div>
                     <div id="recent-transactions" class="space-y-3">
@@ -778,7 +778,7 @@
                             </h3>
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-800 mb-6">
-                                <p class="font-bold mb-2">⚠️ Segurança Total</p>
+                                <p class="font-bold mb-2">âš ï¸ Segurança Total</p>
                                 <p>Seus dados financeiros ficam salvos apenas neste aparelho. Ninguém mais tem acesso.
                                     Lembre-se de fazer backup regularmente!</p>
                             </div>
@@ -848,11 +848,11 @@
                         <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para dominar suas finanças
                             e realizar sonhos</p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">âœ“
                                 Controle Total</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile &
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">ðŸ“± Mobile &
                                 Desktop</span>
-                            <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">⚡
+                            <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">âš¡
                                 Offline</span>
                         </div>
                     </div>
@@ -943,7 +943,7 @@
                                     <ol class="list-decimal pl-5 space-y-3 text-gray-300">
                                         <li>Abra no <strong>Safari</strong></li>
                                         <li>Toque em <strong>Compartilhar</strong> (quadrado com seta)</li>
-                                        <li>Role e toque em <strong>"Adicionar à Tela de Início"</strong></li>
+                                        <li>Role e toque em <strong>"Adicionar Ã  Tela de Início"</strong></li>
                                     </ol>
                                 </div>
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
@@ -1027,9 +1027,9 @@
                                     class="w-4 h-4"></i></button>
                         </div>
                         <div class="text-sm text-red-800 space-y-2 mb-4">
-                            <p>📱 <strong>Seus dados ficam APENAS no seu navegador.</strong></p>
-                            <p>🔄 <strong>Se limpar cache ou formatar o celular, perderá os dados.</strong></p>
-                            <p>💾 <strong>Vá em Configurações > Baixar Backup semanalmente.</strong></p>
+                            <p>ðŸ“± <strong>Seus dados ficam APENAS no seu navegador.</strong></p>
+                            <p>ðŸ”„ <strong>Se limpar cache ou formatar o celular, perderá os dados.</strong></p>
+                            <p>ðŸ’¾ <strong>Vá em Configurações > Baixar Backup semanalmente.</strong></p>
                         </div>
                         <button onclick="router('settings')"
                             class="w-full py-3 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700">
@@ -1185,10 +1185,10 @@
 
                     <!-- Footer -->
                     <div class="text-center text-gray-500 text-sm mt-12 pb-6">
-                        <p>💡 Dúvidas? Entre em contato:</p>
+                        <p>ðŸ’¡ Dúvidas? Entre em contato:</p>
                         <a href="mailto:tecnologia@plenainformatica.com.br"
                             class="text-plena-green font-bold hover:underline">tecnologia@plenainformatica.com.br</a>
-                        <p class="mt-2 text-xs">Plena Finanças v3.0 • Plena Soluções Digitais</p>
+                        <p class="mt-2 text-xs">Plena Finanças v3.0 â€¢ Plena Soluções Digitais</p>
                     </div>
                 </div>
             </section>
@@ -1498,7 +1498,7 @@
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
 
-        // UTILITÁRIOS
+        // UTILITÃRIOS
         const save = () => {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateDataStatus();
@@ -1626,7 +1626,7 @@
             }
         }
 
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃƒO
         function init() {
             lucide.createIcons();
 
@@ -1657,7 +1657,7 @@
             setInterval(save, 30000); // Salva a cada 30 segundos
         }
 
-        // ROTEAMENTO E NAVEGAÇÃO
+        // ROTEAMENTO E NAVEGAÇÃƒO
         function router(view) {
             // Esconder todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
@@ -1938,7 +1938,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">${t.desc}</p>
-                                <p class="text-xs text-gray-500">${fmtDate(t.date)} • ${cat?.name || 'Geral'}</p>
+                                <p class="text-xs text-gray-500">${fmtDate(t.date)} â€¢ ${cat?.name || 'Geral'}</p>
                             </div>
                         </div>
                         <span class="text-sm font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
@@ -1951,7 +1951,7 @@
             lucide.createIcons();
         }
 
-        // TRANSAÇÕES
+        // TRANSAÇÃ•ES
         function renderTransactions() {
             const term = document.getElementById('search-term').value.toLowerCase();
             const filter = document.getElementById('filter-type').value;
@@ -2053,7 +2053,7 @@
             renderTransactions();
         }
 
-        // MODAIS E FORMULÁRIOS
+        // MODAIS E FORMULÃRIOS
         function openTransactionModal(transaction = null) {
             renderCatOptions();
 
@@ -2121,7 +2121,7 @@
             ).join('');
         }
 
-        // CRUD TRANSAÇÕES
+        // CRUD TRANSAÇÃ•ES
         function submitTransaction(e) {
             e.preventDefault();
 
@@ -2201,7 +2201,7 @@
             }
         }
 
-        // RELATÓRIOS
+        // RELATÃ“RIOS
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -2298,7 +2298,7 @@
             }).join('');
         }
 
-        // EXPORTAÇÃO E COMPARTILHAMENTO
+        // EXPORTAÇÃƒO E COMPARTILHAMENTO
         function exportCSV() {
             const headers = ['Data', 'Descrição', 'Categoria', 'Tipo', 'Recorrência', 'Valor'];
             const rows = db.transactions.map(t => {
@@ -2333,11 +2333,11 @@
             const expense = document.getElementById('rep-exp').textContent;
             const balance = document.getElementById('rep-bal').textContent;
 
-            const message = `*📊 Relatório Financeiro - Plena Finanças*%0A%0A` +
-                `*Período:* ${fmtDate(start)} à ${fmtDate(end)}%0A%0A` +
-                `✅ *Ganhei:* ${income}%0A` +
-                `🔻 *Gastei:* ${expense}%0A` +
-                `💰 *Sobrou:* ${balance}%0A%0A` +
+            const message = `*ðŸ“Š Relatório Financeiro - Plena Finanças*%0A%0A` +
+                `*Período:* ${fmtDate(start)} Ã  ${fmtDate(end)}%0A%0A` +
+                `âœ… *Ganhei:* ${income}%0A` +
+                `ðŸ”» *Gastei:* ${expense}%0A` +
+                `ðŸ’° *Sobrou:* ${balance}%0A%0A` +
                 `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -2354,10 +2354,10 @@
                 .reduce((sum, t) => sum + t.amount, 0);
             const economy = income - expense;
 
-            const message = `*🔒 Fechamento do Mês - Plena Finanças*%0A%0A` +
-                `✅ *Receitas:* ${fmtMoney(income)}%0A` +
-                `🔻 *Despesas:* ${fmtMoney(expense)}%0A` +
-                `💰 *Economia:* ${fmtMoney(economy)}%0A%0A` +
+            const message = `*ðŸ”’ Fechamento do Mês - Plena Finanças*%0A%0A` +
+                `âœ… *Receitas:* ${fmtMoney(income)}%0A` +
+                `ðŸ”» *Despesas:* ${fmtMoney(expense)}%0A` +
+                `ðŸ’° *Economia:* ${fmtMoney(economy)}%0A%0A` +
                 `_Organize suas finanças com Plena!_`;
 
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -2372,7 +2372,7 @@
                     <h1 style="text-align: center; color: #10B981;">Relatório Financeiro</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Finanças • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Finanças â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2391,7 +2391,7 @@
                     <h1 style="text-align: center; color: #10B981;">Lançamentos Financeiros</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Finanças • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Finanças â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2410,7 +2410,7 @@
                     <h1 style="text-align: center; color: #10B981;">Resumo do Mês</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Finanças • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Finanças â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2419,7 +2419,7 @@
             document.body.innerHTML = originalContent;
         }
 
-        // CONFIGURAÇÕES
+        // CONFIGURAÇÃ•ES
         function toggleCatForm() {
             const formBox = document.getElementById('cat-form-box');
             formBox.classList.toggle('hidden');
@@ -2515,7 +2515,7 @@
             }
         }
 
-        // BACKUP E RESTAURAÇÃO
+        // BACKUP E RESTAURAÇÃƒO
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -2587,13 +2587,13 @@
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            if (confirm('ATENÇÃƒO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // UTILITÁRIOS GERAIS
+        // UTILITÃRIOS GERAIS
         function updateDataStatus() {
             const total = db.transactions.length;
             const income = db.transactions.filter(t => t.type === 'income').length;
@@ -2668,7 +2668,7 @@
                 if (!text.includes('Plena')) {
                     document.body.innerHTML = `
                         <div style="height:100vh;background:#1a1a1a;color:#ef4444;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;padding:20px;">
-                            <h1 style="font-size:2rem;margin-bottom:20px;font-weight:bold;">⚠️ VIOLAÇÃO DE SEGURANÇA</h1>
+                            <h1 style="font-size:2rem;margin-bottom:20px;font-weight:bold;">âš ï¸ VIOLAÇÃƒO DE SEGURANÇA</h1>
                             <p style="font-size:1.2rem;">A assinatura digital deste software foi modificada ilegalmente.</p>
                             <p style="margin-top:20px;color:white;font-size:0.9rem;">Entre em contato com o suporte oficial: tecnologia@plenainformatica.com.br</p>
                         </div>
@@ -2687,7 +2687,7 @@
     <!-- PWA Service Worker Registration & Scripts -->
     <script>
         // Sanitização XSS (Segurança)
-        const sanitizeHTML = (str) => {
+        const appSanitizeHTML = (str) => {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, m => ({
                 '&': '&amp;',

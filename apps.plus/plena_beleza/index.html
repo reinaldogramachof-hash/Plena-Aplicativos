@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plena Beleza - Gestão de Salão & Barbearia</title>
 
-    <link rel="manifest" href="manifest.json">
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#E11D48">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de gestão completo para salões e barbearias - Plena Aplicativos">
-    
+    <link rel="manifest" href="data:application/manifest+json,{}">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -785,19 +785,6 @@
 
                     <!-- Data Management -->
                     <div class="space-y-6">
-                        <!-- PWA Install -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hidden" id="pwa-install-card">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-                                <i data-lucide="download" class="w-5 h-5 mr-2 text-plena-rose"></i>
-                                Instalar Aplicativo
-                            </h3>
-                            <p class="text-sm text-gray-600 mb-4">Instale este sistema como um aplicativo nativo no seu dispositivo para acesso offline e melhor performance.</p>
-                            <button onclick="installPWA()" class="w-full bg-plena-rose text-white py-3 rounded-lg text-sm font-bold hover:opacity-90 flex justify-center items-center gap-2">
-                                <i data-lucide="smartphone" class="w-4 h-4"></i>
-                                Instalar Agora
-                            </button>
-                        </div>
-
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 flex items-center">
                                 <i data-lucide="shield-alert" class="w-5 h-5 mr-2 text-plena-rose"></i>
@@ -936,7 +923,7 @@
                             <p class="text-sm text-gray-300 mb-6">O Plena Beleza funciona como um aplicativo nativo.
                                 Siga os passos abaixo para instalar:</p>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Android -->
                                 <div class="bg-white/10 p-5 rounded-xl border border-white/20">
                                     <div class="font-bold text-white mb-3 flex items-center">
@@ -999,33 +986,6 @@
                                                 class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
                                                 4</div>
                                             <span>Toque em <strong>"Adicionar"</strong> no canto superior</span>
-                                        </li>
-                                    </ol>
-                                </div>
-
-                                <!-- Windows -->
-                                <div class="bg-white/10 p-5 rounded-xl border border-white/20">
-                                    <div class="font-bold text-white mb-3 flex items-center">
-                                        <i data-lucide="monitor" class="w-5 h-5 mr-2"></i>Windows (Chrome)
-                                    </div>
-                                    <ol class="space-y-2 text-sm text-gray-200">
-                                        <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                1</div>
-                                            <span>Acesse a URL do sistema</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                2</div>
-                                            <span>Clique no ícone de instalação na barra de endereço</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                3</div>
-                                            <span>Confirme a instalação</span>
                                         </li>
                                     </ol>
                                 </div>
@@ -2036,84 +1996,9 @@
             return ((current - previous) / previous * 100).toFixed(1);
         };
 
-        // SanitizeHTML Security
-        const sanitizeHTML = (str) => {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[m]);
-        };
-
-        // PWA & INSTALLATION LOGIC
-        let deferredPrompt;
-        const installCard = document.getElementById('install-card');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (installCard) installCard.classList.remove('hidden');
-        });
-
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    if (installCard) installCard.classList.add('hidden');
-                }
-            }
-        }
-
-        window.addEventListener('appinstalled', () => {
-            if (installCard) installCard.classList.add('hidden');
-            deferredPrompt = null;
-        });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW error', err));
-            });
-        }
-
         // INICIALIZAÇÃO
         function init() {
             lucide.createIcons();
-            
-            // PWA Installation Logic
-            let deferredPrompt;
-            const pwaCard = document.getElementById('pwa-install-card');
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                if (pwaCard) pwaCard.classList.remove('hidden');
-            });
-
-            window.installPWA = async function() {
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    if (pwaCard) pwaCard.classList.add('hidden');
-                }
-            };
-
-            // Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js')
-                        .then(reg => console.log('SW registered'))
-                        .catch(err => console.log('SW error', err));
-                });
-            }
 
             // Configurar datas padrão
             const today = new Date().toISOString().split('T')[0];
@@ -3494,33 +3379,28 @@
             }, 3000);
         }
 
-        // PWA & Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW error', err));
-            });
-        }
-
+        // PWA INSTALL PROMPT
         let deferredPrompt;
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const pwaCard = document.getElementById('pwa-install-card');
-            if (pwaCard) pwaCard.classList.remove('hidden');
-        });
 
-        window.installPWA = async function() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                deferredPrompt = null;
-                const pwaCard = document.getElementById('pwa-install-card');
-                if (pwaCard) pwaCard.classList.add('hidden');
-            }
-        };
+            // Mostrar botão de instalação
+            const installButton = document.createElement('button');
+            installButton.className = 'fixed bottom-4 right-4 bg-plena-rose text-white px-4 py-2 rounded-lg shadow-lg z-40';
+            installButton.innerHTML = '<i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Instalar App';
+            installButton.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    installButton.remove();
+                });
+            };
+
+            document.body.appendChild(installButton);
+            lucide.createIcons();
+        });
 
         // OFFLINE SUPPORT
         window.addEventListener('online', () => {

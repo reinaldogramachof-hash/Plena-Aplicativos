@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Plena Aplicativos - Soluções empresariais MicroSaaS sem mensalidade. Gestão completa para seu negócio com pagamento único.">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <title>Plena Aplicativos | Soluções Empresariais</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +17,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Tech Grid Background */
@@ -67,7 +72,7 @@
             }
 
             100% {
-                background-position: 98px 98px, 98px 98px, 19px 19px, 19px 19px;
+                background-position: 98px 98px, 19px 19px, 19px 19px, 19px 19px;
             }
         }
 
@@ -88,123 +93,6 @@
                 0 0 30px rgba(0, 149, 255, 0.4);
         }
 
-        /* Digital Dust Particles */
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 8px;
-            color: rgba(147, 197, 253, 0.4);
-            text-shadow:
-                0 0 5px rgba(59, 130, 246, 0.6),
-                0 0 10px rgba(147, 197, 253, 0.4);
-            animation: dust-float 8s ease-in-out infinite;
-            filter: blur(1px);
-        }
-
-        @keyframes dust-float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0.3;
-            }
-
-            25% {
-                transform: translate(10px, -5px) scale(1.2);
-                opacity: 0.6;
-            }
-
-            50% {
-                transform: translate(-5px, -10px) scale(0.8);
-                opacity: 0.4;
-            }
-
-            75% {
-                transform: translate(15px, -3px) scale(1.1);
-                opacity: 0.5;
-            }
-        }
-
-        .particle:nth-child(1) {
-            left: 10%;
-            top: 20%;
-            animation-delay: 0s;
-        }
-
-        .particle:nth-child(2) {
-            left: 25%;
-            top: 60%;
-            animation-delay: 1s;
-        }
-
-        .particle:nth-child(3) {
-            left: 40%;
-            top: 30%;
-            animation-delay: 2s;
-        }
-
-        .particle:nth-child(4) {
-            left: 55%;
-            top: 70%;
-            animation-delay: 3s;
-        }
-
-        .particle:nth-child(5) {
-            left: 70%;
-            top: 40%;
-            animation-delay: 4s;
-        }
-
-        .particle:nth-child(6) {
-            left: 85%;
-            top: 50%;
-            animation-delay: 5s;
-        }
-
-        .particle:nth-child(7) {
-            left: 15%;
-            top: 80%;
-            animation-delay: 1.5s;
-        }
-
-        .particle:nth-child(8) {
-            left: 60%;
-            top: 15%;
-            animation-delay: 2.5s;
-        }
-
-        .particle:nth-child(9) {
-            left: 80%;
-            top: 65%;
-            animation-delay: 3.5s;
-        }
-
-        .particle:nth-child(10) {
-            left: 30%;
-            top: 45%;
-            animation-delay: 4.5s;
-        }
-
-        .particle:nth-child(11) {
-            left: 50%;
-            top: 85%;
-            animation-delay: 0.5s;
-        }
-
-        .particle:nth-child(12) {
-            left: 90%;
-            top: 25%;
-            animation-delay: 1.8s;
-        }
-
         .hero-gradient {
             background: linear-gradient(135deg, #0a0e27 0%, #1e293b 100%);
         }
@@ -217,128 +105,6 @@
 
         [v-cloak] {
             display: none;
-        }
-
-        /* Binary Matrix Background */
-        .depth-texture-bg {
-            background-color: #ffffff;
-            position: relative;
-        }
-
-        /* Binary Numbers Container */
-        .binary-matrix {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .binary-number {
-            position: absolute;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: rgba(59, 130, 246, 0.15);
-            text-shadow:
-                0 0 10px rgba(59, 130, 246, 0.3),
-                0 0 20px rgba(147, 197, 253, 0.2),
-                0 2px 4px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(1px);
-            animation: float-up linear infinite;
-            user-select: none;
-        }
-
-        /* Glassmorphism effect on numbers */
-        .binary-number::before {
-            content: attr(data-value);
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            filter: blur(0.5px);
-        }
-
-        @keyframes float-up {
-            0% {
-                transform: translateY(100vh) rotate(0deg) scale(1);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            82% {
-                opacity: 1;
-                transform: translateY(-8vh) rotate(340deg) scale(1);
-            }
-
-            88% {
-                opacity: 0.8;
-                transform: translateY(-5vh) rotate(355deg) scale(0.8);
-                filter: blur(2px);
-            }
-
-            94% {
-                opacity: 0.4;
-                transform: translateY(-3vh) rotate(365deg) scale(0.4);
-                filter: blur(5px);
-            }
-
-            97% {
-                opacity: 0.2;
-                transform: translateY(-2vh) rotate(370deg) scale(0.2);
-                filter: blur(8px);
-            }
-
-            100% {
-                transform: translateY(0) rotate(380deg) scale(0);
-                opacity: 0;
-                filter: blur(15px);
-            }
-        }
-
-        /* Pulverization effect */
-        .binary-number.pulverizing::after {
-            content: attr(data-value);
-            position: absolute;
-            top: 0;
-            left: 0;
-            animation: explode 0.6s ease-out forwards;
-        }
-
-        @keyframes explode {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--x), var(--y)) scale(0);
-                opacity: 0;
-                filter: blur(10px);
-            }
-        }
-
-        /* Different sizes for depth */
-        .binary-number.small {
-            font-size: 14px;
-            animation-duration: 15s;
-        }
-
-        .binary-number.medium {
-            font-size: 18px;
-            animation-duration: 20s;
-        }
-
-        .binary-number.large {
-            font-size: 24px;
-            animation-duration: 25s;
         }
 
         /* Ensure content is above binary numbers */
@@ -354,78 +120,16 @@
             position: relative;
             z-index: 10;
         }
-
-        /* Animated Depth Layers */
-        @keyframes depth-float {
-
-            0%,
-            100% {
-                transform: translateY(0) scale(1);
-            }
-
-            50% {
-                transform: translateY(-10px) scale(1.02);
-            }
-        }
-
-        .depth-layer {
-            animation: depth-float 8s ease-in-out infinite;
-        }
-
-        /* Subtle Shimmer Effect */
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-
-        .shimmer-effect::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    rgba(59, 130, 246, 0.03) 50%,
-                    transparent 100%);
-            background-size: 1000px 100%;
-            animation: shimmer 15s infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
     </style>
 </head>
 
-<body class="depth-texture-bg text-slate-800 shimmer-effect">
-
-    <!-- Binary Matrix Background -->
-    <div class="binary-matrix" id="binaryMatrix"></div>
+<body class="text-slate-800">
 
     <div id="app" v-cloak>
 
         <!-- HEADER PROFISSIONAL COM TECH GRID -->
         <header
             class="tech-grid-bg tech-grid-animated text-white sticky top-0 z-50 shadow-lg border-b border-blue-500/20">
-            <div class="particles">
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-                <div class="particle">1</div>
-                <div class="particle">0</div>
-            </div>
             <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center relative z-10">
                 <div class="flex items-center gap-3">
                     <div
@@ -451,17 +155,6 @@
         <!-- HERO B2B COM TECH GRID -->
         <section
             class="tech-grid-bg tech-grid-animated py-20 px-4 text-center text-white relative overflow-hidden border-b border-blue-500/20">
-            <div class="particles">
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-            </div>
             <div class="max-w-4xl mx-auto relative z-10">
                 <span
                     class="bg-blue-600/30 border border-cyan-400/50 text-cyan-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 inline-block neon-border">
@@ -493,7 +186,7 @@
                 </h3>
                 <div class="grid md:grid-cols-3 gap-6">
                     <a v-for="kit in kits" :key="kit.name" :href="kit.link"
-                        class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 block h-64">
+                        class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 block h-64 cursor-pointer">
                         <img :src="kit.img"
                             class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                         <div
@@ -580,16 +273,15 @@
                                         }}</span>
                                     <span class="text-2xl font-black text-slate-900">R$ {{ app.price }}</span>
                                 </div>
-                                <a :href="app.link"
-                                    class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition transform hover:scale-105">
+                                <button @click.prevent="openPreview(app.link, app.name)"
+                                    class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition transform hover:scale-105 inline-block text-center cursor-pointer">
                                     Ver Demo Plus
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </section>
 
         <!-- SEÇÃO PLR (DEVELOPER PACK) -->
@@ -674,148 +366,133 @@
         <!-- FOOTER COM TECH GRID -->
         <footer
             class="tech-grid-bg text-slate-400 py-12 text-center border-t border-blue-500/20 relative overflow-hidden">
-            <div class="particles">
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-            </div>
             <p class="mb-4 relative z-10">&copy; 2025 Plena Aplicativos. Todos os direitos reservados.</p>
             <!-- PASSAGEM SECRETA DO ADMIN -->
             <div class="fixed top-0 left-0 w-4 h-4 z-[9999]" ondblclick="window.location.href='admin.html'"
                 title="Área Restrita" style="cursor: pointer;"></div>
         </footer>
 
+        <!-- LIVE PREVIEW MODAL -->
+        <div v-if="previewOpen"
+            class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/95 backdrop-blur-sm"
+            role="dialog" aria-modal="true">
+            <div
+                class="w-full max-w-7xl h-[90vh] bg-slate-900 rounded-2xl flex flex-col relative overflow-hidden neon-border shadow-2xl animate-fade-in-up">
+                <!-- Header -->
+                <div class="h-16 bg-slate-950 flex items-center justify-between px-6 border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <h3 class="text-white font-bold text-lg tracking-wide">{{ currentPreviewName }} <span
+                                class="text-slate-500 text-xs font-normal uppercase ml-2">Live Demo</span></h3>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <a href="https://wa.me/5567993333999?text=Quero%20comprar%20o%20sistema%20" target="_blank"
+                            class="hidden sm:flex bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-black px-4 py-2 rounded-lg uppercase tracking-wider shadow-lg transform hover:scale-105 transition">
+                            Comprar Agora
+                        </a>
+                        <button @click="closePreview()"
+                            class="text-slate-400 hover:text-white transition p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Iframe -->
+                <div class="flex-1 relative bg-slate-100">
+                    <iframe :src="currentPreviewUrl" class="w-full h-full border-0"
+                        sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                </div>
+
+                <!-- Warning Footer -->
+                <div
+                    class="bg-amber-100 text-amber-800 text-xs font-bold py-2 text-center border-t border-amber-200 sticky bottom-0 z-10">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Você está visualizando uma versão
+                    demonstrativa. Dados inseridos não serão salvos permanentemente.
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
-
-        createApp({
-            setup() {
-                const filter = ref('Todos');
-                const search = ref('');
-                const categories = ['Todos', 'Gestão', 'Food', 'Serviços', 'Marketing', 'Transporte'];
-
-                // KITS (BUNDLES) - Destaque
-                const kits = ref([
-                    { name: "Kit Gastronomia Pro", link: "restaurantes.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80", desc: "Comanda, Cardápio, KDS e Delivery.", price: "97,00", oldPrice: "551,00", badge: "80% OFF" },
-                    { name: "Kit Oficina & Serviços", link: "servicos.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80", desc: "OS, Recibo, Vistoria e Orçamento.", price: "97,00", oldPrice: "497,00", badge: "BEST SELLER" },
-                    { name: "Kit Beleza & Estética", link: "beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80", desc: "Agenda, Ficha, Comissões e BioLink.", price: "97,00", oldPrice: "597,00", badge: "NOVO" }
-                ]);
-
-                // LISTA COMPLETA DE APPS PROFISSIONAIS
-                const apps = ref([
-                    // APPS PLUS (TIER GOLD)
-                    { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_alugueis/index.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
-                    { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
-                    { name: "Plena Barba chegar earia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia/index.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
-                    { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
-                    { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card/index.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas." },
-                    { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle/index.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
-                    { name: "Plena Custos", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato/index.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
-                    { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_delivery/index.html", img: "https://images.unsplash.com/photo-1526367790999-0150786486a9?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
-                    { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
-                    { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
-                    { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
-                    { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
-                    { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
-                    { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
-                    { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                    { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." }
-                ]);
-
-                const filteredApps = computed(() => {
-                    let list = apps.value;
-                    if (filter.value !== 'Todos') list = list.filter(a => a.category === filter.value);
-                    if (search.value) list = list.filter(a => a.name.toLowerCase().includes(search.value.toLowerCase()));
-                    return list;
-                });
-
-                const premiumApps = computed(() => {
-                    return filteredApps.value;
-                });
-
-                return { filter, search, categories, filteredApps, premiumApps, kits };
+        // Fallback para remover v-cloak se o Vue falhar
+        setTimeout(() => {
+            const appEl = document.getElementById('app');
+            if (appEl && appEl.hasAttribute('v-cloak')) {
+                appEl.removeAttribute('v-cloak');
+                console.warn('Vue mounting timeout - forcing visibility');
             }
-        }).mount('#app');
+        }, 4000);
 
-        // Binary Matrix Animation
-        function createBinaryMatrix() {
-            const container = document.getElementById('binaryMatrix');
-            const numberOfNumbers = 100; // Quantidade de números na tela
+        (function () {
+            const { createApp, ref, computed } = Vue;
 
-            function createBinaryNumber() {
-                const number = document.createElement('div');
-                const value = Math.random() > 0.5 ? '1' : '0';
-                const size = ['small', 'medium', 'large'][Math.floor(Math.random() * 3)];
+            createApp({
+                setup() {
+                    const filter = ref('Todos');
+                    const search = ref('');
+                    const categories = ['Todos', 'Gestão', 'Food', 'Serviços', 'Marketing', 'Transporte'];
 
-                number.className = `binary-number ${size}`;
-                number.textContent = value;
-                number.setAttribute('data-value', value);
-                number.style.left = Math.random() * 100 + '%';
-                number.style.animationDelay = Math.random() * 5 + 's';
+                    // Live Preview State
+                    const previewOpen = ref(false);
+                    const currentPreviewUrl = ref('');
+                    const currentPreviewName = ref('');
 
-                container.appendChild(number);
+                    const openPreview = (url, name) => {
+                        currentPreviewUrl.value = url;
+                        currentPreviewName.value = name;
+                        previewOpen.value = true;
+                    };
 
-                // Calculate duration based on size
-                const duration = size === 'small' ? 15000 : size === 'medium' ? 20000 : 25000;
+                    const closePreview = () => {
+                        previewOpen.value = false;
+                        currentPreviewUrl.value = '';
+                        currentPreviewName.value = '';
+                    };
 
-                // Create pulverization effect near the end
-                setTimeout(() => {
-                    createPulverizationEffect(number);
-                }, duration * 0.88); // 88% of animation
+                    // KITS (BUNDLES) - Destaque
+                    const kits = ref([
+                        { name: "Kit Gastronomia Pro", link: "restaurantes.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80", desc: "Comanda, Cardápio, KDS e Delivery.", price: "97,00", oldPrice: "551,00", badge: "80% OFF" },
+                        { name: "Kit Oficina & Serviços", link: "servicos.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80", desc: "OS, Recibo, Vistoria e Orçamento.", price: "97,00", oldPrice: "497,00", badge: "BEST SELLER" },
+                        { name: "Kit Beleza & Estética", link: "beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80", desc: "Agenda, Ficha, Comissões e BioLink.", price: "97,00", oldPrice: "597,00", badge: "NOVO" }
+                    ]);
 
-                // Remove after animation completes
-                setTimeout(() => {
-                    number.remove();
-                    createBinaryNumber(); // Create a new one
-                }, duration + (Math.random() * 5000));
-            }
+                    // LISTA COMPLETA DE APPS PROFISSIONAIS
+                    const apps = ref([
+                        // APPS PLUS (TIER GOLD)
+                        { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_alugueis/index.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
+                        { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
+                        { name: "Plena Barbearia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia/index.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
+                        { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
+                        { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card/index.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas." },
+                        { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle/index.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
+                        { name: "Plena Custos", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato/index.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
+                        { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_delivery/index.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
+                        { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
+                        { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_driver/index.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
+                        { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
+                        { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
+                        { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
+                        { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
+                        { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
+                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." }
+                    ]);
 
-            function createPulverizationEffect(originalNumber) {
-                const rect = originalNumber.getBoundingClientRect();
-                const particleCount = 6;
+                    const filteredApps = computed(() => {
+                        let list = apps.value;
+                        if (filter.value !== 'Todos') list = list.filter(a => a.category === filter.value);
+                        if (search.value) list = list.filter(a => a.name.toLowerCase().includes(search.value.toLowerCase()));
+                        return list;
+                    });
 
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'binary-number small';
-                    particle.textContent = originalNumber.textContent;
-                    particle.style.position = 'fixed';
-                    particle.style.left = rect.left + 'px';
-                    particle.style.top = rect.top + 'px';
-                    particle.style.fontSize = '6px';
-                    particle.style.animation = 'none';
+                    const premiumApps = computed(() => {
+                        return filteredApps.value;
+                    });
 
-                    const angle = (360 / particleCount) * i + Math.random() * 30;
-                    const distance = 20 + Math.random() * 30;
-                    const x = Math.cos(angle * Math.PI / 180) * distance;
-                    const y = Math.sin(angle * Math.PI / 180) * distance;
-
-                    particle.style.setProperty('--x', x + 'px');
-                    particle.style.setProperty('--y', y + 'px');
-
-                    document.body.appendChild(particle);
-
-                    setTimeout(() => {
-                        particle.style.animation = 'explode 0.6s ease-out forwards';
-                    }, 10);
-
-                    setTimeout(() => {
-                        particle.remove();
-                    }, 700);
+                    return { filter, search, categories, filteredApps, premiumApps, kits, previewOpen, currentPreviewUrl, currentPreviewName, openPreview, closePreview };
                 }
-            }
-
-            // Create initial numbers
-            for (let i = 0; i < numberOfNumbers; i++) {
-                setTimeout(() => createBinaryNumber(), i * 200);
-            }
-        }
-
-        // Start animation when page loads
-        window.addEventListener('load', createBinaryMatrix);
+            }).mount('#app');
+        })();
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -488,7 +488,7 @@
                         <h3 class="font-bold text-gray-800">Obras em Andamento</h3>
                         <button onclick="router('projects')"
                             class="text-sm text-plena-orange hover:text-plena-dark font-medium">
-                            Ver todas →
+                            Ver todas â†’
                         </button>
                     </div>
                     <div id="projects-dashboard-list" class="space-y-3">
@@ -883,7 +883,7 @@
                             </h3>
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-800 mb-6">
-                                <p class="font-bold mb-2">⚠️ Importante</p>
+                                <p class="font-bold mb-2">âš ï¸ Importante</p>
                                 <p>Seus dados ficam salvos 100% no navegador. Faça backup regularmente para evitar
                                     perdas!</p>
                             </div>
@@ -1034,7 +1034,7 @@
                         </div>
                         <ol class="list-decimal pl-4 space-y-1 text-gray-600 text-xs">
                             <li>Toque no menu (3 pontos)</li>
-                            <li>"Adicionar à Tela Inicial" ou "Instalar App"</li>
+                            <li>"Adicionar Ã  Tela Inicial" ou "Instalar App"</li>
                         </ol>
                     </div>
                     <!-- iOS -->
@@ -1045,7 +1045,7 @@
                         </div>
                         <ol class="list-decimal pl-4 space-y-1 text-gray-600 text-xs">
                             <li>Toque em "Compartilhar"</li>
-                            <li>Role e toque em "Adicionar à Tela de Início"</li>
+                            <li>Role e toque em "Adicionar Ã  Tela de Início"</li>
                         </ol>
                     </div>
                     <!-- Windows -->
@@ -1450,7 +1450,7 @@
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
         let currentProjectId = null;
 
-        // UTILITÁRIOS
+        // UTILITÃRIOS
         const save = () => {
             localStorage.setItem(DB_KEY, JSON.stringify(db));
             updateDataStatus();
@@ -1484,7 +1484,7 @@
             return ((current - previous) / previous * 100).toFixed(1);
         };
 
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃƒO
         function init() {
             lucide.createIcons();
 
@@ -1511,7 +1511,7 @@
             setInterval(save, 30000); // Salva a cada 30 segundos
         }
 
-        // ROTEAMENTO E NAVEGAÇÃO
+        // ROTEAMENTO E NAVEGAÇÃƒO
         function router(view, param = null) {
             // Esconder todas as views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
@@ -2333,7 +2333,7 @@
             }
         }
 
-        // CRUD TRANSAÇÕES
+        // CRUD TRANSAÇÃ•ES
         function submitTrans(e) {
             e.preventDefault();
 
@@ -2471,7 +2471,7 @@
             }
         }
 
-        // RELATÓRIOS
+        // RELATÃ“RIOS
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -2626,7 +2626,7 @@
             }).join('');
         }
 
-        // EXPORTAÇÃO E COMPARTILHAMENTO
+        // EXPORTAÇÃƒO E COMPARTILHAMENTO
         function exportProjectsCSV() {
             const headers = ['Nome', 'Cliente', 'Orçamento', 'Status', 'Data Criação', 'Previsão Entrega'];
             const rows = db.projects.map(p => [
@@ -2658,11 +2658,11 @@
             const expense = document.getElementById('rep-exp').textContent;
             const balance = document.getElementById('rep-bal').textContent;
 
-            const message = `*📊 Relatório de Obras - Plena Obras*%0A%0A` +
-                `*Período:* ${fmtDate(start)} à ${fmtDate(end)}%0A%0A` +
-                `✅ *Entradas:* ${income}%0A` +
-                `🔻 *Saídas:* ${expense}%0A` +
-                `💰 *Saldo:* ${balance}%0A%0A` +
+            const message = `*ðŸ“Š Relatório de Obras - Plena Obras*%0A%0A` +
+                `*Período:* ${fmtDate(start)} Ã  ${fmtDate(end)}%0A%0A` +
+                `âœ… *Entradas:* ${income}%0A` +
+                `ðŸ”» *Saídas:* ${expense}%0A` +
+                `ðŸ’° *Saldo:* ${balance}%0A%0A` +
                 `_Gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             window.open(`https://wa.me/?text=${message}`, '_blank');
@@ -2674,12 +2674,12 @@
             const expense = document.getElementById('close-exp').textContent;
             const balance = document.getElementById('close-bal').textContent;
 
-            const message = `*🔒 Fechamento de Caixa*%0A%0A` +
+            const message = `*ðŸ”’ Fechamento de Caixa*%0A%0A` +
                 `*Data:* ${fmtDate(today)}%0A` +
                 `*Hora:* ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}%0A%0A` +
-                `✅ *Entradas:* ${income}%0A` +
-                `🔻 *Saídas:* ${expense}%0A` +
-                `💰 *Saldo Final:* ${balance}%0A%0A` +
+                `âœ… *Entradas:* ${income}%0A` +
+                `ðŸ”» *Saídas:* ${expense}%0A` +
+                `ðŸ’° *Saldo Final:* ${balance}%0A%0A` +
                 `_Plena Obras - Gestão de Construção_`;
 
             window.open(`https://wa.me/?text=${message}`, '_blank');
@@ -2694,7 +2694,7 @@
                     <h1 style="text-align: center; color: #F97316;">Relatório de Obras</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Obras • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Obras â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2713,7 +2713,7 @@
                     <h1 style="text-align: center; color: #F97316;">Lista de Obras</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Obras • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Obras â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2732,7 +2732,7 @@
                     <h1 style="text-align: center; color: #F97316;">Fechamento de Caixa</h1>
                     <div style="margin: 20px 0;">${printContent}</div>
                     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                        Gerado por Plena Obras • ${new Date().toLocaleDateString('pt-BR')}
+                        Gerado por Plena Obras â€¢ ${new Date().toLocaleDateString('pt-BR')}
                     </p>
                 </div>
             `;
@@ -2751,7 +2751,7 @@
             showNotification('Download PDF simulada (em produção, use biblioteca como jsPDF)', 'info');
         }
 
-        // CONFIGURAÇÕES
+        // CONFIGURAÇÃ•ES
         function toggleCatForm() {
             const formBox = document.getElementById('cat-form-box');
             formBox.classList.toggle('hidden');
@@ -2847,7 +2847,7 @@
             }
         }
 
-        // BACKUP E RESTAURAÇÃO
+        // BACKUP E RESTAURAÇÃƒO
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -2907,13 +2907,13 @@
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            if (confirm('ATENÇÃƒO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // UTILITÁRIOS GERAIS
+        // UTILITÃRIOS GERAIS
         function updateDataStatus() {
             const total = db.transactions.length;
             const income = db.transactions.filter(t => t.type === 'income').length;
@@ -2984,7 +2984,7 @@
         setInterval(() => {
             const footer = document.querySelector('.sidebar .border-t');
             if (footer && !footer.innerText.includes('Plena')) {
-                document.body.innerHTML = '<div style="background:#111;color:red;height:100vh;display:flex;align-items:center;justify-content:center;"><h1>VIOLAÇÃO DE SEGURANÇA</h1></div>';
+                document.body.innerHTML = '<div style="background:#111;color:red;height:100vh;display:flex;align-items:center;justify-content:center;"><h1>VIOLAÇÃƒO DE SEGURANÇA</h1></div>';
                 throw new Error("Piracy");
             }
         }, 8000);
@@ -2995,7 +2995,7 @@
     <!-- PWA Service Worker Registration & Scripts -->
     <script>
         // SanitizeHTML Security
-        const sanitizeHTML = (str) => {
+        const appSanitizeHTML = (str) => {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, m => ({
                 '&': '&amp;',
