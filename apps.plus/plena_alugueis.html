@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -28,7 +28,8 @@
                             black: '#0f172a',
                             orange: '#f59e0b',
                             gray: '#334155',
-                            lightblue: '#60A5FA'
+                            lightblue: '#60A5FA',
+                            purple: '#7C3AED'
                         },
                     },
                     animation: {
@@ -231,42 +232,180 @@
             transition: width 0.5s ease;
         }
 
+        /* Footer Watermark */
+        .license-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.95);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 10px;
+            text-align: center;
+            padding: 6px 0;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-content {
+            padding-bottom: 40px;
+            /* Ensure content isn't hidden by footer */
+        }
+
         @media print {
-
-            .sidebar,
-            #overlay,
-            button,
-            .header-buttons,
-            .no-print,
-            header,
-            #month-selector,
-            .view-section.hide {
-                display: none !important;
-            }
-
-            .main-content {
-                margin: 0 !important;
-                width: 100% !important;
-                padding: 0 !important;
+            @page {
+                size: A4;
+                margin: 0;
             }
 
             body {
                 background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
             }
 
-            /* Ensure modal content is visible if open */
-            .modal-backdrop {
-                position: absolute !important;
-                background: white !important;
-                z-index: 100 !important;
+            /* Hide everything by default */
+            body>* {
+                display: none !important;
             }
 
-            /* Hide inputs borders in print */
-            input,
-            select {
-                border: none !important;
-                appearance: none !important;
+            /* Only show the active modal if it's the receipt modal */
+            #receiptModal {
+                display: flex !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+                z-index: 9999;
+                align-items: flex-start;
+                /* Align top for print */
+                justify-content: center;
+                overflow: visible !important;
+            }
+
+            #receiptModal .bg-white {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
                 padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Specific Print Adjustments for Receipt Content */
+            #receipt-content {
+                padding: 40px !important;
+                /* Standard A4 padding */
+                width: 100%;
+                font-size: 12pt;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            /* Hide UI elements */
+            .sidebar,
+            .mobile-nav,
+            .header-search,
+            .view-section>div:first-child,
+            /* Hide section titles */
+            button:not(.print-only),
+            .no-print,
+            #month-selector-container,
+            #report-filters-card,
+            .data-entry-fab {
+                display: none !important;
+            }
+
+            /* Adjust Layout */
+            body,
+            main {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
+
+            main {
+                margin-left: 0 !important;
+                padding-bottom: 0 !important;
+            }
+
+            .content-area {
+                padding: 0 !important;
+            }
+
+            /* Report Header Visibility */
+            #print-header {
+                display: block !important;
+                margin-bottom: 2rem;
+                border-bottom: 2px solid #eee;
+                padding-bottom: 1rem;
+            }
+
+            /* Typography */
+            body {
+                font-size: 11pt;
+                color: #000;
+            }
+
+            h2,
+            h3 {
+                color: #000 !important;
+            }
+
+            /* Cards for Print */
+            .bg-white,
+            .bg-gray-50,
+            .bg-green-50,
+            .bg-red-50,
+            .bg-blue-50 {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+
+            /* Table optimization */
+            table {
+                width: 100% !important;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                border: 1px solid #ddd !important;
+                padding: 8px !important;
+            }
+
+            /* Colors functionality */
+            .text-green-600 {
+                color: #166534 !important;
+            }
+
+            .text-red-600 {
+                color: #dc2626 !important;
+            }
+
+            /* Force chart bars to print background colors */
+            .print-color-exact {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
     </style>
@@ -386,12 +525,22 @@
             <!-- Dashboard View -->
             <section id="view-dashboard" class="view-section fade-in">
                 <!-- Month Selector -->
-                <div class="mb-6 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-800">Visão Geral</h3>
-                    <div class="flex items-center gap-3">
-                        <input type="month" id="month-selector" onchange="renderDashboard()"
-                            class="border rounded-lg p-2 text-sm bg-white">
-                        
+                <div
+                    class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-plena-blue"></i>
+                            Visão Geral
+                        </h3>
+                        <p class="text-sm text-gray-500">Acompanhe o desempenho mensal</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-auto">
+                            <i data-lucide="calendar"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-plena-blue"></i>
+                            <input type="month" id="month-selector" onchange="renderDashboard()"
+                                class="w-full sm:w-auto pl-10 pr-4 py-2.5 rounded-lg border-2 border-plena-purple/20 text-sm bg-plena-purple/5 font-bold text-plena-dark focus:border-plena-purple focus:ring-4 focus:ring-plena-purple/10 outline-none transition-all cursor-pointer hover:bg-plena-purple/10">
+                        </div>
                     </div>
                 </div>
 
@@ -549,7 +698,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <button onclick="openTransModal()"
-                            class="flex items-center gap-2 px-4 py-2 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
+                            class="flex items-center gap-2 px-4 py-2 bg-plena-black text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition-colors shadow-lg shadow-gray-200">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             Lançar Movimentação
                         </button>
@@ -634,27 +783,61 @@
                     <p class="text-sm text-gray-600">Gere relatórios detalhados para análise financeira</p>
                 </div>
 
-                <!-- Report Filters -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
-                    <h3 class="font-bold text-gray-800 mb-4">Configurar Período</h3>
+                <!-- Print Header (Hidden on Screen) -->
+                <div id="print-header" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-plena-black rounded-lg flex items-center justify-center">
+                                <i data-lucide="building-2" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900">Relatório Financeiro</h1>
+                                <p class="text-sm text-gray-500" id="print-subtitle">Plena Aluguéis</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-800" id="print-date">Gerado em: DD/MM/AAAA</p>
+                            <p class="text-xs text-gray-500" id="print-period">Período: -</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Filters (No-Print) -->
+                <div id="report-filters-card"
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h3 class="font-bold text-gray-800">Configurar Período</h3>
+
+                        <!-- Shortcuts -->
+                        <div class="flex gap-2 bg-gray-100 p-1 rounded-lg overflow-x-auto max-w-full">
+                            <button onclick="setReportPeriod('last-month')"
+                                class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded-md transition-all whitespace-nowrap">Mês
+                                Passado</button>
+                            <button onclick="setReportPeriod('this-year')"
+                                class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded-md transition-all whitespace-nowrap">Este
+                                Ano</button>
+                            <button onclick="setReportPeriod('last-year')"
+                                class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded-md transition-all whitespace-nowrap">Ano
+                                Passado</button>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div>
                             <label class="text-xs font-bold text-gray-500 uppercase">Data Inicial</label>
-                            <input type="date" id="rep-start" class="w-full border p-2 rounded-lg text-sm mt-1">
+                            <input type="date" id="rep-start"
+                                class="w-full border border-gray-300 p-2.5 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-plena-blue outline-none">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-gray-500 uppercase">Data Final</label>
-                            <input type="date" id="rep-end" class="w-full border p-2 rounded-lg text-sm mt-1">
+                            <input type="date" id="rep-end"
+                                class="w-full border border-gray-300 p-2.5 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-plena-blue outline-none">
                         </div>
                         <div class="flex gap-2">
                             <button onclick="generateReport()"
-                                class="flex-1 bg-plena-purple text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
+                                class="flex-1 bg-plena-black text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-900 transition-colors shadow-lg shadow-gray-200 flex items-center justify-center gap-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
                                 Gerar Relatório
-                            </button>
-                            <button onclick="generateFullReport()"
-                                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors"
-                                title="Relatório Completo">
-                                <i data-lucide="file-text" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
@@ -690,14 +873,44 @@
                         </div>
                     </div>
 
-                    <!-- Property Breakdown -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="font-bold text-gray-800 mb-4">Análise por Imóvel</h3>
-                        <div id="property-report" class="space-y-4"></div>
+                    <!-- Print & Share Actions (Visible only after generation) -->
+                    <div class="flex justify-end gap-2 no-print">
+                        <button onclick="shareReport()"
+                            class="bg-green-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors flex items-center gap-2 shadow-lg shadow-green-200">
+                            <i data-lucide="share-2" class="w-4 h-4"></i>
+                            WhatsApp
+                        </button>
+                        <button onclick="printReport()"
+                            class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-200">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            Imprimir Relatório
+                        </button>
                     </div>
 
-                    <!-- Action Buttons -->
-                    
+                    <!-- Visual Chart & Category Analysis -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Visual Cashflow Chart -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-6">Fluxo Visual</h3>
+                            <div id="financial-chart" class="space-y-4">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Category Breakdown -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-gray-800 mb-4">Despesas por Categoria</h3>
+                            <div id="category-report" class="space-y-3">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Breakdown -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-4">Detalhamento por Imóvel</h3>
+                        <div id="property-report" class="space-y-2"></div>
+                    </div>
                 </div>
             </section>
 
@@ -745,6 +958,11 @@
                                 </p>
                             </div>
                         </div>
+                        <button onclick="saveGlobalSettings()"
+                            class="mt-4 w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100 flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            Salvar Dados do Proprietário
+                        </button>
                     </div>
 
                     <!-- 2. Multas e Juros -->
@@ -856,12 +1074,6 @@
                                     <input type="file" onchange="restoreBackup(this)" accept=".json"
                                         class="absolute inset-0 opacity-0 cursor-pointer">
                                 </div>
-
-                                <button onclick="syncToCloud()" id="sync-button"
-                                    class="w-full bg-green-600 text-white py-3 rounded-lg text-sm font-medium hover:bg-green-700 flex justify-center items-center gap-2">
-                                    <i data-lucide="cloud" class="w-4 h-4"></i>
-                                    Sincronizar Nuvem
-                                </button>
                             </div>
                         </div>
 
@@ -1061,6 +1273,51 @@
                                     <strong>Dica:</strong> Depois de instalar, abra o app pelo ícone na tela inicial,
                                     não pelo navegador.
                                 </p>
+                            </div>
+
+                            <!-- Windows Instructions (New) -->
+                            <div class="mt-6 bg-gray-900 rounded-2xl p-6 text-white shadow-lg">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <i data-lucide="monitor" class="w-5 h-5 mr-2 text-blue-400"></i>
+                                    Instalação no Computador (Windows)
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                    <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                        <div class="font-bold text-white mb-3 flex items-center">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                                <i data-lucide="chrome" class="w-4 h-4"></i>
+                                            </div>
+                                            Google Chrome
+                                        </div>
+                                        <ol class="list-decimal pl-5 space-y-3 text-gray-300">
+                                            <li>No final da barra de endereço (onde digita o site), procure um ícone de
+                                                <strong>Computador com Seta</strong> ou um <strong>(+)</strong>.
+                                            </li>
+                                            <li>Clique em <strong>"Instalar Plena Aluguéis"</strong>.</li>
+                                            <li>Confirme clicando em <strong>Instalar</strong>.</li>
+                                            <li>O app abrirá em uma janela separada e criará um atalho na Área de
+                                                Trabalho.</li>
+                                        </ol>
+                                    </div>
+                                    <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                        <div class="font-bold text-white mb-3 flex items-center">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center mr-2">
+                                                <i data-lucide="monitor" class="w-4 h-4"></i>
+                                            </div>
+                                            Microsoft Edge
+                                        </div>
+                                        <ol class="list-decimal pl-5 space-y-3 text-gray-300">
+                                            <li>Na barra de endereço, procure o ícone de <strong>App Disponível
+                                                    (+)</strong> no canto direito.</li>
+                                            <li>Ou vá nos 3 pontinhos (...) > Apps > <strong>Instalar este site como um
+                                                    aplicativo</strong>.</li>
+                                            <li>Clique em <strong>Instalar</strong>.</li>
+                                            <li>Permita fixar na barra de tarefas para acesso rápido.</li>
+                                        </ol>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1278,7 +1535,7 @@
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-800">Cobrança, Pagamentos e Recibos</h3>
                             </div>
-                            <button onclick="markSectionComplete('cobrança')"
+                            <button onclick="markSectionComplete('cobranca')"
                                 class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
@@ -1517,7 +1774,7 @@
                                                 "Manutenção")</span>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
 
                                 <div class="mt-6">
@@ -2240,211 +2497,356 @@
                             </div>
                         </div>
 
+                    </div>
+
+                    <!-- Final Completion Card (Centralized & Enhanced) -->
+                    <div
+                        class="mt-12 text-center max-w-2xl mx-auto p-8 bg-gradient-to-b from-green-50 to-white border border-green-200 rounded-3xl shadow-lg relative overflow-hidden">
+                        <!-- Background Decoration -->
+                        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-plena-blue">
+                        </div>
+
                         <div
-                            class="mt-8 p-4 bg-gradient-to-r from-green-50 to-white border border-green-200 rounded-xl">
-                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
-                                <i data-lucide="award" class="w-5 h-5 mr-2 text-green-600"></i>
-                                Você Concluiu o Manual Completo!
-                            </h4>
-                            <p class="text-sm text-gray-700 mb-3">
-                                Agora você está preparado para gerenciar seus imóveis com profissionalismo e eficiência.
+                            class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6 shadow-sm">
+                            <i data-lucide="award" class="w-10 h-10 text-green-600"></i>
+                        </div>
+
+                        <h4 class="text-2xl font-bold text-gray-800 mb-3">
+                            Parabéns! Você Dominou o Sistema 🚀
+                        </h4>
+                        <p class="text-gray-600 mb-8 leading-relaxed">
+                            Você concluiu todas as etapas do manual. Agora você tem o conhecimento necessário para
+                            gerenciar seus imóveis com total segurança e profissionalismo.
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                                class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
+                                <i data-lucide="arrow-up" class="w-4 h-4 inline mr-2"></i>
+                                Voltar ao Topo
+                            </button>
+
+                            <button onclick="router('dashboard')"
+                                class="w-full sm:w-auto px-8 py-3 bg-plena-purple text-white rounded-xl font-bold hover:bg-plena-dark transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                Ir para o Dashboard
+                            </button>
+                        </div>
+
+                        <button onclick="resetTraining()"
+                            class="mt-8 text-xs text-gray-400 hover:text-red-500 underline transition-colors">
+                            Reiniciar todo o treinamento (Limpar progresso)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rodapé do Manual -->
+                <div class="text-center mt-12 pt-8 border-t border-gray-200">
+                    <p class="text-sm text-gray-600 mb-2">
+                        Este manual faz parte do sistema Plena Aluguéis v4.1 Pro
+                    </p>
+                    <p class="text-[10px] text-gray-400">
+                        Plena Soluções Digitais LTDA • CNPJ: 17.347.919/0001-59 •
+                        <a href="mailto:tecnologia@plenainformatica.com.br" class="text-plena-blue hover:underline">
+                            tecnologia@plenainformatica.com.br
+                        </a>
+                    </p>
+                    <p class="text-[8px] text-gray-300 mt-2">
+                        Última atualização: Janeiro 2026 • Compatível com Android, iPhone, Windows, Mac
+                    </p>
+                </div>
+        </div>
+        </section>
+
+        <!-- About View: Legal & Safety Center -->
+        <section id="view-about" class="view-section hide fade-in">
+            <div class="max-w-4xl mx-auto pb-12">
+
+                <!-- 1. Header Institucional -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 text-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-blue to-plena-dark flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
+                        <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-1">Central de Segurança e Legalidade</h2>
+                    <p class="text-gray-500 font-medium">Plena Soluções Digitais • Transparência Total</p>
+                </div>
+
+                <!-- 2. Grid de Políticas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Termos de Uso -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                        <h3 class="font-bold text-gray-800 mb-3 flex items-center text-lg">
+                            <div class="p-2 bg-blue-50 rounded-lg mr-3">
+                                <i data-lucide="file-text" class="w-5 h-5 text-plena-blue"></i>
+                            </div>
+                            Termos de Uso
+                        </h3>
+                        <p class="text-sm text-gray-600 leading-relaxed text-justify">
+                            A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
+                            fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                            distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
+                            previstas na Lei de Propriedade Intelectual (9.610/98).
+                        </p>
+                    </div>
+
+                    <!-- Privacidade e LGPD -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                        <h3 class="font-bold text-gray-800 mb-3 flex items-center text-lg">
+                            <div class="p-2 bg-green-50 rounded-lg mr-3">
+                                <i data-lucide="lock" class="w-5 h-5 text-green-600"></i>
+                            </div>
+                            Privacidade (LGPD)
+                        </h3>
+                        <p class="text-sm text-gray-600 leading-relaxed text-justify">
+                            Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
+                            financeiros e de inquilinos ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
+                            A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                            Sua privacidade é absoluta.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 3. Responsabilidade do Usuário (Crítico) -->
+                <div class="bg-red-50 border border-red-100 p-8 rounded-2xl mb-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="alert-octagon" class="w-32 h-32 text-red-900"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="font-bold text-red-800 mb-4 flex items-center text-lg">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 mr-3"></i>
+                            IMPORTANTE: Sua Responsabilidade sobre os Dados
+                        </h3>
+                        <div class="space-y-4 text-sm text-red-900/80 text-justify font-medium">
+                            <p>
+                                <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
+                                <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
+                                dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                exclusiva do usuário.
                             </p>
-                            <div class="flex flex-wrap gap-2">
-                                <button onclick="router('dashboard')"
-                                    class="px-4 py-2 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
-                                    Ir para o Dashboard
-                                </button>
-                                <button onclick="window.print()"
-                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
-                                    <i data-lucide="printer" class="w-4 h-4 inline mr-1"></i> Imprimir este Manual
-                                </button>
-                                <button onclick="downloadBackup()"
-                                    class="px-4 py-2 border border-green-300 text-green-700 rounded-lg text-sm hover:bg-green-50 transition-colors">
-                                    <i data-lucide="download" class="w-4 h-4 inline mr-1"></i> Fazer Primeiro Backup
-                                </button>
-                            </div>
+                            <p>
+                                <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
+                                responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
+                                do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre as
+                                taxas configuradas.
+                            </p>
                         </div>
-                    </div>
-
-                    <!-- Rodapé do Manual -->
-                    <div class="text-center mt-12 pt-8 border-t border-gray-200">
-                        <p class="text-sm text-gray-600 mb-2">
-                            Este manual faz parte do sistema Plena Aluguéis v4.1 Pro
-                        </p>
-                        <p class="text-[10px] text-gray-400">
-                            Plena Soluções Digitais LTDA • CNPJ: 17.347.919/0001-59 •
-                            <a href="mailto:tecnologia@plenainformatica.com.br" class="text-plena-blue hover:underline">
-                                tecnologia@plenainformatica.com.br
-                            </a>
-                        </p>
-                        <p class="text-[8px] text-gray-300 mt-2">
-                            Última atualização: Janeiro 2026 • Compatível com Android, iPhone, Windows, Mac
-                        </p>
                     </div>
                 </div>
-            </section>
 
-            <!-- About View -->
-            <section id="view-about" class="view-section hide fade-in">
-                <div class="max-w-4xl mx-auto pb-12">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="text-center mb-10">
-                            <div
-                                class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-blue to-plena-dark flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-                                <i data-lucide="rocket" class="w-10 h-10 text-white"></i>
-                            </div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-1">Plena Soluções Digitais</h2>
-                            <p class="text-gray-500 font-medium">Tecnologia acessível para gestão imobiliária</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
-                                    <i data-lucide="lock" class="w-5 h-5 mr-2 text-plena-blue"></i>
-                                    Licença de Uso
-                                </h3>
-                                <p class="text-sm text-gray-600 leading-relaxed text-justify">
-                                    Ao adquirir este software, você recebe uma licença de uso <strong>pessoal e
-                                        intransferível</strong>. É proibida a revenda, distribuição pública, engenharia
-                                    reversa ou modificação do código-fonte sem autorização expressa da Plena Soluções
-                                    Digitais, sob pena da Lei de Direitos Autorais (9.610/98).
-                                </p>
-                            </div>
-
-                            <div class="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
-                                    <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i>
-                                    Privacidade e LGPD
-                                </h3>
-                                <p class="text-sm text-gray-600 leading-relaxed text-justify">
-                                    Adotamos o conceito <em>Privacy by Design</em>. Este software opera em modo
-                                    <strong>Local-First (Offline)</strong>. Nenhum dado financeiro ou pessoal dos seus
-                                    inquilinos é enviado para nossos servidores. O controle e a responsabilidade pela
-                                    guarda dos dados (backups) são exclusivamente do usuário.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-8">
-                            <h3 class="font-bold text-red-800 mb-2 flex items-center uppercase text-sm tracking-wide">
-                                <i data-lucide="alert-triangle" class="w-4 h-4 mr-2"></i>
-                                Termo de Isenção de Responsabilidade
+                <!-- 4. Suporte e SLA -->
+                <div class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-xl mb-2 flex items-center">
+                                <i data-lucide="life-buoy" class="w-6 h-6 mr-3 text-plena-blue"></i>
+                                Suporte Premium Especializado
                             </h3>
-                            <div class="text-xs text-red-800 space-y-2 leading-relaxed text-justify opacity-90">
-                                <p>
-                                    1. <strong>Natureza da Ferramenta:</strong> Este software é uma ferramenta auxiliar
-                                    de gestão e cálculo. Ele não substitui a consultoria de um contador ou advogado
-                                    imobiliário. A Plena não se responsabiliza por erros de cálculo decorrentes de
-                                    configurações incorretas de taxas de juros ou multas inseridas pelo usuário.
-                                </p>
-                                <p>
-                                    2. <strong>Perda de Dados:</strong> O usuário reconhece que o armazenamento é local
-                                    (no navegador). A Plena não possui cópia dos seus dados e não pode recuperá-los em
-                                    caso de formatação de dispositivo, limpeza de cache ou roubo, caso o usuário não
-                                    tenha realizado os backups recomendados.
-                                </p>
+                            <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                                Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
+                                para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                            </p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                    <p class="text-xs text-gray-400 uppercase font-bold">Canal Oficial</p>
+                                    <p class="font-bold text-white">E-mail</p>
+                                </div>
+                                <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                    <p class="text-xs text-gray-400 uppercase font-bold">Tempo de Resposta (SLA)</p>
+                                    <p class="font-bold text-plena-blue">Até 24h Úteis</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div
-                            class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div class="text-center md:text-left">
-                                <p class="text-sm font-bold text-gray-800">Suporte Oficial</p>
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
-                                    class="text-sm text-plena-blue hover:underline">tecnologia@plenainformatica.com.br</a>
-                            </div>
-                            <div class="text-center md:text-right">
-                                <p class="text-xs text-gray-400">Desenvolvido por Plena Soluções Digitais LTDA</p>
-                                <p class="text-xs text-gray-300">CNPJ: 17.347.919/0001-59 • v4.1 Pro</p>
-                            </div>
+                        <div>
+                            <a href="mailto:tecnologia@plenainformatica.com.br"
+                                class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg">
+                                <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
+                                Falar com Suporte
+                            </a>
+                            <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenainformatica.com.br</p>
                         </div>
                     </div>
                 </div>
-            </section>
+
+                <!-- 5. Confirmação e Aceite (Travamento) -->
+                <div class="mt-8 mb-12" id="terms-action-container">
+                    <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
+                        id="terms-box">
+                        <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-300 mb-3" id="terms-icon"></i>
+                        <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                        <p class="text-sm text-gray-500 mb-6 max-w-lg" id="terms-desc">
+                            Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
+                            Política de Privacidade e sua responsabilidade sobre os backups.
+                        </p>
+
+                        <button onclick="confirmTerms()" id="btn-confirm-terms"
+                            class="bg-plena-blue hover:bg-plena-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transform hover:scale-105 transition-all flex items-center gap-2 group">
+                            <span>Li, Compreendi e Concordo</span>
+                            <i data-lucide="arrow-right"
+                                class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+
+                        <div id="terms-accepted-badge"
+                            class="hidden flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                            <span
+                                class="bg-green-100 text-green-700 font-bold px-6 py-2 rounded-full text-sm border border-green-200 flex items-center gap-2 mb-2">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                                Termos Aceitos e Registrados
+                            </span>
+                            <p class="text-xs text-gray-400 font-mono" id="terms-date">Carregando data...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Rodapé Legal -->
+                <div class="text-center border-t border-gray-200 pt-8">
+                    <p class="text-sm font-bold text-gray-800">Plena Soluções Digitais LTDA</p>
+                    <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                    <p class="text-[10px] text-gray-400 mt-4">
+                        Versão 4.1 Pro • Build 2026.01.07
+                    </p>
+                </div>
+
+            </div>
+        </section>
 
 
         </div>
     </main>
 
-    <!-- Property Modal -->
+    <!-- Property Modal (Responsive Optimized) -->
     <div id="propertyModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-gray-800" id="prop-modal-title">Novo Imóvel</h3>
-                <button onclick="closeModal('propertyModal')" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x"></i>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all p-6 md:p-8">
+            <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900" id="prop-modal-title">Novo Imóvel</h3>
+                    <p class="text-sm text-gray-500">Gerencie os dados do imóvel e do contrato</p>
+                </div>
+                <button onclick="closeModal('propertyModal')"
+                    class="bg-gray-100 hover:bg-gray-200 p-2 rounded-full text-gray-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <form onsubmit="submitProperty(event)" class="space-y-4">
+            <form onsubmit="submitProperty(event)">
                 <input type="hidden" id="p-id">
 
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Apelido do Imóvel</label>
-                    <input type="text" id="p-name" required
-                        class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                        placeholder="Ex: Apto Centro 101">
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Endereço</label>
-                    <input type="text" id="p-address"
-                        class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                        placeholder="Rua, Número, Bairro">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Valor Aluguel (R$)</label>
-                        <input type="number" step="0.01" id="p-value" required
-                            class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Dia Vencimento</label>
-                        <input type="number" min="1" max="31" id="p-due" required
-                            class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                            placeholder="Ex: 5">
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <label class="text-sm font-bold text-gray-800">Imóvel Ocupado?</label>
-                        <input type="checkbox" id="p-occupied" onchange="toggleTenantFields()"
-                            class="w-5 h-5 accent-plena-purple">
-                    </div>
-
-                    <div id="tenant-fields" class="space-y-3 hidden">
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase">Nome do Inquilino</label>
-                            <input type="text" id="p-tenant"
-                                class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                                placeholder="Nome completo">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- LEFT COLUMN: Property Data -->
+                    <div class="space-y-5">
+                        <div
+                            class="flex items-center gap-2 text-plena-blue font-bold uppercase text-xs tracking-wider mb-2">
+                            <i data-lucide="home" class="w-4 h-4"></i> Dados do Imóvel
                         </div>
+
                         <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase">WhatsApp</label>
-                            <input type="tel" id="p-phone"
-                                class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                                placeholder="(11) 99999-9999">
+                            <label class="text-xs font-bold text-gray-500 uppercase">Apelido do Imóvel</label>
+                            <input type="text" id="p-name" required
+                                class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all"
+                                placeholder="Ex: Apto Centro 101">
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase">Endereço Completo</label>
+                            <input type="text" id="p-address"
+                                class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all"
+                                placeholder="Rua, Número, Bairro">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs font-bold text-gray-500 uppercase">CPF do Inquilino</label>
-                                <input type="text" id="p-tenant-doc"
-                                    class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                                    placeholder="000.000.000-00">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Valor Aluguel</label>
+                                <div class="relative mt-1">
+                                    <span class="absolute left-3 top-3 text-gray-400 text-sm">R$</span>
+                                    <input type="number" step="0.01" id="p-value" required
+                                        class="w-full border border-gray-300 p-3 pl-10 rounded-xl text-sm focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all"
+                                        placeholder="0,00">
+                                </div>
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-gray-500 uppercase">Início Contrato</label>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Dia Vencimento</label>
+                                <input type="number" min="1" max="31" id="p-due" required
+                                    class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all"
+                                    placeholder="Dia 1-31">
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100">
+                            <div
+                                class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                <div>
+                                    <label class="text-sm font-bold text-gray-800 block">Imóvel Ocupado?</label>
+                                    <span class="text-xs text-gray-500">Habilite se houver inquilino</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="p-occupied" onchange="toggleTenantFields()"
+                                        class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: Tenant Data (or Vacant State) -->
+                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 flex flex-col relative overflow-hidden transition-all duration-300"
+                        id="tenant-column">
+
+                        <!-- 1. Vacant State (Default) -->
+                        <div id="vacant-state"
+                            class="flex-1 flex flex-col items-center justify-center text-center py-10">
+                            <div
+                                class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
+                                <i data-lucide="key" class="w-8 h-8 text-gray-300"></i>
+                            </div>
+                            <h4 class="text-gray-900 font-bold mb-1">Imóvel Vago</h4>
+                            <p class="text-sm text-gray-500 px-4">Ative a opção "Imóvel Ocupado" ao lado para cadastrar
+                                um novo inquilino.</p>
+                        </div>
+
+                        <!-- 2. Tenant Fields (Hidden by default) -->
+                        <div id="tenant-fields" class="space-y-4 hidden w-full">
+                            <div
+                                class="flex items-center gap-2 text-green-600 font-bold uppercase text-xs tracking-wider mb-2">
+                                <i data-lucide="user-check" class="w-4 h-4"></i> Dados do Inquilino
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Nome Completo</label>
+                                <input type="text" id="p-tenant"
+                                    class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white"
+                                    placeholder="Nome do Inquilino">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase">WhatsApp</label>
+                                    <input type="tel" id="p-phone"
+                                        class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white"
+                                        placeholder="(00) 00000-0000">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase">CPF</label>
+                                    <input type="text" id="p-tenant-doc"
+                                        class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white"
+                                        placeholder="000.000.000-00">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">E-mail</label>
+                                <input type="email" id="p-tenant-email"
+                                    class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white"
+                                    placeholder="email@exemplo.com">
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Início do Contrato</label>
                                 <input type="date" id="p-tenant-start"
-                                    class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none">
+                                    class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-1 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all bg-white">
                             </div>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase">E-mail</label>
-                            <input type="email" id="p-tenant-email"
-                                class="w-full border p-2 rounded-lg text-sm focus:border-plena-purple outline-none"
-                                placeholder="email@exemplo.com">
                         </div>
                     </div>
                 </div>
@@ -2604,7 +3006,8 @@
                         <div class="text-center w-64">
                             <p id="rec-date" class="mb-12">Local, 01 de Janeiro de 2026</p>
                             <div class="border-t border-gray-800 pt-2">
-                                <p class="font-bold">Proprietário / Administrador</p>
+                                <p class="font-bold" id="rec-owner-name">Proprietário / Administrador</p>
+                                <p class="text-xs" id="rec-owner-doc"></p>
                             </div>
                         </div>
                     </div>
@@ -2616,6 +3019,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirmModal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all p-6 animate-slide-in">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2" id="confirm-title">Confirmação</h3>
+                <p class="text-sm text-gray-500" id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="confirm-btn-cancel" onclick="handleConfirmCancel()"
+                    class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                    Cancelar
+                </button>
+                <button id="confirm-btn-action"
+                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Watermark Footer -->
+    <footer class="license-footer no-print">
+        <i data-lucide="lock" class="w-3 h-3"></i>
+        <span>Licença de Uso Concedida a: <strong id="footer-owner-name">Não Registrado</strong> <span
+                id="footer-owner-doc"></span></span>
+    </footer>
 
     <!-- JavaScript -->
     <script>
@@ -2817,6 +3250,14 @@
             }
         }
 
+        function resetTraining() {
+            if (confirm('Tem certeza? Isso apagará todo o seu progresso no manual de uso.')) {
+                localStorage.removeItem('plena_manual_completed');
+                localStorage.removeItem('plena_checklist_state');
+                location.reload();
+            }
+        }
+
         function loadChecklistState() {
             const savedState = JSON.parse(localStorage.getItem('plena_checklist_state') || '{}');
             Object.keys(savedState).forEach(id => {
@@ -2831,16 +3272,16 @@
         function showExample(type) {
             if (type === 'whatsapp') {
                 alert('Exemplo de recibo WhatsApp:\n\n' +
-                    '✅ *RECIBO DE PAGAMENTO*\n' +
+                    '*RECIBO DE PAGAMENTO*\n' +
                     '----------------------------\n' +
-                    '👤 *Inquilino:* João Silva\n' +
-                    '📍 *Imóvel:* Apto Centro 101\n' +
+                    '*Inquilino:* João Silva\n' +
+                    '*Imóvel:* Apto Centro 101\n' +
                     '----------------------------\n' +
-                    '💰 *Valor Pago:* R$ 1.200,00\n' +
-                    '📅 *Referência:* 03/2026\n' +
-                    '📝 *Data:* 05/03/2026\n' +
+                    '*Valor Pago:* R$ 1.200,00\n' +
+                    '*Referência:* 03/2026\n' +
+                    '*Data:* 05/03/2026\n' +
                     '----------------------------\n' +
-                    '✨ *Status:* PAGO\n' +
+                    '*Status:* PAGO\n' +
                     '_Gerado por Plena Aluguéis_');
             } else if (type === 'formal') {
                 alert('Exemplo de recibo formal (PDF):\n\n' +
@@ -2956,10 +3397,32 @@
                 renderDashboard();
                 renderCategories();
                 updateDataStatus();
+                if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
 
                 // Carregar configurações globais
-                if (db.settings.ownerName) document.getElementById('set-owner-name').value = db.settings.ownerName;
-                if (db.settings.ownerDoc) document.getElementById('set-owner-doc').value = db.settings.ownerDoc;
+                if (db.settings.ownerName) {
+                    document.getElementById('set-owner-name').value = db.settings.ownerName;
+
+                    // Update Footer
+                    document.getElementById('footer-owner-name').textContent = db.settings.ownerName;
+
+                    // Apply Lock logic
+                    const nameInput = document.getElementById('set-owner-name');
+                    const docInput = document.getElementById('set-owner-doc');
+                    if (nameInput && !nameInput.disabled) {
+                        nameInput.disabled = true;
+                        docInput.disabled = true;
+                        nameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                        docInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                        if (!nameInput.parentElement.querySelector('.lock-icon')) {
+                            nameInput.parentElement.insertAdjacentHTML('beforeend', `<span class="lock-icon text-[10px] text-plena-blue font-bold flex items-center mt-1"><i data-lucide="lock" class="w-3 h-3 mr-1"></i> Proprietário Registrado</span>`);
+                        }
+                    }
+                }
+                if (db.settings.ownerDoc) {
+                    document.getElementById('set-owner-doc').value = db.settings.ownerDoc;
+                    document.getElementById('footer-owner-doc').textContent = ` - ${db.settings.ownerDoc}`;
+                }
                 if (db.settings.lateFee) document.getElementById('set-late-fee').value = db.settings.lateFee;
                 if (db.settings.dailyInterest) document.getElementById('set-daily-interest').value = db.settings.dailyInterest;
 
@@ -3133,38 +3596,61 @@
             const container = document.getElementById('payment-status-list');
 
             if (occupiedProperties.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">Nenhum imóvel ocupado</p>';
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-center">
+                        <div class="bg-gray-50 p-4 rounded-full mb-4">
+                            <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                        </div>
+                        <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum imóvel ocupado</h3>
+                        <p class="text-gray-500 text-sm">Registre inquilinos para gerenciar pagamentos.</p>
+                    </div>
+                `;
                 return;
             }
 
             const monthNumber = currentMonth.slice(5, 7);
 
             container.innerHTML = occupiedProperties.map(p => {
-                const hasPayment = monthTransactions.some(t => t.propertyId === p.id);
+                const transaction = monthTransactions.find(t => t.propertyId === p.id);
+                const hasPayment = !!transaction;
 
                 return `
-                    <div class="flex items-center justify-between p-4 rounded-xl border ${hasPayment ? 'border-green-100 bg-green-50' : 'border-red-100 bg-red-50'}">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-gray-800">${sanitizeHTML(p.name)}</h4>
-                            <p class="text-xs text-gray-500">${sanitizeHTML(p.tenant)} • Venc. Dia ${p.dueDay || 5}</p>
+                    <div class="flex flex-col md:flex-row items-center justify-between p-4 rounded-xl border ${hasPayment ? 'border-green-100 bg-green-50' : 'border-red-100 bg-white shadow-sm'} gap-4">
+                        <div class="flex-1 w-full md:w-auto">
+                            <h4 class="font-bold text-gray-800 flex items-center gap-2">
+                                <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
+                                ${sanitizeHTML(p.name)}
+                            </h4>
+                            <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                <i data-lucide="user" class="w-3 h-3"></i>
+                                ${sanitizeHTML(p.tenant)} 
+                                <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">Dia ${p.dueDay || 5}</span>
+                            </p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold ${hasPayment ? 'text-green-700' : 'text-red-700'}">
-                                ${fmtMoney(p.value || 0)}
-                            </span>
+                        
+                        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                            <div class="text-right mr-2">
+                                <p class="text-[10px] uppercase text-gray-500 font-bold mb-0.5">Valor</p>
+                                <span class="text-lg font-bold ${hasPayment ? 'text-green-700' : 'text-gray-900'}">
+                                    ${fmtMoney(p.value || 0)}
+                                </span>
+                            </div>
+
                             ${hasPayment ?
-                        `<button onclick="sendReceipt('${p.id}', '${currentMonth}')" class="text-green-700 hover:bg-green-200 p-2 rounded-lg transition-colors" title="Enviar comprovante WhatsApp">
-                                    <i data-lucide="share-2" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="openReceiptModal('${p.id}', '${currentMonth}')" class="text-blue-700 hover:bg-blue-200 p-2 rounded-lg transition-colors ml-1" title="Imprimir Recibo Formal">
-                                    <i data-lucide="printer" class="w-4 h-4"></i>
-                                </button>` :
                         `<div class="flex gap-2">
-                                    <button onclick="registerPayment('${p.id}', '${currentMonth}')" class="text-xs bg-white border border-red-200 text-red-700 font-bold px-3 py-1 rounded hover:bg-red-100 transition-colors">
-                                        Registrar
+                                    <button onclick="sendReceipt('${p.id}', '${currentMonth}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm shadow-green-200">
+                                        <i data-lucide="share-2" class="w-3 h-3"></i> WhatsApp
                                     </button>
-                                    <button onclick="sendReminder('${p.id}')" class="text-red-700 hover:bg-red-200 p-2 rounded-lg transition-colors" title="Enviar lembrete">
-                                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <button onclick="window.openReceiptModal('${transaction.id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
+                                        <i data-lucide="printer" class="w-3 h-3"></i> Imprimir
+                                    </button>
+                                </div>` :
+                        `<div class="flex gap-2">
+                                    <button onclick="registerPayment('${p.id}', '${currentMonth}')" class="bg-plena-blue text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-plena-dark transition-colors flex items-center gap-2 shadow-sm shadow-indigo-200">
+                                        <i data-lucide="check" class="w-4 h-4"></i> RECEBER
+                                    </button>
+                                    <button onclick="sendReminder('${p.id}')" class="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-orange-200 transition-colors flex items-center gap-2">
+                                        <i data-lucide="bell" class="w-4 h-4"></i> Cobrar
                                     </button>
                                 </div>`}
                         </div>
@@ -3230,7 +3716,112 @@
             `).join('');
         }
 
-        // PROPRIEDADES
+
+
+        // --- VALIDATORS ---
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/[^\d]+/g, '');
+            if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+            let sum = 0, remainder;
+            for (let i = 1; i <= 9; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+            remainder = (sum * 10) % 11;
+            if ((remainder === 10) || (remainder === 11)) remainder = 0;
+            if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+            sum = 0;
+            for (let i = 1; i <= 10; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+            remainder = (sum * 10) % 11;
+            if ((remainder === 10) || (remainder === 11)) remainder = 0;
+            if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+            return true;
+        }
+
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/[^\d]+/g, '');
+            if (cnpj.length !== 14) return false;
+            // Validação simples de tamanho, validação completa de CNPJ pode ser complexa demais para inline, 
+            // mas podemos adicionar se necessário. Para UX básica, length 14 já ajuda.
+            // Implementação básica de dígito verificador:
+            let size = cnpj.length - 2
+            let numbers = cnpj.substring(0, size);
+            let digits = cnpj.substring(size);
+            let sum = 0;
+            let pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+            if (result != digits.charAt(0)) return false;
+            size = size + 1;
+            numbers = cnpj.substring(0, size);
+            sum = 0;
+            pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+            if (result != digits.charAt(1)) return false;
+            return true;
+        }
+
+        // --- CUSTOM MODALS ---
+        let currentConfirmCallback = null;
+        let currentCancelCallback = null;
+
+        function showCustomConfirm(title, message, onConfirm, isDestructive = true, confirmText = 'Confirmar', cancelText = 'Cancelar', onCancel = null) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+
+            const btnConfirm = document.getElementById('confirm-btn-action');
+            const btnCancel = document.getElementById('confirm-btn-cancel');
+
+            btnConfirm.innerText = confirmText;
+            btnCancel.innerText = cancelText;
+
+            if (isDestructive) {
+                btnConfirm.className = "flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200";
+            } else {
+                btnConfirm.className = "flex-1 px-4 py-2 bg-plena-blue text-white rounded-xl font-bold hover:bg-plena-dark transition-colors shadow-lg shadow-blue-200";
+            }
+
+            currentConfirmCallback = onConfirm;
+            currentCancelCallback = onCancel;
+
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            currentConfirmCallback = null;
+            currentCancelCallback = null;
+        }
+
+        function handleConfirmCancel() {
+            if (currentCancelCallback) currentCancelCallback();
+            closeConfirmModal();
+        }
+
+        document.getElementById('confirm-btn-action').addEventListener('click', () => {
+            if (currentConfirmCallback) currentConfirmCallback();
+            closeConfirmModal();
+        });
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
         function openPropertyModal(id = null) {
             const modal = document.getElementById('propertyModal');
             const title = modal.querySelector('#prop-modal-title');
@@ -3247,17 +3838,17 @@
                     document.getElementById('p-value').value = p.value || '';
                     document.getElementById('p-due').value = p.dueDay || 5;
 
-                    if (p.tenant && p.tenant.trim() !== '') {
-                        document.getElementById('p-occupied').checked = true;
-                        document.getElementById('tenant-fields').classList.remove('hidden');
+                    // Update state first
+                    const hasTenant = p.tenant && p.tenant.trim() !== '';
+                    document.getElementById('p-occupied').checked = hasTenant;
+                    toggleTenantFields(); // Apply visual state
+
+                    if (hasTenant) {
                         document.getElementById('p-tenant').value = p.tenant || '';
                         document.getElementById('p-phone').value = p.phone || '';
                         document.getElementById('p-tenant-doc').value = p.tenantDoc || '';
                         document.getElementById('p-tenant-email').value = p.tenantEmail || '';
                         document.getElementById('p-tenant-start').value = p.contractStart || '';
-                    } else {
-                        document.getElementById('p-occupied').checked = false;
-                        document.getElementById('tenant-fields').classList.add('hidden');
                     }
 
                     document.getElementById('btn-delete-prop').classList.remove('hidden');
@@ -3268,7 +3859,7 @@
                 form.reset();
                 document.getElementById('p-id').value = '';
                 document.getElementById('p-occupied').checked = false;
-                document.getElementById('tenant-fields').classList.add('hidden');
+                toggleTenantFields(); // Apply visual state (Vacant)
                 document.getElementById('btn-delete-prop').classList.add('hidden');
             }
 
@@ -3278,11 +3869,28 @@
         function toggleTenantFields() {
             const chk = document.getElementById('p-occupied').checked;
             const tenantFields = document.getElementById('tenant-fields');
+            const vacantState = document.getElementById('vacant-state');
+            const tenantColumn = document.getElementById('tenant-column');
 
             if (chk) {
                 tenantFields.classList.remove('hidden');
+                if (vacantState) vacantState.classList.add('hidden');
+
+                // Active visual state
+                if (tenantColumn) {
+                    tenantColumn.classList.remove('bg-gray-50', 'border-gray-200');
+                    tenantColumn.classList.add('bg-green-50', 'border-green-200');
+                }
             } else {
                 tenantFields.classList.add('hidden');
+                if (vacantState) vacantState.classList.remove('hidden');
+
+                // Inactive visual state
+                if (tenantColumn) {
+                    tenantColumn.classList.add('bg-gray-50', 'border-gray-200');
+                    tenantColumn.classList.remove('bg-green-50', 'border-green-200');
+                }
+
                 // Limpar campos de inquilino
                 document.getElementById('p-tenant').value = '';
                 document.getElementById('p-phone').value = '';
@@ -3354,7 +3962,7 @@
         function deleteProperty() {
             const id = document.getElementById('p-id').value;
 
-            if (confirm('Tem certeza que deseja excluir este imóvel? O histórico financeiro será mantido apenas no extrato geral.')) {
+            showCustomConfirm('Excluir Imóvel', 'Tem certeza que deseja excluir este imóvel? O histórico financeiro será mantido apenas no extrato geral.', () => {
                 db.properties = db.properties.filter(p => p.id !== id);
                 save();
                 closeModal('propertyModal');
@@ -3365,7 +3973,7 @@
                 renderTenants();
 
                 showNotification('Imóvel excluído com sucesso!', 'success');
-            }
+            });
         }
 
         function renderProperties() {
@@ -3381,39 +3989,40 @@
                             Cadastrar Primeiro Imóvel
                         </button>
                     </div>
-                `;
+            `;
                 return;
             }
 
             container.innerHTML = db.properties.map(p => `
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm card-hover cursor-pointer" onclick="openPropertyModal('${p.id}')">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex-1">
-                            <h3 class="font-bold text-gray-800 text-lg truncate">${sanitizeHTML(p.name)}</h3>
-                            <p class="text-xs text-gray-500 truncate">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
-                        </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold ${p.tenant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
-                            ${p.tenant ? 'OCUPADO' : 'VAGO'}
-                        </span>
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 text-lg truncate">${sanitizeHTML(p.name)}</h3>
+                        <p class="text-xs text-gray-500 truncate">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
                     </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${p.tenant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+                        ${p.tenant ? 'OCUPADO' : 'VAGO'}
+                    </span>
+                </div>
                     
                     ${p.tenant ? `
                         <div class="mb-4 p-3 bg-gray-50 rounded-lg">
                             <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.tenant)}</p>
                             <p class="text-xs text-gray-500">${sanitizeHTML(p.phone) || 'Sem telefone'}</p>
                         </div>
-                    ` : ''}
-                    
-                    <div class="flex justify-between items-end border-t pt-4">
-                        <div>
-                            <p class="text-[10px] uppercase text-gray-400 font-bold">Aluguel</p>
-                            <p class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] uppercase text-gray-400 font-bold">Vencimento</p>
-                            <p class="text-sm font-medium">Dia ${p.dueDay || 5}</p>
-                        </div>
-                    </div>
+                    ` : ''
+                }
+
+        <div class="flex justify-between items-end border-t pt-4">
+            <div>
+                <p class="text-[10px] uppercase text-gray-400 font-bold">Aluguel</p>
+                <p class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] uppercase text-gray-400 font-bold">Vencimento</p>
+                <p class="text-sm font-medium">Dia ${p.dueDay || 5}</p>
+            </div>
+        </div>
                 </div>
             `).join('');
 
@@ -3428,8 +4037,20 @@
             const tenants = db.properties.filter(p => p.tenant && p.tenant.trim() !== '');
 
             if (tenants.length === 0) {
-                tbody.innerHTML = '';
-                emptyMsg.classList.remove('hidden');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                             <div class="flex flex-col items-center justify-center">
+                                <div class="bg-gray-50 p-4 rounded-full mb-4">
+                                    <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                                </div>
+                                <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum inquilino encontrado</h3>
+                                <p class="text-gray-500 text-sm">Edite um imóvel e adicione um inquilino para vê-lo aqui.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                emptyMsg.classList.add('hidden');
                 return;
             }
 
@@ -3438,7 +4059,7 @@
             tbody.innerHTML = tenants.map(p => `
                 <tr class="hover:bg-gray-50 group border-b border-gray-100">
                     <td class="px-6 py-4">
-                        <div class="font-medium text-gray-800">${sanitizeHTML(p.tenant)}</div>
+                        <div class="font-bold text-gray-800">${sanitizeHTML(p.tenant)}</div>
                         ${p.tenantDoc ? `<div class="text-[10px] text-gray-500 font-mono mt-0.5">CPF: ${sanitizeHTML(p.tenantDoc)}</div>` : ''}
                     </td>
                     <td class="px-6 py-4">
@@ -3446,29 +4067,31 @@
                         <div class="text-xs text-gray-400">${sanitizeHTML(p.address) || 'Sem endereço'}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm text-gray-700">${sanitizeHTML(p.phone) || 'Não informado'}</div>
+                        <div class="text-sm text-gray-700 flex items-center gap-1">
+                            <i data-lucide="phone" class="w-3 h-3 text-gray-400"></i>
+                            ${sanitizeHTML(p.phone) || 'Não informado'}
+                        </div>
                     </td>
                     <td class="px-6 py-4">
                         <div class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</div>
                         <div class="text-xs text-gray-500">Dia ${p.dueDay || 5}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
                             Ativo
                         </span>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="flex justify-center space-x-2">
                             <button onclick="openPropertyModal('${p.id}')" 
-                                    class="text-gray-400 hover:text-blue-500 transition-colors"
-                                    title="Editar">
-                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                    class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                                <i data-lucide="edit-2" class="w-3 h-3"></i> Editar
                             </button>
+                            ${p.phone ? `
                             <button onclick="sendReminder('${p.id}')" 
-                                    class="text-gray-400 hover:text-green-500 transition-colors"
-                                    title="Enviar lembrete">
-                                <i data-lucide="message-circle" class="w-4 h-4"></i>
-                            </button>
+                                    class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                                <i data-lucide="message-circle" class="w-3 h-3"></i> Contato
+                            </button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -3494,10 +4117,6 @@
             dueDate.setHours(23, 59, 59, 999);
             today.setHours(0, 0, 0, 0);
 
-            let isLate = false;
-            let lateMessage = '';
-            let newTotal = finalAmount;
-
             if (today > dueDate) {
                 const diffTime = Math.abs(today - dueDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -3508,23 +4127,31 @@
                 if (lateFeePercent > 0 || dailyInterestPercent > 0) {
                     const fineValue = finalAmount * (lateFeePercent / 100);
                     const interestValue = finalAmount * (dailyInterestPercent / 100) * diffDays;
-                    newTotal = finalAmount + fineValue + interestValue;
+                    const newTotal = finalAmount + fineValue + interestValue;
 
-                    lateMessage = `⚠️ Pagamento em Atraso (${diffDays} dias)!\n\n` +
+                    const lateMessage = `⚠️ Pagamento em Atraso (${diffDays} dias)!\n\n` +
                         `Valor Base: ${fmtMoney(finalAmount)}\n` +
                         `Multa (${lateFeePercent}%): ${fmtMoney(fineValue)}\n` +
                         `Juros (${dailyInterestPercent}%/dia): ${fmtMoney(interestValue)}\n\n` +
-                        `Novo Total: ${fmtMoney(newTotal)}\n\n` +
-                        `Deseja aplicar os encargos?`;
+                        `Novo Total: ${fmtMoney(newTotal)}`;
 
-                    isLate = confirm(lateMessage);
-
-                    if (isLate) {
-                        finalAmount = newTotal;
-                    }
+                    showCustomConfirm(
+                        'Aplicar Encargos?',
+                        lateMessage,
+                        () => finishPayment(property, monthKey, newTotal, true), // On Confirm
+                        false,
+                        'Aplicar Juros',
+                        'Manter Original',
+                        () => finishPayment(property, monthKey, finalAmount, false) // On Cancel
+                    );
+                    return;
                 }
             }
 
+            finishPayment(property, monthKey, finalAmount, false);
+        }
+
+        function finishPayment(property, monthKey, finalAmount, isLate) {
             // Marcar como pago
             if (!property.payments) property.payments = {};
             property.payments[monthKey] = {
@@ -3555,31 +4182,36 @@
             showNotification(`Pagamento registrado: ${fmtMoney(finalAmount)}`, 'success');
 
             // Perguntar se quer enviar recibo
-            if (property.phone && confirm('Deseja enviar o recibo por WhatsApp?')) {
-                sendReceipt(propertyId, monthKey);
+            if (property.phone) {
+                showCustomConfirm('Enviar Recibo', 'Deseja enviar o recibo por WhatsApp agora?',
+                    () => sendReceipt(property.id, monthKey),
+                    false,
+                    'Enviar Agora',
+                    'Não'
+                );
             }
         }
 
         function sendReminder(propertyId) {
             const property = db.properties.find(p => p.id === propertyId);
             if (!property || !property.phone) {
-                alert('Imóvel sem telefone cadastrado.');
+                showNotification('Imóvel sem telefone cadastrado.', 'error');
                 return;
             }
 
-            // Formatação visual "Card" com quebras de linha encoded (%0A)
-            const msg = `🏠 *LEMBRETE DE ALUGUEL*%0A` +
-                `----------------------------%0A` +
-                `👤 *Inquilino:* ${sanitizeHTML(property.tenant)}%0A` +
-                `📍 *Imóvel:* ${sanitizeHTML(property.name)}%0A` +
-                `----------------------------%0A` +
-                `💰 *Valor:* ${fmtMoney(property.value || 0)}%0A` +
-                `📅 *Vencimento:* Dia ${property.dueDay || 5}%0A` +
-                `----------------------------%0A` +
-                `🔔 *Status:* Aguardando pagamento%0A` +
+            // Formatação visual "Card" (Lembrete Padronizado - Texto Limpo)
+            const msg = `*LEMBRETE DE ALUGUEL*\n` +
+                `----------------------------\n` +
+                `*Inquilino:* ${sanitizeHTML(property.tenant)}\n` +
+                `*Imóvel:* ${sanitizeHTML(property.name)}\n` +
+                `----------------------------\n` +
+                `*Valor:* ${fmtMoney(property.value || 0)}\n` +
+                `*Vencimento:* Dia ${property.dueDay || 5}\n` +
+                `----------------------------\n` +
+                `*Status:* Aguardando pagamento\n` +
                 `_Gerado por Plena Aluguéis_`;
 
-            window.open(`https://wa.me/55${property.phone.replace(/\D/g, '')}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/55${property.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function sendReceipt(propertyId, monthKey) {
@@ -3589,21 +4221,21 @@
             const monthNumber = monthKey.slice(5, 7);
             const yearNumber = monthKey.slice(0, 4);
 
-            // Formatação visual "Card" (Recibo Padronizado)
-            const msg = `✅ *RECIBO DE PAGAMENTO*%0A` +
-                `----------------------------%0A` +
-                `👤 *Inquilino:* ${sanitizeHTML(property.tenant)}%0A` +
-                `📍 *Imóvel:* ${sanitizeHTML(property.name)}%0A` +
-                `----------------------------%0A` +
-                `💰 *Valor Pago:* ${fmtMoney(property.value || 0)}%0A` +
-                `📅 *Referência:* ${monthNumber}/${yearNumber}%0A` +
-                `📝 *Data:* ${new Date().toLocaleDateString('pt-BR')}%0A` +
-                `----------------------------%0A` +
-                `✨ *Status:* PAGO%0A` +
+            // Formatação visual "Card" (Recibo Padronizado - Texto Limpo)
+            const msg = `*RECIBO DE PAGAMENTO*\n` +
+                `----------------------------\n` +
+                `*Inquilino:* ${sanitizeHTML(property.tenant)}\n` +
+                `*Imóvel:* ${sanitizeHTML(property.name)}\n` +
+                `----------------------------\n` +
+                `*Valor Pago:* ${fmtMoney(property.value || 0)}\n` +
+                `*Referência:* ${monthNumber}/${yearNumber}\n` +
+                `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n` +
+                `----------------------------\n` +
+                `*Status:* PAGO\n` +
                 `_Gerado por Plena Aluguéis_`;
 
-            // Envio direto sem encodeURIComponent adicional (evita duplo encode dos %0A)
-            window.open(`https://wa.me/55${property.phone.replace(/\D/g, '')}?text=${msg}`, '_blank');
+            // Envio com encodeURIComponent para garantir emojis e quebras de linha corretos
+            window.open(`https://wa.me/55${property.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         // TRANSAÇÕES
@@ -3723,8 +4355,20 @@
             const emptyMsg = document.getElementById('trans-empty-msg');
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '';
-                emptyMsg.classList.remove('hidden');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                             <div class="flex flex-col items-center justify-center">
+                                <div class="bg-gray-50 p-4 rounded-full mb-4">
+                                    <i data-lucide="search-x" class="w-12 h-12 text-gray-300"></i>
+                                </div>
+                                <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhuma transação encontrada</h3>
+                                <p class="text-gray-500 text-sm">Tente ajustar os filtros ou adicione uma nova movimentação.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                emptyMsg.classList.add('hidden');
                 updateTransactionSummary([]);
                 return;
             }
@@ -3738,34 +4382,39 @@
 
                 return `
                     <tr class="hover:bg-gray-50 group border-b border-gray-100">
-                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${fmtDate(t.date)}</td>
+                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap text-sm">${fmtDate(t.date)}</td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-800">${sanitizeHTML(t.desc)}</div>
+                            <div class="font-bold text-gray-800">${sanitizeHTML(t.desc)}</div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-sm text-gray-700">${sanitizeHTML(propertyName)}</span>
+                            <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">${sanitizeHTML(propertyName)}</span>
                         </td>
                         <td class="px-6 py-4">
                             ${category ?
-                        `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                        `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" 
                                       style="background:${sanitizeHTML(category.color)}20; color:${sanitizeHTML(category.color)}">
                                     ${sanitizeHTML(category.name)}
                                 </span>` :
-                        '<span class="text-sm text-gray-500">-</span>'
+                        '<span class="text-xs text-gray-400">-</span>'
                     }
                         </td>
-                        <td class="px-6 py-4 text-right font-bold ${isIncome ? 'text-green-600' : 'text-red-600'}">
+                        <td class="px-6 py-4 text-right font-bold ${isIncome ? 'text-green-600' : 'text-red-500'}">
                             ${isIncome ? '+' : '-'} ${fmtMoney(t.amount)}
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex justify-center gap-2">
+                                <button onclick="openReceiptModal('${t.id}')" 
+                                        class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                                        title="Imprimir Recibo">
+                                    <i data-lucide="printer" class="w-4 h-4"></i>
+                                </button>
                                 <button onclick="editTransaction('${t.id}')" 
-                                        class="text-gray-400 hover:text-blue-500 transition-colors"
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                         title="Editar">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                    <i data-lucide="edit-2" class="w-4 h-4"></i>
                                 </button>
                                 <button onclick="deleteTransaction('${t.id}')" 
-                                        class="text-gray-400 hover:text-red-500 transition-colors"
+                                        class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                         title="Excluir">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
@@ -3779,6 +4428,132 @@
             updateTransactionSummary(filtered);
         }
 
+        // Make function globally accessible and robust
+        window.openReceiptModal = function (id) {
+            console.log('Tentando abrir recibo para ID:', id);
+
+            // Validate ID
+            if (!id || id === 'undefined' || id === 'null') {
+                alert('Erro: ID da transação inválido.');
+                console.error('ID inválido recebido:', id);
+                return;
+            }
+
+            const transaction = db.transactions.find(t => t.id === id);
+
+            if (!transaction) {
+                // Fallback: Try to find transaction by Property ID if mistakenly passed?
+                // For now, just alert error.
+                alert('Erro: Transação não encontrada. Verifique se o pagamento foi registrado.');
+                console.error('Transação não encontrada para ID:', id);
+                return;
+            }
+
+            const property = db.properties.find(p => p.id === transaction.propertyId);
+
+            // Populate Modal Data
+            const amountStr = fmtMoney(transaction.amount);
+            if (document.getElementById('rec-value')) document.getElementById('rec-value').textContent = amountStr;
+            if (document.getElementById('rec-value-text')) document.getElementById('rec-value-text').textContent = amountStr;
+
+            if (document.getElementById('rec-tenant')) document.getElementById('rec-tenant').textContent = property ? property.tenant : (transaction.description || 'N/A');
+            if (document.getElementById('rec-address')) document.getElementById('rec-address').textContent = property ? (property.address || property.name) : 'Endereço não informado';
+
+            // Format Date
+            if (transaction.date) {
+                const dateParts = transaction.date.split('-'); // YYYY-MM-DD
+                if (document.getElementById('rec-period')) document.getElementById('rec-period').textContent = `${dateParts[1]}/${dateParts[0]}`;
+            }
+
+            if (document.getElementById('rec-due')) document.getElementById('rec-due').textContent = property ? property.dueDay : '05';
+
+            const now = new Date();
+            const longDate = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            if (document.getElementById('rec-date')) document.getElementById('rec-date').textContent = `Local, ${longDate}`;
+
+            // Generate Hash
+            if (document.getElementById('rec-hash')) document.getElementById('rec-hash').textContent = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            // OWNER DATA (Auto-Fill from Settings)
+            const ownerName = db.settings.ownerName || 'Proprietário / Administrador';
+            const ownerDoc = db.settings.ownerDoc || '';
+            if (document.getElementById('rec-owner-name')) document.getElementById('rec-owner-name').textContent = ownerName;
+            if (document.getElementById('rec-owner-doc')) document.getElementById('rec-owner-doc').textContent = ownerDoc;
+
+            // Use global openModal
+            if (typeof openModal === 'function') {
+                openModal('receiptModal');
+            } else {
+                // Fallback if openModal missing
+                const modal = document.getElementById('receiptModal');
+                if (modal) modal.classList.remove('hidden');
+            }
+        }
+
+        // --- LEGAL TERMS LOGIC ---
+        function confirmTerms() {
+            if (!confirm('Tem certeza que leu e concorda com todos os termos apresentados?')) return;
+
+            // Update DB
+            db.settings.termsAccepted = true;
+            db.settings.termsAcceptedAt = new Date().toISOString();
+            save();
+
+            // Update Visuals
+            updateTermsVisuals();
+
+            // Celebration Effect
+            const btn = document.getElementById('btn-confirm-terms');
+            if (btn) {
+                // Confetti or visual feedback could go here
+                alert('Obrigado! Seu aceite foi registrado com sucesso.');
+            }
+        }
+
+        function updateTermsVisuals() {
+            const hasAccepted = db.settings.termsAccepted;
+            const termsBox = document.getElementById('terms-box');
+            const btn = document.getElementById('btn-confirm-terms');
+            const badge = document.getElementById('terms-accepted-badge');
+            const icon = document.getElementById('terms-icon');
+            const title = document.getElementById('terms-title');
+            const desc = document.getElementById('terms-desc');
+
+            if (hasAccepted && termsBox) {
+                // Change Box Style
+                termsBox.classList.remove('bg-gray-50', 'border-gray-200');
+                termsBox.classList.add('bg-green-50', 'border-green-200');
+
+                // Hide Button / Show Badge
+                if (btn) btn.classList.add('hidden');
+                if (badge) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                }
+
+                // Update Date
+                const dateElement = document.getElementById('terms-date');
+                if (dateElement && db.settings.termsAcceptedAt) {
+                    const dateObj = new Date(db.settings.termsAcceptedAt);
+                    dateElement.textContent = 'Confirmado em: ' + dateObj.toLocaleString('pt-BR');
+                }
+
+                // Update Icon and Text
+                if (icon) {
+                    icon.setAttribute('class', 'w-16 h-16 text-green-500 mb-3 transition-colors duration-500');
+                }
+                if (title) {
+                    title.textContent = "Você está seguro e ciente";
+                    title.classList.add('text-green-800');
+                }
+                if (desc) {
+                    desc.textContent = "Obrigado por colaborar com a segurança da nossa comunidade. Seu aceite dos termos está registrado localmente.";
+                    desc.classList.remove('text-gray-500');
+                    desc.classList.add('text-green-700/80');
+                }
+            }
+        }
+
         function editTransaction(id) {
             const transaction = db.transactions.find(t => t.id === id);
             if (transaction) {
@@ -3787,7 +4562,7 @@
         }
 
         function deleteTransaction(id) {
-            if (confirm('Tem certeza que deseja excluir esta movimentação?')) {
+            showCustomConfirm('Excluir Movimentação', 'Tem certeza que deseja excluir esta movimentação?', () => {
                 db.transactions = db.transactions.filter(t => t.id !== id);
                 save();
 
@@ -3800,7 +4575,7 @@
                 }
 
                 showNotification('Movimentação excluída com sucesso!', 'success');
-            }
+            });
         }
 
         function updateTransactionSummary(transactions) {
@@ -3903,7 +4678,7 @@
         }
 
         function deleteCategory(id) {
-            if (confirm('Tem certeza que deseja excluir esta categoria? Transações associadas perderão a categoria.')) {
+            showCustomConfirm('Excluir Categoria', 'Tem certeza que deseja excluir esta categoria? Transações associadas perderão a categoria.', () => {
                 // Remover categoria de transações
                 db.transactions = db.transactions.map(t => {
                     if (t.catId === id) {
@@ -3918,28 +4693,50 @@
                 save();
                 renderCategories();
                 showNotification('Categoria removida com sucesso!', 'success');
-            }
+            });
         }
 
         function saveGlobalSettings() {
-            const usageType = document.getElementById('set-usage-type').value;
+            // Removido usageType pois o elemento foi removido do HTML
             const establishmentName = document.getElementById('set-establishment-name').value.trim();
+            const ownerName = document.getElementById('set-owner-name').value.trim();
+            const ownerDoc = document.getElementById('set-owner-doc').value.trim();
 
-            // Validação: Nome do estabelecimento obrigatório para uso comercial
-            if (usageType === 'commercial' && !establishmentName) {
-                alert('Por favor, preencha o Nome do Estabelecimento para uso comercial.');
-                document.getElementById('set-establishment-name').focus();
-                return;
+            // Validation for Owner Doc if provided
+            if (ownerDoc) {
+                const isCPF = ownerDoc.length <= 14;
+                if (isCPF && !validateCPF(ownerDoc)) {
+                    showNotification('CPF inválido! Verifique os números.', 'error');
+                    return;
+                }
+                if (!isCPF && !validateCNPJ(ownerDoc)) {
+                    showNotification('CNPJ inválido! Verifique os números.', 'error');
+                    return;
+                }
             }
 
-            db.settings.usageType = usageType;
             db.settings.establishmentName = establishmentName;
-            db.settings.ownerName = document.getElementById('set-owner-name').value.trim();
-            db.settings.ownerDoc = document.getElementById('set-owner-doc').value.trim();
+            db.settings.ownerName = ownerName;
+            db.settings.ownerDoc = ownerDoc;
             db.settings.lateFee = parseFloat(document.getElementById('set-late-fee').value) || 0;
             db.settings.dailyInterest = parseFloat(document.getElementById('set-daily-interest').value) || 0;
+
             save();
             showNotification('Configurações salvas com sucesso!', 'success');
+
+            // Apply lock immediately if Owner Name is now set
+            if (ownerName) {
+                // Optional: Update UI to reflect lock state immediately if desired
+                const nameInput = document.getElementById('set-owner-name');
+                const docInput = document.getElementById('set-owner-doc');
+                // We don't disable immediately to allow corrections before reload, or we can.
+                // User said "fixa" (fixed), suggesting it should be locked.
+                // Re-applying lock logic for visual tightness:
+
+                // Update footer
+                document.getElementById('footer-owner-name').textContent = ownerName;
+                document.getElementById('footer-owner-doc').textContent = ownerDoc ? ` - ${ownerDoc}` : '';
+            }
         }
 
         // RELATÓRIOS
@@ -3971,15 +4768,192 @@
             document.getElementById('report-result').classList.remove('hide');
         }
 
-        function generateFullReport() {
-            // Configurar período do mês atual
+        function setReportPeriod(period) {
             const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            let start, end;
 
-            document.getElementById('rep-start').value = firstDay.toISOString().split('T')[0];
-            document.getElementById('rep-end').value = today.toISOString().split('T')[0];
+            if (period === 'last-month') {
+                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                end = new Date(today.getFullYear(), today.getMonth(), 0);
+            } else if (period === 'this-year') {
+                start = new Date(today.getFullYear(), 0, 1);
+                end = new Date(today.getFullYear(), 11, 31);
+            } else if (period === 'last-year') {
+                start = new Date(today.getFullYear() - 1, 0, 1);
+                end = new Date(today.getFullYear() - 1, 11, 31);
+            }
 
+            document.getElementById('rep-start').value = start.toISOString().split('T')[0];
+            document.getElementById('rep-end').value = end.toISOString().split('T')[0];
             generateReport();
+        }
+
+        function generateFullReport() {
+            setReportPeriod('this-year'); // Default to full current year for "Full Report"
+        }
+
+        function generateReport() {
+            const startStr = document.getElementById('rep-start').value;
+            const endStr = document.getElementById('rep-end').value;
+
+            if (!startStr || !endStr) {
+                alert('Por favor, selecione um período.');
+                return;
+            }
+
+            const start = startStr;
+            const end = endStr;
+
+            // Fill PrintHeader info
+            document.getElementById('print-date').textContent = `Gerado em: ${new Date().toLocaleDateString('pt-BR')}`;
+            document.getElementById('print-period').textContent = `Período: ${new Date(start + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(end + 'T00:00:00').toLocaleDateString('pt-BR')}`;
+
+            const transactions = db.transactions.filter(t => t.date >= start && t.date <= end);
+            const income = transactions.filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const expense = transactions.filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const balance = income - expense;
+
+            document.getElementById('rep-inc').textContent = fmtMoney(income);
+            document.getElementById('rep-exp').textContent = fmtMoney(expense);
+            document.getElementById('rep-bal').textContent = fmtMoney(balance);
+
+            // Gerar relatórios detalhados
+            renderPropertyReport(transactions);
+            renderCategoryReport(transactions);
+            renderFinancialChart(income, expense);
+
+            document.getElementById('report-result').classList.remove('hide');
+        }
+
+        function renderCategoryReport(transactions) {
+            const expenseTrans = transactions.filter(t => t.type === 'expense');
+            const catMap = {};
+            let totalExpense = 0;
+
+            expenseTrans.forEach(t => {
+                totalExpense += t.amount;
+                const catId = t.catId || 'uncategorized';
+                if (!catMap[catId]) catMap[catId] = 0;
+                catMap[catId] += t.amount;
+            });
+
+            const container = document.getElementById('category-report');
+
+            if (expenseTrans.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm italic">Sem despesas no período.</p>';
+                return;
+            }
+
+            const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+
+            container.innerHTML = sortedCats.map(([catId, amount]) => {
+                const cat = catId === 'uncategorized'
+                    ? { name: 'Sem Categoria', color: '#9ca3af' }
+                    : db.categories.find(c => c.id === catId) || { name: 'Apagada', color: '#9ca3af' };
+
+                const percent = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
+
+                return `
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full print-color-exact" style="background-color: ${cat.color}"></div>
+                            <span class="text-gray-700 font-medium">${sanitizeHTML(cat.name)}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-gray-900">${fmtMoney(amount)}</span>
+                            <span class="text-xs text-gray-400 ml-1">(${percent.toFixed(0)}%)</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 print-color-exact">
+                        <div class="h-1.5 rounded-full print-color-exact" style="width: ${percent}%; background-color: ${cat.color}"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFinancialChart(income, expense) {
+            const container = document.getElementById('financial-chart');
+            const max = Math.max(income, expense) || 1;
+
+            const incPercent = (income / max) * 100;
+            const expPercent = (expense / max) * 100;
+
+            container.innerHTML = `
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-gray-600">Receitas</span>
+                        <span class="font-bold text-green-600">${fmtMoney(income)}</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
+                        <div class="h-8 rounded-full bg-green-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
+                             style="width: ${incPercent}%">
+                             ${incPercent > 10 ? Math.round(incPercent) + '%' : ''}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-gray-600">Despesas</span>
+                        <span class="font-bold text-red-600">${fmtMoney(expense)}</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
+                        <div class="h-8 rounded-full bg-red-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
+                             style="width: ${expPercent}%">
+                             ${expPercent > 10 ? Math.round(expPercent) + '%' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function shareReport() {
+            const startStr = document.getElementById('rep-start').value;
+            const endStr = document.getElementById('rep-end').value;
+
+            if (!startStr || !endStr) return;
+
+            // Recalcular totais para o relatório
+            const transactions = db.transactions.filter(t => t.date >= startStr && t.date <= endStr);
+            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const balance = income - expense;
+
+            // Top 3 Categorias de Despesa
+            const expenseTrans = transactions.filter(t => t.type === 'expense');
+            const catMap = {};
+            expenseTrans.forEach(t => {
+                const catId = t.catId || 'uncategorized';
+                if (!catMap[catId]) catMap[catId] = 0;
+                catMap[catId] += t.amount;
+            });
+
+            const topCats = Object.entries(catMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([catId, amount]) => {
+                    const catName = catId === 'uncategorized' ? 'Sem Categoria' : (db.categories.find(c => c.id === catId)?.name || 'Outros');
+                    return `- ${catName}: ${fmtMoney(amount)}`;
+                });
+
+            // Formatar mensagem (Clean Text)
+            const msg = `*RELATÓRIO FINANCEIRO*\n` +
+                `Plena Aluguéis\n\n` +
+                `*Período:* ${new Date(startStr + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(endStr + 'T00:00:00').toLocaleDateString('pt-BR')}\n\n` +
+                `*RESUMO*\n` +
+                `Entradas: ${fmtMoney(income)}\n` +
+                `Saídas: ${fmtMoney(expense)}\n` +
+                `*Saldo: ${fmtMoney(balance)}*\n\n` +
+                (topCats.length > 0 ? `*PRINCIPAIS DESPESAS*\n${topCats.join('\n')}\n\n` : '') +
+                `_Gerado automaticamente pelo App Plena Aluguéis_`;
+
+            const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
         }
 
         function renderPropertyReport(transactions) {
@@ -4072,48 +5046,35 @@
                         throw new Error('Arquivo de backup inválido');
                     }
 
-                    if (confirm('Restaurar backup substituirá todos os dados atuais. Tem certeza?')) {
+                    showCustomConfirm('Restaurar Backup', 'Restaurar backup substituirá todos os dados atuais. Tem certeza?', () => {
                         db = backup;
                         save();
                         location.reload();
-                    }
+                    });
                 } catch (error) {
-                    alert('Erro ao restaurar backup: ' + error.message);
+                    showNotification('Erro ao restaurar backup: ' + error.message, 'error');
                 }
             };
             reader.readAsText(file);
         }
 
-        function syncToCloud() {
-            const button = document.getElementById('sync-button');
-            const originalText = button.innerHTML;
 
-            button.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Sincronizando...';
-            button.disabled = true;
-
-            // Simular sincronização
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-                showNotification('Sincronização simulada com sucesso!', 'success');
-            }, 1500);
-        }
 
         function clearAllTransactions() {
-            if (confirm('Tem certeza que deseja limpar TODAS as transações? Esta ação é irreversível!')) {
+            showCustomConfirm('Limpar Tudo', 'Tem certeza que deseja limpar TODAS as transações? Esta ação é irreversível!', () => {
                 db.transactions = [];
                 save();
                 renderDashboard();
                 renderTransactions();
                 showNotification('Todas as transações foram removidas!', 'success');
-            }
+            });
         }
 
         function factoryReset() {
-            if (confirm('ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?')) {
+            showCustomConfirm('Reset de Fábrica', 'ATENÇÃO: Isso resetará TODO o sistema para as configurações de fábrica. Todos os dados serão perdidos. Tem certeza?', () => {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
-            }
+            });
         }
 
         // UTILITÁRIOS GERAIS

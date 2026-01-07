@@ -427,7 +427,7 @@
         }, 4000);
 
         (function () {
-            const { createApp, ref, computed } = Vue;
+            const { createApp, ref, computed, watch } = Vue;
 
             createApp({
                 setup() {
@@ -439,6 +439,15 @@
                     const previewOpen = ref(false);
                     const currentPreviewUrl = ref('');
                     const currentPreviewName = ref('');
+
+                    // Body Scroll Lock
+                    watch(previewOpen, (isOpen) => {
+                        if (isOpen) {
+                            document.body.classList.add('overflow-hidden');
+                        } else {
+                            document.body.classList.remove('overflow-hidden');
+                        }
+                    });
 
                     const openPreview = (url, name) => {
                         currentPreviewUrl.value = url;
