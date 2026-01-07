@@ -9,27 +9,27 @@
     <!-- PWA Manifest e Ícones -->
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="ICONES/icon-192.png" />
-    
+
     <!-- PWA Meta Tags Padronizadas -->
     <meta name="theme-color" content="#2563EB">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de gestão completo para barbearias - Plena Aplicativos">
-    
+
     <!-- Metadados Premium -->
     <meta name="plena-version" content="Plus Premium">
     <meta name="plena-tier" content="premium">
     <meta name="plena-category" content="Serviços">
     <meta name="plena-price" content="97,00">
     <meta name="plena-access" content="full">
-    
+
     <!-- Tailwind CSS (Versão Estável) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Verifica se está instalado como PWA
         function checkPWAInstallation() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-            
+
             if (!isStandalone && !localStorage.getItem('pwa-warning-shown')) {
                 // Mostrar aviso se não estiver instalado
                 document.getElementById('install-guide').classList.remove('hidden');
@@ -41,7 +41,7 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
+
             // Mostrar botão de instalação
             const installBtn = document.getElementById('install-btn');
             if (installBtn) {
@@ -220,15 +220,16 @@
                 font-size: 10pt !important;
                 border-collapse: collapse !important;
             }
-            
-            #view-finance th, #view-finance td {
+
+            #view-finance th,
+            #view-finance td {
                 border: 1px solid #e2e8f0 !important;
                 padding: 8px !important;
                 color: black !important;
             }
 
             /* Hide Actions column in print */
-            #view-finance th:last-child, 
+            #view-finance th:last-child,
             #view-finance td:last-child {
                 display: none !important;
             }
@@ -241,147 +242,151 @@
             }
         }
 
-            /* Badges */
-            .badge {
-                display: inline-flex;
-                align-items: center;
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-            }
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-            .badge-pending {
-                background-color: #FEF3C7;
-                color: #92400E;
-            }
+        .badge-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
 
-            .badge-done {
-                background-color: #DCFCE7;
-                color: #166534;
-            }
+        .badge-done {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
 
-            .badge-canceled {
-                background-color: #FEE2E2;
-                color: #991B1B;
-            }
+        .badge-canceled {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
 
-            /* Status Colors */
-            .status-pending {
-                background-color: #FEF3C7;
-                border-color: #F59E0B;
-                color: #92400E;
-            }
+        /* Status Colors */
+        .status-pending {
+            background-color: #FEF3C7;
+            border-color: #F59E0B;
+            color: #92400E;
+        }
 
-            .status-done {
-                background-color: #DCFCE7;
-                border-color: #10B981;
-                color: #166534;
-            }
+        .status-done {
+            background-color: #DCFCE7;
+            border-color: #10B981;
+            color: #166534;
+        }
 
-            .status-canceled {
-                background-color: #FEE2E2;
-                border-color: #EF4444;
-                color: #991B1B;
-            }
+        .status-canceled {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+            color: #991B1B;
+        }
 
-            /* Custom Scrollbar */
-            ::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
 
-            ::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 3px;
-            }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
 
-            ::-webkit-scrollbar-thumb {
-                background: #c1c1c1;
-                border-radius: 3px;
-            }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
 
-            ::-webkit-scrollbar-thumb:hover {
-                background: #a1a1a1;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
 
-            /* Agenda Time Slot */
-            .time-slot {
-                transition: all 0.2s ease;
-            }
+        /* Agenda Time Slot */
+        .time-slot {
+            transition: all 0.2s ease;
+        }
 
-            .time-slot:hover {
-                background-color: #E2E8F0 !important;
-            }
+        .time-slot:hover {
+            background-color: #E2E8F0 !important;
+        }
 
-            /* Service Card Gradient */
-            .service-gradient {
-                background: linear-gradient(135deg, #60A5FA 0%, #2563EB 100%);
-            }
+        /* Service Card Gradient */
+        .service-gradient {
+            background: linear-gradient(135deg, #60A5FA 0%, #2563EB 100%);
+        }
 
-            /* Estilos para Manual Interativo */
-            .step-number {
-                width: 3rem;
-                height: 3rem;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.25rem;
-                font-weight: bold;
-                margin-right: 1rem;
-            }
+        /* Estilos para Manual Interativo */
+        .step-number {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
 
-            .checklist-item input[type="checkbox"]:checked+span {
-                text-decoration: line-through;
-                opacity: 0.6;
-            }
+        .checklist-item input[type="checkbox"]:checked+span {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
 
-            .code-block {
-                background: #1e293b;
-                color: #e2e8f0;
-                padding: 0.75rem;
-                border-radius: 0.5rem;
-                font-family: monospace;
-                font-size: 0.875rem;
-            }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
 
-            .progress-bar {
-                height: 8px;
-                background: #e2e8f0;
-                border-radius: 9999px;
-                overflow: hidden;
-            }
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
 
-            .progress-fill {
-                height: 100%;
-                background: linear-gradient(90deg, #2563EB 0%, #60A5FA 100%);
-                transition: width 0.3s ease;
-            }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563EB 0%, #60A5FA 100%);
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 
 <body class="text-slate-800 antialiased">
-    
+
     <!-- MODAL DE GUIA DE INSTALAÇÃO (PWA) -->
     <div id="install-guide" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md p-6 text-center">
             <h2 class="text-2xl font-bold mb-4 text-gray-800">⚠️ IMPORTANTE: Como Instalar</h2>
             <div class="space-y-4 text-left text-gray-700">
                 <div class="flex items-start">
-                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                    <span
+                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">1</span>
                     <p><strong>Toque nos 3 pontos ⋮</strong> no canto superior</p>
                 </div>
                 <div class="flex items-start">
-                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                    <span
+                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">2</span>
                     <p>Selecione <strong>"Adicionar à tela inicial"</strong></p>
                 </div>
                 <div class="flex items-start">
-                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                    <span
+                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
                     <p><strong>Sempre abra pelo ícone</strong> na tela inicial, NUNCA pelo navegador</p>
                 </div>
             </div>
-            <button onclick="closeInstallGuide()" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold w-full transition-colors">
+            <button onclick="closeInstallGuide()"
+                class="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold w-full transition-colors">
                 Entendi, vamos começar!
             </button>
         </div>
@@ -858,7 +863,8 @@
                                     placeholder="Ex: João Silva">
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">CPF / CNPJ do Responsável</label>
+                                <label class="text-xs font-bold text-slate-500 uppercase">CPF / CNPJ do
+                                    Responsável</label>
                                 <input type="text" id="biz-doc" class="w-full border p-2 rounded-lg text-sm"
                                     placeholder="000.000.000-00">
                             </div>
@@ -1067,13 +1073,15 @@
                                             <div
                                                 class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
                                                 1</div>
-                                            <span>Abra este site no <strong>Chrome</strong> ou <strong>Edge</strong></span>
+                                            <span>Abra este site no <strong>Chrome</strong> ou
+                                                <strong>Edge</strong></span>
                                         </li>
                                         <li class="flex items-start">
                                             <div
                                                 class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
                                                 2</div>
-                                            <span>Clique no ícone de <strong>Instalar</strong> na barra de endereço</span>
+                                            <span>Clique no ícone de <strong>Instalar</strong> na barra de
+                                                endereço</span>
                                         </li>
                                         <li class="flex items-start">
                                             <div
@@ -2147,115 +2155,115 @@
         };
 
         /* --- SECURITY: INJECTED UTILITIES & LOGIC --- */
-        (function() {
-          // 1. Validation Logic (Strict Math Check)
-          const validateDoc = (val) => {
-            if (!val) return true;
-            const str = val.replace(/\D/g, '');
+        (function () {
+            // 1. Validation Logic (Strict Math Check)
+            const validateDoc = (val) => {
+                if (!val) return true;
+                const str = val.replace(/\D/g, '');
 
-            // Validação CPF (11 dígitos)
-            if (str.length === 11) {
-                if (/^(\d)\1+$/.test(str)) return false; 
-                
-                let sum = 0, rem;
-                for (let i = 1; i <= 9; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (11 - i);
-                rem = (sum * 10) % 11;
-                if ((rem === 10) || (rem === 11)) rem = 0;
-                if (rem !== parseInt(str.substring(9, 10))) return false;
-                
-                sum = 0;
-                for (let i = 1; i <= 10; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (12 - i);
-                rem = (sum * 10) % 11;
-                if ((rem === 10) || (rem === 11)) rem = 0;
-                if (rem !== parseInt(str.substring(10, 11))) return false;
-                return true;
-            }
+                // Validação CPF (11 dígitos)
+                if (str.length === 11) {
+                    if (/^(\d)\1+$/.test(str)) return false;
 
-            // Validação CNPJ (14 dígitos)
-            if (str.length === 14) {
-                if (/^(\d)\1+$/.test(str)) return false;
-                
-                let size = str.length - 2;
-                let numbers = str.substring(0, size);
-                const digits = str.substring(size);
-                let sum = 0;
-                let pos = size - 7;
-                
-                for (let i = size; i >= 1; i--) {
-                    sum += parseInt(numbers.charAt(size - i)) * pos--;
-                    if (pos < 2) pos = 9;
+                    let sum = 0, rem;
+                    for (let i = 1; i <= 9; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (11 - i);
+                    rem = (sum * 10) % 11;
+                    if ((rem === 10) || (rem === 11)) rem = 0;
+                    if (rem !== parseInt(str.substring(9, 10))) return false;
+
+                    sum = 0;
+                    for (let i = 1; i <= 10; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (12 - i);
+                    rem = (sum * 10) % 11;
+                    if ((rem === 10) || (rem === 11)) rem = 0;
+                    if (rem !== parseInt(str.substring(10, 11))) return false;
+                    return true;
                 }
-                let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-                if (result !== parseInt(digits.charAt(0))) return false;
-                
-                size = size + 1;
-                numbers = str.substring(0, size);
-                sum = 0;
-                pos = size - 7;
-                
-                for (let i = size; i >= 1; i--) {
-                    sum += parseInt(numbers.charAt(size - i)) * pos--;
-                    if (pos < 2) pos = 9;
+
+                // Validação CNPJ (14 dígitos)
+                if (str.length === 14) {
+                    if (/^(\d)\1+$/.test(str)) return false;
+
+                    let size = str.length - 2;
+                    let numbers = str.substring(0, size);
+                    const digits = str.substring(size);
+                    let sum = 0;
+                    let pos = size - 7;
+
+                    for (let i = size; i >= 1; i--) {
+                        sum += parseInt(numbers.charAt(size - i)) * pos--;
+                        if (pos < 2) pos = 9;
+                    }
+                    let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+                    if (result !== parseInt(digits.charAt(0))) return false;
+
+                    size = size + 1;
+                    numbers = str.substring(0, size);
+                    sum = 0;
+                    pos = size - 7;
+
+                    for (let i = size; i >= 1; i--) {
+                        sum += parseInt(numbers.charAt(size - i)) * pos--;
+                        if (pos < 2) pos = 9;
+                    }
+                    result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+                    if (result !== parseInt(digits.charAt(1))) return false;
+                    return true;
                 }
-                result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-                if (result !== parseInt(digits.charAt(1))) return false;
-                return true;
-            }
 
-            return false;
-          };
+                return false;
+            };
 
-          // 2. Watermark Logic
-          const applyWatermark = () => {
-            try {
-              if (typeof LICENSE_DATA === 'undefined' || !LICENSE_DATA.active) return;
-              
-              const allViews = document.querySelectorAll('.view-section');
-              allViews.forEach(view => {
-                  if (!view.querySelector('.license-footer')) {
-                      const footer = document.createElement('div');
-                      footer.className = 'license-footer text-center mt-12 pt-4 border-t border-gray-200';
-                      footer.innerHTML = `
+            // 2. Watermark Logic
+            const applyWatermark = () => {
+                try {
+                    if (typeof LICENSE_DATA === 'undefined' || !LICENSE_DATA.active) return;
+
+                    const allViews = document.querySelectorAll('.view-section');
+                    allViews.forEach(view => {
+                        if (!view.querySelector('.license-footer')) {
+                            const footer = document.createElement('div');
+                            footer.className = 'license-footer text-center mt-12 pt-4 border-t border-gray-200';
+                            footer.innerHTML = `
                           <p class="text-[11px] text-gray-500 font-mono uppercase tracking-widest select-none font-medium">
                               Licenciado para: ${LICENSE_DATA.businessName} (${LICENSE_DATA.ownerName}) • CPF/CNPJ: ${LICENSE_DATA.ownerDoc}
                           </p>
                       `;
-                      view.appendChild(footer);
-                  }
-              });
-            } catch (e) {
-              console.warn('License injection warning:', e);
+                            view.appendChild(footer);
+                        }
+                    });
+                } catch (e) {
+                    console.warn('License injection warning:', e);
+                }
+            };
+
+            // 3. Logic Injection (Function Interception)
+            const injectValidationHooks = () => {
+                if (typeof window.saveGlobalSettings === 'function' && !window.saveGlobalSettings._hooked) {
+                    const originalSave = window.saveGlobalSettings;
+                    window.saveGlobalSettings = function () {
+                        const ownerDocEl = document.getElementById('set-owner-doc');
+                        if (ownerDocEl && ownerDocEl.value && !validateDoc(ownerDocEl.value)) {
+                            alert('CPF ou CNPJ do Proprietário inválido! Verifique os números.');
+                            return;
+                        }
+                        return originalSave.apply(this, arguments);
+                    };
+                    window.saveGlobalSettings._hooked = true;
+                }
+            };
+
+            const init = () => {
+                applyWatermark();
+                injectValidationHooks();
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
             }
-          };
-
-          // 3. Logic Injection (Function Interception)
-          const injectValidationHooks = () => {
-            if (typeof window.saveGlobalSettings === 'function' && !window.saveGlobalSettings._hooked) {
-                const originalSave = window.saveGlobalSettings;
-                window.saveGlobalSettings = function() {
-                    const ownerDocEl = document.getElementById('set-owner-doc');
-                    if (ownerDocEl && ownerDocEl.value && !validateDoc(ownerDocEl.value)) {
-                        alert('CPF ou CNPJ do Proprietário inválido! Verifique os números.');
-                        return;
-                    }
-                    return originalSave.apply(this, arguments);
-                };
-                window.saveGlobalSettings._hooked = true;
-            }
-          };
-
-          const init = () => {
-            applyWatermark();
-            injectValidationHooks();
-          };
-
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-          } else {
-            init();
-          }
         })();
-        
+
         // Protege contra modificações em tempo de execução via Console
         Object.freeze(LICENSE_DATA);
 
@@ -2293,20 +2301,20 @@
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
 
         // UTILITÁRIOS
-const sanitizeHTML = (str) => {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-};
+        const sanitizeHTML = (str) => {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
 
-const save = () => {
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-    updateDataStatus();
-};
+        const save = () => {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            updateDataStatus();
+        };
 
         const fmtMoney = (v) => {
             return v.toLocaleString('pt-BR', {
@@ -2366,7 +2374,7 @@ const save = () => {
                 // 0. Forçar dados no DB
                 // Se o gerador fornecer um nome de barbearia, ele será aplicado. Caso contrário, mantém-se a personalização.
                 if (LICENSE_DATA.businessName && LICENSE_DATA.businessName.trim() !== "") {
-                     db.settings.businessName = LICENSE_DATA.businessName;
+                    db.settings.businessName = LICENSE_DATA.businessName;
                 }
                 db.settings.businessOwner = LICENSE_DATA.ownerName;
                 db.settings.businessDoc = LICENSE_DATA.ownerDoc;
@@ -2382,7 +2390,7 @@ const save = () => {
                     nameInput.disabled = true;
                     nameInput.classList.add('bg-slate-100', 'cursor-not-allowed');
                 }
-                
+
                 if (ownerInput) {
                     ownerInput.value = LICENSE_DATA.ownerName;
                     ownerInput.disabled = true;
@@ -2393,10 +2401,10 @@ const save = () => {
                     docInput.value = LICENSE_DATA.ownerDoc;
                     docInput.disabled = true;
                     docInput.classList.add('bg-slate-100', 'cursor-not-allowed');
-                    
+
                     // Adicionar indicador visual de licença
                     if (!docInput.parentElement.querySelector('.lock-icon')) {
-                        docInput.parentElement.insertAdjacentHTML('beforeend', 
+                        docInput.parentElement.insertAdjacentHTML('beforeend',
                             `<span class="lock-icon text-[10px] text-plena-blue font-bold flex items-center mt-1"><i data-lucide="lock" class="w-3 h-3 mr-1"></i> Licença Vitalícia Ativa</span>`
                         );
                     }
@@ -2422,12 +2430,12 @@ const save = () => {
                     }, 5000);
                 }
             } else {
-                 // Se nunca fez backup e já tem dados significativos
-                 if (db.appointments.length > 5 || db.transactions.length > 5) {
+                // Se nunca fez backup e já tem dados significativos
+                if (db.appointments.length > 5 || db.transactions.length > 5) {
                     setTimeout(() => {
                         showNotification('💡 Dica: Faça seu primeiro backup em Configurações!', 'info');
                     }, 10000);
-                 }
+                }
             }
 
             // Renderizar dados iniciais
@@ -2934,7 +2942,7 @@ const save = () => {
 
             document.querySelector('#expenseModal h3').textContent = 'Editar Movimentação';
             document.querySelector('#expenseModal button[type="submit"]').textContent = 'Atualizar Lançamento';
-            
+
             document.getElementById('expenseModal').classList.remove('hidden');
         }
 
@@ -3676,7 +3684,7 @@ const save = () => {
         function downloadBackup() {
             const date = new Date().toISOString().slice(0, 10);
             const filename = `backup_plena_barbearia_${date}.json`;
-            
+
             // Adicionar metadados ao backup
             const backupData = {
                 ...db,
@@ -3707,14 +3715,14 @@ const save = () => {
             reader.onload = function (e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    
+
                     // Validação rigorosa de tipos (Security Audit)
                     const arrayKeys = ['appointments', 'team', 'services', 'transactions', 'clients'];
                     const objectKeys = ['settings'];
 
                     const isArraysValid = arrayKeys.every(key => Array.isArray(backup[key]));
                     const isObjectsValid = objectKeys.every(key => typeof backup[key] === 'object' && !Array.isArray(backup[key]));
-                    
+
                     if (isArraysValid && isObjectsValid) {
                         // Sanitização profunda do backup antes de carregar
                         // Evita que JSON malicioso injete scripts via innerHTML posteriormente
@@ -3729,7 +3737,7 @@ const save = () => {
                             }
                             return obj;
                         };
-                        
+
                         db = sanitizeObj(backup);
                         save();
                         alert('Backup restaurado com sucesso! A página será recarregada.');
@@ -3737,9 +3745,9 @@ const save = () => {
                     } else {
                         alert('Arquivo de backup inválido ou corrompido.');
                     }
-                } catch (err) { 
+                } catch (err) {
                     console.error(err);
-                    alert('Erro ao ler arquivo. Verifique se é um backup válido.'); 
+                    alert('Erro ao ler arquivo. Verifique se é um backup válido.');
                 }
             };
             reader.readAsText(file);
@@ -3889,16 +3897,16 @@ const save = () => {
         function resetChecklist() {
             if (confirm('Deseja reiniciar o checklist? Esta ação não pode ser desfeita.')) {
                 localStorage.removeItem('checklist-state');
-                
+
                 // Limpar visualmente todos os checkboxes
                 const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
                 checkboxes.forEach(cb => {
                     cb.checked = false;
                 });
-                
+
                 // Atualizar progresso visual
                 updateChecklist();
-                
+
                 // Feedback visual para o usuário
                 showNotification('Checklist reiniciado com sucesso!', 'success');
             }
@@ -3936,7 +3944,7 @@ const save = () => {
         });
 
         // DIAGNÓSTICO DE CARREGAMENTO (Ajuste Visual)
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             // Verificar Lucide
             if (typeof lucide === 'undefined') {
                 console.error('Lucide Icons failed to load');
@@ -3945,7 +3953,7 @@ const save = () => {
                 warning.innerHTML = '⚠️ Ícones não carregaram. Verifique a internet.';
                 document.body.appendChild(warning);
             }
-            
+
             // Verificar Tailwind
             if (typeof tailwind === 'undefined') {
                 console.error('Tailwind CSS failed to load');
@@ -3955,6 +3963,12 @@ const save = () => {
                 document.body.prepend(alert);
             }
         });
+    </script>
+    <script>
+        // CONTEXT AWARENESS FOR IFRAMES
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
     </script>
 </body>
 

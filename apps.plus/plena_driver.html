@@ -2577,6 +2577,12 @@
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    <script>
+        // CONTEXT AWARENESS FOR IFRAMES
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+    </script>
 </body>
 
 </html>

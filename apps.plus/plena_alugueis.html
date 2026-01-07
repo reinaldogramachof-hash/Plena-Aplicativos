@@ -74,6 +74,7 @@
                 opacity: 0;
                 transform: translateY(5px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -85,6 +86,7 @@
                 transform: translateX(-10px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -230,6 +232,7 @@
         }
 
         @media print {
+
             .sidebar,
             #overlay,
             button,
@@ -388,10 +391,7 @@
                     <div class="flex items-center gap-3">
                         <input type="month" id="month-selector" onchange="renderDashboard()"
                             class="border rounded-lg p-2 text-sm bg-white">
-                        <button class="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors" disabled>
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                            PDF (Desativado)
-                        </button>
+                        
                     </div>
                 </div>
 
@@ -697,18 +697,7 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                        <button onclick="shareReport()"
-                            class="bg-[#25D366] text-white py-3.5 rounded-xl font-bold hover:bg-[#128C7E] flex justify-center items-center gap-2 shadow-lg shadow-green-100 transition-transform active:scale-95">
-                            <i data-lucide="message-circle" class="w-5 h-5"></i>
-                            Enviar Resumo no WhatsApp
-                        </button>
-                        <button onclick="printReport()"
-                            class="bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 flex justify-center items-center gap-2 shadow-lg shadow-blue-100 transition-transform active:scale-95">
-                            <i data-lucide="printer" class="w-5 h-5"></i>
-                            Imprimir / Salvar PDF
-                        </button>
-                    </div>
+                    
                 </div>
             </section>
 
@@ -733,8 +722,11 @@
                         <div class="space-y-5 flex-1">
                             <!-- Tipo de uso removido -->
                             <div id="establishment-name-container">
-                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nome do Estabelecimento</label>
-                                <input type="text" id="set-establishment-name" class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-2 focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all" placeholder="Ex: Imobiliária Silva Ltda">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nome do
+                                    Estabelecimento</label>
+                                <input type="text" id="set-establishment-name"
+                                    class="w-full border border-gray-300 p-3 rounded-xl text-sm mt-2 focus:ring-2 focus:ring-plena-blue focus:border-transparent outline-none transition-all"
+                                    placeholder="Ex: Imobiliária Silva Ltda">
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nome / Razão
@@ -900,15 +892,21 @@
                 <div class="max-w-6xl mx-auto pb-12">
                     <!-- Cabeçalho Hero -->
                     <div class="text-center mb-10 pt-4">
-                        <div class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-blue to-plena-dark rounded-2xl mb-4 shadow-lg">
-                            <i data-lucide="home" class="w-12 h-12 text-white" aria-label="Ícone de Casa - Manual de Uso"></i>
+                        <div
+                            class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-blue to-plena-dark rounded-2xl mb-4 shadow-lg">
+                            <i data-lucide="home" class="w-12 h-12 text-white"
+                                aria-label="Ícone de Casa - Manual de Uso"></i>
                         </div>
                         <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso</h1>
-                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e gestores imobiliários</p>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e
+                            gestores imobiliários</p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para Iniciantes</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e Desktop</span>
-                            <span class="px-3 py-1 bg-blue-100 text-plena-blue rounded-full text-xs font-bold">⚡ Rápido e Prático</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para
+                                Iniciantes</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e
+                                Desktop</span>
+                            <span class="px-3 py-1 bg-blue-100 text-plena-blue rounded-full text-xs font-bold">⚡ Rápido
+                                e Prático</span>
                         </div>
                     </div>
 
@@ -928,38 +926,48 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
-                            <button onclick="scrollToSection('instalacao')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('instalacao')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 1. Instalação
                             </button>
-                            <button onclick="scrollToSection('primeiro-cadastro')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('primeiro-cadastro')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 2. Primeiro Cadastro
                             </button>
-                            <button onclick="scrollToSection('cobranca')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('cobranca')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 3. Cobrança
                             </button>
-                            <button onclick="scrollToSection('relatorios')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('relatorios')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 4. Relatórios
                             </button>
-                            <button onclick="scrollToSection('backup')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('backup')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 5. Backup
                             </button>
-                            <button onclick="scrollToSection('duvidas')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('duvidas')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 6. Dúvidas
                             </button>
-                            <button onclick="scrollToSection('checklist')" class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                            <button onclick="scrollToSection('checklist')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 7. Checklist
                             </button>
                         </div>
                     </div>
 
                     <!-- Seção 1: Instalação -->
-                    <div id="instalacao" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="instalacao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">1</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">1
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Instalação do App no Celular</h3>
                             </div>
-                            <button onclick="markSectionComplete('instalacao')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('instalacao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -969,11 +977,13 @@
                                 <i data-lucide="download" class="w-5 h-5 mr-2 text-green-400"></i>
                                 Torne o App Disponível OFFLINE
                             </h4>
-                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app normal:</p>
+                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app
+                                normal:</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
                                             <i data-lucide="smartphone" class="w-4 h-4"></i>
                                         </div>
                                         Android (Chrome)
@@ -1009,7 +1019,8 @@
                                 </div>
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mr-2">
                                             <i data-lucide="apple" class="w-4 h-4"></i>
                                         </div>
                                         iPhone (Safari)
@@ -1047,20 +1058,24 @@
                             <div class="mt-6 p-4 bg-yellow-900/30 border border-yellow-700 rounded-xl">
                                 <p class="text-yellow-200 text-sm flex items-center">
                                     <i data-lucide="alert-circle" class="w-4 h-4 mr-2"></i>
-                                    <strong>Dica:</strong> Depois de instalar, abra o app pelo ícone na tela inicial, não pelo navegador.
+                                    <strong>Dica:</strong> Depois de instalar, abra o app pelo ícone na tela inicial,
+                                    não pelo navegador.
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Seção 2: Primeiro Cadastro -->
-                    <div id="primeiro-cadastro" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="primeiro-cadastro"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">2</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">2
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Configuração Inicial (10 Minutos)</h3>
                             </div>
-                            <button onclick="markSectionComplete('primeiro-cadastro')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('primeiro-cadastro')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1074,28 +1089,37 @@
                                     </h4>
                                     <ol class="space-y-3 text-sm">
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">A</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
                                             <div>
                                                 <strong>Clique em "Configurações" no menu lateral</strong>
                                                 <p class="text-gray-600 text-xs">Ícone da engrenagem</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">B</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
                                             <div>
                                                 <strong>Preencha seu Nome/Razão Social</strong>
                                                 <p class="text-gray-600 text-xs">Ex: "João Silva Imóveis"</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">C</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                C</div>
                                             <div>
                                                 <strong>Preencha seu CPF ou CNPJ</strong>
-                                                <p class="text-gray-600 text-xs">Aparecerá automaticamente nos recibos</p>
+                                                <p class="text-gray-600 text-xs">Aparecerá automaticamente nos recibos
+                                                </p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">D</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                D</div>
                                             <div>
                                                 <strong>Clique em "Salvar Configurações"</strong>
                                             </div>
@@ -1110,35 +1134,44 @@
                                     </h4>
                                     <ol class="space-y-3 text-sm">
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">A</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
                                             <div>
                                                 <strong>Volte ao "Dashboard" (primeira opção do menu)</strong>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">B</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
                                             <div>
                                                 <strong>Clique no botão roxo "Novo Imóvel"</strong>
                                                 <p class="text-gray-600 text-xs">No canto superior direito</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">C</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                C</div>
                                             <div>
                                                 <strong>Preencha os dados básicos:</strong>
                                                 <div class="code-block mt-1 text-xs">
-Apelido: "Apto Centro 101"<br>
-Valor Aluguel: 1200.00<br>
-Dia Vencimento: 5<br>
-Endereço: (opcional)
+                                                    Apelido: "Apto Centro 101"<br>
+                                                    Valor Aluguel: 1200.00<br>
+                                                    Dia Vencimento: 5<br>
+                                                    Endereço: (opcional)
                                                 </div>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">D</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                D</div>
                                             <div>
                                                 <strong>Marque "Imóvel Ocupado" se já tiver inquilino</strong>
-                                                <p class="text-gray-600 text-xs">Preencha dados do inquilino que aparecerão</p>
+                                                <p class="text-gray-600 text-xs">Preencha dados do inquilino que
+                                                    aparecerão</p>
                                             </div>
                                         </li>
                                     </ol>
@@ -1151,7 +1184,8 @@ Endereço: (opcional)
                                         <i data-lucide="users" class="w-5 h-5 mr-2"></i>
                                         PASSO 3: Dados do Inquilino (IMPORTANTE)
                                     </h4>
-                                    <p class="text-sm text-gray-700 mb-3">Preencha CORRETAMENTE para ter segurança jurídica:</p>
+                                    <p class="text-sm text-gray-700 mb-3">Preencha CORRETAMENTE para ter segurança
+                                        jurídica:</p>
                                     <div class="space-y-2 text-sm">
                                         <div class="flex items-start">
                                             <i data-lucide="check" class="w-4 h-4 text-green-500 mt-0.5 mr-2"></i>
@@ -1172,7 +1206,8 @@ Endereço: (opcional)
                                     </div>
                                     <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                         <p class="text-xs text-yellow-800">
-                                            <strong>💡 Dica:</strong> Use o CPF do inquilino para garantir que os recibos tenham validade jurídica em caso de necessidade.
+                                            <strong>💡 Dica:</strong> Use o CPF do inquilino para garantir que os
+                                            recibos tenham validade jurídica em caso de necessidade.
                                         </p>
                                     </div>
                                 </div>
@@ -1188,19 +1223,19 @@ Endereço: (opcional)
                                             <p class="font-bold text-gray-800">Multa por Atraso</p>
                                             <p class="text-xs text-gray-600">Recomendado: 2%</p>
                                             <div class="code-block mt-1 text-xs">
-Vai em: Configurações<br>
-Busque: "Multas e Juros"<br>
-Digite: 2.0 no campo "Multa"
+                                                Vai em: Configurações<br>
+                                                Busque: "Multas e Juros"<br>
+                                                Digite: 2.0 no campo "Multa"
                                             </div>
                                         </div>
                                         <div class="bg-white p-3 rounded-lg border">
                                             <p class="font-bold text-gray-800">Juros ao Dia</p>
                                             <p class="text-xs text-gray-600">Recomendado: 0,033%</p>
                                             <div class="code-block mt-1 text-xs">
-No mesmo local:<br>
-Digite: 0.033<br>
-Isso dá 1% ao mês<br>
-(Calculado automaticamente)
+                                                No mesmo local:<br>
+                                                Digite: 0.033<br>
+                                                Isso dá 1% ao mês<br>
+                                                (Calculado automaticamente)
                                             </div>
                                         </div>
                                     </div>
@@ -1208,7 +1243,8 @@ Isso dá 1% ao mês<br>
                             </div>
                         </div>
 
-                        <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl">
+                        <div
+                            class="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl">
                             <h4 class="font-bold text-gray-800 mb-2 flex items-center">
                                 <i data-lucide="zap" class="w-5 h-5 mr-2 text-green-600"></i>
                                 Parabéns! Configuração Básica Concluída
@@ -1234,13 +1270,16 @@ Isso dá 1% ao mês<br>
                     </div>
 
                     <!-- Seção 3: Cobrança e Pagamentos -->
-                    <div id="cobranca" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="cobranca"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">3</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">3
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Cobrança, Pagamentos e Recibos</h3>
                             </div>
-                            <button onclick="markSectionComplete('cobrança')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('cobrança')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1264,13 +1303,15 @@ Isso dá 1% ao mês<br>
                                     </li>
                                     <li class="flex items-start">
                                         <i data-lucide="bell" class="w-4 h-4 text-yellow-500 mr-2 mt-0.5"></i>
-                                        <span>O sistema mostra automaticamente quem está <strong>em atraso</strong></span>
+                                        <span>O sistema mostra automaticamente quem está <strong>em
+                                                atraso</strong></span>
                                     </li>
                                 </ul>
                             </div>
 
                             <!-- Cartão 2 -->
-                            <div class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100">
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
                                     <i data-lucide="wallet" class="w-5 h-5 text-green-600"></i>
                                 </div>
@@ -1279,11 +1320,14 @@ Isso dá 1% ao mês<br>
                                 <ol class="space-y-2 text-sm pl-1">
                                     <li class="flex items-start">
                                         <span class="font-bold mr-2">1.</span>
-                                        <span>No <strong>Dashboard</strong>, clique em <button class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Registrar</button> ao lado do imóvel</span>
+                                        <span>No <strong>Dashboard</strong>, clique em <button
+                                                class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Registrar</button>
+                                            ao lado do imóvel</span>
                                     </li>
                                     <li class="flex items-start">
                                         <span class="font-bold mr-2">2.</span>
-                                        <span>Se estiver <strong>atrasado</strong>, o sistema calcula multa/juros automaticamente</span>
+                                        <span>Se estiver <strong>atrasado</strong>, o sistema calcula multa/juros
+                                            automaticamente</span>
                                     </li>
                                     <li class="flex items-start">
                                         <span class="font-bold mr-2">3.</span>
@@ -1293,7 +1337,8 @@ Isso dá 1% ao mês<br>
                             </div>
 
                             <!-- Cartão 3 -->
-                            <div class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100">
+                            <div
+                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
                                     <i data-lucide="file-text" class="w-5 h-5 text-plena-blue"></i>
                                 </div>
@@ -1303,33 +1348,40 @@ Isso dá 1% ao mês<br>
                                     <div class="bg-white p-3 rounded-lg border">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center">
-                                                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                                <div
+                                                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
                                                     <i data-lucide="message-circle" class="w-3 h-3 text-green-600"></i>
                                                 </div>
                                                 <span class="text-sm font-medium">Recibo Rápido (WhatsApp)</span>
                                             </div>
-                                            <button class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded" onclick="showExample('whatsapp')">Ver Exemplo</button>
+                                            <button class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded"
+                                                onclick="showExample('whatsapp')">Ver Exemplo</button>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1">Após registrar pagamento, clique no ícone verde do WhatsApp</p>
+                                        <p class="text-xs text-gray-500 mt-1">Após registrar pagamento, clique no ícone
+                                            verde do WhatsApp</p>
                                     </div>
                                     <div class="bg-white p-3 rounded-lg border">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center">
-                                                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                <div
+                                                    class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
                                                     <i data-lucide="printer" class="w-3 h-3 text-blue-600"></i>
                                                 </div>
                                                 <span class="text-sm font-medium">Recibo Formal (PDF/Impressão)</span>
                                             </div>
-                                            <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded" onclick="showExample('formal')">Ver Exemplo</button>
+                                            <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                                                onclick="showExample('formal')">Ver Exemplo</button>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1">Clique no ícone da impressora para gerar documento assinável</p>
+                                        <p class="text-xs text-gray-500 mt-1">Clique no ícone da impressora para gerar
+                                            documento assinável</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Exemplo Visual de Atraso -->
-                        <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl p-5 mb-6">
+                        <div
+                            class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl p-5 mb-6">
                             <h4 class="font-bold text-red-800 mb-3 flex items-center">
                                 <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
                                 Exemplo Prático: Pagamento em Atraso
@@ -1338,9 +1390,11 @@ Isso dá 1% ao mês<br>
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
                                         <p class="font-bold text-gray-800">Cenário:</p>
-                                        <p class="text-sm text-gray-600">Aluguel de R$ 1.200, venceu dia 5, pagou dia 10</p>
+                                        <p class="text-sm text-gray-600">Aluguel de R$ 1.200, venceu dia 5, pagou dia 10
+                                        </p>
                                     </div>
-                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">5 dias atrasado</span>
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">5
+                                        dias atrasado</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
                                     <div class="text-center p-3 bg-gray-50 rounded-lg">
@@ -1369,13 +1423,16 @@ Isso dá 1% ao mês<br>
                     </div>
 
                     <!-- Seção 4: Relatórios -->
-                    <div id="relatorios" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="relatorios"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">4</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">4
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Relatórios e Análise Financeira</h3>
                             </div>
-                            <button onclick="markSectionComplete('relatorios')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('relatorios')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1389,21 +1446,27 @@ Isso dá 1% ao mês<br>
                                 <p class="text-sm text-gray-700 mb-4">Todo dia 1º, faça este passo a passo:</p>
                                 <ol class="space-y-3 text-sm">
                                     <li class="flex items-start">
-                                        <div class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">1</div>
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">
+                                            1</div>
                                         <div>
                                             <strong>Clique em "Relatórios" no menu</strong>
                                             <p class="text-gray-600 text-xs">Ícone do gráfico de barras</p>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
-                                        <div class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">2</div>
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">
+                                            2</div>
                                         <div>
                                             <strong>Clique em "Relatório Completo"</strong>
                                             <p class="text-gray-600 text-xs">Botão do lado direito</p>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
-                                        <div class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">3</div>
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">
+                                            3</div>
                                         <div>
                                             <strong>Analise os resultados:</strong>
                                             <ul class="mt-1 space-y-1 text-gray-600">
@@ -1415,7 +1478,9 @@ Isso dá 1% ao mês<br>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
-                                        <div class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">4</div>
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-plena-blue/20 text-plena-blue flex items-center justify-center mr-2 text-xs font-bold">
+                                            4</div>
                                         <div>
                                             <strong>Compartilhe com seu contador</strong>
                                             <p class="text-gray-600 text-xs">Use os botões WhatsApp ou Impressora</p>
@@ -1430,11 +1495,13 @@ Isso dá 1% ao mês<br>
                                     Filtros Avançados (Para Controle Detalhado)
                                 </h4>
                                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                    <p class="text-sm text-gray-700 mb-3">Na aba "Financeiro", você pode filtrar por:</p>
+                                    <p class="text-sm text-gray-700 mb-3">Na aba "Financeiro", você pode filtrar por:
+                                    </p>
                                     <div class="space-y-2">
                                         <div class="flex items-center">
                                             <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                                            <span class="text-sm"><strong>Período específico</strong> (ex: 01/03 a 31/03)</span>
+                                            <span class="text-sm"><strong>Período específico</strong> (ex: 01/03 a
+                                                31/03)</span>
                                         </div>
                                         <div class="flex items-center">
                                             <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
@@ -1446,13 +1513,11 @@ Isso dá 1% ao mês<br>
                                         </div>
                                         <div class="flex items-center">
                                             <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
-                                            <span class="text-sm"><strong>Palavra-chave</strong> (ex: "IPTU", "Manutenção")</span>
+                                            <span class="text-sm"><strong>Palavra-chave</strong> (ex: "IPTU",
+                                                "Manutenção")</span>
                                         </div>
                                     </div>
-                                    <div class="mt-4 p-3 bg-white rounded-lg border">
-                                        <p class="text-xs font-bold text-gray-800 mb-1">Exportar para Excel</p>
-                                        <p class="text-xs text-gray-600">Clique em "Exportar CSV" para abrir no Excel ou Google Sheets</p>
-                                    </div>
+                                    
                                 </div>
 
                                 <div class="mt-6">
@@ -1467,7 +1532,8 @@ Isso dá 1% ao mês<br>
                                         </li>
                                         <li class="flex items-start">
                                             <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
-                                            <span>Use as <strong>categorias</strong> para classificar despesas (IPTU, Manutenção, etc)</span>
+                                            <span>Use as <strong>categorias</strong> para classificar despesas (IPTU,
+                                                Manutenção, etc)</span>
                                         </li>
                                         <li class="flex items-start">
                                             <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
@@ -1480,13 +1546,16 @@ Isso dá 1% ao mês<br>
                     </div>
 
                     <!-- Seção 5: Backup e Segurança -->
-                    <div id="backup" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="backup"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">5</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">5
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Backup e Segurança dos Dados</h3>
                             </div>
-                            <button onclick="markSectionComplete('backup')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('backup')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1498,7 +1567,8 @@ Isso dá 1% ao mês<br>
                             </h4>
                             <div class="text-sm text-red-800 space-y-2">
                                 <p>📱 <strong>Seus dados ficam APENAS no seu celular/computador.</strong></p>
-                                <p>🔄 <strong>Se você perder o aparelho, formatar ou limpar o navegador, perderá TODOS os dados.</strong></p>
+                                <p>🔄 <strong>Se você perder o aparelho, formatar ou limpar o navegador, perderá TODOS
+                                        os dados.</strong></p>
                                 <p>💾 <strong>O backup é SUA responsabilidade.</strong> Faça SEMPRE!</p>
                             </div>
                         </div>
@@ -1512,7 +1582,8 @@ Isso dá 1% ao mês<br>
                                 <div class="space-y-4">
                                     <div class="bg-white p-4 rounded-xl border border-green-200">
                                         <div class="flex items-center mb-2">
-                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                                 <span class="font-bold text-green-700">1</span>
                                             </div>
                                             <p class="font-bold text-gray-800">Acesse Configurações</p>
@@ -1522,7 +1593,8 @@ Isso dá 1% ao mês<br>
 
                                     <div class="bg-white p-4 rounded-xl border border-green-200">
                                         <div class="flex items-center mb-2">
-                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                                 <span class="font-bold text-green-700">2</span>
                                             </div>
                                             <p class="font-bold text-gray-800">Desça até "Segurança de Dados"</p>
@@ -1532,17 +1604,20 @@ Isso dá 1% ao mês<br>
 
                                     <div class="bg-white p-4 rounded-xl border border-green-200">
                                         <div class="flex items-center mb-2">
-                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                                 <span class="font-bold text-green-700">3</span>
                                             </div>
                                             <p class="font-bold text-gray-800">Clique em "Baixar Backup (.json)"</p>
                                         </div>
-                                        <p class="text-sm text-gray-600 ml-11">Um arquivo será baixado automaticamente</p>
+                                        <p class="text-sm text-gray-600 ml-11">Um arquivo será baixado automaticamente
+                                        </p>
                                     </div>
 
                                     <div class="bg-white p-4 rounded-xl border border-green-200">
                                         <div class="flex items-center mb-2">
-                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                                 <span class="font-bold text-green-700">4</span>
                                             </div>
                                             <p class="font-bold text-gray-800">Salve em 2 Lugares Seguros</p>
@@ -1566,33 +1641,43 @@ Isso dá 1% ao mês<br>
                                     Como Restaurar Backup (Se Perder Dados)
                                 </h4>
                                 <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
-                                    <p class="text-sm text-gray-700 mb-4">Se você perdeu os dados ou comprou um celular novo:</p>
+                                    <p class="text-sm text-gray-700 mb-4">Se você perdeu os dados ou comprou um celular
+                                        novo:</p>
                                     <ol class="space-y-3 text-sm">
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">A</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
                                             <div>
                                                 <strong>Baixe o arquivo de backup</strong>
                                                 <p class="text-gray-600 text-xs">Do Google Drive, WhatsApp ou e-mail</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">B</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
                                             <div>
                                                 <strong>Acesse as Configurações do app</strong>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">C</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                C</div>
                                             <div>
                                                 <strong>Clique em "Restaurar Backup"</strong>
                                                 <p class="text-gray-600 text-xs">Selecione o arquivo .json baixado</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">D</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                D</div>
                                             <div>
                                                 <strong>Confirme a restauração</strong>
-                                                <p class="text-gray-600 text-xs">O app será recarregado com seus dados antigos</p>
+                                                <p class="text-gray-600 text-xs">O app será recarregado com seus dados
+                                                    antigos</p>
                                             </div>
                                         </li>
                                     </ol>
@@ -1600,11 +1685,13 @@ Isso dá 1% ao mês<br>
                                         <p class="text-xs font-bold text-gray-800 mb-1">Frequência Recomendada</p>
                                         <div class="flex items-center justify-between">
                                             <span class="text-xs text-gray-600">Backup Semanal</span>
-                                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">OBRIGATÓRIO</span>
+                                            <span
+                                                class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">OBRIGATÓRIO</span>
                                         </div>
                                         <div class="flex items-center justify-between mt-1">
                                             <span class="text-xs text-gray-600">Backup Antes de Formatar Celular</span>
-                                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">CRÍTICO</span>
+                                            <span
+                                                class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">CRÍTICO</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1613,21 +1700,24 @@ Isso dá 1% ao mês<br>
 
                         <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200 text-center">
-                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
                                     <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
                                 </div>
                                 <p class="text-xs font-bold text-gray-800">Não Faça</p>
                                 <p class="text-xs text-gray-600">Limpar histórico/cache do navegador sem backup</p>
                             </div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 text-center">
-                                <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
                                     <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600"></i>
                                 </div>
                                 <p class="text-xs font-bold text-gray-800">Cuidado</p>
                                 <p class="text-xs text-gray-600">Trocar de celular sem restaurar backup primeiro</p>
                             </div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 text-center">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                                     <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
                                 </div>
                                 <p class="text-xs font-bold text-gray-800">Faça Sempre</p>
@@ -1637,13 +1727,16 @@ Isso dá 1% ao mês<br>
                     </div>
 
                     <!-- Seção 6: Dúvidas Frequentes -->
-                    <div id="duvidas" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="duvidas"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">6</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">6
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Dúvidas Frequentes (FAQ)</h3>
                             </div>
-                            <button onclick="markSectionComplete('duvidas')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('duvidas')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1651,18 +1744,22 @@ Isso dá 1% ao mês<br>
                         <div class="space-y-4">
                             <!-- FAQ Item 1 -->
                             <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                                             <i data-lucide="help-circle" class="w-4 h-4"></i>
                                         </div>
                                         Perdi meu celular. Como recupero meus dados?
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-6 pt-0 border-t border-gray-100">
                                     <div class="mt-4 space-y-3">
-                                        <p class="text-sm text-gray-600"><strong>Resposta:</strong> Se você fez backup regularmente, é simples:</p>
+                                        <p class="text-sm text-gray-600"><strong>Resposta:</strong> Se você fez backup
+                                            regularmente, é simples:</p>
                                         <ol class="list-decimal pl-5 space-y-2 text-sm text-gray-600">
                                             <li>Compre/use outro celular</li>
                                             <li>Instale o app Plena Aluguéis novamente (passo 1 deste manual)</li>
@@ -1672,7 +1769,8 @@ Isso dá 1% ao mês<br>
                                         </ol>
                                         <div class="bg-yellow-50 p-3 rounded-lg mt-3">
                                             <p class="text-xs text-yellow-800">
-                                                <strong>Importante:</strong> Se NÃO fez backup, infelizmente os dados estão perdidos. 
+                                                <strong>Importante:</strong> Se NÃO fez backup, infelizmente os dados
+                                                estão perdidos.
                                                 Por isso enfatizamos tanto a importância dos backups semanais.
                                             </p>
                                         </div>
@@ -1682,18 +1780,22 @@ Isso dá 1% ao mês<br>
 
                             <!-- FAQ Item 2 -->
                             <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                                             <i data-lucide="dollar-sign" class="w-4 h-4"></i>
                                         </div>
                                         Como o sistema calcula multas e juros?
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-6 pt-0 border-t border-gray-100">
                                     <div class="mt-4">
-                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Automaticamente, seguindo esta fórmula:</p>
+                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong>
+                                            Automaticamente, seguindo esta fórmula:</p>
                                         <div class="bg-white p-4 rounded-lg border">
                                             <p class="text-sm font-bold text-gray-800 mb-2">Cálculo Automático:</p>
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
@@ -1712,7 +1814,8 @@ Isso dá 1% ao mês<br>
                                             </div>
                                             <div class="mt-3 p-3 bg-blue-50 rounded">
                                                 <p class="text-xs text-blue-800">
-                                                    <strong>Exemplo prático:</strong> Aluguel de R$ 1.000, 5 dias atrasado<br>
+                                                    <strong>Exemplo prático:</strong> Aluguel de R$ 1.000, 5 dias
+                                                    atrasado<br>
                                                     Multa: R$ 1.000 × 2% = R$ 20,00<br>
                                                     Juros: R$ 1.000 × 0,033% × 5 = R$ 1,65<br>
                                                     <strong>Total: R$ 1.021,65</strong>
@@ -1725,30 +1828,38 @@ Isso dá 1% ao mês<br>
 
                             <!-- FAQ Item 3 -->
                             <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-plena-blue">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-plena-blue">
                                             <i data-lucide="printer" class="w-4 h-4"></i>
                                         </div>
                                         Posso imprimir recibos para assinar manualmente?
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-6 pt-0 border-t border-gray-100">
                                     <div class="mt-4">
-                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim! Dois tipos de recibos:</p>
+                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim! Dois tipos
+                                            de recibos:</p>
                                         <div class="space-y-3">
                                             <div class="flex items-start">
-                                                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 mt-0.5">
+                                                <div
+                                                    class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-3 mt-0.5">
                                                     <i data-lucide="message-circle" class="w-3 h-3 text-green-600"></i>
                                                 </div>
                                                 <div>
-                                                    <p class="text-sm font-bold text-gray-800">Recibo Digital (WhatsApp)</p>
-                                                    <p class="text-xs text-gray-600">Enviado automaticamente pelo WhatsApp após registrar pagamento</p>
+                                                    <p class="text-sm font-bold text-gray-800">Recibo Digital (WhatsApp)
+                                                    </p>
+                                                    <p class="text-xs text-gray-600">Enviado automaticamente pelo
+                                                        WhatsApp após registrar pagamento</p>
                                                 </div>
                                             </div>
                                             <div class="flex items-start">
-                                                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-0.5">
+                                                <div
+                                                    class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-0.5">
                                                     <i data-lucide="printer" class="w-3 h-3 text-blue-600"></i>
                                                 </div>
                                                 <div>
@@ -1764,7 +1875,8 @@ Isso dá 1% ao mês<br>
                                         </div>
                                         <div class="mt-3 p-3 bg-gray-100 rounded">
                                             <p class="text-xs text-gray-700">
-                                                <strong>Dica:</strong> Configure seus dados em "Configurações" para que o recibo já saia com seu nome e CPF/CNPJ.
+                                                <strong>Dica:</strong> Configure seus dados em "Configurações" para que
+                                                o recibo já saia com seu nome e CPF/CNPJ.
                                             </p>
                                         </div>
                                     </div>
@@ -1773,18 +1885,22 @@ Isso dá 1% ao mês<br>
 
                             <!-- FAQ Item 4 -->
                             <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                                             <i data-lucide="wifi-off" class="w-4 h-4"></i>
                                         </div>
                                         O app funciona sem internet?
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-6 pt-0 border-t border-gray-100">
                                     <div class="mt-4">
-                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim, funciona 100% offline após instalado!</p>
+                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim, funciona
+                                            100% offline após instalado!</p>
                                         <div class="space-y-2 text-sm text-gray-700">
                                             <div class="flex items-start">
                                                 <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
@@ -1792,7 +1908,8 @@ Isso dá 1% ao mês<br>
                                             </div>
                                             <div class="flex items-start">
                                                 <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
-                                                <span><strong>Consultar histórico</strong> (todos os dados ficam no seu celular)</span>
+                                                <span><strong>Consultar histórico</strong> (todos os dados ficam no seu
+                                                    celular)</span>
                                             </div>
                                             <div class="flex items-start">
                                                 <i data-lucide="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
@@ -1800,16 +1917,19 @@ Isso dá 1% ao mês<br>
                                             </div>
                                             <div class="flex items-start">
                                                 <i data-lucide="x" class="w-4 h-4 text-red-500 mr-2 mt-0.5"></i>
-                                                <span><strong>Enviar WhatsApp</strong> (precisa de internet apenas para esta função)</span>
+                                                <span><strong>Enviar WhatsApp</strong> (precisa de internet apenas para
+                                                    esta função)</span>
                                             </div>
                                             <div class="flex items-start">
                                                 <i data-lucide="x" class="w-4 h-4 text-red-500 mr-2 mt-0.5"></i>
-                                                <span><strong>Fazer backup na nuvem</strong> (precisa de internet)</span>
+                                                <span><strong>Fazer backup na nuvem</strong> (precisa de
+                                                    internet)</span>
                                             </div>
                                         </div>
                                         <div class="mt-3 p-3 bg-green-50 rounded">
                                             <p class="text-xs text-green-800">
-                                                <strong>Vantagem:</strong> Seu controle não depende de internet. Pode registrar pagamentos no meio do campo, 
+                                                <strong>Vantagem:</strong> Seu controle não depende de internet. Pode
+                                                registrar pagamentos no meio do campo,
                                                 em prédios sem sinal, etc. A sincronização com WhatsApp é opcional.
                                             </p>
                                         </div>
@@ -1819,21 +1939,26 @@ Isso dá 1% ao mês<br>
 
                             <!-- FAQ Item 5 -->
                             <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
                                             <i data-lucide="smartphone" class="w-4 h-4"></i>
                                         </div>
                                         Posso usar no computador também?
                                     </div>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-6 pt-0 border-t border-gray-100">
                                     <div class="mt-4">
-                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim! Funciona em qualquer dispositivo:</p>
+                                        <p class="text-sm text-gray-600 mb-3"><strong>Resposta:</strong> Sim! Funciona
+                                            em qualquer dispositivo:</p>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                                             <div class="text-center p-3 bg-blue-50 rounded-lg">
-                                                <i data-lucide="smartphone" class="w-6 h-6 text-blue-600 mx-auto mb-2"></i>
+                                                <i data-lucide="smartphone"
+                                                    class="w-6 h-6 text-blue-600 mx-auto mb-2"></i>
                                                 <p class="text-xs font-bold">Celular</p>
                                                 <p class="text-xs text-gray-600">Android e iPhone</p>
                                             </div>
@@ -1843,18 +1968,22 @@ Isso dá 1% ao mês<br>
                                                 <p class="text-xs text-gray-600">iPad, Samsung, etc</p>
                                             </div>
                                             <div class="text-center p-3 bg-purple-50 rounded-lg">
-                                                <i data-lucide="monitor" class="w-6 h-6 text-plena-blue mx-auto mb-2"></i>
+                                                <i data-lucide="monitor"
+                                                    class="w-6 h-6 text-plena-blue mx-auto mb-2"></i>
                                                 <p class="text-xs font-bold">Computador</p>
                                                 <p class="text-xs text-gray-600">Windows, Mac, Linux</p>
                                             </div>
                                         </div>
                                         <div class="space-y-2 text-sm text-gray-700">
-                                            <p><strong>Importante:</strong> Os dados NÃO sincronizam automaticamente entre dispositivos.</p>
-                                            <p><strong>Solução:</strong> Faça backup no celular → Restaure no computador (e vice-versa).</p>
+                                            <p><strong>Importante:</strong> Os dados NÃO sincronizam automaticamente
+                                                entre dispositivos.</p>
+                                            <p><strong>Solução:</strong> Faça backup no celular → Restaure no computador
+                                                (e vice-versa).</p>
                                         </div>
                                         <div class="mt-3 p-3 bg-blue-50 rounded">
                                             <p class="text-xs text-blue-800">
-                                                <strong>Dica profissional:</strong> Use no celular para registro rápido de pagamentos "na rua". 
+                                                <strong>Dica profissional:</strong> Use no celular para registro rápido
+                                                de pagamentos "na rua".
                                                 Use no computador para gerar relatórios detalhados e imprimir recibos.
                                             </p>
                                         </div>
@@ -1863,7 +1992,8 @@ Isso dá 1% ao mês<br>
                             </details>
                         </div>
 
-                        <div class="mt-8 p-4 bg-gradient-to-r from-plena-blue/10 to-blue-50 rounded-xl border border-plena-blue/20">
+                        <div
+                            class="mt-8 p-4 bg-gradient-to-r from-plena-blue/10 to-blue-50 rounded-xl border border-plena-blue/20">
                             <h4 class="font-bold text-gray-800 mb-2 flex items-center">
                                 <i data-lucide="message-circle" class="w-5 h-5 mr-2 text-plena-blue"></i>
                                 Ainda com dúvidas?
@@ -1887,13 +2017,16 @@ Isso dá 1% ao mês<br>
                     </div>
 
                     <!-- Seção 7: Checklist Interativo -->
-                    <div id="checklist" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="checklist"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">7</div>
+                                <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">7
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Checklist Interativo de Rotina</h3>
                             </div>
-                            <button onclick="markSectionComplete('checklist')" class="text-xs text-gray-500 hover:text-green-600">
+                            <button onclick="markSectionComplete('checklist')"
+                                class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
                         </div>
@@ -1903,24 +2036,31 @@ Isso dá 1% ao mês<br>
                             <div class="space-y-4">
                                 <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
                                     <div class="flex items-center justify-between mb-3">
-                                        <h4 class="font-bold text-blue-600 uppercase text-sm">Início do Mês (Dia 1-5)</h4>
+                                        <h4 class="font-bold text-blue-600 uppercase text-sm">Início do Mês (Dia 1-5)
+                                        </h4>
                                         <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">CRÍTICO</span>
                                     </div>
                                     <div id="checklist-1" class="space-y-3">
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-1-1" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-1-1"
+                                                class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-1-1" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Conferir Dashboard para ver pendências
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-1-2" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-1-2"
+                                                class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-1-2" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Enviar lembretes por WhatsApp (botão verde)
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-1-3" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-1-3"
+                                                class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-1-3" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Verificar imóveis vagos para anunciar
                                             </label>
@@ -1931,23 +2071,30 @@ Isso dá 1% ao mês<br>
                                 <div class="bg-green-50 p-5 rounded-xl border border-green-100">
                                     <div class="flex items-center justify-between mb-3">
                                         <h4 class="font-bold text-green-600 uppercase text-sm">Durante o Mês</h4>
-                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">ROTINA</span>
+                                        <span
+                                            class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">ROTINA</span>
                                     </div>
                                     <div id="checklist-2" class="space-y-3">
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-2-1" class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-2-1"
+                                                class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-2-1" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Registrar pagamentos recebidos
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-2-2" class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-2-2"
+                                                class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-2-2" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Enviar recibos automáticos (WhatsApp)
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-2-3" class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-2-3"
+                                                class="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-2-3" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Lançar despesas (IPTU, condomínio, manutenção)
                                             </label>
@@ -1960,24 +2107,32 @@ Isso dá 1% ao mês<br>
                             <div class="space-y-4">
                                 <div class="bg-purple-50 p-5 rounded-xl border border-purple-100">
                                     <div class="flex items-center justify-between mb-3">
-                                        <h4 class="font-bold text-plena-blue uppercase text-sm">Fim do Mês (Dia 25-31)</h4>
-                                        <span class="text-xs bg-blue-100 text-plena-blue px-2 py-1 rounded">ANÁLISE</span>
+                                        <h4 class="font-bold text-plena-blue uppercase text-sm">Fim do Mês (Dia 25-31)
+                                        </h4>
+                                        <span
+                                            class="text-xs bg-blue-100 text-plena-blue px-2 py-1 rounded">ANÁLISE</span>
                                     </div>
                                     <div id="checklist-3" class="space-y-3">
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-3-1" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-3-1"
+                                                class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-3-1" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Gerar relatório mensal completo
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-3-2" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-3-2"
+                                                class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-3-2" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 FAZER BACKUP dos dados (OBRIGATÓRIO)
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-3-3" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-3-3"
+                                                class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-3-3" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Enviar relatório para contador (opcional)
                                             </label>
@@ -1987,24 +2142,31 @@ Isso dá 1% ao mês<br>
 
                                 <div class="bg-red-50 p-5 rounded-xl border border-red-100">
                                     <div class="flex items-center justify-between mb-3">
-                                        <h4 class="font-bold text-red-600 uppercase text-sm">Quando Alugar Novo Imóvel</h4>
+                                        <h4 class="font-bold text-red-600 uppercase text-sm">Quando Alugar Novo Imóvel
+                                        </h4>
                                         <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">CADASTRO</span>
                                     </div>
                                     <div id="checklist-4" class="space-y-3">
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-4-1" class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-4-1"
+                                                class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-4-1" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Cadastrar imóvel no sistema
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-4-2" class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-4-2"
+                                                class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-4-2" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Preencher TODOS dados do inquilino
                                             </label>
                                         </div>
                                         <div class="checklist-item flex items-center">
-                                            <input type="checkbox" id="check-4-3" class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500" onchange="updateChecklist()">
+                                            <input type="checkbox" id="check-4-3"
+                                                class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                                                onchange="updateChecklist()">
                                             <label for="check-4-3" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                                 Fazer backup após cadastro
                                             </label>
@@ -2015,9 +2177,10 @@ Isso dá 1% ao mês<br>
 
                             <!-- Coluna 3: Resumo -->
                             <div>
-                                <div class="bg-gradient-to-br from-gray-900 to-plena-black text-white p-5 rounded-xl shadow-lg">
+                                <div
+                                    class="bg-gradient-to-br from-gray-900 to-plena-black text-white p-5 rounded-xl shadow-lg">
                                     <h4 class="font-bold text-white mb-4 text-lg">Seu Progresso da Semana</h4>
-                                    
+
                                     <div class="space-y-4">
                                         <div>
                                             <div class="flex justify-between text-sm mb-1">
@@ -2025,10 +2188,12 @@ Isso dá 1% ao mês<br>
                                                 <span id="checklist-percent">0%</span>
                                             </div>
                                             <div class="progress-bar bg-gray-700">
-                                                <div id="checklist-progress" class="progress-fill bg-gradient-to-r from-green-400 to-blue-400" style="width: 0%"></div>
+                                                <div id="checklist-progress"
+                                                    class="progress-fill bg-gradient-to-r from-green-400 to-blue-400"
+                                                    style="width: 0%"></div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="grid grid-cols-2 gap-3 text-sm">
                                             <div class="text-center p-3 bg-white/10 rounded-lg">
                                                 <p class="text-2xl font-bold" id="checklist-completed">0</p>
@@ -2039,7 +2204,7 @@ Isso dá 1% ao mês<br>
                                                 <p class="text-white/70 text-xs">Total Itens</p>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="pt-4 border-t border-white/10">
                                             <p class="text-xs text-white/80 mb-3">Próximas tarefas prioritárias:</p>
                                             <div id="next-tasks" class="space-y-2">
@@ -2047,13 +2212,14 @@ Isso dá 1% ao mês<br>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <button onclick="resetChecklist()" class="w-full mt-4 bg-white/20 hover:bg-white/30 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
+
+                                    <button onclick="resetChecklist()"
+                                        class="w-full mt-4 bg-white/20 hover:bg-white/30 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
                                         <i data-lucide="refresh-ccw" class="w-4 h-4 inline mr-2"></i>
                                         Reiniciar Checklist da Semana
                                     </button>
                                 </div>
-                                
+
                                 <div class="mt-6 bg-white p-4 rounded-xl border border-gray-200">
                                     <h4 class="font-bold text-gray-800 mb-3 text-sm">Lembretes Automáticos</h4>
                                     <div class="space-y-2 text-sm text-gray-600">
@@ -2074,7 +2240,8 @@ Isso dá 1% ao mês<br>
                             </div>
                         </div>
 
-                        <div class="mt-8 p-4 bg-gradient-to-r from-green-50 to-white border border-green-200 rounded-xl">
+                        <div
+                            class="mt-8 p-4 bg-gradient-to-r from-green-50 to-white border border-green-200 rounded-xl">
                             <h4 class="font-bold text-gray-800 mb-2 flex items-center">
                                 <i data-lucide="award" class="w-5 h-5 mr-2 text-green-600"></i>
                                 Você Concluiu o Manual Completo!
@@ -2083,13 +2250,16 @@ Isso dá 1% ao mês<br>
                                 Agora você está preparado para gerenciar seus imóveis com profissionalismo e eficiência.
                             </p>
                             <div class="flex flex-wrap gap-2">
-                                <button onclick="router('dashboard')" class="px-4 py-2 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
+                                <button onclick="router('dashboard')"
+                                    class="px-4 py-2 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
                                     Ir para o Dashboard
                                 </button>
-                                <button onclick="window.print()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                                <button onclick="window.print()"
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
                                     <i data-lucide="printer" class="w-4 h-4 inline mr-1"></i> Imprimir este Manual
                                 </button>
-                                <button onclick="downloadBackup()" class="px-4 py-2 border border-green-300 text-green-700 rounded-lg text-sm hover:bg-green-50 transition-colors">
+                                <button onclick="downloadBackup()"
+                                    class="px-4 py-2 border border-green-300 text-green-700 rounded-lg text-sm hover:bg-green-50 transition-colors">
                                     <i data-lucide="download" class="w-4 h-4 inline mr-1"></i> Fazer Primeiro Backup
                                 </button>
                             </div>
@@ -2102,7 +2272,7 @@ Isso dá 1% ao mês<br>
                             Este manual faz parte do sistema Plena Aluguéis v4.1 Pro
                         </p>
                         <p class="text-[10px] text-gray-400">
-                            Plena Soluções Digitais LTDA • CNPJ: 17.347.919/0001-59 • 
+                            Plena Soluções Digitais LTDA • CNPJ: 17.347.919/0001-59 •
                             <a href="mailto:tecnologia@plenainformatica.com.br" class="text-plena-blue hover:underline">
                                 tecnologia@plenainformatica.com.br
                             </a>
@@ -2554,15 +2724,15 @@ Isso dá 1% ao mês<br>
         function updateTutorialProgress() {
             const sections = ['instalacao', 'primeiro-cadastro', 'cobranca', 'relatorios', 'backup', 'duvidas', 'checklist'];
             const completedSections = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
-            
+
             const progress = (completedSections.length / sections.length) * 100;
-            
+
             const progressBar = document.getElementById('tutorial-progress');
             const completedSteps = document.getElementById('completed-steps');
-            
+
             if (progressBar) progressBar.style.width = `${progress}%`;
             if (completedSteps) completedSteps.textContent = `${completedSections.length}/${sections.length} etapas`;
-            
+
             // Atualizar botões das seções
             sections.forEach(sectionId => {
                 const button = document.querySelector(`[onclick="scrollToSection('${sectionId}')"]`);
@@ -2579,15 +2749,15 @@ Isso dá 1% ao mês<br>
             const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
             const total = checkboxes.length;
             const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length;
-            
+
             const percent = Math.round((checked / total) * 100);
-            
+
             // Atualizar progresso
             document.getElementById('checklist-percent').textContent = `${percent}%`;
             document.getElementById('checklist-progress').style.width = `${percent}%`;
             document.getElementById('checklist-completed').textContent = checked;
             document.getElementById('checklist-total').textContent = total;
-            
+
             // Atualizar próximas tarefas
             const nextTasks = document.getElementById('next-tasks');
             if (nextTasks) {
@@ -2599,14 +2769,14 @@ Isso dá 1% ao mês<br>
                         return label ? label.textContent : '';
                     })
                     .filter(text => text !== '');
-                
+
                 nextTasks.innerHTML = uncheckedItems.map(task => `
                     <div class="flex items-center">
                         <i data-lucide="circle" class="w-3 h-3 text-white/60 mr-2"></i>
                         <span class="text-xs text-white/90">${task}</span>
                     </div>
                 `).join('');
-                
+
                 if (uncheckedItems.length === 0) {
                     nextTasks.innerHTML = `
                         <div class="flex items-center">
@@ -2616,7 +2786,7 @@ Isso dá 1% ao mês<br>
                     `;
                 }
             }
-            
+
             // Atualizar estado visual
             checkboxes.forEach(cb => {
                 const item = cb.closest('.checklist-item');
@@ -2626,7 +2796,7 @@ Isso dá 1% ao mês<br>
                     item.classList.remove('completed');
                 }
             });
-            
+
             // Salvar no localStorage
             const checklistState = {};
             checkboxes.forEach(cb => {
@@ -2661,27 +2831,27 @@ Isso dá 1% ao mês<br>
         function showExample(type) {
             if (type === 'whatsapp') {
                 alert('Exemplo de recibo WhatsApp:\n\n' +
-                      '✅ *RECIBO DE PAGAMENTO*\n' +
-                      '----------------------------\n' +
-                      '👤 *Inquilino:* João Silva\n' +
-                      '📍 *Imóvel:* Apto Centro 101\n' +
-                      '----------------------------\n' +
-                      '💰 *Valor Pago:* R$ 1.200,00\n' +
-                      '📅 *Referência:* 03/2026\n' +
-                      '📝 *Data:* 05/03/2026\n' +
-                      '----------------------------\n' +
-                      '✨ *Status:* PAGO\n' +
-                      '_Gerado por Plena Aluguéis_');
+                    '✅ *RECIBO DE PAGAMENTO*\n' +
+                    '----------------------------\n' +
+                    '👤 *Inquilino:* João Silva\n' +
+                    '📍 *Imóvel:* Apto Centro 101\n' +
+                    '----------------------------\n' +
+                    '💰 *Valor Pago:* R$ 1.200,00\n' +
+                    '📅 *Referência:* 03/2026\n' +
+                    '📝 *Data:* 05/03/2026\n' +
+                    '----------------------------\n' +
+                    '✨ *Status:* PAGO\n' +
+                    '_Gerado por Plena Aluguéis_');
             } else if (type === 'formal') {
                 alert('Exemplo de recibo formal (PDF):\n\n' +
-                      'Será aberta uma janela de impressão com:\n' +
-                      '- Seu nome/CPF como locador\n' +
-                      '- Dados completos do inquilino\n' +
-                      '- Endereço do imóvel\n' +
-                      '- Valor e período do aluguel\n' +
-                      '- Data do pagamento\n' +
-                      '- Código de autenticação único\n' +
-                      '\nClique em "Imprimir" para gerar PDF.');
+                    'Será aberta uma janela de impressão com:\n' +
+                    '- Seu nome/CPF como locador\n' +
+                    '- Dados completos do inquilino\n' +
+                    '- Endereço do imóvel\n' +
+                    '- Valor e período do aluguel\n' +
+                    '- Data do pagamento\n' +
+                    '- Código de autenticação único\n' +
+                    '\nClique em "Imprimir" para gerar PDF.');
             }
         }
 
@@ -2689,20 +2859,20 @@ Isso dá 1% ao mês<br>
         function init() {
             try {
                 if (window.lucide) lucide.createIcons();
-                
+
                 // DETECÇÃO E CONFIGURAÇÃO WINDOWS
                 const isWindows = navigator.platform.toLowerCase().includes('win');
                 const isWindows11 = isWindows && navigator.userAgent.includes('Windows NT 10.0');
-                
+
                 if (isWindows) {
                     // Configurações específicas Windows
                     document.documentElement.classList.add('windows-platform');
-                    
+
                     // Ajustes de caminho para Windows
                     if (isWindows11) {
                         console.log('Windows 11 detectado - Aplicando otimizações');
                     }
-                    
+
                     // Configurar PWA para Windows
                     if ('serviceWorker' in navigator) {
                         // Registrar service worker com suporte Windows
@@ -2712,15 +2882,15 @@ Isso dá 1% ao mês<br>
                             console.log('Service Worker não disponível');
                         });
                     }
-                    
+
                     // Ajustes de interface Windows
                     document.body.style.fontFeatureSettings = '"tnum"'; // Números tabulares
-                    
+
                     // Notificações Windows
                     if ('Notification' in window && Notification.permission === 'granted') {
                         // Configurar notificações nativas Windows
                         const originalNotification = window.Notification;
-                        window.Notification = function(title, options) {
+                        window.Notification = function (title, options) {
                             return new originalNotification(title, {
                                 ...options,
                                 icon: '/icon-192.png',
@@ -2792,7 +2962,7 @@ Isso dá 1% ao mês<br>
                 if (db.settings.ownerDoc) document.getElementById('set-owner-doc').value = db.settings.ownerDoc;
                 if (db.settings.lateFee) document.getElementById('set-late-fee').value = db.settings.lateFee;
                 if (db.settings.dailyInterest) document.getElementById('set-daily-interest').value = db.settings.dailyInterest;
-                
+
                 // Carregar nome do estabelecimento
                 if (db.settings.establishmentName) document.getElementById('set-establishment-name').value = db.settings.establishmentName;
 
@@ -3754,14 +3924,14 @@ Isso dá 1% ao mês<br>
         function saveGlobalSettings() {
             const usageType = document.getElementById('set-usage-type').value;
             const establishmentName = document.getElementById('set-establishment-name').value.trim();
-            
+
             // Validação: Nome do estabelecimento obrigatório para uso comercial
             if (usageType === 'commercial' && !establishmentName) {
                 alert('Por favor, preencha o Nome do Estabelecimento para uso comercial.');
                 document.getElementById('set-establishment-name').focus();
                 return;
             }
-            
+
             db.settings.usageType = usageType;
             db.settings.establishmentName = establishmentName;
             db.settings.ownerName = document.getElementById('set-owner-name').value.trim();
@@ -3773,35 +3943,7 @@ Isso dá 1% ao mês<br>
         }
 
         // RELATÓRIOS
-        function shareReport() {
-            const start = document.getElementById('rep-start').value;
-            const end = document.getElementById('rep-end').value;
 
-            if (!start || !end) {
-                alert('Por favor, gere o relatório primeiro.');
-                return;
-            }
-
-            const inc = document.getElementById('rep-inc').innerText;
-            const exp = document.getElementById('rep-exp').innerText;
-            const bal = document.getElementById('rep-bal').innerText;
-
-            // Formatar datas para exibição (PT-BR)
-            const fmtDateBr = (dateStr) => dateStr.split('-').reverse().join('/');
-
-            const msg = `📊 *RELATÓRIO FINANCEIRO*%0A` +
-                `----------------------------%0A` +
-                `📅 *Período:* ${fmtDateBr(start)} a ${fmtDateBr(end)}%0A` +
-                `----------------------------%0A` +
-                `✅ *Receitas:* ${inc}%0A` +
-                `🔻 *Despesas:* ${exp}%0A` +
-                `----------------------------%0A` +
-                `💰 *SALDO:* ${bal}%0A` +
-                `----------------------------%0A` +
-                `_Gerado por Plena Aluguéis_`;
-
-            window.open(`https://wa.me/?text=${msg}`, '_blank');
-        }
 
         function generateReport() {
             const start = document.getElementById('rep-start').value;
@@ -4062,6 +4204,12 @@ Isso dá 1% ao mês<br>
 
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script>
+        // CONTEXT AWARENESS FOR IFRAMES
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
     </script>
 </body>
 

@@ -1136,35 +1136,40 @@
                                 <div class="bg-white p-3 rounded-lg text-center">
                                     <div
                                         class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-2">
-                                        <span class="font-bold text-rose-700">1</span></div>
+                                        <span class="font-bold text-rose-700">1</span>
+                                    </div>
                                     <p class="font-bold text-gray-800">Agendado</p>
                                     <p class="text-gray-600">Cliente marcou</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center">
                                     <div
                                         class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-                                        <span class="font-bold text-green-700">2</span></div>
+                                        <span class="font-bold text-green-700">2</span>
+                                    </div>
                                     <p class="font-bold text-gray-800">Confirmado</p>
                                     <p class="text-gray-600">Via WhatsApp</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center">
                                     <div
                                         class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
-                                        <span class="font-bold text-yellow-700">3</span></div>
+                                        <span class="font-bold text-yellow-700">3</span>
+                                    </div>
                                     <p class="font-bold text-gray-800">Atendimento</p>
                                     <p class="text-gray-600">Em andamento</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center">
                                     <div
                                         class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
-                                        <span class="font-bold text-purple-700">4</span></div>
+                                        <span class="font-bold text-purple-700">4</span>
+                                    </div>
                                     <p class="font-bold text-gray-800">Finalizado</p>
                                     <p class="text-gray-600">Concluído</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center">
                                     <div
                                         class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-                                        <span class="font-bold text-green-700">✓</span></div>
+                                        <span class="font-bold text-green-700">✓</span>
+                                    </div>
                                     <p class="font-bold text-gray-800">Pago</p>
                                     <p class="text-gray-600">Caixa + Comissão</p>
                                 </div>
@@ -1228,14 +1233,16 @@
                             <div
                                 class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                                    <i data-lucide="users" class="w-5 h-5 text-green-600"></i></div>
+                                    <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
+                                </div>
                                 <h4 class="font-bold text-gray-800 mb-2">Por Profissional</h4>
                                 <p class="text-xs text-gray-600">Ranking de atendimentos e performance</p>
                             </div>
                             <div
                                 class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                                    <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i></div>
+                                    <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
+                                </div>
                                 <h4 class="font-bold text-gray-800 mb-2">Comissões</h4>
                                 <p class="text-xs text-gray-600">Total a pagar para cada profissional</p>
                             </div>
@@ -1329,7 +1336,8 @@
                             <p class="text-sm text-gray-800 flex items-center"><i data-lucide="calendar"
                                     class="w-5 h-5 text-yellow-600 mr-2"></i><strong>Frequência Recomendada:</strong>
                                 <span class="ml-2">Faça backup <strong class="text-yellow-800">TODA
-                                        SEMANA!</strong></span></p>
+                                        SEMANA!</strong></span>
+                            </p>
                         </div>
                     </div>
 
@@ -3276,11 +3284,11 @@
             reader.onload = function (e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    
+
                     // Validação básica de integridade
                     const requiredKeys = ['appointments', 'team', 'services', 'transactions', 'clients', 'settings'];
                     const isValid = requiredKeys.every(key => Array.isArray(backup[key]) || typeof backup[key] === 'object');
-                    
+
                     if (isValid) {
                         // Sanitização profunda do backup antes de carregar
                         // Evita que JSON malicioso injete scripts via innerHTML posteriormente
@@ -3295,7 +3303,7 @@
                             }
                             return obj;
                         };
-                        
+
                         db = sanitizeObj(backup);
                         save();
                         alert('Backup restaurado com sucesso! A página será recarregada.');
@@ -3303,9 +3311,9 @@
                     } else {
                         alert('Arquivo de backup inválido ou corrompido.');
                     }
-                } catch (err) { 
+                } catch (err) {
                     console.error(err);
-                    alert('Erro ao ler arquivo. Verifique se é um backup válido.'); 
+                    alert('Erro ao ler arquivo. Verifique se é um backup válido.');
                 }
             };
             reader.readAsText(file);
@@ -3502,6 +3510,12 @@
 
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script>
+        // CONTEXT AWARENESS FOR IFRAMES
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
     </script>
 </body>
 

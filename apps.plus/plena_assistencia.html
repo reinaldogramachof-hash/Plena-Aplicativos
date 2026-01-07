@@ -3889,11 +3889,11 @@
             reader.onload = function (e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    
+
                     // Validação básica de integridade
                     const requiredKeys = ['orders', 'clients', 'transactions', 'settings'];
                     const isValid = requiredKeys.every(key => Array.isArray(backup[key]) || typeof backup[key] === 'object');
-                    
+
                     if (isValid) {
                         if (confirm('Restaurar backup substituirá todos os dados atuais. Tem certeza?')) {
                             // Sanitização profunda do backup antes de carregar
@@ -3908,7 +3908,7 @@
                                 }
                                 return obj;
                             };
-                            
+
                             db = sanitizeObj(backup);
                             save();
                             alert('Backup restaurado com sucesso! A página será recarregada.');
@@ -3917,9 +3917,9 @@
                     } else {
                         alert('Arquivo de backup inválido ou corrompido.');
                     }
-                } catch (err) { 
+                } catch (err) {
                     console.error(err);
-                    alert('Erro ao ler arquivo. Verifique se é um backup válido.'); 
+                    alert('Erro ao ler arquivo. Verifique se é um backup válido.');
                 }
             };
             reader.readAsText(file);
@@ -4255,6 +4255,12 @@
 
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script>
+        // CONTEXT AWARENESS FOR IFRAMES
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
     </script>
 </body>
 
