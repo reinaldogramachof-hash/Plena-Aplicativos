@@ -370,23 +370,23 @@
                 <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Relatórios
             </button>
-            <button onclick="router('instructions')"
-                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-                id="nav-instructions">
-                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
-                Manual
-            </button>
-            <button onclick="router('about')"
-                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-                id="nav-about">
-                <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
-                Sobre
-            </button>
             <button onclick="router('settings')"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
                 id="nav-settings">
                 <i data-lucide="settings" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Configurações
+            </button>
+            <button onclick="router('instructions')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-instructions">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Manual de Uso
+            </button>
+            <button onclick="router('about')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-about">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                Sobre a Plena
             </button>
         </nav>
 
@@ -1463,60 +1463,154 @@
             <!-- About View -->
             <section id="view-about" class="view-section hide fade-in">
                 <div class="max-w-4xl mx-auto pb-12">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="text-center mb-8">
-                            <div
-                                class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-green to-emerald-600 flex items-center justify-center mx-auto mb-4">
-                                <i data-lucide="rocket" class="w-10 h-10 text-white"></i>
-                            </div>
-                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Sobre a Plena</h2>
-                            <p class="text-gray-600">Democratizando tecnologia</p>
-                            <p class="text-xs text-gray-500 mt-2">v4.1 Pro • CNPJ: 17.347.919/0001-59</p>
-                        </div>
 
-                        <div class="mb-8 border-b pb-6">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-                                <i data-lucide="scale" class="w-5 h-5 mr-2 text-plena-green"></i>
-                                Licença de Uso
+                    <!-- 1. Header Institucional -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-green to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-200">
+                            <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">Central de Segurança e Legalidade</h2>
+                        <p class="text-gray-500 font-medium">Plena Soluções Digitais • Transparência Total</p>
+                    </div>
+
+                    <!-- 2. Grid de Políticas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Termos de Uso -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                            <h3 class="font-bold text-gray-800 mb-3 flex items-center text-lg">
+                                <div class="p-2 bg-blue-50 rounded-lg mr-3">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-plena-green"></i>
+                                </div>
+                                Termos de Uso
                             </h3>
-                            <div class="text-sm text-gray-700 space-y-3 bg-gray-50 p-4 rounded-xl">
-                                <p>Software protegido pela <strong>Lei 9.610/98</strong>.</p>
-                                <p><strong>Uso Pessoal:</strong> Licença individual. Proibida redistribuição.</p>
-                                <p><strong>Propriedade:</strong> Plena Soluções Digitais LTDA.</p>
-                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed text-justify">
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
+                                previstas na Lei de Propriedade Intelectual (9.610/98).
+                            </p>
                         </div>
 
-                        <div class="mb-8 border-b pb-6">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-                                <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i>
-                                Privacidade e LGPD
+                        <!-- Privacidade e LGPD -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                            <h3 class="font-bold text-gray-800 mb-3 flex items-center text-lg">
+                                <div class="p-2 bg-green-50 rounded-lg mr-3">
+                                    <i data-lucide="lock" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                Privacidade (LGPD)
                             </h3>
-                            <div class="text-sm text-gray-700 space-y-3 bg-green-50 p-4 rounded-xl">
-                                <p><strong>🔒 Local-First:</strong> Dados só no seu dispositivo.</p>
-                                <p><strong>🛡️ Privacy by Design:</strong> Você controla tudo.</p>
-                                <p><strong>📱 Seus Dados:</strong> Exporte quando quiser.</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-8">
-                            <h3 class="font-bold text-gray-800 mb-4 flex items-center">
-                                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2 text-red-600"></i>
-                                Termo de Isenção
-                            </h3>
-                            <div class="text-sm text-gray-700 space-y-3 bg-red-50 p-4 rounded-xl">
-                                <p><strong>🏍️ Ferramenta:</strong> Não substitui serviços profissionais.</p>
-                                <p><strong>💾 Backup:</strong> Sua responsabilidade.</p>
-                                <p><strong>🎯 Uso:</strong> Por sua conta e risco.</p>
-                            </div>
-                        </div>
-
-                        <div class="text-center pt-6 border-t">
-                            <p class="text-sm text-gray-600 mb-3">Contato:</p>
-                            <a href="mailto:tecnologia@plenainformatica.com.br"
-                                class="text-plena-green font-bold hover:underline">tecnologia@plenainformatica.com.br</a>
-                            <p class="text-xs text-gray-500 mt-4">© 2025 Plena Soluções Digitais LTDA</p>
+                            <p class="text-sm text-gray-600 leading-relaxed text-justify">
+                                Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
+                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                Sua privacidade é absoluta.
+                            </p>
                         </div>
                     </div>
+
+                    <!-- 3. Responsabilidade do Usuário (Crítico) -->
+                    <div class="bg-red-50 border border-red-100 p-8 rounded-2xl mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <i data-lucide="alert-octagon" class="w-32 h-32 text-red-900"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <h3 class="font-bold text-red-800 mb-4 flex items-center text-lg">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 mr-3"></i>
+                                IMPORTANTE: Sua Responsabilidade sobre os Dados
+                            </h3>
+                            <div class="space-y-4 text-sm text-red-900/80 text-justify font-medium">
+                                <p>
+                                    <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
+                                    <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    exclusiva do usuário.
+                                </p>
+                                <p>
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
+                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre as
+                                    taxas configuradas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Suporte e SLA -->
+                    <div class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-xl mb-2 flex items-center">
+                                    <i data-lucide="life-buoy" class="w-6 h-6 mr-3 text-plena-green"></i>
+                                    Suporte Premium Especializado
+                                </h3>
+                                <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
+                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                                </p>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                        <p class="text-xs text-gray-400 uppercase font-bold">Canal Oficial</p>
+                                        <p class="font-bold text-white">E-mail</p>
+                                    </div>
+                                    <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                        <p class="text-xs text-gray-400 uppercase font-bold">Tempo de Resposta (SLA)</p>
+                                        <p class="font-bold text-plena-green">Até 24h Úteis</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                    class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg">
+                                    <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
+                                    Falar com Suporte
+                                </a>
+                                <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Confirmação e Aceite (Travamento) -->
+                    <div class="mt-8 mb-12" id="terms-action-container">
+                        <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
+                            id="terms-box">
+                            <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-300 mb-3" id="terms-icon"></i>
+                            <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <p class="text-sm text-gray-500 mb-6 max-w-lg" id="terms-desc">
+                                Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
+                                Política de Privacidade e sua responsabilidade sobre os backups.
+                            </p>
+
+                            <button onclick="confirmTerms()" id="btn-confirm-terms"
+                                class="bg-plena-green hover:bg-plena-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-green-200 transform hover:scale-105 transition-all flex items-center gap-2 group">
+                                <span>Li, Compreendi e Concordo</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+
+                            <div id="terms-accepted-badge"
+                                class="hidden flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                                <span
+                                    class="bg-green-100 text-green-700 font-bold px-6 py-2 rounded-full text-sm border border-green-200 flex items-center gap-2 mb-2">
+                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                    Termos Aceitos e Registrados
+                                </span>
+                                <p class="text-xs text-gray-400 font-mono" id="terms-date">Carregando data...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Rodapé Legal -->
+                    <div class="text-center border-t border-gray-200 pt-8">
+                        <p class="text-sm font-bold text-gray-800">Plena Soluções Digitais LTDA</p>
+                        <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-[10px] text-gray-400 mt-4">
+                            Versão 4.1 Pro • Build 2026.01.07
+                        </p>
+                    </div>
+
                 </div>
             </section>
         </div>
@@ -1946,7 +2040,9 @@
                 defaultFee: 15.00,
                 notifications: true,
                 darkMode: false,
-                online: false
+                online: false,
+                termsAccepted: false,
+                termsAcceptedAt: null
             },
             goals: {
                 dailyEarnings: 200,
@@ -1994,7 +2090,12 @@
 
         // INICIALIZAÇÃO
         function init() {
-            lucide.createIcons();
+            // Garantir que Lucide seja carregado
+            if (window.lucide) {
+                lucide.createIcons();
+            } else {
+                setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 500);
+            }
 
             // Configurar datas padrão
             const today = new Date().toISOString().split('T')[0];
@@ -2023,6 +2124,9 @@
             // Renderizar dados iniciais
             renderDashboard();
             updateFuelDisplay();
+
+            // Atualizar Termos
+            if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
 
             // Configurar periodicidade para salvar
             setInterval(save, 30000);
@@ -2087,7 +2191,9 @@
                 finance: 'Financeiro',
                 vehicle: 'Veículo',
                 reports: 'Relatórios',
-                settings: 'Configurações'
+                settings: 'Configurações',
+                instructions: 'Manual de Uso',
+                about: 'Sobre a Plena'
             };
 
             document.getElementById('page-title').innerText = titles[view] || 'Plena Delivery';
@@ -3705,6 +3811,70 @@
         function resetChecklist() { if (confirm('Reiniciar checklist?')) { localStorage.removeItem('checklist-state'); document.querySelectorAll('#checklist input[type="checkbox"]').forEach(cb => cb.checked = false); updateChecklist(); } }
         function loadChecklistState() { const st = JSON.parse(localStorage.getItem('checklist-state') || '{}'); Object.keys(st).forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = st[id]; }); updateChecklist(); }
         function showExample(type) { showNotification('Exemplo: ' + type, 'info'); }
+
+        // --- FUNÇÕES DE TERMOS DE USO ---
+        function confirmTerms() {
+            if (!confirm('Tem certeza que leu e concorda com todos os termos apresentados?')) return;
+
+            // Update DB
+            db.settings.termsAccepted = true;
+            db.settings.termsAcceptedAt = new Date().toISOString();
+            save();
+
+            // Update Visuals
+            updateTermsVisuals();
+
+            // Celebration Effect
+            const btn = document.getElementById('btn-confirm-terms');
+            if (btn) {
+                alert('Obrigado! Seu aceite foi registrado com sucesso.');
+            }
+        }
+
+        function updateTermsVisuals() {
+            const hasAccepted = db.settings.termsAccepted;
+            const termsBox = document.getElementById('terms-box');
+            const btn = document.getElementById('btn-confirm-terms');
+            const badge = document.getElementById('terms-accepted-badge');
+            const icon = document.getElementById('terms-icon');
+            const title = document.getElementById('terms-title');
+            const desc = document.getElementById('terms-desc');
+
+            if (hasAccepted && termsBox) {
+                // Change Box Style
+                termsBox.classList.remove('bg-gray-50', 'border-gray-200');
+                termsBox.classList.add('bg-green-50', 'border-green-200');
+
+                // Hide Button / Show Badge
+                if (btn) btn.classList.add('hidden');
+                if (badge) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                }
+
+                // Update Date
+                const dateElement = document.getElementById('terms-date');
+                if (dateElement && db.settings.termsAcceptedAt) {
+                    const dateObj = new Date(db.settings.termsAcceptedAt);
+                    dateElement.textContent = 'Confirmado em: ' + dateObj.toLocaleString('pt-BR');
+                }
+
+                // Update Icon and Text
+                if (icon) {
+                    icon.setAttribute('class', 'w-16 h-16 text-green-500 mb-3 transition-colors duration-500');
+                    icon.setAttribute('data-lucide', 'shield-check');
+                    if (window.lucide) lucide.createIcons();
+                }
+                if (title) {
+                    title.textContent = 'Termos Aceitos e Válidos';
+                    title.classList.add('text-green-800');
+                }
+                if (desc) {
+                    desc.textContent = 'Obrigado por sua transparência e confiança. Seu uso está regularizado.';
+                    desc.classList.add('text-green-700');
+                }
+            }
+        }
 
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);

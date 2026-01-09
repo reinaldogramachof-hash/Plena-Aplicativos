@@ -6,68 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plena Barbearia - Gestão Profissional</title>
 
-    <!-- PWA Manifest e Ícones -->
-    <link rel="manifest" href="manifest.json" />
-    <link rel="icon" type="image/png" href="ICONES/icon-192.png" />
-
     <!-- PWA Meta Tags Padronizadas -->
     <meta name="theme-color" content="#2563EB">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de gestão completo para barbearias - Plena Aplicativos">
 
-    <!-- Metadados Premium -->
-    <meta name="plena-version" content="Plus Premium">
-    <meta name="plena-tier" content="premium">
-    <meta name="plena-category" content="Serviços">
-    <meta name="plena-price" content="97,00">
-    <meta name="plena-access" content="full">
-
-    <!-- Tailwind CSS (Versão Estável) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Verifica se está instalado como PWA
-        function checkPWAInstallation() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-            if (!isStandalone && !localStorage.getItem('pwa-warning-shown')) {
-                // Mostrar aviso se não estiver instalado
-                document.getElementById('install-guide').classList.remove('hidden');
-            }
-        }
-
-        // Oferecer instalação no navegador desktop
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-
-            // Mostrar botão de instalação
-            const installBtn = document.getElementById('install-btn');
-            if (installBtn) {
-                installBtn.style.display = 'block';
-                installBtn.addEventListener('click', () => {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then(() => {
-                        deferredPrompt = null;
-                    });
-                });
-            }
-        });
-
-        // Função para fechar o guia de instalação
-        function closeInstallGuide() {
-            document.getElementById('install-guide').classList.add('hidden');
-            localStorage.setItem('pwa-warning-shown', 'true');
-        }
-
-        // Verificação ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
-            checkPWAInstallation();
-        });
-
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -93,8 +41,8 @@
         }
     </script>
 
-    <!-- Lucide Icons (CDN Estável via jsDelivr) -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.378.0/dist/umd/lucide.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
 
     <style>
         /* CSS Otimizado Padronizado */
@@ -360,37 +308,10 @@
             transition: width 0.3s ease;
         }
     </style>
+    <script src="../../Plena Aplicativos/assets/js/plena_demo.js"></script>
 </head>
 
 <body class="text-slate-800 antialiased">
-
-    <!-- MODAL DE GUIA DE INSTALAÇÃO (PWA) -->
-    <div id="install-guide" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-md p-6 text-center">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">⚠️ IMPORTANTE: Como Instalar</h2>
-            <div class="space-y-4 text-left text-gray-700">
-                <div class="flex items-start">
-                    <span
-                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">1</span>
-                    <p><strong>Toque nos 3 pontos ⋮</strong> no canto superior</p>
-                </div>
-                <div class="flex items-start">
-                    <span
-                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">2</span>
-                    <p>Selecione <strong>"Adicionar à tela inicial"</strong></p>
-                </div>
-                <div class="flex items-start">
-                    <span
-                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
-                    <p><strong>Sempre abra pelo ícone</strong> na tela inicial, NUNCA pelo navegador</p>
-                </div>
-            </div>
-            <button onclick="closeInstallGuide()"
-                class="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold w-full transition-colors">
-                Entendi, vamos começar!
-            </button>
-        </div>
-    </div>
 
     <!-- Overlay para sidebar mobile -->
     <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 transition-opacity" onclick="toggleSidebar()"></div>
@@ -460,12 +381,6 @@
                 id="nav-about">
                 <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Sobre a Plena
-            </button>
-
-            <button id="install-btn" style="display: none;"
-                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group mt-4 bg-blue-600/20 border border-blue-500/50">
-                <i data-lucide="download" class="w-5 h-5 mr-3 text-blue-400"></i>
-                Instalar App
             </button>
         </nav>
 
@@ -1779,78 +1694,154 @@
             <!-- About View (V4 Standard) -->
             <section id="view-about" class="view-section hide fade-in">
                 <div class="max-w-4xl mx-auto pb-12">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                        <div class="text-center mb-10">
-                            <div
-                                class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-blue to-plena-dark flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-                                <i data-lucide="scissors" class="w-10 h-10 text-white"></i>
-                            </div>
-                            <h2 class="text-3xl font-bold text-slate-800 mb-1">Plena Soluções Digitais</h2>
-                            <p class="text-slate-500 font-medium">Tecnologia acessível para barbearias e espaços
-                                masculinos</p>
-                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-3 flex items-center">
-                                    <i data-lucide="lock" class="w-5 h-5 mr-2 text-plena-blue"></i>
-                                    Licença de Uso
-                                </h3>
-                                <p class="text-sm text-slate-600 leading-relaxed text-justify">
-                                    Ao adquirir este software, você recebe uma licença de uso <strong>pessoal e
-                                        intransferível</strong>. É proibida a revenda, distribuição pública, engenharia
-                                    reversa ou modificação do código-fonte sem autorização expressa da Plena Soluções
-                                    Digitais, sob pena da Lei de Direitos Autorais (9.610/98).
-                                </p>
-                            </div>
-
-                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-3 flex items-center">
-                                    <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i>
-                                    Privacidade e LGPD
-                                </h3>
-                                <p class="text-sm text-slate-600 leading-relaxed text-justify">
-                                    Adotamos o conceito <em>Privacy by Design</em>. Este software opera em modo
-                                    <strong>Local-First (Offline)</strong>. Nenhum dado financeiro ou pessoal dos seus
-                                    clientes é enviado para nossos servidores. O controle e a responsabilidade pela
-                                    guarda dos dados (backups) são exclusivamente do usuário.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-8">
-                            <h3 class="font-bold text-red-800 mb-2 flex items-center uppercase text-sm tracking-wide">
-                                <i data-lucide="alert-triangle" class="w-4 h-4 mr-2"></i>
-                                Termo de Isenção de Responsabilidade
-                            </h3>
-                            <div class="text-xs text-red-800 space-y-2 leading-relaxed text-justify opacity-90">
-                                <p>
-                                    1. <strong>Natureza da Ferramenta:</strong> Este software é uma ferramenta auxiliar
-                                    de gestão e organização. Ele não substitui o controle contábil oficial da sua
-                                    empresa. A Plena não se responsabiliza por erros operacionais ou perda de agenda.
-                                </p>
-                                <p>
-                                    2. <strong>Perda de Dados:</strong> O usuário reconhece que o armazenamento é local
-                                    (no navegador). A Plena não possui cópia dos seus dados e não pode recuperá-los em
-                                    caso de formatação de dispositivo, limpeza de cache ou roubo, caso o usuário não
-                                    tenha realizado os backups recomendados.
-                                </p>
-                            </div>
-                        </div>
-
+                    <!-- 1. Header Institucional -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 mb-8 text-center">
                         <div
-                            class="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div class="text-center md:text-left">
-                                <p class="text-sm font-bold text-slate-800">Suporte Oficial</p>
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
-                                    class="text-sm text-plena-blue hover:underline">tecnologia@plenainformatica.com.br</a>
-                            </div>
-                            <div class="text-center md:text-right">
-                                <p class="text-xs text-slate-400">Desenvolvido por Plena Soluções Digitais LTDA</p>
-                                <p class="text-xs text-slate-300">CNPJ: 17.347.919/0001-59 • v4.1 Pro (Barbearia)</p>
+                            class="w-20 h-20 rounded-full bg-gradient-to-r from-plena-blue to-plena-dark flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
+                            <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 mb-1">Central de Segurança e Legalidade</h2>
+                        <p class="text-slate-500 font-medium">Plena Soluções Digitais • Transparência Total</p>
+                    </div>
+
+                    <!-- 2. Grid de Políticas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Termos de Uso -->
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
+                            <h3 class="font-bold text-slate-800 mb-3 flex items-center text-lg">
+                                <div class="p-2 bg-blue-50 rounded-lg mr-3">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-plena-blue"></i>
+                                </div>
+                                Termos de Uso
+                            </h3>
+                            <p class="text-sm text-slate-600 leading-relaxed text-justify">
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
+                                previstas na Lei de Propriedade Intelectual (9.610/98).
+                            </p>
+                        </div>
+
+                        <!-- Privacidade e LGPD -->
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
+                            <h3 class="font-bold text-slate-800 mb-3 flex items-center text-lg">
+                                <div class="p-2 bg-green-50 rounded-lg mr-3">
+                                    <i data-lucide="lock" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                Privacidade (LGPD)
+                            </h3>
+                            <p class="text-sm text-slate-600 leading-relaxed text-justify">
+                                Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
+                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                Sua privacidade é absoluta.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Responsabilidade do Usuário (Crítico) -->
+                    <div class="bg-red-50 border border-red-100 p-8 rounded-2xl mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <i data-lucide="alert-octagon" class="w-32 h-32 text-red-900"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <h3 class="font-bold text-red-800 mb-4 flex items-center text-lg">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 mr-3"></i>
+                                IMPORTANTE: Sua Responsabilidade sobre os Dados
+                            </h3>
+                            <div class="space-y-4 text-sm text-red-900/80 text-justify font-medium">
+                                <p>
+                                    <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
+                                    <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    exclusiva do usuário.
+                                </p>
+                                <p>
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
+                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre as
+                                    taxas configuradas.
+                                </p>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 4. Suporte e SLA -->
+                    <div class="bg-gradient-to-br from-slate-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-xl mb-2 flex items-center">
+                                    <i data-lucide="life-buoy" class="w-6 h-6 mr-3 text-plena-blue"></i>
+                                    Suporte Premium Especializado
+                                </h3>
+                                <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
+                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                                </p>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                        <p class="text-xs text-slate-400 uppercase font-bold">Canal Oficial</p>
+                                        <p class="font-bold text-white">E-mail</p>
+                                    </div>
+                                    <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                                        <p class="text-xs text-slate-400 uppercase font-bold">Tempo de Resposta (SLA)</p>
+                                        <p class="font-bold text-plena-blue">Até 24h Úteis</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                    class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-slate-100 transition-transform transform hover:scale-105 shadow-lg">
+                                    <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
+                                    Falar com Suporte
+                                </a>
+                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Confirmação e Aceite (Travamento) -->
+                    <div class="mt-8 mb-12" id="terms-action-container">
+                        <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
+                            id="terms-box">
+                            <i data-lucide="check-circle-2" class="w-12 h-12 text-slate-300 mb-3" id="terms-icon"></i>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <p class="text-sm text-slate-500 mb-6 max-w-lg" id="terms-desc">
+                                Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
+                                Política de Privacidade e sua responsabilidade sobre os backups.
+                            </p>
+
+                            <button onclick="confirmTerms()" id="btn-confirm-terms"
+                                class="bg-plena-blue hover:bg-plena-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transform hover:scale-105 transition-all flex items-center gap-2 group">
+                                <span>Li, Compreendi e Concordo</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+
+                            <div id="terms-accepted-badge"
+                                class="hidden flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                                <span
+                                    class="bg-green-100 text-green-700 font-bold px-6 py-2 rounded-full text-sm border border-green-200 flex items-center gap-2 mb-2">
+                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                    Termos Aceitos e Registrados
+                                </span>
+                                <p class="text-xs text-slate-400 font-mono" id="terms-date">Carregando data...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Rodapé Legal -->
+                    <div class="text-center border-t border-slate-200 pt-8">
+                        <p class="text-sm font-bold text-slate-800">Plena Soluções Digitais LTDA</p>
+                        <p class="text-xs text-slate-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-[10px] text-slate-400 mt-4">
+                            Versão 4.1 Pro • Build 2026.01.07
+                        </p>
+                    </div>
+
                 </div>
             </section>
 
@@ -2145,125 +2136,14 @@
 
     <!-- JavaScript -->
     <script>
-        // 🔒 DADOS DA LICENÇA (PLACEHOLDER PARA GERADOR)
+        // 🔒 DADOS DA LICENÇA (INSTRUÇÕES PARA O GERADOR)
         // O Gerador de Licenças deve localizar esta constante e preencher os dados abaixo:
         const LICENSE_DATA = {
-            active: false,
-            businessName: "",
-            ownerName: "",
-            ownerDoc: ""
+            active: false,      // ALTERAR PARA true PARA ATIVAR A LICENÇA
+            businessName: "",   // NOME DA BARBEARIA (Ex: Barbearia do Zé)
+            ownerName: "",      // NOME DO RESPONSÁVEL (Ex: João Silva)
+            ownerDoc: ""        // CPF OU CNPJ (Ex: 123.456.789-00)
         };
-
-        /* --- SECURITY: INJECTED UTILITIES & LOGIC --- */
-        (function () {
-            // 1. Validation Logic (Strict Math Check)
-            const validateDoc = (val) => {
-                if (!val) return true;
-                const str = val.replace(/\D/g, '');
-
-                // Validação CPF (11 dígitos)
-                if (str.length === 11) {
-                    if (/^(\d)\1+$/.test(str)) return false;
-
-                    let sum = 0, rem;
-                    for (let i = 1; i <= 9; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (11 - i);
-                    rem = (sum * 10) % 11;
-                    if ((rem === 10) || (rem === 11)) rem = 0;
-                    if (rem !== parseInt(str.substring(9, 10))) return false;
-
-                    sum = 0;
-                    for (let i = 1; i <= 10; i++) sum = sum + parseInt(str.substring(i - 1, i)) * (12 - i);
-                    rem = (sum * 10) % 11;
-                    if ((rem === 10) || (rem === 11)) rem = 0;
-                    if (rem !== parseInt(str.substring(10, 11))) return false;
-                    return true;
-                }
-
-                // Validação CNPJ (14 dígitos)
-                if (str.length === 14) {
-                    if (/^(\d)\1+$/.test(str)) return false;
-
-                    let size = str.length - 2;
-                    let numbers = str.substring(0, size);
-                    const digits = str.substring(size);
-                    let sum = 0;
-                    let pos = size - 7;
-
-                    for (let i = size; i >= 1; i--) {
-                        sum += parseInt(numbers.charAt(size - i)) * pos--;
-                        if (pos < 2) pos = 9;
-                    }
-                    let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-                    if (result !== parseInt(digits.charAt(0))) return false;
-
-                    size = size + 1;
-                    numbers = str.substring(0, size);
-                    sum = 0;
-                    pos = size - 7;
-
-                    for (let i = size; i >= 1; i--) {
-                        sum += parseInt(numbers.charAt(size - i)) * pos--;
-                        if (pos < 2) pos = 9;
-                    }
-                    result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-                    if (result !== parseInt(digits.charAt(1))) return false;
-                    return true;
-                }
-
-                return false;
-            };
-
-            // 2. Watermark Logic
-            const applyWatermark = () => {
-                try {
-                    if (typeof LICENSE_DATA === 'undefined' || !LICENSE_DATA.active) return;
-
-                    const allViews = document.querySelectorAll('.view-section');
-                    allViews.forEach(view => {
-                        if (!view.querySelector('.license-footer')) {
-                            const footer = document.createElement('div');
-                            footer.className = 'license-footer text-center mt-12 pt-4 border-t border-gray-200';
-                            footer.innerHTML = `
-                          <p class="text-[11px] text-gray-500 font-mono uppercase tracking-widest select-none font-medium">
-                              Licenciado para: ${LICENSE_DATA.businessName} (${LICENSE_DATA.ownerName}) • CPF/CNPJ: ${LICENSE_DATA.ownerDoc}
-                          </p>
-                      `;
-                            view.appendChild(footer);
-                        }
-                    });
-                } catch (e) {
-                    console.warn('License injection warning:', e);
-                }
-            };
-
-            // 3. Logic Injection (Function Interception)
-            const injectValidationHooks = () => {
-                if (typeof window.saveGlobalSettings === 'function' && !window.saveGlobalSettings._hooked) {
-                    const originalSave = window.saveGlobalSettings;
-                    window.saveGlobalSettings = function () {
-                        const ownerDocEl = document.getElementById('set-owner-doc');
-                        if (ownerDocEl && ownerDocEl.value && !validateDoc(ownerDocEl.value)) {
-                            alert('CPF ou CNPJ do Proprietário inválido! Verifique os números.');
-                            return;
-                        }
-                        return originalSave.apply(this, arguments);
-                    };
-                    window.saveGlobalSettings._hooked = true;
-                }
-            };
-
-            const init = () => {
-                applyWatermark();
-                injectValidationHooks();
-            };
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-        })();
-
         // Protege contra modificações em tempo de execução via Console
         Object.freeze(LICENSE_DATA);
 
@@ -2294,7 +2174,9 @@
             settings: {
                 businessName: '',
                 businessHours: '09:00 às 19:00',
-                theme: 'blue'
+                theme: 'blue',
+                termsAccepted: false,
+                termsAcceptedAt: null
             }
         };
 
@@ -2420,27 +2302,10 @@
                 }
             }
 
-            // CHECK DE BACKUP AUTOMÁTICO (LEMBRETE)
-            if (db.settings && db.settings.lastBackup) {
-                const last = new Date(db.settings.lastBackup);
-                const diff = (new Date() - last) / (1000 * 60 * 60 * 24); // dias
-                if (diff > 7) {
-                    setTimeout(() => {
-                        showNotification('⚠️ Faz tempo que você não faz backup! Vá em Configurações > Baixar Backup.', 'warning');
-                    }, 5000);
-                }
-            } else {
-                // Se nunca fez backup e já tem dados significativos
-                if (db.appointments.length > 5 || db.transactions.length > 5) {
-                    setTimeout(() => {
-                        showNotification('💡 Dica: Faça seu primeiro backup em Configurações!', 'info');
-                    }, 10000);
-                }
-            }
-
             // Renderizar dados iniciais
             renderDashboard();
             updateDataStatus();
+            if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
 
             // Configurar periodicidade para salvar
             setInterval(save, 30000); // Salva a cada 30 segundos
@@ -3682,30 +3547,13 @@
 
         // BACKUP E RESTAURAÇÃO
         function downloadBackup() {
-            const date = new Date().toISOString().slice(0, 10);
-            const filename = `backup_plena_barbearia_${date}.json`;
-
-            // Adicionar metadados ao backup
-            const backupData = {
-                ...db,
-                backupDate: new Date().toISOString(),
-                version: '4.1'
-            };
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", filename);
+            downloadAnchorNode.setAttribute("download", "plena_barbearia_backup.json");
             document.body.appendChild(downloadAnchorNode); // Required for firefox
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
-
-            // Atualizar registro de backup
-            if (!db.settings) db.settings = {};
-            db.settings.lastBackup = new Date().toISOString();
-            save();
-
-            showNotification('Backup gerado! Salve na pasta "backups".', 'success');
         }
 
         function restoreBackup(input) {
@@ -3897,18 +3745,10 @@
         function resetChecklist() {
             if (confirm('Deseja reiniciar o checklist? Esta ação não pode ser desfeita.')) {
                 localStorage.removeItem('checklist-state');
-
-                // Limpar visualmente todos os checkboxes
-                const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
-                checkboxes.forEach(cb => {
+                document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
                     cb.checked = false;
                 });
-
-                // Atualizar progresso visual
                 updateChecklist();
-
-                // Feedback visual para o usuário
-                showNotification('Checklist reiniciado com sucesso!', 'success');
             }
         }
 
@@ -3928,47 +3768,11 @@
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', init);
 
-        // Registro do Service Worker para PWA (Simples)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registrado:', reg))
-                    .catch(err => console.log('Falha no SW:', err));
-            });
-        }
-
         // Carregar estado do manual ao carregar página
         document.addEventListener('DOMContentLoaded', () => {
             updateTutorialProgress();
             loadChecklistState();
         });
-
-        // DIAGNÓSTICO DE CARREGAMENTO (Ajuste Visual)
-        window.addEventListener('load', function () {
-            // Verificar Lucide
-            if (typeof lucide === 'undefined') {
-                console.error('Lucide Icons failed to load');
-                const warning = document.createElement('div');
-                warning.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#ef4444;color:white;padding:10px;border-radius:5px;z-index:9999;font-family:sans-serif;font-size:12px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
-                warning.innerHTML = '⚠️ Ícones não carregaram. Verifique a internet.';
-                document.body.appendChild(warning);
-            }
-
-            // Verificar Tailwind
-            if (typeof tailwind === 'undefined') {
-                console.error('Tailwind CSS failed to load');
-                const alert = document.createElement('div');
-                alert.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#ef4444;color:white;text-align:center;padding:15px;z-index:9999;font-family:sans-serif;font-weight:bold;';
-                alert.innerHTML = 'ERRO DE VISUALIZAÇÃO: Estilos não carregaram. Verifique sua conexão.';
-                document.body.prepend(alert);
-            }
-        });
-    </script>
-    <script>
-        // CONTEXT AWARENESS FOR IFRAMES
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
     </script>
 </body>
 
