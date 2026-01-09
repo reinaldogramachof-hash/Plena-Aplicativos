@@ -1007,72 +1007,314 @@
             </section>
 
             <section id="view-instructions" class="view-section hide fade-in">
-                <div class="max-w-3xl mx-auto">
-                    <div class="text-center mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Manual de Estoque</h2>
-                        <p class="text-gray-600">Aprenda a otimizar sua gestão de produtos.</p>
+                <div class="max-w-4xl mx-auto">
+                    <!-- Hero Section -->
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center justify-center p-3 bg-plena-blue/10 rounded-2xl mb-4">
+                            <i data-lucide="book-open" class="w-8 h-8 text-plena-blue"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-3">Manual de Uso</h2>
+                        <p class="text-gray-600 max-w-lg mx-auto">Guia completo para você dominar todas as funcionalidades do seu Controle de Estoque Profissional.</p>
                     </div>
 
-                    <div class="space-y-4">
-                        <details
-                            class="group bg-white border border-gray-200 rounded-xl overflow-hidden open:shadow-md">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer select-none text-gray-800 font-bold hover:bg-gray-50">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-plena-cyan">
-                                        <i data-lucide="shield-check" class="w-4 h-4"></i>
-                                    </div>
-                                    1. Segurança: Seu Estoque Vale Dinheiro
-                                </div>
-                                <i data-lucide="chevron-down"
-                                    class="w-5 h-5 transition-transform group-open:rotate-180 text-gray-400"></i>
-                            </summary>
-                            <div class="p-4 pt-0 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-                                <p class="mb-3">Não corra o risco de perder seu inventário. Faça backup regularmente:
-                                </p>
-                                <ol class="list-decimal pl-5 space-y-2 mb-3">
-                                    <li>Vá em <strong>Configurações</strong></li>
-                                    <li>Clique em <strong>Baixar Backup</strong></li>
-                                    <li>Salve no Google Drive ou envie para seu próprio WhatsApp</li>
-                                </ol>
-                            </div>
-                        </details>
-
-                        <details
-                            class="group bg-white border border-gray-200 rounded-xl overflow-hidden open:shadow-md">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer select-none text-gray-800 font-bold hover:bg-gray-50">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                                        <i data-lucide="calendar-off" class="w-4 h-4"></i>
-                                    </div>
-                                    2. Controle de Validade
-                                </div>
-                                <i data-lucide="chevron-down"
-                                    class="w-5 h-5 transition-transform group-open:rotate-180 text-gray-400"></i>
-                            </summary>
-                            <div class="p-4 pt-0 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-                                <p>Cadastre sempre a validade dos produtos perecíveis. O sistema avisa automaticamente
-                                    no Dashboard quando um item vai vencer nos próximos 30 dias na cor Amarela, e quando
-                                    já venceu na cor Vermelha.</p>
-                            </div>
-                        </details>
+                    <!-- Progress Bar -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-gray-800">Seu Progresso no Aprendizado</h3>
+                            <span id="tutorial-percent" class="text-plena-blue font-bold">0%</span>
+                        </div>
+                        <div class="progress-bar mb-2">
+                            <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500">Complete a leitura de todos os tópicos para dominar o sistema.</p>
                     </div>
 
-                    <!-- Support Section -->
-                    <div class="mt-8 bg-gradient-to-r from-plena-cyan to-plena-dark p-6 rounded-2xl text-white">
-                        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div>
-                                <h3 class="text-xl font-bold mb-2">Precisa de Ajuda?</h3>
-                                <p class="text-white/90">Nossa equipe está pronta para te auxiliar</p>
+                    <!-- Manual Navigation Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                        <div onclick="scrollToSection('instalacao')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <i data-lucide="smartphone" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Instalação</h4>
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
-                                    class="bg-white text-plena-cyan px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors text-center w-full sm:w-auto">
-                                    <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i> Tecnologia / Suporte
-                                </a>
+                            <p class="text-sm text-gray-500">Como instalar no seu celular.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('config')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                                    <i data-lucide="settings" class="w-5 h-5 text-orange-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Ajustes</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Configurações iniciais.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('cadastros')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                                    <i data-lucide="package" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Cadastros</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Produtos e categorias.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('operacao')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
+                                    <i data-lucide="arrow-right-left" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Operação</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Entradas e saídas.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('relatorios')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
+                                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-yellow-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Gestão</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Histórico e lista de compras.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('seguranca')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                                    <i data-lucide="shield" class="w-5 h-5 text-red-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Segurança</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Backup e proteção de dados.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('suporte')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                                    <i data-lucide="help-circle" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Suporte</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">FAQ e ajuda rápida.</p>
+                        </div>
+
+                        <div onclick="scrollToSection('checklist')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-plena-blue/10 flex items-center justify-center">
+                                    <i data-lucide="check-square" class="w-5 h-5 text-plena-blue"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 group-hover:text-plena-blue">Checklist</h4>
+                            </div>
+                            <p class="text-sm text-gray-500">Rotina diária recomendada.</p>
+                        </div>
+                    </div>
+
+                    <!-- Content Sections -->
+                    <div class="space-y-8">
+                        <!-- 1. Instalação -->
+                        <div id="instalacao" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-blue-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xl">1</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Instalação do Aplicativo</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-gray-50 p-5 rounded-xl">
+                                        <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> Android (Chrome)
+                                        </h4>
+                                        <ul class="text-sm text-gray-600 space-y-2 list-disc pl-4">
+                                            <li>Abra o link no <strong>Chrome</strong>.</li>
+                                            <li>Toque nos <strong>três pontos</strong> no canto superior.</li>
+                                            <li>Selecione <strong>Instalar Aplicativo</strong>.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 p-5 rounded-xl">
+                                        <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> iPhone (Safari)
+                                        </h4>
+                                        <ul class="text-sm text-gray-600 space-y-2 list-disc pl-4">
+                                            <li>Abra o link no <strong>Safari</strong>.</li>
+                                            <li>Toque no ícone de <strong>Compartilhar</strong>.</li>
+                                            <li>Toque em <strong>Adicionar à Tela de Início</strong>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button onclick="markSectionComplete('instalacao')" class="w-full mt-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Configurações -->
+                        <div id="config" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-orange-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xl">2</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Ajustes Iniciais</h3>
+                                </div>
+                                <p class="text-gray-600 mb-4">Personalize o sistema com suas preferências:</p>
+                                <ul class="space-y-3 text-sm text-gray-600 mb-6">
+                                    <li class="flex items-center gap-3">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-orange-500"></i>
+                                        Acesse a aba <strong>Configurações</strong>.
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-orange-500"></i>
+                                        Defina o <strong>Símbolo da Moeda</strong> (ex: R$).
+                                    </li>
+                                </ul>
+                                <button onclick="markSectionComplete('config')" class="w-full py-3 bg-orange-50 text-orange-600 font-bold rounded-lg hover:bg-orange-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Cadastros -->
+                        <div id="cadastros" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-green-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 font-bold text-xl">3</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Cadastro de Produtos</h3>
+                                </div>
+                                <div class="space-y-4 text-sm text-gray-600 mb-6">
+                                    <div class="p-4 bg-green-50 rounded-xl">
+                                        <h4 class="font-bold text-green-800 mb-2">Itens e Categorias</h4>
+                                        <p>Cadastre seus produtos informando nome, categoria e o <strong>Estoque Mínimo</strong> desejado para cada um.</p>
+                                    </div>
+                                    <div class="p-4 bg-green-50 rounded-xl">
+                                        <h4 class="font-bold text-green-800 mb-2">Controle de Validade</h4>
+                                        <p>Para itens perecíveis, informe a data de validade. O sistema avisará quando o item estiver próximo do vencimento.</p>
+                                    </div>
+                                </div>
+                                <button onclick="markSectionComplete('cadastros')" class="w-full py-3 bg-green-50 text-green-600 font-bold rounded-lg hover:bg-green-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4. Operação -->
+                        <div id="operacao" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-purple-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xl">4</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Movimentação de Estoque</h3>
+                                </div>
+                                <div class="space-y-4 text-sm text-gray-600 mb-6">
+                                    <p>Mantenha seu estoque sempre atualizado:</p>
+                                    <ol class="list-decimal pl-5 space-y-2">
+                                        <li>No dashboard ou inventário, clique em <strong>Movimentar</strong>.</li>
+                                        <li>Escolha entre <strong>Entrada</strong> (Compra/Reposição) ou <strong>Saída</strong> (Venda/Uso).</li>
+                                        <li>Informe a quantidade. O sistema atualizará o saldo instantaneamente.</li>
+                                    </ol>
+                                </div>
+                                <button onclick="markSectionComplete('operacao')" class="w-full py-3 bg-purple-50 text-purple-600 font-bold rounded-lg hover:bg-purple-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 5. Gestão -->
+                        <div id="relatorios" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-yellow-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600 font-bold text-xl">5</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Gestão e Lista de Compras</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-6">
+                                    <div class="p-4 border border-yellow-100 rounded-xl">
+                                        <h4 class="font-bold text-yellow-800 mb-2">Lista Automática</h4>
+                                        <p>O sistema gera uma lista automática de todos os itens que estão abaixo do estoque mínimo configurado.</p>
+                                    </div>
+                                    <div class="p-4 border border-yellow-100 rounded-xl">
+                                        <h4 class="font-bold text-yellow-800 mb-2">Histórico</h4>
+                                        <p>Acompanhe todas as entradas e saídas realizadas, com data e hora de cada registro.</p>
+                                    </div>
+                                </div>
+                                <button onclick="markSectionComplete('relatorios')" class="w-full py-3 bg-yellow-50 text-yellow-600 font-bold rounded-lg hover:bg-yellow-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 6. Segurança -->
+                        <div id="seguranca" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 font-bold text-xl">6</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Segurança de Dados</h3>
+                                </div>
+                                <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-6">
+                                    <p class="text-sm text-red-800 flex items-start gap-2">
+                                        <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i>
+                                        <strong>IMPORTANTE:</strong> Seus dados são salvos apenas neste dispositivo. Se você trocar de celular ou limpar o histórico do navegador, poderá perder as informações.
+                                    </p>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">Recomendamos fazer o backup semanalmente:</p>
+                                <button onclick="downloadBackup()" class="w-full mb-3 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    Fazer Backup Agora
+                                </button>
+                                <button onclick="markSectionComplete('seguranca')" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 7. Suporte -->
+                        <div id="suporte" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-2 h-full bg-gray-500"></div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 font-bold text-xl">7</div>
+                                    <h3 class="text-xl font-bold text-gray-800">Suporte e FAQ</h3>
+                                </div>
+                                <div class="space-y-3 mb-6">
+                                    <details class="group bg-gray-50 rounded-xl p-4">
+                                        <summary class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
+                                            Como funciona o alerta de estoque baixo?
+                                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
+                                        </summary>
+                                        <p class="text-sm text-gray-600 mt-2">Sempre que a quantidade de um item for menor que o estoque mínimo configurado, ele aparecerá em vermelho e na lista de compras.</p>
+                                    </details>
+                                    <details class="group bg-gray-50 rounded-xl p-4">
+                                        <summary class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
+                                            Posso usar o leitor de código de barras?
+                                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
+                                        </summary>
+                                        <p class="text-sm text-gray-600 mt-2">Sim! No campo de busca de produtos, você pode usar um leitor de código de barras físico conectado ao aparelho para encontrar itens rapidamente.</p>
+                                    </details>
+                                </div>
+                                <button onclick="markSectionComplete('suporte')" class="w-full py-3 bg-gray-50 text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition-colors">
+                                    Concluir Etapa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Checklist -->
+                        <div id="checklist" class="scroll-mt-24">
+                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-plena-blue text-white flex items-center justify-center">
+                                            <i data-lucide="check-square" class="w-6 h-6"></i>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-gray-800">Checklist Diário</h3>
+                                    </div>
+                                    <button onclick="resetChecklist()" class="text-sm text-plena-blue hover:text-plena-dark font-medium">Reiniciar</button>
+                                </div>
+                                <div id="checklist-items" class="space-y-3">
+                                    <!-- Gerado via JS -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1306,22 +1548,24 @@
     <script>
         // GLOBAL STATE
         const DB_KEY = 'plena_estoque_v1';
-        let db = JSON.parse(localStorage.getItem(DB_KEY)) || { 
-            products: [], 
+        const defaultDB = {
+            products: [],
             movements: [],
             settings: {
                 termsAccepted: false,
                 termsAcceptedAt: null
+            },
+            tutorial: {
+                completedSteps: [],
+                checklistState: {}
             }
         };
 
-        // Ensure settings object exists
-        if (!db.settings) {
-            db.settings = {
-                termsAccepted: false,
-                termsAcceptedAt: null
-            };
-        }
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+
+        // Migração/Garantia de objetos
+        if (!db.settings) db.settings = defaultDB.settings;
+        if (!db.tutorial) db.tutorial = defaultDB.tutorial;
 
         // UTILS
         const save = () => { localStorage.setItem(DB_KEY, JSON.stringify(db)); updateDataStatus(); };
@@ -1337,9 +1581,10 @@
             // Auto layout checks
             if (window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
 
-            // Atualizar Termos e Checklist
+            // Atualizar Termos, Tutorial e Checklist
             if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
-            if (typeof loadChecklistState === 'function') loadChecklistState();
+            updateTutorialProgress();
+            renderChecklist();
         }
 
         function router(view) {
@@ -1757,13 +2002,90 @@
             }, 3000);
         }
 
-        // MANUAL FUNCTIONS
-        function scrollToSection(sectionId) { const el = document.getElementById(sectionId); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-        function markSectionComplete(id) { const c = JSON.parse(localStorage.getItem('tutorial-completed') || '[]'); if (!c.includes(id)) { c.push(id); localStorage.setItem('tutorial-completed', JSON.stringify(c)); updateTutorialProgress(); showAlert('Seção concluída!', 'green'); } }
-        function updateTutorialProgress() { const s = ['instalacao', 'config', 'produtos', 'validade', 'backup', 'faq', 'checklist']; const c = JSON.parse(localStorage.getItem('tutorial-completed') || '[]'); const p = (c.length / s.length) * 100; const pb = document.getElementById('tutorial-progress'); const cs = document.getElementById('completed-steps'); if (pb) pb.style.width = `${p}%`; if (cs) cs.textContent = `${c.length}/${s.length} etapas`; }
-        function updateChecklist() { const cbs = document.querySelectorAll('#checklist input[type="checkbox"]'); const t = cbs.length; const ch = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length; const pct = Math.round((ch / t) * 100); document.getElementById('checklist-percent').textContent = `${pct}%`; document.getElementById('checklist-progress').style.width = `${pct}%`; document.getElementById('checklist-completed').textContent = ch; document.getElementById('checklist-total').textContent = t; cbs.forEach(cb => { const it = cb.closest('.checklist-item'); const lbl = cb.nextElementSibling; if (cb.checked) { it.classList.add('completed'); if (lbl) lbl.style.textDecoration = 'line-through'; } else { it.classList.remove('completed'); if (lbl) lbl.style.textDecoration = 'none'; } }); const st = {}; cbs.forEach(cb => st[cb.id] = cb.checked); localStorage.setItem('checklist-state', JSON.stringify(st)); }
-        function resetChecklist() { if (confirm('Reiniciar checklist?')) { localStorage.removeItem('checklist-state'); document.querySelectorAll('#checklist input[type="checkbox"]').forEach(cb => cb.checked = false); updateChecklist(); } }
-        function loadChecklistState() { const st = JSON.parse(localStorage.getItem('checklist-state') || '{}'); Object.keys(st).forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = st[id]; }); updateChecklist(); }
+        // MANUAL & CHECKLIST LOGIC
+        function updateTutorialProgress() {
+            if (!db.tutorial) return;
+            const totalSteps = 7;
+            const completed = db.tutorial.completedSteps.length;
+            const progress = (completed / totalSteps) * 100;
+            
+            const pb = document.getElementById('tutorial-progress');
+            const pt = document.getElementById('tutorial-percent');
+            
+            if (pb) pb.style.width = `${progress}%`;
+            if (pt) pt.textContent = `${Math.round(progress)}%`;
+
+            // Update section buttons
+            db.tutorial.completedSteps.forEach(stepId => {
+                const btn = document.querySelector(`button[onclick="markSectionComplete('${stepId}')"]`);
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i>Concluído';
+                    btn.classList.remove('bg-blue-50', 'text-blue-600', 'bg-orange-50', 'text-orange-600', 'bg-green-50', 'text-green-600', 'bg-purple-50', 'text-purple-600', 'bg-yellow-50', 'text-yellow-600', 'bg-red-50', 'text-red-600', 'bg-gray-50', 'text-gray-600');
+                    btn.classList.add('bg-green-100', 'text-green-700');
+                }
+            });
+        }
+
+        function markSectionComplete(sectionId) {
+            if (!db.tutorial) db.tutorial = { completedSteps: [], checklistState: {} };
+            if (!db.tutorial.completedSteps.includes(sectionId)) {
+                db.tutorial.completedSteps.push(sectionId);
+                save();
+                updateTutorialProgress();
+                showNotification('Etapa concluída!', 'success');
+            }
+        }
+
+        const checklistData = [
+            { id: 'chk_app', text: 'Instalar Aplicativo', sub: 'Acessar via ícone na tela inicial' },
+            { id: 'chk_config', text: 'Ajustes Iniciais', sub: 'Moeda e configurações salvas' },
+            { id: 'chk_prod', text: 'Cadastrar Produto', sub: 'Primeiro item com estoque mínimo' },
+            { id: 'chk_move', text: 'Movimentar', sub: 'Registrar uma entrada ou saída' },
+            { id: 'chk_list', text: 'Lista de Compras', sub: 'Verificar itens em falta' },
+            { id: 'chk_exp', text: 'Validade', sub: 'Conferir itens vencendo' },
+            { id: 'chk_backup', text: 'Backup', sub: 'Cópia de segurança realizada' }
+        ];
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items');
+            if (!container || !db.tutorial) return;
+
+            container.innerHTML = checklistData.map(item => {
+                const isDone = db.tutorial.checklistState[item.id];
+                return `
+                    <div onclick="toggleChecklistItem('${item.id}')" class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:border-plena-blue cursor-pointer transition-all ${isDone ? 'bg-gray-50 opacity-75' : 'bg-white shadow-sm'}">
+                        <div class="w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${isDone ? 'bg-green-500 border-green-500 text-white' : 'border-gray-200'}">
+                            ${isDone ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-sm ${isDone ? 'text-gray-400 line-through' : 'text-gray-800'}">${item.text}</p>
+                            <p class="text-xs text-gray-500">${item.sub}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function toggleChecklistItem(id) {
+            if (!db.tutorial) db.tutorial = { completedSteps: [], checklistState: {} };
+            db.tutorial.checklistState[id] = !db.tutorial.checklistState[id];
+            save();
+            renderChecklist();
+        }
+
+        function resetChecklist() {
+            if (confirm('Deseja reiniciar seu checklist diário?')) {
+                db.tutorial.checklistState = {};
+                save();
+                renderChecklist();
+            }
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
         function showExample(type) { showAlert('Exemplo: ' + type, 'info'); }
 
         // --- FUNÇÕES DE TERMOS DE USO ---

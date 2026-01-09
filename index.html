@@ -273,9 +273,13 @@
                                         }}</span>
                                     <span class="text-2xl font-black text-slate-900">R$ {{ app.price }}</span>
                                 </div>
-                                <button @click.prevent="openPreview(app.link, app.name)"
+                                <button @click.prevent="openPreview(app.link, app.name, app)"
                                     class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition transform hover:scale-105 inline-block text-center cursor-pointer">
                                     Ver Demo Plus
+                                </button>
+                                <button @click.prevent="buyApp(app)"
+                                    class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl transition transform hover:scale-105 inline-block text-center cursor-pointer ml-2">
+                                    Comprar
                                 </button>
                             </div>
                         </div>
@@ -387,10 +391,10 @@
                                     class="text-slate-500 text-xs font-normal uppercase ml-2">Live Demo</span></h3>
                         </div>
                         <div class="flex items-center gap-4">
-                            <a href="https://wa.me/5567993333999?text=Quero%20comprar%20o%20sistema%20" target="_blank"
-                                class="hidden sm:flex bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-black px-4 py-2 rounded-lg uppercase tracking-wider shadow-lg transform hover:scale-105 transition">
+                            <button @click="buyApp()"
+                                class="hidden sm:flex bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-black px-4 py-2 rounded-lg uppercase tracking-wider shadow-lg transform hover:scale-105 transition cursor-pointer">
                                 Comprar Agora
-                            </a>
+                            </button>
                             <button @click="closePreview()"
                                 class="text-slate-400 hover:text-white transition p-3 rounded-lg hover:bg-white/10 cursor-pointer">
                                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -439,6 +443,7 @@
                     const previewOpen = ref(false);
                     const currentPreviewUrl = ref('');
                     const currentPreviewName = ref('');
+                    const currentPreviewApp = ref(null);
 
                     // Body Scroll Lock
                     watch(previewOpen, (isOpen) => {
@@ -449,9 +454,10 @@
                         }
                     });
 
-                    const openPreview = (url, name) => {
+                    const openPreview = (url, name, app) => {
                         currentPreviewUrl.value = url;
                         currentPreviewName.value = name;
+                        currentPreviewApp.value = app;
                         previewOpen.value = true;
                     };
 
@@ -486,7 +492,10 @@
                         { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
                         { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
                         { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." }
+                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." },
+                        { name: "Plena Feirante", tier: "plus", category: "Food", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_feirante.html", img: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=500", desc: "Gestão ágil para feirantes com controle de estoque e vendas rápidas." },
+                        { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas, viagens e manutenção." },
+                        { name: "Plena Odonto", tier: "plus", category: "Gestão", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para consultórios odontológicos." }
                     ]);
 
                     const filteredApps = computed(() => {
@@ -500,7 +509,22 @@
                         return filteredApps.value;
                     });
 
-                    return { filter, search, categories, filteredApps, premiumApps, kits, previewOpen, currentPreviewUrl, currentPreviewName, openPreview, closePreview };
+                    // CHECKOUT REDIRECT
+                    const buyApp = (app) => {
+                        const targetApp = app || currentPreviewApp.value;
+                        if (!targetApp) return;
+
+                        const params = new URLSearchParams({
+                            name: targetApp.name,
+                            price: targetApp.price,
+                            img: targetApp.img,
+                            desc: targetApp.desc,
+                            link: targetApp.link
+                        });
+                        window.location.href = `checkout.html?${params.toString()}`;
+                    };
+
+                    return { filter, search, categories, filteredApps, premiumApps, kits, previewOpen, currentPreviewUrl, currentPreviewName, openPreview, closePreview, buyApp };
                 }
             }).mount('#app');
         })();

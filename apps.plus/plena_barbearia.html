@@ -855,69 +855,71 @@
                 </div>
             </section>
 
-            <!-- Instructions View - Manual Completo -->
+            <!-- Instructions View - MANUAL COMPLETO PADRONIZADO -->
             <section id="view-instructions" class="view-section hide fade-in">
-                <div class="max-w-5xl mx-auto pb-12">
-                    <!--Hero Header-->
-                    <div class="text-center mb-12">
+                <div class="max-w-6xl mx-auto pb-12">
+                    <!-- Cabeçalho Hero -->
+                    <div class="text-center mb-10 pt-4">
                         <div
-                            class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-blue to-plena-dark rounded-2xl mb-6 shadow-lg shadow-blue-200">
-                            <i data-lucide="scissors" class="w-12 h-12 text-white"></i>
+                            class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-blue to-plena-dark rounded-2xl mb-4 shadow-lg">
+                            <i data-lucide="scissors" class="w-12 h-12 text-white"
+                                aria-label="Ícone de Tesoura - Manual de Uso"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-slate-800 mb-3">Manual Completo de Uso</h2>
-                        <p class="text-slate-600 text-lg mb-6">Guia passo a passo para gestores de barbearias</p>
-                        <div class="flex flex-wrap justify-center gap-2">
-                            <span
-                                class="px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-100">
-                                ✓ Para Iniciantes
-                            </span>
-                            <span
-                                class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
-                                📱 Mobile e Desktop
-                            </span>
-                            <span
-                                class="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-sm font-medium border border-purple-100">
-                                ⚡ Rápido e Prático
-                            </span>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso</h1>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e
+                            gestores de barbearias</p>
+                        <div class="mt-4 flex flex-wrap justify-center gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para
+                                Iniciantes</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e
+                                Desktop</span>
+                            <span class="px-3 py-1 bg-blue-100 text-plena-blue rounded-full text-xs font-bold">⚡ Rápido
+                                e Prático</span>
                         </div>
                     </div>
 
-                    <!-- Tutorial Progress Bar -->
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-slate-800">Progresso do Tutorial</h3>
-                            <span id="completed-steps" class="text-sm text-gray-600">0/7 etapas</span>
+                    <!-- Barra de Progresso do Tutorial -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                            <i data-lucide="compass" class="w-5 h-5 mr-2 text-plena-blue"></i>
+                            Seu Progresso no Aprendizado
+                        </h3>
+                        <div class="mb-4">
+                            <div class="progress-bar">
+                                <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                <span>0% Concluído</span>
+                                <span id="completed-steps">0/7 etapas</span>
+                            </div>
                         </div>
-                        <div class="progress-bar mb-6">
-                            <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                        <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
                             <button onclick="scrollToSection('instalacao')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 1. Instalação
                             </button>
                             <button onclick="scrollToSection('primeiro-cadastro')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 2. Configuração
                             </button>
-                            <button onclick="scrollToSection('agendamentos-gestao')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
-                                3. Agendamentos
+                            <button onclick="scrollToSection('agendamentos')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                3. Agendas
                             </button>
                             <button onclick="scrollToSection('relatorios')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 4. Relatórios
                             </button>
                             <button onclick="scrollToSection('backup')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 5. Backup
                             </button>
                             <button onclick="scrollToSection('duvidas')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
-                                6. FAQ
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                6. Dúvidas
                             </button>
                             <button onclick="scrollToSection('checklist')"
-                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-blue hover:text-white rounded-lg transition-colors">
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
                                 7. Checklist
                             </button>
                         </div>
@@ -938,83 +940,66 @@
                             </button>
                         </div>
 
-                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-white mb-6">
+                        <div class="bg-gray-900 rounded-2xl p-6 text-white shadow-lg mb-6">
                             <h4 class="font-bold text-lg mb-4 flex items-center">
                                 <i data-lucide="download" class="w-5 h-5 mr-2 text-green-400"></i>
-                                Instale o App (Android & Windows)
+                                Torne o App Disponível OFFLINE
                             </h4>
-                            <p class="text-sm text-gray-300 mb-6">
-                                O Plena Barbearia funciona como um aplicativo nativo. Siga os passos abaixo para
-                                instalar no seu dispositivo:
-                            </p>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Android -->
-                                <div class="bg-white/10 p-5 rounded-xl border border-white/20">
+                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app
+                                normal:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <i data-lucide="smartphone" class="w-5 h-5 mr-2"></i>
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                            <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                        </div>
                                         Android (Chrome)
                                     </div>
-                                    <ol class="space-y-2 text-sm text-gray-200">
+                                    <ol class="list-decimal pl-5 space-y-3 text-gray-300">
                                         <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                1</div>
-                                            <span>Abra este site no <strong>Google Chrome</strong></span>
+                                            <span class="mr-2">1.</span>
+                                            <div>
+                                                <strong>Abra esta página no Chrome</strong>
+                                            </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                2</div>
-                                            <span>Toque nos <strong>3 pontinhos</strong> no canto superior</span>
+                                            <span class="mr-2">2.</span>
+                                            <div>
+                                                <strong>Toque nos 3 pontinhos ☰</strong>
+                                            </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                3</div>
-                                            <span>Selecione <strong>"Adicionar à tela inicial"</strong></span>
+                                            <span class="mr-2">3.</span>
+                                            <div>
+                                                <strong>Toque em "Instalar app"</strong>
+                                            </div>
                                         </li>
                                     </ol>
                                 </div>
-
-                                <!-- Windows -->
-                                <div class="bg-white/10 p-5 rounded-xl border border-white/20">
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <i data-lucide="monitor" class="w-5 h-5 mr-2"></i>
-                                        Windows (Chrome/Edge)
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center mr-2">
+                                            <i data-lucide="monitor" class="w-4 h-4"></i>
+                                        </div>
+                                        Windows (Chrome)
                                     </div>
-                                    <ol class="space-y-2 text-sm text-gray-200">
+                                    <ol class="list-decimal pl-5 space-y-3 text-gray-300">
                                         <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                1</div>
-                                            <span>Abra este site no <strong>Chrome</strong> ou
-                                                <strong>Edge</strong></span>
+                                            <span class="mr-2">1.</span>
+                                            <div>
+                                                <strong>Clique no ícone (+) na barra de endereço</strong>
+                                            </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                2</div>
-                                            <span>Clique no ícone de <strong>Instalar</strong> na barra de
-                                                endereço</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
-                                                3</div>
-                                            <span>Confirme a instalação para criar o atalho</span>
+                                            <span class="mr-2">2.</span>
+                                            <div>
+                                                <strong>Clique em "Instalar"</strong>
+                                            </div>
                                         </li>
                                     </ol>
                                 </div>
-                            </div>
-
-                            <div class="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
-                                <p class="text-sm flex items-center">
-                                    <i data-lucide="alert-circle" class="w-5 h-5 mr-2 text-yellow-300"></i>
-                                    <strong>Importante:</strong> <span class="ml-2">Sempre abra pelo ícone na tela
-                                        inicial,
-                                        não pelo navegador.</span>
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -1038,7 +1023,7 @@
                             <div class="space-y-4">
                                 <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
                                     <h4 class="font-bold text-blue-700 mb-3 flex items-center">
-                                        <i data-lucide="scissors" class="w-5 h-5 mr-2"></i>
+                                        <i data-lucide="building" class="w-5 h-5 mr-2"></i>
                                         PASSO 1: Dados da Barbearia
                                     </h4>
                                     <ol class="space-y-3 text-sm">
@@ -1066,7 +1051,7 @@
                                                 C</div>
                                             <div>
                                                 <strong>Horário de Funcionamento</strong>
-                                                <p class="text-gray-600 text-xs">Ex: "09:00 às 19:00"</p>
+                                                <p class="text-gray-600 text-xs">Para exibir na agenda</p>
                                             </div>
                                         </li>
                                     </ol>
@@ -1083,8 +1068,7 @@
                                                 class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
                                                 A</div>
                                             <div>
-                                                <strong>Clique em "Novo Agendamento"</strong>
-                                                <p class="text-gray-600 text-xs">Botão azul no topo</p>
+                                                <strong>Volte ao Dashboard</strong>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
@@ -1092,13 +1076,8 @@
                                                 class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
                                                 B</div>
                                             <div>
-                                                <strong>Preencha os dados:</strong>
-                                                <div class="code-block mt-1 text-xs">
-                                                    Cliente: "João Silva"<br>
-                                                    Data/Hora: Escolha<br>
-                                                    Serviço: "Corte Masculino"<br>
-                                                    Barbeiro: Selecione na lista
-                                                </div>
+                                                <strong>Clique em "Novo Agendamento"</strong>
+                                                <p class="text-gray-600 text-xs">Botão azul no topo</p>
                                             </div>
                                         </li>
                                     </ol>
@@ -1108,7 +1087,7 @@
                             <div class="space-y-4">
                                 <div class="bg-purple-50 p-5 rounded-xl border border-purple-100">
                                     <h4 class="font-bold text-plena-blue mb-3 flex items-center">
-                                        <i data-lucide="user" class="w-5 h-5 mr-2"></i>
+                                        <i data-lucide="users" class="w-5 h-5 mr-2"></i>
                                         PASSO 3: Cadastrar Barbeiro
                                     </h4>
                                     <div class="space-y-2 text-sm">
@@ -1130,24 +1109,24 @@
                                 </div>
 
                                 <div
-                                    class="bg-gradient-to-r from-green-50 to-blue-50 p-5 rounded-xl border border-green-200">
+                                    class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 p-5 rounded-xl">
                                     <h4 class="font-bold text-gray-800 mb-2 flex items-center">
                                         <i data-lucide="zap" class="w-5 h-5 mr-2 text-green-600"></i>
                                         Configuração Concluída!
                                     </h4>
-                                    <p class="text-sm text-gray-700 mb-3">Sistema pronto para uso!</p>
-                                    <div class="grid grid-cols-3 gap-2">
-                                        <div class="bg-white p-2 rounded-lg text-center">
-                                            <i data-lucide="calendar" class="w-5 h-5 text-plena-blue mx-auto mb-1"></i>
-                                            <p class="text-[10px] font-bold">Agenda</p>
+                                    <p class="text-sm text-gray-700">Seu sistema já está pronto para uso!</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                                        <div class="bg-white p-3 rounded-lg border text-center">
+                                            <i data-lucide="calendar" class="w-6 h-6 text-plena-blue mx-auto mb-1"></i>
+                                            <p class="text-xs font-bold">Ver Agenda</p>
                                         </div>
-                                        <div class="bg-white p-2 rounded-lg text-center">
-                                            <i data-lucide="users" class="w-5 h-5 text-plena-blue mx-auto mb-1"></i>
-                                            <p class="text-[10px] font-bold">Barbeiros</p>
+                                        <div class="bg-white p-3 rounded-lg border text-center">
+                                            <i data-lucide="users" class="w-6 h-6 text-plena-blue mx-auto mb-1"></i>
+                                            <p class="text-xs font-bold">Equipe</p>
                                         </div>
-                                        <div class="bg-white p-2 rounded-lg text-center">
-                                            <i data-lucide="scissors" class="w-5 h-5 text-plena-blue mx-auto mb-1"></i>
-                                            <p class="text-[10px] font-bold">Serviços</p>
+                                        <div class="bg-white p-3 rounded-lg border text-center">
+                                            <i data-lucide="scissors" class="w-6 h-6 text-plena-blue mx-auto mb-1"></i>
+                                            <p class="text-xs font-bold">Serviços</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1156,15 +1135,15 @@
                     </div>
 
                     <!-- Seção 3: Gestão de Agendamentos -->
-                    <div id="agendamentos-gestao"
+                    <div id="agendamentos"
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
                                 <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">3
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-800">Gestão de Agendamentos</h3>
+                                <h3 class="text-xl font-bold text-gray-800">Gestão de Agendamentos e Comissões</h3>
                             </div>
-                            <button onclick="markSectionComplete('agendamentos-gestao')"
+                            <button onclick="markSectionComplete('agendamentos')"
                                 class="text-xs text-gray-500 hover:text-green-600">
                                 <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
@@ -1177,7 +1156,7 @@
                                 Fluxo do Agendamento
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
-                                <div class="bg-white p-3 rounded-lg text-center">
+                                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
                                     <div
                                         class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-blue-700">1</span>
@@ -1185,7 +1164,7 @@
                                     <p class="font-bold text-gray-800">Agendado</p>
                                     <p class="text-gray-600">Cliente marcou</p>
                                 </div>
-                                <div class="bg-white p-3 rounded-lg text-center">
+                                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
                                     <div
                                         class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-green-700">2</span>
@@ -1193,7 +1172,7 @@
                                     <p class="font-bold text-gray-800">Confirmado</p>
                                     <p class="text-gray-600">Via WhatsApp</p>
                                 </div>
-                                <div class="bg-white p-3 rounded-lg text-center">
+                                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
                                     <div
                                         class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-yellow-700">3</span>
@@ -1201,7 +1180,7 @@
                                     <p class="font-bold text-gray-800">Atendimento</p>
                                     <p class="text-gray-600">Em andamento</p>
                                 </div>
-                                <div class="bg-white p-3 rounded-lg text-center">
+                                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
                                     <div
                                         class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-purple-700">4</span>
@@ -1209,7 +1188,7 @@
                                     <p class="font-bold text-gray-800">Finalizado</p>
                                     <p class="text-gray-600">Concluído</p>
                                 </div>
-                                <div class="bg-white p-3 rounded-lg text-center">
+                                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
                                     <div
                                         class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-green-700">✓</span>
@@ -1237,7 +1216,7 @@
                                     </li>
                                     <li class="flex items-start">
                                         <i data-lucide="check" class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i>
-                                        <span>Deixe intervalo para almoço</span>
+                                        <span>Deixe intervalo para descanso</span>
                                     </li>
                                 </ul>
                             </div>
@@ -1250,15 +1229,15 @@
                                 <ul class="space-y-1 text-xs text-gray-700">
                                     <li class="flex items-start">
                                         <i data-lucide="check" class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i>
-                                        <span>Calculada automaticamente ao finalizar</span>
+                                        <span>Calculada automaticamente ao finalizar o serviço</span>
                                     </li>
                                     <li class="flex items-start">
                                         <i data-lucide="check" class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i>
-                                        <span>Baseada no % definido do barbeiro</span>
+                                        <span>Baseada no % definido no cadastro do barbeiro</span>
                                     </li>
                                     <li class="flex items-start">
                                         <i data-lucide="check" class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i>
-                                        <span>Relatório detalhado disponível</span>
+                                        <span>Relatório detalhado disponível na aba Financeiro</span>
                                     </li>
                                 </ul>
                             </div>
@@ -1272,7 +1251,7 @@
                             <div class="flex items-center">
                                 <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">4
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-800">Relatórios e Análise</h3>
+                                <h3 class="text-xl font-bold text-gray-800">Relatórios e Análise de Performance</h3>
                             </div>
                             <button onclick="markSectionComplete('relatorios')"
                                 class="text-xs text-gray-500 hover:text-green-600">
@@ -1281,31 +1260,30 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
                                     <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
                                 </div>
-                                <h4 class="font-bold text-gray-800 mb-2">Mensal</h4>
-                                <p class="text-xs text-gray-600">Resumo de agendamentos, faturamento e clientes
-                                    atendidos</p>
+                                <h4 class="font-bold text-gray-800 mb-2">Resumo Mensal</h4>
+                                <p class="text-xs text-gray-600">Visão geral de atendimentos, faturamento bruto e líquido do mês</p>
                             </div>
 
                             <div
-                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100">
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
                                     <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
                                 </div>
-                                <h4 class="font-bold text-gray-800 mb-2">Por Barbeiro</h4>
-                                <p class="text-xs text-gray-600">Ranking de atendimentos e performance individual</p>
+                                <h4 class="font-bold text-gray-800 mb-2">Performance da Equipe</h4>
+                                <p class="text-xs text-gray-600">Ranking de barbeiros e total de serviços por profissional</p>
                             </div>
 
                             <div
-                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100">
+                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
                                     <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
                                 </div>
-                                <h4 class="font-bold text-gray-800 mb-2">Comissões</h4>
-                                <p class="text-xs text-gray-600">Total a pagar para cada profissional</p>
+                                <h4 class="font-bold text-gray-800 mb-2">Controle de Comissões</h4>
+                                <p class="text-xs text-gray-600">Acompanhamento de valores pagos e pendentes para a equipe</p>
                             </div>
                         </div>
                     </div>
@@ -1325,16 +1303,15 @@
                             </button>
                         </div>
 
-                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-6">
+                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-6 shadow-sm">
                             <h4 class="font-bold text-red-800 mb-3 flex items-center">
                                 <i data-lucide="alert-octagon" class="w-5 h-5 mr-2"></i>
-                                ATENÇÃO: Leia com Cuidado!
+                                ATENÇÃO: Seus dados são locais!
                             </h4>
                             <div class="text-sm text-red-800 space-y-2">
-                                <p>📱 <strong>Seus dados ficam APENAS no seu celular/computador.</strong></p>
-                                <p>🔄 <strong>Se você perder o aparelho ou limpar o navegador, perderá TODOS os
-                                        dados.</strong></p>
-                                <p>💾 <strong>O backup é SUA responsabilidade.</strong> Faça SEMPRE!</p>
+                                <p>📱 <strong>Os dados ficam APENAS no seu dispositivo atual.</strong></p>
+                                <p>🔄 <strong>Se você perder o celular ou formatar o computador, perderá TUDO.</strong></p>
+                                <p>💾 <strong>O backup é SUA única garantia.</strong> Faça toda semana!</p>
                             </div>
                         </div>
 
@@ -1350,7 +1327,7 @@
                                             class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             1</div>
                                         <div>
-                                            <strong>Acesse Configurações</strong>
+                                            <strong>Vá em Configurações</strong>
                                             <p class="text-gray-600 text-xs">Menu lateral → Engrenagem</p>
                                         </div>
                                     </li>
@@ -1359,8 +1336,8 @@
                                             class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             2</div>
                                         <div>
-                                            <strong>Clique "Baixar Backup (.json)"</strong>
-                                            <p class="text-gray-600 text-xs">Na seção "Segurança de Dados"</p>
+                                            <strong>Clique em "Baixar Backup"</strong>
+                                            <p class="text-gray-600 text-xs">Isso gerará um arquivo .json</p>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
@@ -1368,9 +1345,8 @@
                                             class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             3</div>
                                         <div>
-                                            <strong>Salve em 2 Lugares</strong>
-                                            <p class="text-gray-600 text-xs">Google Drive + WhatsApp (para você mesmo)
-                                            </p>
+                                            <strong>Guarde em local seguro</strong>
+                                            <p class="text-gray-600 text-xs">Envie para seu e-mail ou WhatsApp</p>
                                         </div>
                                     </li>
                                 </ol>
@@ -1379,7 +1355,7 @@
                             <div class="bg-blue-50 p-5 rounded-xl border border-blue-200">
                                 <h4 class="font-bold text-gray-800 mb-4 flex items-center">
                                     <i data-lucide="refresh-cw" class="w-5 h-5 mr-2 text-blue-600"></i>
-                                    Como Restaurar Backup
+                                    Restaurar Backup
                                 </h4>
                                 <ol class="space-y-3 text-sm">
                                     <li class="flex items-start">
@@ -1387,8 +1363,7 @@
                                             class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             1</div>
                                         <div>
-                                            <strong>Baixe o arquivo .json</strong>
-                                            <p class="text-gray-600 text-xs">Do Drive ou WhatsApp</p>
+                                            <strong>Tenha o arquivo .json em mãos</strong>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
@@ -1396,7 +1371,7 @@
                                             class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             2</div>
                                         <div>
-                                            <strong>Vá em Configurações</strong>
+                                            <strong>Acesse as Configurações</strong>
                                         </div>
                                     </li>
                                     <li class="flex items-start">
@@ -1404,24 +1379,16 @@
                                             class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
                                             3</div>
                                         <div>
-                                            <strong>Clique "Restaurar Backup"</strong>
-                                            <p class="text-gray-600 text-xs">Selecione o arquivo</p>
+                                            <strong>Clique em "Restaurar Backup"</strong>
+                                            <p class="text-gray-600 text-xs">Selecione o arquivo e confirme</p>
                                         </div>
                                     </li>
                                 </ol>
                             </div>
                         </div>
-
-                        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                            <p class="text-sm text-gray-800 flex items-center">
-                                <i data-lucide="calendar" class="w-5 h-5 text-yellow-600 mr-2"></i>
-                                <strong>Frequência Recomendada:</strong> <span class="ml-2">Faça backup <strong
-                                        class="text-yellow-800">TODA SEMANA!</strong></span>
-                            </p>
-                        </div>
                     </div>
 
-                    <!-- Seção 6: FAQ -->
+                    <!-- Seção 6: Dúvidas Frequentes -->
                     <div id="duvidas"
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
@@ -1437,71 +1404,48 @@
                         </div>
 
                         <div class="space-y-4">
-                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                                 <summary
                                     class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
                                         <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
-                                        Perdi meu celular. Como recupero meus dados?
+                                        Como faço para trocar de dispositivo?
                                     </div>
                                     <i data-lucide="chevron-down"
                                         class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-4 pt-0 border-t border-gray-100">
-                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> Se você fez backup
-                                        regularmente:</p>
-                                    <ol class="list-decimal pl-5 space-y-1 text-sm text-gray-600 mt-2">
-                                        <li>Instale o app novamente</li>
-                                        <li>Baixe seu backup (Drive/WhatsApp)</li>
-                                        <li>Vá em Configurações → "Restaurar Backup"</li>
-                                        <li>Selecione o arquivo .json</li>
-                                    </ol>
-                                    <div class="bg-yellow-50 p-3 rounded-lg mt-3">
-                                        <p class="text-xs text-yellow-800"><strong>Importante:</strong> Se NÃO fez
-                                            backup, os dados estão perdidos.</p>
-                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3">Para usar em outro aparelho, basta fazer o backup no dispositivo antigo, enviar o arquivo para o novo e usar a função "Restaurar Backup" nas configurações.</p>
                                 </div>
                             </details>
 
-                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                                 <summary
                                     class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
                                         <i data-lucide="smartphone" class="w-5 h-5 text-green-600"></i>
-                                        O app funciona sem internet?
+                                        Funciona sem internet?
                                     </div>
                                     <i data-lucide="chevron-down"
                                         class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-4 pt-0 border-t border-gray-100">
-                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> Sim! O sistema
-                                        funciona 100% OFFLINE.</p>
-                                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600 mt-2">
-                                        <li>Agende clientes sem internet</li>
-                                        <li>Gerencie tudo localmente</li>
-                                        <li>Emita recibos offline</li>
-                                    </ul>
-                                    <p class="text-xs text-gray-500 mt-2"><strong>Nota:</strong> Para enviar WhatsApp
-                                        você precisa de internet.</p>
+                                    <p class="text-sm text-gray-600 mt-3">Sim! O Plena Barbearia foi projetado para funcionar 100% offline após a instalação. Você só precisa de internet para fazer backup na nuvem ou enviar mensagens via WhatsApp.</p>
                                 </div>
                             </details>
 
-                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                                 <summary
                                     class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
                                     <div class="flex items-center gap-3 font-bold text-gray-700">
-                                        <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
-                                        Como calcular a comissão dos barbeiros?
+                                        <i data-lucide="scissors" class="w-5 h-5 text-purple-600"></i>
+                                        Como cadastrar novos barbeiros?
                                     </div>
                                     <i data-lucide="chevron-down"
                                         class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
                                 </summary>
                                 <div class="p-4 pt-0 border-t border-gray-100">
-                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> É automático!</p>
-                                    <p class="text-sm text-gray-600 mt-2">Ao finalizar um atendimento, o sistema calcula
-                                        a comissão baseado no percentual definido para cada barbeiro.</p>
-                                    <p class="text-sm text-gray-600 mt-2">Você pode ver o relatório completo em
-                                        "Financeiro".</p>
+                                    <p class="text-sm text-gray-600 mt-3">Acesse a aba "Equipe", clique no botão "Novo Barbeiro" e preencha o nome e a porcentagem de comissão dele.</p>
                                 </div>
                             </details>
                         </div>
@@ -1514,7 +1458,7 @@
                             <div class="flex items-center">
                                 <div class="step-number bg-gradient-to-r from-plena-blue to-plena-dark text-white">7
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-800">Checklist Interativo - Sua Rotina</h3>
+                                <h3 class="text-xl font-bold text-gray-800">Checklist de Rotina do Barbeiro</h3>
                             </div>
                             <button onclick="markSectionComplete('checklist')"
                                 class="text-xs text-gray-500 hover:text-green-600">
@@ -1522,155 +1466,67 @@
                             </button>
                         </div>
 
-                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-white mb-6">
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-white mb-6 shadow-md">
                             <div class="flex items-center justify-between mb-4">
-                                <h4 class="font-bold text-lg">Progresso do Checklist</h4>
+                                <h4 class="font-bold text-lg">Progresso da Rotina</h4>
                                 <div class="text-right">
-                                    <div class="text-2xl font-bold" id="checklist-percent">0%</div>
+                                    <div class="text-2xl font-bold text-blue-400" id="checklist-percent">0%</div>
                                     <div class="text-xs text-gray-400"><span id="checklist-completed">0</span>/<span
                                             id="checklist-total">0</span> tarefas</div>
                                 </div>
                             </div>
-                            <div class="progress-bar mb-4">
-                                <div id="checklist-progress" class="progress-fill" style="width: 0%"></div>
+                            <div class="progress-bar mb-4 bg-white/10">
+                                <div id="checklist-progress" class="progress-fill bg-blue-500" style="width: 0%"></div>
                             </div>
-                            <div id="next-tasks" class="space-y-2">
-                                <p class="text-xs text-gray-400">Marque as tarefas abaixo para acompanhar seu progresso
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                                <h5 class="font-bold text-blue-700 mb-3 flex items-center">
-                                    <i data-lucide="sunrise" class="w-4 h-4 mr-2"></i>
-                                    Abertura da Barbearia
-                                </h5>
-                                <div class="space-y-2">
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-1" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-1">Conferir agenda do dia</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-2" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-2">Confirmar horários por WhatsApp</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-3" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-3">Verificar materiais e produtos</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-green-50 p-4 rounded-xl border border-green-200">
-                                <h5 class="font-bold text-green-700 mb-3 flex items-center">
-                                    <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
-                                    Durante o Dia
-                                </h5>
-                                <div class="space-y-2">
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-4" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-4">Lançar atendimentos na agenda</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-5" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-5">Finalizar para gerar comissão</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-6" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-6">Registrar vendas de produtos</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
-                                <h5 class="font-bold text-purple-700 mb-3 flex items-center">
-                                    <i data-lucide="sunset" class="w-4 h-4 mr-2"></i>
-                                    Fechamento
-                                </h5>
-                                <div class="space-y-2">
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-7" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-7">Fechar caixa do dia</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-8" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-8">Gerar relatório</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-9" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-9">Fazer backup dos dados</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-orange-50 p-4 rounded-xl border border-orange-200">
-                                <h5 class="font-bold text-orange-700 mb-3 flex items-center">
-                                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>
-                                    Novo Cliente
-                                </h5>
-                                <div class="space-y-2">
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-10" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-10">Cadastrar na base de clientes</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-11" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-11">Anotar preferências e observações</span>
-                                        </label>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <label class="flex items-center text-sm cursor-pointer">
-                                            <input type="checkbox" id="check-12" onchange="updateChecklist()"
-                                                class="mr-2">
-                                            <span for="check-12">Agendar próximo atendimento</span>
-                                        </label>
-                                    </div>
-                                </div>
+                            <div id="next-tasks" class="space-y-2 text-sm">
+                                <!-- Preenchido via JS -->
                             </div>
                         </div>
 
-                        <div class="mt-6 flex justify-center">
-                            <button onclick="resetChecklist()"
-                                class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 transition-colors">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4 inline mr-2"></i>
-                                Reiniciar Checklist
-                            </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                                <h5 class="font-bold text-blue-700 mb-4 flex items-center">
+                                    <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
+                                    Rotina Diária
+                                </h5>
+                                <div class="space-y-3">
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c1" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Verificar agendamentos do dia</span>
+                                    </div>
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c2" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Confirmar horários via WhatsApp</span>
+                                    </div>
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c3" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Registrar atendimentos finalizados</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-green-50 p-5 rounded-xl border border-green-100">
+                                <h5 class="font-bold text-green-700 mb-4 flex items-center">
+                                    <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i>
+                                    Rotina Semanal
+                                </h5>
+                                <div class="space-y-3">
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c4" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700">Realizar Backup dos dados (.json)</span>
+                                    </div>
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c5" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700">Conferir comissões da equipe</span>
+                                    </div>
+                                    <div class="checklist-item flex items-center gap-3">
+                                        <input type="checkbox" id="c6" onchange="updateChecklist()" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700">Gerar relatório de faturamento</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
                     <!-- Rodapé do Manual -->
                     <div class="mt-10 bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-sm">
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Dúvidas Técnicas?</h3>
@@ -2177,6 +2033,10 @@
                 theme: 'blue',
                 termsAccepted: false,
                 termsAcceptedAt: null
+            },
+            tutorial: {
+                completedSteps: [],
+                checklistState: {}
             }
         };
 
@@ -3687,7 +3547,7 @@
             }
         }, 8000);
 
-        // === MANUAL INTERATIVO ===
+        // === MANUAL INTERATIVO PADRONIZADO ===
         function scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
             if (section) {
@@ -3696,17 +3556,19 @@
         }
 
         function markSectionComplete(sectionId) {
-            let completed = JSON.parse(localStorage.getItem('tutorial-completed') || '[]');
+            let completed = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
             if (!completed.includes(sectionId)) {
                 completed.push(sectionId);
-                localStorage.setItem('tutorial-completed', JSON.stringify(completed));
+                localStorage.setItem('plena_manual_completed', JSON.stringify(completed));
+                showNotification('Etapa concluída!', 'success');
             }
             updateTutorialProgress();
         }
 
         function updateTutorialProgress() {
-            const completed = JSON.parse(localStorage.getItem('tutorial-completed') || '[]');
-            const total = 7;
+            const sections = ['instalacao', 'primeiro-cadastro', 'agendamentos', 'relatorios', 'backup', 'duvidas', 'checklist'];
+            const completed = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
+            const total = sections.length;
             const percent = Math.round((completed.length / total) * 100);
 
             const progressBar = document.getElementById('tutorial-progress');
@@ -3714,10 +3576,24 @@
 
             if (progressBar) progressBar.style.width = percent + '%';
             if (completedSteps) completedSteps.textContent = `${completed.length}/${total} etapas`;
+
+            // Atualizar visual dos botões
+            sections.forEach(id => {
+                const btn = document.querySelector(`[onclick="scrollToSection('${id}')"]`);
+                if (btn) {
+                    if (completed.includes(id)) {
+                        btn.classList.add('bg-green-100', 'border-green-300', 'text-green-700');
+                        btn.classList.remove('border-gray-200');
+                    } else {
+                        btn.classList.remove('bg-green-100', 'border-green-300', 'text-green-700');
+                        btn.classList.add('border-gray-200');
+                    }
+                }
+            });
         }
 
         function updateChecklist() {
-            const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
             const totalTasks = checkboxes.length;
             let completedTasks = 0;
 
@@ -3725,9 +3601,21 @@
             checkboxes.forEach(cb => {
                 checklistState[cb.id] = cb.checked;
                 if (cb.checked) completedTasks++;
+
+                // Estilo visual do item
+                const item = cb.closest('.checklist-item');
+                if (item) {
+                    if (cb.checked) {
+                        item.classList.add('opacity-60');
+                        item.querySelector('span').classList.add('line-through');
+                    } else {
+                        item.classList.remove('opacity-60');
+                        item.querySelector('span').classList.remove('line-through');
+                    }
+                }
             });
 
-            localStorage.setItem('checklist-state', JSON.stringify(checklistState));
+            localStorage.setItem('plena_checklist_state', JSON.stringify(checklistState));
 
             const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
@@ -3740,20 +3628,31 @@
             if (progressEl) progressEl.style.width = percent + '%';
             if (completedEl) completedEl.textContent = completedTasks;
             if (totalEl) totalEl.textContent = totalTasks;
-        }
 
-        function resetChecklist() {
-            if (confirm('Deseja reiniciar o checklist? Esta ação não pode ser desfeita.')) {
-                localStorage.removeItem('checklist-state');
-                document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
-                    cb.checked = false;
-                });
-                updateChecklist();
+            // Atualizar próximas tarefas
+            const nextTasks = document.getElementById('next-tasks');
+            if (nextTasks) {
+                const unchecked = Array.from(checkboxes).filter(cb => !cb.checked).slice(0, 2);
+                if (unchecked.length > 0) {
+                    nextTasks.innerHTML = unchecked.map(cb => {
+                        const text = cb.nextElementSibling.textContent;
+                        return `<div class="flex items-center gap-2 text-xs text-gray-300">
+                                    <i data-lucide="circle" class="w-3 h-3"></i>
+                                    <span>${text}</span>
+                                </div>`;
+                    }).join('');
+                } else {
+                    nextTasks.innerHTML = `<div class="flex items-center gap-2 text-xs text-green-400 font-bold">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                                <span>Tudo em dia!</span>
+                                            </div>`;
+                }
+                lucide.createIcons();
             }
         }
 
         function loadChecklistState() {
-            const saved = JSON.parse(localStorage.getItem('checklist-state') || '{}');
+            const saved = JSON.parse(localStorage.getItem('plena_checklist_state') || '{}');
             Object.keys(saved).forEach(id => {
                 const checkbox = document.getElementById(id);
                 if (checkbox) checkbox.checked = saved[id];
@@ -3762,7 +3661,7 @@
         }
 
         function showExample(type) {
-            alert(`Exemplo: ${type} - Em desenvolvimento`);
+            showNotification(`Exemplo de ${type} carregado!`, 'info');
         }
 
         // INICIALIZAR APLICATIVO
