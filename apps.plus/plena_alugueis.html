@@ -3136,7 +3136,7 @@
             return new Date().toISOString().slice(0, 7);
         };
 
-        // FUNÇÕES ESPECÍFICAS DO MANUAL DE USO
+        // FUNÇÕES ESPECÍFICAS DO MANUAL DE USO (Padronizado)
         function scrollToSection(sectionId) {
             const element = document.getElementById(sectionId);
             if (element) {
@@ -3145,10 +3145,13 @@
         }
 
         function markSectionComplete(sectionId) {
-            const completedSections = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
+            if (!db.settings.tutorial) db.settings.tutorial = {};
+            if (!db.settings.tutorial.completedSections) db.settings.tutorial.completedSections = [];
+
+            const completedSections = db.settings.tutorial.completedSections;
             if (!completedSections.includes(sectionId)) {
                 completedSections.push(sectionId);
-                localStorage.setItem('plena_manual_completed', JSON.stringify(completedSections));
+                save();
                 updateTutorialProgress();
                 showNotification('Seção marcada como concluída!', 'success');
             }
@@ -3156,9 +3159,9 @@
 
         function updateTutorialProgress() {
             const sections = ['instalacao', 'primeiro-cadastro', 'cobranca', 'relatorios', 'backup', 'duvidas', 'checklist'];
-            const completedSections = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
+            const completedSections = (db.settings.tutorial && db.settings.tutorial.completedSections) ? db.settings.tutorial.completedSections : [];
 
-            const progress = (completedSections.length / sections.length) * 100;
+            const progress = sections.length > 0 ? (completedSections.length / sections.length) * 100 : 0;
 
             const progressBar = document.getElementById('tutorial-progress');
             const completedSteps = document.getElementById('completed-steps');
@@ -3166,107 +3169,98 @@
             if (progressBar) progressBar.style.width = `${progress}%`;
             if (completedSteps) completedSteps.textContent = `${completedSections.length}/${sections.length} etapas`;
 
-            // Atualizar botões das seções
             sections.forEach(sectionId => {
-                const button = document.querySelector(`[onclick="scrollToSection('${sectionId}')"]`);
+                const button = document.querySelector(`.tutorial-step[onclick="scrollToSection('${sectionId}')"]`);
                 if (button) {
                     if (completedSections.includes(sectionId)) {
-                        button.classList.add('bg-green-100', 'border-green-300');
-                        button.classList.remove('border-gray-200');
+                        button.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
+                        button.classList.remove('border-gray-200', 'hover:bg-gray-50');
+                    } else {
+                        button.classList.remove('bg-green-100', 'border-green-300', 'text-green-800');
+                        button.classList.add('border-gray-200', 'hover:bg-gray-50');
                     }
                 }
             });
+            updateChecklist();
         }
 
         function updateChecklist() {
             const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
-            const total = checkboxes.length;
-            const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length;
+            if(checkboxes.length === 0) return;
 
-            const percent = Math.round((checked / total) * 100);
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percentage = (checked / checkboxes.length) * 100;
+            
+            const progressBar = document.getElementById('checklist-progress');
+            const percentageText = document.getElementById('checklist-percent');
+            const completedText = document.getElementById('checklist-completed');
+            const totalText = document.getElementById('checklist-total');
 
-            // Atualizar progresso
-            document.getElementById('checklist-percent').textContent = `${percent}%`;
-            document.getElementById('checklist-progress').style.width = `${percent}%`;
-            document.getElementById('checklist-completed').textContent = checked;
-            document.getElementById('checklist-total').textContent = total;
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (percentageText) percentageText.textContent = `${Math.round(percentage)}%`;
+            if (completedText) completedText.textContent = checked;
+            if (totalText) totalText.textContent = checkboxes.length;
 
-            // Atualizar próximas tarefas
             const nextTasks = document.getElementById('next-tasks');
             if (nextTasks) {
-                const uncheckedItems = Array.from(checkboxes)
-                    .filter(cb => !cb.checked)
-                    .slice(0, 3)
-                    .map(cb => {
-                        const label = document.querySelector(`label[for="${cb.id}"]`);
-                        return label ? label.textContent : '';
-                    })
-                    .filter(text => text !== '');
-
-                nextTasks.innerHTML = uncheckedItems.map(task => `
-                    <div class="flex items-center">
-                        <i data-lucide="circle" class="w-3 h-3 text-white/60 mr-2"></i>
-                        <span class="text-xs text-white/90">${task}</span>
-                    </div>
-                `).join('');
-
-                if (uncheckedItems.length === 0) {
-                    nextTasks.innerHTML = `
-                        <div class="flex items-center">
-                            <i data-lucide="check-circle" class="w-3 h-3 text-green-400 mr-2"></i>
-                            <span class="text-xs text-white/90">Todas as tarefas concluídas!</span>
-                        </div>
-                    `;
-                }
+                const uncheckedItems = Array.from(checkboxes).filter(cb => !cb.checked).slice(0, 3).map(cb => {
+                    const label = document.querySelector(`label[for="${cb.id}"]`);
+                    return label ? label.textContent.trim() : '';
+                }).filter(text => text);
+                
+                nextTasks.innerHTML = uncheckedItems.length > 0
+                    ? uncheckedItems.map(task => `<div class="flex items-center"><i data-lucide="circle" class="w-3 h-3 text-white/60 mr-2"></i><span class="text-xs text-white/90">${task}</span></div>`).join('')
+                    : `<div class="flex items-center"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 mr-2"></i><span class="text-xs text-white/90">Todas as tarefas concluídas!</span></div>`;
+                if(lucide) lucide.createIcons();
             }
 
-            // Atualizar estado visual
-            checkboxes.forEach(cb => {
-                const item = cb.closest('.checklist-item');
-                if (cb.checked) {
-                    item.classList.add('completed');
-                } else {
-                    item.classList.remove('completed');
-                }
-            });
-
-            // Salvar no localStorage
             const checklistState = {};
             checkboxes.forEach(cb => {
                 checklistState[cb.id] = cb.checked;
+                const item = cb.closest('.checklist-item');
+                if (item) {
+                    item.classList.toggle('completed', cb.checked);
+                }
             });
-            localStorage.setItem('plena_checklist_state', JSON.stringify(checklistState));
+            
+            if (!db.settings.tutorial) db.settings.tutorial = {};
+            db.settings.tutorial.checklist = checklistState;
+            save();
         }
+        
+        function loadTutorialState() {
+            const savedChecklist = (db.settings.tutorial && db.settings.tutorial.checklist) ? db.settings.tutorial.checklist : {};
+            Object.keys(savedChecklist).forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) checkbox.checked = savedChecklist[id];
+            });
 
+            updateTutorialProgress();
+        }
+        
         function resetChecklist() {
-            if (confirm('Tem certeza que deseja reiniciar todas as tarefas do checklist?')) {
+            showCustomConfirm('Reiniciar Checklist', 'Tem certeza que deseja reiniciar todas as tarefas do checklist da semana?', () => {
                 const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
                 checkboxes.forEach(cb => {
                     cb.checked = false;
                 });
+                if (db.settings.tutorial) {
+                    db.settings.tutorial.checklist = {};
+                }
+                save();
                 updateChecklist();
-                localStorage.removeItem('plena_checklist_state');
                 showNotification('Checklist reiniciado com sucesso!', 'success');
-            }
+            }, true, 'Reiniciar', 'Cancelar');
         }
 
         function resetTraining() {
-            if (confirm('Tem certeza? Isso apagará todo o seu progresso no manual de uso.')) {
-                localStorage.removeItem('plena_manual_completed');
-                localStorage.removeItem('plena_checklist_state');
-                location.reload();
-            }
-        }
-
-        function loadChecklistState() {
-            const savedState = JSON.parse(localStorage.getItem('plena_checklist_state') || '{}');
-            Object.keys(savedState).forEach(id => {
-                const checkbox = document.getElementById(id);
-                if (checkbox) {
-                    checkbox.checked = savedState[id];
+            showCustomConfirm('Reiniciar Treinamento', 'Isso irá limpar todo o seu progresso no manual de uso e no checklist. Deseja continuar?', () => {
+                if (db.settings.tutorial) {
+                    db.settings.tutorial = {};
                 }
-            });
-            updateChecklist();
+                save();
+                location.reload();
+            }, true, 'Reiniciar Agora', 'Cancelar');
         }
 
         function showExample(type) {
@@ -3430,8 +3424,7 @@
                 if (db.settings.establishmentName) document.getElementById('set-establishment-name').value = db.settings.establishmentName;
 
                 // Inicializar componentes do manual
-                updateTutorialProgress();
-                loadChecklistState();
+                loadTutorialState();
 
                 // Configurar periodicidade para salvar
                 setInterval(save, 30000); // Salva a cada 30 segundos
@@ -3497,8 +3490,7 @@
             } else if (view === 'settings') {
                 renderCategories();
             } else if (view === 'instructions') {
-                updateTutorialProgress();
-                loadChecklistState();
+                loadTutorialState();
             }
         }
 
