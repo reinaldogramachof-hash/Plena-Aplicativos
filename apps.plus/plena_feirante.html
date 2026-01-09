@@ -1005,209 +1005,289 @@
                 </div>
             </section>
 
-            <!-- Instructions View -->
+            <!-- Instructions View - MANUAL COMPLETO PADRONIZADO -->
             <section id="view-instructions" class="view-section hide fade-in">
                 <div class="max-w-6xl mx-auto pb-12">
                     <!-- Cabeçalho Hero -->
                     <div class="text-center mb-10 pt-4">
                         <div
                             class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-feira-green to-feira-dark rounded-2xl mb-4 shadow-lg">
-                            <i data-lucide="store" class="w-12 h-12 text-white"></i>
+                            <i data-lucide="store" class="w-12 h-12 text-white"
+                                aria-label="Ícone de Loja - Manual de Uso"></i>
                         </div>
-                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo do FeiraMaster</h1>
-                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para feirantes e comerciantes</p>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso</h1>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e
+                            gestores de feiras e comércios</p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Offline-First</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e Desktop</span>
-                            <span class="px-3 py-1 bg-orange-100 text-feira-orange rounded-full text-xs font-bold">⚡ Rápido e Prático</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para
+                                Iniciantes</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e
+                                Desktop</span>
+                            <span class="px-3 py-1 bg-blue-100 text-feira-green rounded-full text-xs font-bold">⚡ Rápido
+                                e Prático</span>
                         </div>
                     </div>
 
-                    <!-- Conteúdo do Manual -->
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Começando com o FeiraMaster</h2>
-                        
-                        <div class="space-y-8">
-                            <!-- Seção 1 -->
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-feira-green text-white flex items-center justify-center mr-3">1</div>
-                                    Instalação do Aplicativo
-                                </h3>
-                                <p class="text-gray-600 mb-4">Instale no celular para usar sem internet, igual um app normal:</p>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-gray-50 p-4 rounded-xl">
-                                        <h4 class="font-bold text-gray-800 mb-2">Android (Chrome)</h4>
-                                        <ol class="list-decimal pl-5 space-y-2 text-sm">
-                                            <li>Abra esta página no Chrome</li>
-                                            <li>Toque nos 3 pontinhos ☰</li>
-                                            <li>Toque em "Instalar app" ou "Adicionar à tela inicial"</li>
-                                            <li>Pronto! O ícone aparecerá na sua tela</li>
-                                        </ol>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-xl">
-                                        <h4 class="font-bold text-gray-800 mb-2">iPhone (Safari)</h4>
-                                        <ol class="list-decimal pl-5 space-y-2 text-sm">
-                                            <li>Abra esta página no Safari</li>
-                                            <li>Toque no ícone de compartilhar</li>
-                                            <li>Role para baixo e toque em "Adicionar à Tela de Início"</li>
-                                            <li>Toque "Adicionar" no canto superior direito</li>
-                                        </ol>
-                                    </div>
-                                </div>
+                    <!-- Barra de Progresso do Tutorial -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                            <i data-lucide="compass" class="w-5 h-5 mr-2 text-feira-green"></i>
+                            Seu Progresso no Aprendizado
+                        </h3>
+                        <div class="mb-4">
+                            <div class="progress-bar">
+                                <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
                             </div>
-
-                            <!-- Seção 2 -->
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-feira-green text-white flex items-center justify-center mr-3">2</div>
-                                    Configuração Inicial (5 Minutos)
-                                </h3>
-                                <div class="bg-green-50 p-4 rounded-xl mb-4">
-                                    <p class="text-sm text-green-800"><strong>Importante:</strong> Configure antes de começar a usar!</p>
-                                </div>
-                                <ol class="list-decimal pl-5 space-y-3 text-gray-600">
-                                    <li><strong>Clique em "Configurações"</strong> (ícone da engrenagem)</li>
-                                    <li><strong>Preencha os dados da sua feira:</strong> Nome, CPF/CNPJ, telefone</li>
-                                    <li><strong>Cadastre seus primeiros produtos</strong> clicando em "Adicionar Produto"</li>
-                                    <li><strong>Defina preços de venda e custo</strong> para cada produto</li>
-                                    <li><strong>Salve e comece a vender!</strong></li>
-                                </ol>
+                            <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                <span>0% Concluído</span>
+                                <span id="completed-steps">0/7 etapas</span>
                             </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
+                            <button onclick="scrollToSection('instalacao')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                1. Instalação
+                            </button>
+                            <button onclick="scrollToSection('configuracao')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                2. Configuração
+                            </button>
+                            <button onclick="scrollToSection('vendas')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                3. Vendas
+                            </button>
+                            <button onclick="scrollToSection('relatorios')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                4. Relatórios
+                            </button>
+                            <button onclick="scrollToSection('backup')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                5. Backup
+                            </button>
+                            <button onclick="scrollToSection('duvidas')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                6. Dúvidas
+                            </button>
+                            <button onclick="scrollToSection('checklist')"
+                                class="tutorial-step text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">
+                                7. Checklist
+                            </button>
+                        </div>
+                    </div>
 
-                            <!-- Seção 3 -->
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-feira-green text-white flex items-center justify-center mr-3">3</div>
-                                    Fazendo sua Primeira Venda
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-blue-50 p-4 rounded-xl">
-                                        <h4 class="font-bold text-blue-800 mb-2">Venda Rápida</h4>
-                                        <p class="text-sm text-gray-600">Para vendas sem cadastro de cliente:</p>
-                                        <ol class="list-decimal pl-5 space-y-1 text-sm mt-2">
-                                            <li>Clique em "Nova Venda"</li>
-                                            <li>Adicione produtos clicando neles</li>
-                                            <li>Defina a forma de pagamento</li>
-                                            <li>Toque em "Finalizar Venda"</li>
-                                        </ol>
-                                    </div>
-                                    <div class="bg-purple-50 p-4 rounded-xl">
-                                        <h4 class="font-bold text-purple-800 mb-2">Venda com Cliente</h4>
-                                        <p class="text-sm text-gray-600">Para clientes cadastrados:</p>
-                                        <ol class="list-decimal pl-5 space-y-1 text-sm mt-2">
-                                            <li>Cadastre o cliente primeiro</li>
-                                            <li>Na venda, selecione o cliente</li>
-                                            <li>O sistema salva o histórico</li>
-                                            <li>Pode dar desconto para clientes fiéis</li>
-                                        </ol>
-                                    </div>
+                    <!-- Seção 1: Instalação -->
+                    <div id="instalacao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-feira-green to-feira-dark text-white">1
                                 </div>
+                                <h3 class="text-xl font-bold text-gray-800 ml-3">Instalação do Sistema</h3>
                             </div>
+                            <button onclick="markSectionComplete('instalacao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
 
-                            <!-- Seção 4 -->
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-feira-green text-white flex items-center justify-center mr-3">4</div>
-                                    Controle de Estoque
-                                </h3>
-                                <p class="text-gray-600 mb-4">Mantenha seu estoque sempre atualizado:</p>
-                                <div class="space-y-3">
-                                    <div class="flex items-start">
-                                        <i data-lucide="check-circle" class="w-5 h-5 text-green-500 mr-2 mt-0.5"></i>
-                                        <div>
-                                            <strong>Estoque automático:</strong> Quando vende, baixa automaticamente
+                        <div class="bg-gray-900 rounded-2xl p-6 text-white shadow-lg mb-6">
+                            <h4 class="font-bold text-lg mb-4 flex items-center text-green-400">
+                                <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+                                Torne o App Disponível OFFLINE
+                            </h4>
+                            <p class="text-gray-300 mb-4 text-sm">Instale no celular para usar sem internet, igual um app
+                                normal:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                            <i data-lucide="smartphone" class="w-3 h-3"></i>
                                         </div>
+                                        Android (Chrome)
                                     </div>
-                                    <div class="flex items-start">
-                                        <i data-lucide="check-circle" class="w-5 h-5 text-green-500 mr-2 mt-0.5"></i>
-                                        <div>
-                                            <strong>Alertas de reposição:</strong> Avisa quando o produto está acabando
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <i data-lucide="check-circle" class="w-5 h-5 text-green-500 mr-2 mt-0.5"></i>
-                                        <div>
-                                            <strong>Controle de custos:</strong> Saiba seu lucro real por produto
-                                        </div>
-                                    </div>
+                                    <ol class="list-decimal pl-5 space-y-2 text-gray-300">
+                                        <li>Abra esta página no Chrome</li>
+                                        <li>Toque nos 3 pontinhos ☰</li>
+                                        <li>Toque em "Instalar app"</li>
+                                    </ol>
                                 </div>
-                            </div>
-
-                            <!-- Seção 5 -->
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-feira-green text-white flex items-center justify-center mr-3">5</div>
-                                    Backup dos Dados (CRÍTICO)
-                                </h3>
-                                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl mb-4">
-                                    <p class="text-red-800 font-bold">⚠️ ATENÇÃO: Seu backup é sua responsabilidade!</p>
-                                    <p class="text-sm text-red-700 mt-1">Se perder o celular sem backup, perde TODOS os dados.</p>
-                                </div>
-                                <div class="bg-green-50 p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-800 mb-2">Como fazer backup:</h4>
-                                    <ol class="list-decimal pl-5 space-y-2 text-sm">
-                                        <li>Vá em <strong>Configurações</strong></li>
-                                        <li>Clique em <strong>"Baixar Backup (.json)"</strong></li>
-                                        <li>Salve o arquivo em 2 lugares: <strong>Google Drive e WhatsApp</strong></li>
-                                        <li>Faça backup <strong>TODA SEMANA!</strong></li>
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-blue-800 flex items-center justify-center mr-2">
+                                            <i data-lucide="monitor" class="w-3 h-3"></i>
+                                        </div>
+                                        Windows (Chrome)
+                                    </div>
+                                    <ol class="list-decimal pl-5 space-y-2 text-gray-300">
+                                        <li>Clique no ícone (+) na barra</li>
+                                        <li>Clique em "Instalar"</li>
                                     </ol>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- FAQ -->
-                        <div class="mt-12">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-6">Perguntas Frequentes (FAQ)</h3>
+                    <!-- Seção 2: Configuração Inicial -->
+                    <div id="configuracao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-feira-green to-feira-dark text-white">2
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 ml-3">Configuração Inicial (5 Minutos)</h3>
+                            </div>
+                            <button onclick="markSectionComplete('configuracao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div class="space-y-4">
-                                <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                    <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-                                        <span class="font-bold text-gray-700">O app funciona sem internet?</span>
-                                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
-                                    </summary>
-                                    <div class="p-4 pt-0 border-t border-gray-100">
-                                        <p class="text-gray-600"><strong>Sim!</strong> O FeiraMaster funciona 100% offline. Todos os dados ficam salvos no seu celular. Só precisa de internet para fazer backup e restaurar.</p>
-                                    </div>
-                                </details>
+                                <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                                    <h4 class="font-bold text-blue-700 mb-3 flex items-center">
+                                        <i data-lucide="building" class="w-5 h-5 mr-2"></i>
+                                        PASSO 1: Dados do Negócio
+                                    </h4>
+                                    <ol class="space-y-3 text-sm text-gray-600">
+                                        <li><strong>Clique em "Configurações"</strong> (ícone da engrenagem)</li>
+                                        <li><strong>Preencha os dados:</strong> Nome da Feira, CPF/CNPJ e Telefone</li>
+                                        <li><strong>Defina o endereço:</strong> Para aparecer nos recibos</li>
+                                    </ol>
+                                </div>
 
-                                <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                    <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-                                        <span class="font-bold text-gray-700">Posso usar em mais de um celular?</span>
-                                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
-                                    </summary>
-                                    <div class="p-4 pt-0 border-t border-gray-100">
-                                        <p class="text-gray-600"><strong>Sim, mas precisa de backup.</strong> Faça backup no celular antigo, instale o app no novo, e restaure o backup. Assim todos os dados são transferidos.</p>
-                                    </div>
-                                </details>
+                                <div class="bg-green-50 p-5 rounded-xl border border-green-100">
+                                    <h4 class="font-bold text-green-700 mb-3 flex items-center">
+                                        <i data-lucide="package" class="w-5 h-5 mr-2"></i>
+                                        PASSO 2: Cadastro de Produtos
+                                    </h4>
+                                    <ol class="space-y-3 text-sm text-gray-600">
+                                        <li><strong>Vá em "Produtos"</strong> no menu lateral</li>
+                                        <li><strong>Clique em "Novo Produto"</strong></li>
+                                        <li><strong>Defina:</strong> Nome, Categoria, Preço de Venda e Estoque Inicial</li>
+                                    </ol>
+                                </div>
+                            </div>
 
-                                <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                                    <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors">
-                                        <span class="font-bold text-gray-700">Preciso pagar para usar?</span>
-                                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
-                                    </summary>
-                                    <div class="p-4 pt-0 border-t border-gray-100">
-                                        <p class="text-gray-600"><strong>Versão gratuita:</strong> Até 50 produtos e 100 vendas/mês.<br>
-                                        <strong>Versão paga:</strong> Recursos ilimitados. Licença vitalícia com valor único.</p>
-                                    </div>
-                                </details>
+                            <div class="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-200">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center text-sm">
+                                    <i data-lucide="zap" class="w-5 h-5 mr-2 text-yellow-500"></i>
+                                    Dica de Ouro: Categorias
+                                </h4>
+                                <p class="text-xs text-gray-600 mb-4">
+                                    Organize seus produtos por categorias (Frutas, Legumes, Verduras) para facilitar a busca na hora da venda e ter relatórios mais precisos.
+                                </p>
+                                <div class="flex gap-2">
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-[10px] font-bold">Frutas</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold">Legumes</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] font-bold">Verduras</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Support -->
-                        <div class="mt-12 text-center">
-                            <h3 class="text-lg font-bold text-gray-800 mb-2">Dúvidas Técnicas?</h3>
-                            <p class="text-gray-500 text-sm mb-6">Nossa equipe de suporte responde em até 24h úteis.</p>
-                            <a href="mailto:suporte@plenainformatica.com.br"
-                                class="inline-flex items-center text-feira-green font-bold hover:underline">
-                                <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
-                                suporte@plenainformatica.com.br
-                            </a>
+                    <!-- Seção 3: Vendas -->
+                    <div id="vendas"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-feira-green to-feira-dark text-white">3
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 ml-3">Realizando Vendas</h3>
+                            </div>
+                            <button onclick="markSectionComplete('vendas')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
                         </div>
 
-                        <div class="text-center mt-8">
-                            <p class="text-[10px] text-gray-400">FeiraMaster v1.0 • Plena Soluções Digitais</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm">
+                                <h4 class="font-bold text-blue-800 mb-3 flex items-center text-sm">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4 mr-2"></i>
+                                    Venda Rápida (PDV)
+                                </h4>
+                                <ol class="space-y-2 text-xs text-gray-700">
+                                    <li>1. Selecione os produtos clicando neles</li>
+                                    <li>2. Ajuste as quantidades se necessário</li>
+                                    <li>3. Clique em <strong>"Finalizar Venda"</strong></li>
+                                    <li>4. Escolha a forma de pagamento (Dinheiro, PIX, Cartão)</li>
+                                </ol>
+                            </div>
+                            <div class="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
+                                <h4 class="font-bold text-purple-800 mb-3 flex items-center text-sm">
+                                    <i data-lucide="users" class="w-4 h-4 mr-2"></i>
+                                    Venda com Cliente
+                                </h4>
+                                <ol class="space-y-2 text-xs text-gray-700">
+                                    <li>1. Selecione o cliente antes de finalizar</li>
+                                    <li>2. O sistema gera histórico de compras</li>
+                                    <li>3. Facilita o controle de fiados (se habilitado)</li>
+                                    <li>4. Fidelize seus clientes com descontos</li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Seção 4: Relatórios -->
+                    <div id="relatorios"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-feira-green to-feira-dark text-white">4
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 ml-3">Relatórios e Lucratividade</h3>
+                            </div>
+                            <button onclick="markSectionComplete('relatorios')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Faturamento</h4>
+                                <p class="text-[10px] text-gray-500">Total de vendas por período</p>
+                            </div>
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Lucro Real</h4>
+                                <p class="text-[10px] text-gray-500">Descontando os custos de compra</p>
+                            </div>
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center shadow-sm">
+                                <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mx-auto mb-3">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-sm mb-1">Estoque Baixo</h4>
+                                <p class="text-[10px] text-gray-500">Produtos que precisam de reposição</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé do Manual -->
+                    <div class="mt-10 bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Dúvidas Técnicas?</h3>
+                        <p class="text-gray-500 text-sm mb-6">
+                            Nossa equipe de suporte responde em até 24h úteis.
+                        </p>
+                        <a href="mailto:tecnologia@plenainformatica.com.br"
+                            class="inline-flex items-center text-feira-green font-bold hover:underline">
+                            <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
+                            tecnologia@plenainformatica.com.br
+                        </a>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <p class="text-[10px] text-gray-400">Versão 4.1 Pro • Plena Soluções Digitais</p>
+                    </div>
+
                 </div>
             </section>
         </div>
@@ -1596,6 +1676,10 @@
                 licenseType: 'free',
                 termsAccepted: false,
                 termsAcceptedAt: null
+            },
+            tutorial: {
+                completedSteps: [],
+                checklistState: {}
             }
         };
 
@@ -1734,6 +1818,10 @@
             // Carregar produtos no select da venda
             loadProductSelect();
             loadClientSelect();
+
+            // Tutorial
+            updateTutorialProgress();
+            loadChecklistState();
         }
 
         function loadCompanySettings() {
@@ -1751,6 +1839,119 @@
             db.settings.companyAddress = document.getElementById('company-address').value;
             save();
             showNotification('Configurações salvas com sucesso!', 'success');
+        }
+
+        // === MANUAL INTERATIVO PADRONIZADO ===
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function markSectionComplete(sectionId) {
+            let completed = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
+            if (!completed.includes(sectionId)) {
+                completed.push(sectionId);
+                localStorage.setItem('plena_manual_completed', JSON.stringify(completed));
+                showNotification('Etapa concluída!', 'success');
+            }
+            updateTutorialProgress();
+        }
+
+        function updateTutorialProgress() {
+            const sections = ['instalacao', 'configuracao', 'vendas', 'relatorios', 'backup', 'duvidas', 'checklist'];
+            const completed = JSON.parse(localStorage.getItem('plena_manual_completed') || '[]');
+            const total = sections.length;
+            const percent = Math.round((completed.length / total) * 100);
+
+            const progressBar = document.getElementById('tutorial-progress');
+            const completedSteps = document.getElementById('completed-steps');
+
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (completedSteps) completedSteps.textContent = `${completed.length}/${total} etapas`;
+
+            // Atualizar visual dos botões
+            sections.forEach(id => {
+                const btn = document.querySelector(`[onclick="scrollToSection('${id}')"]`);
+                if (btn) {
+                    if (completed.includes(id)) {
+                        btn.classList.add('bg-green-100', 'border-green-300', 'text-green-700');
+                        btn.classList.remove('border-gray-200');
+                    } else {
+                        btn.classList.remove('bg-green-100', 'border-green-300', 'text-green-700');
+                        btn.classList.add('border-gray-200');
+                    }
+                }
+            });
+        }
+
+        function updateChecklist() {
+            const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+            const totalTasks = checkboxes.length;
+            let completedTasks = 0;
+
+            const checklistState = {};
+            checkboxes.forEach(cb => {
+                checklistState[cb.id] = cb.checked;
+                if (cb.checked) completedTasks++;
+
+                // Estilo visual do item
+                const item = cb.closest('.checklist-item');
+                if (item) {
+                    if (cb.checked) {
+                        item.classList.add('opacity-60');
+                        item.querySelector('span').classList.add('line-through');
+                    } else {
+                        item.classList.remove('opacity-60');
+                        item.querySelector('span').classList.remove('line-through');
+                    }
+                }
+            });
+
+            localStorage.setItem('plena_checklist_state', JSON.stringify(checklistState));
+
+            const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            const percentEl = document.getElementById('checklist-percent');
+            const progressEl = document.getElementById('checklist-progress');
+            const completedEl = document.getElementById('checklist-completed');
+            const totalEl = document.getElementById('checklist-total');
+
+            if (percentEl) percentEl.textContent = percent + '%';
+            if (progressEl) progressEl.style.width = percent + '%';
+            if (completedEl) completedEl.textContent = completedTasks;
+            if (totalEl) totalEl.textContent = totalTasks;
+
+            // Atualizar próximas tarefas
+            const nextTasks = document.getElementById('next-tasks');
+            if (nextTasks) {
+                const unchecked = Array.from(checkboxes).filter(cb => !cb.checked).slice(0, 2);
+                if (unchecked.length > 0) {
+                    nextTasks.innerHTML = unchecked.map(cb => {
+                        const text = cb.nextElementSibling.textContent;
+                        return `<div class="flex items-center gap-2 text-xs text-gray-300">
+                                    <i data-lucide="circle" class="w-3 h-3"></i>
+                                    <span>${text}</span>
+                                </div>`;
+                    }).join('');
+                } else {
+                    nextTasks.innerHTML = `<div class="flex items-center gap-2 text-xs text-green-400 font-bold">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                                <span>Tudo em dia!</span>
+                                            </div>`;
+                }
+                lucide.createIcons();
+            }
+        }
+
+        function loadChecklistState() {
+            const saved = JSON.parse(localStorage.getItem('plena_checklist_state') || '{}');
+            Object.keys(saved).forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) checkbox.checked = saved[id];
+            });
+            updateChecklist();
         }
 
         // ROTEAMENTO
