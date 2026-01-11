@@ -6,7 +6,10 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once 'secrets.php';
-// $ADMIN_SECRET vem do secrets.php
+// Override ou Fallback de segurança
+if (!isset($ADMIN_SECRET) || empty($ADMIN_SECRET)) {
+    $ADMIN_SECRET = 'PLENA_MASTER_KEY_2026';
+}
 
 $DB_FILE = 'database_licenses_secure.json';
 
@@ -63,7 +66,7 @@ if ($action === 'create') {
 }
 
 // 3. VALIDAR (Para os Apps)
-if ($action === 'validate') {
+if ($action === 'validate' || $action === 'validate_access') {
     $key = $data['license_key'] ?? '';
     $device = $data['device_fingerprint'] ?? '';
     $db = json_decode(file_get_contents($DB_FILE), true);
@@ -86,7 +89,105 @@ if ($action === 'validate') {
     exit;
 }
 
-// 4. RESETAR/BANIR (Novo: Ações Admin Extras)
+// ------------------------------------------------------------------
+// 4. DASHBOARD STATS (ANALYTICS)
+// ------------------------------------------------------------------
+if ($action === 'dashboard_stats') {
+    // Verifica Auth
+    if (($data['secret'] ?? $_GET['secret'] ?? '') !== $ADMIN_SECRET) {
+        http_response_code(403); echo json_encode(['error' => 'Acesso negado']); exit;
+    }
+
+    $db_file = 'database_licenses_secure.json';
+    if (!file_exists($db_file)) {
+        echo json_encode([
+            'total_revenue' => 0, 'sales_today' => 0, 'sales_month' => 0,
+            'total_clients' => 0, 'active_licenses' => 0,
+            'recent_sales' => [], 'chart' => ['labels'=>[],'data'=>[]],
+            'top_products' => [], 'crm_clients' => []
+        ]);
+        exit;
+    }
+
+    $db = json_decode(file_get_contents($db_file), true);
+    
+    // Config de Precos
+    $prices = [
+        'Plena Aluguéis' => 97.00,
+        'Plena System' => 147.00,
+        'Plena Odonto' => 127.00,
+        'default' => 97.00
+    ];
+
+    $total_revenue = 0; $sales_today = 0; $sales_month = 0;
+    $clients_map = []; $product_counts = []; $sales_by_date = [];
+
+    $today_str = date('Y-m-d');
+    $month_str = date('Y-m');
+
+    $list = [];
+    foreach ($db as $key => $lic) {
+        $lic['key'] = $key;
+        $list[] = $lic;
+    }
+    // Ordena por data decrescente
+    usort($list, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
+
+    foreach ($list as $lic) {
+        $created = substr($lic['created_at'], 0, 10);
+        $created_month = substr($lic['created_at'], 0, 7);
+
+        $val = $prices[$lic['product']] ?? $prices['default'];
+        $total_revenue += $val;
+
+        if ($created === $today_str) $sales_today++;
+        if ($created_month === $month_str) $sales_month++;
+
+        $email = strtolower($lic['client']);
+        if (!isset($clients_map[$email])) $clients_map[$email] = 0;
+        $clients_map[$email]++;
+
+        $prod = $lic['product'];
+        if (!isset($product_counts[$prod])) $product_counts[$prod] = 0;
+        $product_counts[$prod]++;
+
+        if (!isset($sales_by_date[$created])) $sales_by_date[$created] = 0;
+        $sales_by_date[$created]++;
+    }
+
+    // Top Products
+    arsort($product_counts);
+    $top_products = array_slice($product_counts, 0, 5, true);
+
+    // Recent Sales
+    $recent_sales = array_slice($list, 0, 10);
+
+    // Chart Data (30 dias)
+    $chart_labels = [];
+    $chart_data = [];
+    for ($i = 29; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        $chart_labels[] = date('d/m', strtotime($d));
+        $chart_data[] = $sales_by_date[$d] ?? 0;
+    }
+
+    echo json_encode([
+        'total_revenue' => $total_revenue,
+        'sales_today' => $sales_today,
+        'sales_month' => $sales_month,
+        'total_clients' => count($clients_map),
+        'active_licenses' => count($list),
+        'recent_sales' => $recent_sales,
+        'chart' => [ 'labels' => $chart_labels, 'data' => $chart_data ],
+        'top_products' => $top_products,
+        'crm_clients' => array_keys($clients_map)
+    ]);
+    exit;
+}
+
+// 5. MANAGE STATUS
 if ($action === 'update_status') {
     if (($data['secret'] ?? '') !== $ADMIN_SECRET) { http_response_code(403); exit; }
     

@@ -6,25 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plena Admin | Torre de Controle</title>
 
-    <!-- TAILWIND CSS -->
+    <!-- TAILWIND & FONTS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- VUE.JS 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-    <!-- ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- FONT INTER -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    <!-- VUE 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
+    <!-- CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
         body {
             font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
         }
 
-        [v-cloak] {
-            display: none;
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-link.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .sidebar-link {
+            transition: all 0.3s;
+        }
+
+        .sidebar-link:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Custom Scrollbar */
@@ -33,110 +50,91 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #0f172a;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #334155;
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #475569;
+        }
+
+        [v-cloak] {
+            display: none;
         }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="overflow-hidden h-screen">
 
-    <div id="app" v-cloak>
+    <div id="app" v-cloak class="h-full flex flex-col">
 
-        <!-- ================= LOGIN SCREEN ================= -->
-        <div v-if="!user" class="min-h-screen flex items-center justify-center bg-slate-900 p-4">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-                <div class="p-8 pb-6 text-center">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-lg mx-auto flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-layer-group text-white text-xl"></i>
+        <!-- LOGIN WALL (Bloqueio de Segurança) -->
+        <div v-if="!auth.isLoggedIn"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+            <div class="glass-panel p-8 rounded-2xl w-full max-w-sm shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+
+                <div class="text-center mb-8">
+                    <div
+                        class="w-16 h-16 bg-blue-600 rounded-xl mx-auto flex items-center justify-center shadow-lg mb-4">
+                        <i class="fa-solid fa-tower-broadcast text-2xl text-white"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-800">Plena Admin</h2>
-                    <p class="text-slate-500 text-sm mt-1">Torre de Controle</p>
+                    <h1 class="text-2xl font-bold text-white">Plena Tower V2</h1>
+                    <p class="text-slate-400 text-sm">Acesso Restrito ao Admin</p>
                 </div>
 
-                <form @submit.prevent="login" class="p-8 pt-2 space-y-4">
-                    <div v-if="loginError"
-                        class="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center border border-red-100">
-                        {{ loginError }}
-                    </div>
-
+                <form @submit.prevent="login" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                        <input v-model="loginForm.email" type="email" required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Senha Mestra</label>
+                        <input v-model="loginPass" type="password"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            autofocus placeholder="••••••••">
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
-                        <input v-model="loginForm.password" type="password" required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-
-                    <button type="submit" :disabled="loading"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition disabled:opacity-50">
-                        {{ loading ? 'Acessando...' : 'Entrar' }}
-                    </button>
-
-                    <!-- Simples auxiliar para Google Login se preferir -->
-                    <div class="relative py-2">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-slate-200"></div>
-                        </div>
-                        <div class="relative flex justify-center text-xs"><span
-                                class="px-2 bg-white text-slate-400">Ou</span></div>
-                    </div>
-
-                    <button type="button" @click="loginGoogle"
-                        class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-google"></i> Google
+                    <button :disabled="loading"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition shadow-lg shadow-blue-500/30 flex justify-center items-center gap-2">
+                        <i v-if="loading" class="fa-solid fa-circle-notch fa-spin"></i>
+                        {{ loading ? 'Verificando...' : 'Desbloquear Sistema' }}
                     </button>
                 </form>
+                <p v-if="auth.error" class="mt-4 text-center text-red-400 text-xs">{{ auth.error }}</p>
             </div>
         </div>
 
-        <!-- ================= MAIN LAYOUT ================= -->
-        <div v-else class="flex h-screen overflow-hidden">
+        <!-- MAIN APP (Acesso Liberado) -->
+        <div v-else class="flex flex-1 h-full overflow-hidden">
 
             <!-- SIDEBAR -->
-            <aside class="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300"
-                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 absolute md:relative z-50 h-full'">
-                <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20">
+                <div class="p-6 flex items-center gap-3 border-b border-slate-800/50">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"><span
+                            class="font-bold text-white">P</span></div>
                     <div>
-                        <h1 class="font-bold text-lg">PLENA</h1>
-                        <p class="text-[10px] text-indigo-400 uppercase tracking-widest">Admin 3.0</p>
+                        <h2 class="font-bold text-white">Plena</h2>
+                        <p class="text-[10px] text-blue-400 uppercase tracking-widest">Control Tower</p>
                     </div>
-                    <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white"><i
-                            class="fa-solid fa-times"></i></button>
                 </div>
 
-                <nav class="flex-1 p-4 space-y-1">
-                    <a href="#" @click.prevent="currentView = 'dashboard'"
-                        :class="currentView === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium">
-                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard
+                <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                    <a @click="view = 'dashboard'" :class="{active: view==='dashboard'}"
+                        class="sidebar-link cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 font-medium">
+                        <i class="fa-solid fa-chart-line w-5 text-center"></i> Dashboard
                     </a>
-                    <a href="#" @click.prevent="currentView = 'products'"
-                        :class="currentView === 'products' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium">
-                        <i class="fa-solid fa-box w-5 text-center"></i> Produtos
-                    </a>
-                    <a href="#" @click.prevent="currentView = 'sales'"
-                        :class="currentView === 'sales' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium">
-                        <i class="fa-solid fa-sack-dollar w-5 text-center"></i> Vendas
-                    </a>
-                    <a href="#" @click.prevent="currentView = 'licenses'"
-                        :class="currentView === 'licenses' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium">
+                    <a @click="view = 'licenses'" :class="{active: view==='licenses'}"
+                        class="sidebar-link cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 font-medium">
                         <i class="fa-solid fa-key w-5 text-center"></i> Licenças
+                    </a>
+                    <a @click="view = 'crm'" :class="{active: view==='crm'}"
+                        class="sidebar-link cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 font-medium">
+                        <i class="fa-solid fa-users w-5 text-center"></i> CRM Clientes
+                    </a>
+                    <div class="my-4 border-t border-slate-800"></div>
+                    <a @click="view = 'logs'" :class="{active: view==='logs'}"
+                        class="sidebar-link cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white font-medium text-sm">
+                        <i class="fa-solid fa-terminal w-5 text-center"></i> Logs Server
                     </a>
                 </nav>
 
@@ -144,188 +142,131 @@
                     <div class="flex items-center gap-3 mb-4 px-2">
                         <div
                             class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold">
-                            {{ userInitials }}</div>
+                            RG</div>
                         <div class="overflow-hidden">
-                            <p class="text-sm font-medium truncate">{{ user.email }}</p>
+                            <p class="text-sm font-medium truncate">Reinaldo Gramacho</p>
+                            <p class="text-[10px] text-green-400">● Online</p>
                         </div>
                     </div>
                     <button @click="logout"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 rounded-lg transition">
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-400 hover:bg-slate-800 rounded-lg text-sm transition">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
             </aside>
 
-            <!-- CONTENT AREA -->
-            <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 relative">
-                <!-- Mobile Header -->
-                <header class="bg-white border-b border-slate-200 p-4 md:hidden flex justify-between items-center z-10">
-                    <button @click="sidebarOpen = true" class="text-slate-600"><i
-                            class="fa-solid fa-bars text-xl"></i></button>
-                    <span class="font-bold text-slate-800">Plena Admin</span>
-                    <div class="w-6"></div>
+            <!-- CONTENT -->
+            <main class="flex-1 bg-slate-950 relative overflow-y-auto overflow-x-hidden">
+                <!-- Header Mobile/Desktop Info -->
+                <header
+                    class="sticky top-0 z-10 bg-slate-950/80 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-white capitalize">{{ viewNames[view] }}</h2>
+                    <div class="flex items-center gap-4">
+                        <button @click="reloadData"
+                            class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 transition"
+                            title="Recarregar Dados">
+                            <i class="fa-solid fa-sync" :class="{'fa-spin': loadingData}"></i>
+                        </button>
+                        <div
+                            class="flex items-center gap-2 text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-slate-300">Online</span>
+                        </div>
+                    </div>
                 </header>
 
-                <div class="flex-1 overflow-auto p-4 md:p-8">
+                <div class="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
 
                     <!-- DASHBOARD VIEW -->
-                    <div v-if="currentView === 'dashboard'" class="animate-fade-in">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Visão Geral</h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <p class="text-xs font-bold text-slate-400 uppercase">Faturamento (Total)</p>
-                                        <h3 class="text-2xl font-bold text-emerald-600 mt-1">R$ {{
-                                            stats.totalRevenue.toFixed(2) }}</h3>
-                                    </div>
-                                    <div class="bg-emerald-100 p-3 rounded-lg text-emerald-600"><i
-                                            class="fa-solid fa-dollar-sign text-xl"></i></div>
-                                </div>
+                    <div v-if="view === 'dashboard'" class="space-y-6">
+                        <!-- KPI Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition transform">
+                                    <i class="fa-solid fa-dollar-sign text-6xl text-emerald-400"></i></div>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Faturamento Total
+                                </p>
+                                <h3 class="text-3xl font-bold text-emerald-400 mt-2">R$ {{
+                                    stats.total_revenue.toFixed(2) }}</h3>
+                                <p
+                                    class="text-xs text-emerald-600 mt-1 bg-emerald-400/10 inline-block px-2 py-0.5 rounded">
+                                    +{{ stats.sales_month }} vendas este mês</p>
                             </div>
-
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <p class="text-xs font-bold text-slate-400 uppercase">Vendas Realizadas</p>
-                                        <h3 class="text-2xl font-bold text-blue-600 mt-1">{{ stats.totalSalesCount }}
-                                        </h3>
-                                    </div>
-                                    <div class="bg-blue-100 p-3 rounded-lg text-blue-600"><i
-                                            class="fa-solid fa-cart-shopping text-xl"></i></div>
-                                </div>
+                            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition transform">
+                                    <i class="fa-solid fa-cart-shopping text-6xl text-blue-400"></i></div>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Vendas Hoje</p>
+                                <h3 class="text-3xl font-bold text-blue-400 mt-2">{{ stats.sales_today }}</h3>
+                                <p class="text-xs text-slate-500 mt-1">Licenças geradas nas últimas 24h</p>
                             </div>
-
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <p class="text-xs font-bold text-slate-400 uppercase">Produtos Ativos</p>
-                                        <h3 class="text-2xl font-bold text-purple-600 mt-1">{{ products.length }}</h3>
-                                    </div>
-                                    <div class="bg-purple-100 p-3 rounded-lg text-purple-600"><i
-                                            class="fa-solid fa-box-open text-xl"></i></div>
-                                </div>
+                            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                                <div
+                                    class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition transform">
+                                    <i class="fa-solid fa-users text-6xl text-purple-400"></i></div>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Clientes Únicos</p>
+                                <h3 class="text-3xl font-bold text-purple-400 mt-2">{{ stats.total_clients }}</h3>
+                                <p class="text-xs text-slate-500 mt-1">Base de dados ativa</p>
                             </div>
                         </div>
 
-                        <!-- Recent Sales Table Placeholder -->
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div class="p-6 border-b border-slate-100">
-                                <h3 class="font-bold text-slate-800">Últimas Vendas</h3>
+                        <!-- Chart & Top Products -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="glass-panel p-6 rounded-2xl lg:col-span-2">
+                                <h3 class="text-lg font-bold text-white mb-4">Evolução de Vendas (30 Dias)</h3>
+                                <div class="h-64">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-6 rounded-2xl">
+                                <h3 class="text-lg font-bold text-white mb-4">Top Produtos</h3>
+                                <ul class="space-y-3">
+                                    <li v-for="(count, name, idx) in stats.top_products" :key="name"
+                                        class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500">{{
+                                                idx+1 }}</span>
+                                            <span class="text-sm text-slate-300 font-medium">{{ name }}</span>
+                                        </div>
+                                        <div class="text-xs font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded">{{
+                                            count }} un.</div>
+                                    </li>
+                                    <li v-if="Object.keys(stats.top_products).length === 0"
+                                        class="text-slate-500 text-sm text-center py-4">Sem dados ainda.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Recent Sales Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="p-6 border-b border-slate-800/50 flex justify-between items-center">
+                                <h3 class="font-bold text-white">Últimas Vendas</h3>
+                                <button @click="view='licenses'" class="text-xs text-blue-400 hover:text-blue-300">Ver
+                                    Todas</button>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-slate-600">
-                                    <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
+                                <table class="w-full text-sm text-left text-slate-400">
+                                    <thead class="bg-slate-800/50 text-xs uppercase font-bold text-slate-500">
                                         <tr>
-                                            <th class="px-6 py-4">ID</th>
-                                            <th class="px-6 py-4">Produto</th>
-                                            <th class="px-6 py-4">Valor</th>
-                                            <th class="px-6 py-4">Data</th>
-                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-3">Cliente</th>
+                                            <th class="px-6 py-3">Produto</th>
+                                            <th class="px-6 py-3">Data</th>
+                                            <th class="px-6 py-3">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <tr v-for="sale in sales.slice(0, 5)" :key="sale.id" class="hover:bg-slate-50">
-                                            <td class="px-6 py-4 font-mono text-xs">{{ sale.id.substring(0,8) }}...</td>
-                                            <td class="px-6 py-4 font-medium text-slate-800">{{ sale.product_name ||
-                                                'Produto Desconhecido' }}</td>
-                                            <td class="px-6 py-4 text-emerald-600 font-bold">R$ {{ (sale.amount ||
-                                                0).toFixed(2) }}</td>
-                                            <td class="px-6 py-4">{{ formatDate(sale.created_at) }}</td>
-                                            <td class="px-6 py-4"><span
-                                                    class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Pago</span>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="sales.length === 0">
-                                            <td colspan="5" class="px-6 py-8 text-center text-slate-400">Nenhuma venda
-                                                registrada ainda.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PRODUCTS VIEW -->
-                    <div v-if="currentView === 'products'" class="animate-fade-in">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-slate-800">Meus Produtos</h2>
-                            <button @click="openProductModal()"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition">
-                                <i class="fa-solid fa-plus"></i> Novo Produto
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div v-for="prod in products" :key="prod.id"
-                                class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-md transition">
-                                <div class="p-6">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div
-                                            class="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl">
-                                            {{ prod.name.charAt(0) }}
-                                        </div>
-                                        <div class="relative">
-                                            <button @click="deleteProduct(prod.id)"
-                                                class="text-slate-300 hover:text-red-500 transition" title="Excluir">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <h3 class="font-bold text-lg text-slate-800 mb-1">{{ prod.name }}</h3>
-                                    <p class="text-sm text-slate-500 mb-4 line-clamp-1">{{ prod.link }}</p>
-
-                                    <div
-                                        class="flex flex-col gap-2 text-xs text-slate-400 font-mono bg-slate-50 p-3 rounded border border-slate-100">
-                                        <div class="flex justify-between">
-                                            <span>Kiwify ID:</span>
-                                            <span class="text-slate-600 select-all">{{ prod.kiwify_id }}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Preço:</span>
-                                            <span class="text-emerald-600 font-bold">R$ {{ prod.price }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-end">
-                                    <button @click="openProductModal(prod)"
-                                        class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Editar <i
-                                            class="fa-solid fa-pen ml-1"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SALES VIEW -->
-                    <div v-if="currentView === 'sales'" class="animate-fade-in">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Histórico de Vendas</h2>
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-slate-600">
-                                    <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
-                                        <tr>
-                                            <th class="px-6 py-4">Data</th>
-                                            <th class="px-6 py-4">Cliente</th>
-                                            <th class="px-6 py-4">Produto</th>
-                                            <th class="px-6 py-4">Valor</th>
-                                            <th class="px-6 py-4">Plataforma</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100">
-                                        <tr v-for="sale in sales" :key="sale.id" class="hover:bg-slate-50">
-                                            <td class="px-6 py-4">{{ formatDate(sale.created_at) }}</td>
-                                            <td class="px-6 py-4">
-                                                <div class="font-medium text-slate-800">{{ sale.customer_name ||
-                                                    'Cliente' }}</div>
-                                                <div class="text-xs text-slate-400">{{ sale.customer_email || '-' }}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">{{ sale.product_name }}</td>
-                                            <td class="px-6 py-4 text-emerald-600 font-bold">R$ {{ (sale.amount ||
-                                                0).toFixed(2) }}</td>
-                                            <td class="px-6 py-4"><span
-                                                    class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Kiwify</span>
+                                    <tbody class="divide-y divide-slate-800/50">
+                                        <tr v-for="sale in stats.recent_sales" :key="sale.key"
+                                            class="hover:bg-slate-800/30 transition">
+                                            <td class="px-6 py-3 font-medium text-white">{{ sale.client }}</td>
+                                            <td class="px-6 py-3">{{ sale.product }}</td>
+                                            <td class="px-6 py-3">{{ formatDate(sale.created_at) }}</td>
+                                            <td class="px-6 py-3">
+                                                <span v-if="sale.payment_id"
+                                                    class="text-emerald-400 text-xs font-bold bg-emerald-400/10 px-2 py-1 rounded">Pago</span>
+                                                <span v-else
+                                                    class="text-slate-400 text-xs font-bold bg-slate-800 px-2 py-1 rounded">Manual</span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -335,116 +276,105 @@
                     </div>
 
                     <!-- LICENSES VIEW -->
-                    <div v-if="currentView === 'licenses'" class="animate-fade-in">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Gestão de Licenças (DRM)</h2>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-fit">
-                                <h3 class="font-bold text-slate-800 mb-4">Gerar Nova Licença</h3>
-                                <form @submit.prevent="createLicense" class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cliente</label>
-                                        <input v-model="licenseForm.client" type="text" required
-                                            class="w-full px-4 py-2 border rounded-lg" placeholder="Nome do Cliente">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Produto</label>
-                                        <select v-model="licenseForm.product"
-                                            class="w-full px-4 py-2 border rounded-lg bg-white">
-                                            <option value="" disabled>Selecione...</option>
-                                            <option v-for="p in products" :value="p.name">{{ p.name }}</option>
-                                            <option value="Outro">Outro (Manual)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Senha Admin</label>
-                                        <input v-model="licenseForm.secret" type="password" required
-                                            class="w-full px-4 py-2 border rounded-lg"
-                                            placeholder="Senha do secrets.php">
-                                    </div>
-
-                                    <button type="submit" :disabled="loadingLicense"
-                                        class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition flex justify-center items-center gap-2">
-                                        <i v-if="loadingLicense" class="fa-solid fa-spinner fa-spin"></i>
-                                        {{ loadingLicense ? 'Gerando...' : 'Gerar Chave' }}
-                                    </button>
-                                </form>
-
-                                <div v-if="generatedKey"
-                                    class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center animate-fade-in">
-                                    <p class="text-xs text-green-800 uppercase font-bold mb-1">Chave Gerada:</p>
-                                    <code
-                                        class="text-lg font-mono font-bold text-slate-800 select-all block bg-white p-2 rounded border border-green-100 mb-2">{{ generatedKey }}</code>
-                                    <button @click="copyKey" class="text-xs text-green-700 hover:underline"><i
-                                            class="fa-solid fa-copy"></i> Copiar</button>
-                                </div>
+                    <div v-if="view === 'licenses'" class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <div class="glass-panel px-4 py-2 rounded-lg flex items-center gap-2 w-full max-w-md">
+                                <i class="fa-solid fa-search text-slate-500"></i>
+                                <input v-model="filters.search" type="text"
+                                    placeholder="Buscar por email, chave ou produto..."
+                                    class="bg-transparent border-none outline-none text-white w-full text-sm">
                             </div>
+                            <button @click="showCreateModal=true"
+                                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20"><i
+                                    class="fa-solid fa-plus mr-2"></i> Nova Licença</button>
+                        </div>
 
-                            <div
-                                class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
-                                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                                    <h3 class="font-bold text-slate-800">Últimas Licenças</h3>
-                                    <div class="flex gap-2">
-                                        <input v-model="licenseForm.secret" type="password" placeholder="Senha Admin"
-                                            class="text-xs border rounded px-2 py-1 w-24">
-                                        <button @click="loadLicenses" class="text-sm text-indigo-600 hover:underline"><i
-                                                class="fa-solid fa-rotate"></i> Atualizar</button>
-                                    </div>
-                                </div>
-                                <div class="overflow-x-auto flex-1">
-                                    <table class="w-full text-sm text-left text-slate-600">
-                                        <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
-                                            <tr>
-                                                <th class="px-4 py-3">Cliente / Produto</th>
-                                                <th class="px-4 py-3">Chave</th>
-                                                <th class="px-4 py-3">Status</th>
-                                                <th class="px-4 py-3 text-right">Ações</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-slate-100">
-                                            <tr v-for="lic in licensesList" :key="lic.key" class="hover:bg-slate-50">
-                                                <td class="px-4 py-3">
-                                                    <div class="font-bold text-slate-800">{{ lic.client }}</div>
-                                                    <div class="text-xs text-slate-400">{{ lic.product }}</div>
-                                                    <div class="text-[10px] text-slate-300">{{
-                                                        formatDate(lic.created_at) }}</div>
-                                                </td>
-                                                <td class="px-4 py-3 font-mono text-xs select-all text-slate-500">{{
-                                                    lic.key }}</td>
-                                                <td class="px-4 py-3">
-                                                    <span v-if="lic.status === 'banned'"
-                                                        class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">Banido</span>
-                                                    <span v-else-if="lic.device_id"
-                                                        class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold"
-                                                        title="Dispositivo Vinculado">Em Uso</span>
-                                                    <span v-else
-                                                        class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">Aguardando</span>
-                                                </td>
-                                                <td class="px-4 py-3 text-right space-x-2">
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-slate-400">
+                                    <thead class="bg-slate-800/50 text-xs uppercase font-bold text-slate-500">
+                                        <tr>
+                                            <th class="px-6 py-3">Data</th>
+                                            <th class="px-6 py-3">Cliente</th>
+                                            <th class="px-6 py-3">Chave</th>
+                                            <th class="px-6 py-3">Dispositivo</th>
+                                            <th class="px-6 py-3 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800/50">
+                                        <tr v-for="lic in filteredLicenses" :key="lic.key"
+                                            class="hover:bg-slate-800/30 transition group">
+                                            <td class="px-6 py-3 whitespace-nowrap">{{ formatDate(lic.created_at) }}
+                                            </td>
+                                            <td class="px-6 py-3 font-medium text-white">
+                                                <div>{{ lic.client }}</div>
+                                                <div class="text-[10px] text-slate-500">{{ lic.product }}</div>
+                                            </td>
+                                            <td class="px-6 py-3 font-mono text-xs text-blue-300 select-all">{{ lic.key
+                                                }}</td>
+                                            <td class="px-6 py-3">
+                                                <span v-if="lic.status === 'banned'"
+                                                    class="text-red-400 text-xs font-bold bg-red-400/10 px-2 py-1 rounded">Bloqueado</span>
+                                                <span v-else-if="lic.device_id"
+                                                    class="text-emerald-400 text-xs font-bold bg-emerald-400/10 px-2 py-1 rounded"
+                                                    :title="lic.device_id">Ativo</span>
+                                                <span v-else
+                                                    class="text-yellow-400 text-xs font-bold bg-yellow-400/10 px-2 py-1 rounded">Aguardando</span>
+                                            </td>
+                                            <td class="px-6 py-3 text-right">
+                                                <div
+                                                    class="flex justify-end gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition">
                                                     <button v-if="lic.device_id"
-                                                        @click="manageLicense(lic.key, 'reset_device')"
-                                                        title="Resetar Dispositivo (Troca de Celular)"
-                                                        class="text-slate-400 hover:text-blue-600 transition"><i
-                                                            class="fa-solid fa-mobile-screen-button"></i></button>
+                                                        @click="actionLicense(lic.key, 'reset_device')"
+                                                        class="p-2 bg-slate-800 hover:bg-blue-600 rounded text-slate-300 hover:text-white transition"
+                                                        title="Resetar Dispositivo"><i
+                                                            class="fa-solid fa-mobile-alt"></i></button>
                                                     <button v-if="lic.status !== 'banned'"
-                                                        @click="manageLicense(lic.key, 'banned')"
-                                                        title="Bloquear Acesso"
-                                                        class="text-slate-400 hover:text-red-600 transition"><i
-                                                            class="fa-solid fa-ban"></i></button>
-                                                    <button v-if="lic.status === 'banned'"
-                                                        @click="manageLicense(lic.key, 'active')" title="Desbloquear"
-                                                        class="text-slate-400 hover:text-green-600 transition"><i
-                                                            class="fa-solid fa-check"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr v-if="licensesList.length === 0">
-                                                <td colspan="4" class="px-6 py-8 text-center text-slate-400">Nenhuma
-                                                    licença carregada (Insira a senha e clique em atualizar).</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                        @click="actionLicense(lic.key, 'banned')"
+                                                        class="p-2 bg-slate-800 hover:bg-red-600 rounded text-slate-300 hover:text-white transition"
+                                                        title="Banir"><i class="fa-solid fa-ban"></i></button>
+                                                    <button v-else @click="actionLicense(lic.key, 'active')"
+                                                        class="p-2 bg-slate-800 hover:bg-green-600 rounded text-slate-300 hover:text-white transition"
+                                                        title="Ativar"><i class="fa-solid fa-check"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
+                            <div v-if="filteredLicenses.length === 0" class="p-8 text-center text-slate-500">Nenhuma
+                                licença encontrada.</div>
+                        </div>
+                    </div>
+
+                    <!-- CRM VIEW (Simplificado) -->
+                    <div v-if="view === 'crm'" class="space-y-6">
+                        <h3 class="text-xl font-bold text-white">CRM - Base de Clientes</h3>
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <table class="w-full text-sm text-left text-slate-400">
+                                <thead class="bg-slate-800/50 text-xs uppercase font-bold text-slate-500">
+                                    <tr>
+                                        <th class="px-6 py-3">Email / Cliente</th>
+                                        <th class="px-6 py-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/50">
+                                    <tr v-for="client in stats.crm_clients" :key="client" class="hover:bg-slate-800/30">
+                                        <td class="px-6 py-3 text-white font-medium">{{ client }}</td>
+                                        <td class="px-6 py-3"><span
+                                                class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs font-bold">Cliente</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- LOGS VIEW -->
+                    <div v-if="view === 'logs'" class="h-full flex flex-col">
+                        <div class="flex-1 bg-black rounded-xl p-4 font-mono text-xs text-green-400 overflow-auto border border-slate-800 shadow-inner custom-scrollbar"
+                            style="min-height: 400px; white-space: pre-wrap;">
+                            {{ logsContent || 'Carregando logs...' }}
                         </div>
                     </div>
 
@@ -452,326 +382,252 @@
             </main>
         </div>
 
-        <!-- MODAL PRODUTO -->
-        <div v-if="showModal"
-            class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-lg text-slate-800">{{ editingProduct ? 'Editar Produto' : 'Novo Produto'
-                        }}</h3>
-                    <button @click="showModal = false" class="text-slate-400 hover:text-slate-600"><i
-                            class="fa-solid fa-times"></i></button>
-                </div>
-                <form @submit.prevent="saveProduct" class="p-6 space-y-4">
+        <!-- MODAL CREATE LICENSE -->
+        <div v-if="showCreateModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+            <div class="glass-panel bg-slate-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-700">
+                <h3 class="text-lg font-bold text-white mb-4">Gerar Nova Licença</h3>
+                <form @submit.prevent="createLicense" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Nome do Produto</label>
-                        <input v-model="form.name" type="text" required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nome do Cliente /
+                            Email</label>
+                        <input v-model="form.client" type="text" required
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:border-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">ID Kiwify/Plataforma</label>
-                        <input v-model="form.kiwify_id" type="text"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="Ex: Pro-123">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Produto</label>
+                        <select v-model="form.product"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:border-blue-500 outline-none">
+                            <option value="Plena Aluguéis">Plena Aluguéis</option>
+                            <option value="Plena System">Plena System</option>
+                            <option value="Plena Odonto">Plena Odonto</option>
+                            <option value="Outro">Outro</option>
+                        </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Preço (R$)</label>
-                        <input v-model="form.price" type="number" step="0.01"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Link de Acesso (URL)</label>
-                        <input v-model="form.link" type="url" required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="https://...">
-                    </div>
-                    <div class="pt-2">
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" @click="showCreateModal=false; generatedKey=''"
+                            class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-lg transition">Cancelar</button>
                         <button type="submit"
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">
-                            Salvar Produto
-                        </button>
+                            class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition shadow-lg shadow-blue-500/20">Gerar</button>
                     </div>
                 </form>
+
+                <div v-if="generatedKey"
+                    class="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-center">
+                    <p class="text-xs text-emerald-400 uppercase font-bold mb-2">Licença Gerada com Sucesso</p>
+                    <div class="flex items-center gap-2">
+                        <code
+                            class="flex-1 bg-black/30 p-2 rounded text-emerald-300 font-mono font-bold select-all">{{ generatedKey }}</code>
+                        <button @click="copyKey" class="bg-emerald-600 text-white p-2 rounded hover:bg-emerald-500"><i
+                                class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- APP LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        // =========================================================================
-        // ⚙️ CONFIGURAÇÃO FIREBASE (Cole suas chaves aqui!)
-        // =========================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyDuYEnG0xwn9_m3I6YKQdz89NJTJpnSPHY",
-            authDomain: "plena-system.firebaseapp.com",
-            projectId: "plena-system",
-            storageBucket: "plena-system.firebasestorage.app",
-            messagingSenderId: "580090911924",
-            appId: "1:580090911924:web:2942afdf2e49b0c1580be1",
-            measurementId: "G-H208D85X75"
-        };
-        // =========================================================================
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const { createApp, ref, computed, onMounted, reactive, watch } = Vue;
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
 
         createApp({
             setup() {
-                // State
-                const user = ref(null);
+                // STATE
+                const auth = reactive({ isLoggedIn: false, error: '' });
+                const loginPass = ref('');
                 const loading = ref(false);
-                const sidebarOpen = ref(false);
-                const loginError = ref('');
-                const currentView = ref('dashboard');
-                const products = ref([]);
-                const sales = ref([]);
+                const loadingData = ref(false);
+                const view = ref('dashboard'); // dashboard, licenses, logs, crm
+                const video = ref(null);
 
-                // Login Form
-                const loginForm = reactive({ email: '', password: '' });
+                // Dados Seguros
+                const password = ref(''); // Armazena senha após login
+                const stats = reactive({
+                    total_revenue: 0, sales_today: 0, sales_month: 0, total_clients: 0,
+                    active_licenses: 0, recent_sales: [], top_products: {}, crm_clients: [],
+                    chart: { labels: [], data: [] }
+                });
 
-                // Modal / Product Form
-                const showModal = ref(false);
-                const editingProduct = ref(null);
-                const form = reactive({ name: '', kiwify_id: '', link: '', price: '' });
+                const licenses = ref([]);
+                const logsContent = ref('');
+                const filters = reactive({ search: '' });
 
-                // --- LICENÇAS ---
-                const licensesList = ref([]);
-                const loadingLicense = ref(false);
+                // MODAL
+                const showCreateModal = ref(false);
+                const form = reactive({ client: '', product: 'Plena Aluguéis' });
                 const generatedKey = ref('');
-                // Mantenha o secret aqui vazio para o usuário digitar, ou hardcoded se for uso pessoal local
-                const licenseForm = reactive({ client: '', product: '', secret: '' });
 
-                // 1. Carregar Licenças
-                const loadLicenses = async () => {
-                    if (!licenseForm.secret) {
-                        // Tenta pegar do localStorage se tiver salvo
-                        const savedSecret = localStorage.getItem('plena_admin_secret');
-                        if (savedSecret) licenseForm.secret = savedSecret;
-                        else return; // Não carrega sem senha
-                    }
+                // CHART INSTANCE
+                let chartInstance = null;
 
-                    try {
-                        const req = await fetch(`api_licenca.php?action=list&secret=${licenseForm.secret}`);
-                        const data = await req.json();
-
-                        if (data.error) {
-                            alert(data.error);
-                        } else if (Array.isArray(data)) {
-                            licensesList.value = data;
-                            // Salva a senha para facilitar navegação
-                            localStorage.setItem('plena_admin_secret', licenseForm.secret);
-                        }
-                    } catch (e) {
-                        console.error("Erro ao carregar licenças", e);
-                    }
-                };
-
-                // 2. Criar Licença
-                const createLicense = async () => {
-                    loadingLicense.value = true;
-                    try {
-                        const req = await fetch('api_licenca.php?action=create', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                secret: licenseForm.secret,
-                                client_name: licenseForm.client,
-                                product: licenseForm.product
-                            })
-                        });
-                        const res = await req.json();
-
-                        if (res.success) {
-                            generatedKey.value = res.license_key;
-                            licenseForm.client = ''; // Limpa cliente
-                            localStorage.setItem('plena_admin_secret', licenseForm.secret); // Salva senha
-                            loadLicenses(); // Atualiza a tabela
-                        } else {
-                            alert("Erro: " + (res.error || "Falha desconhecida"));
-                        }
-                    } catch (e) {
-                        alert("Erro de conexão");
-                    } finally {
-                        loadingLicense.value = false;
-                    }
-                };
-
-                // 3. Gerenciar (Banir/Resetar)
-                const manageLicense = async (key, actionType) => {
-                    let confirmMsg = "Confirmar alteração?";
-                    if (actionType === 'banned') confirmMsg = "Tem certeza que deseja BLOQUEAR esta licença?";
-                    if (actionType === 'reset_device') confirmMsg = "Isso permitirá que o cliente ative em um NOVO dispositivo. Confirmar?";
-
-                    if (!confirm(confirmMsg)) return;
-
-                    try {
-                        const req = await fetch('api_licenca.php?action=update_status', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                secret: licenseForm.secret,
-                                key: key,
-                                status: actionType
-                            })
-                        });
-                        const res = await req.json();
-                        if (res.success) {
-                            loadLicenses();
-                        } else {
-                            alert("Erro: " + res.error);
-                        }
-                    } catch (e) {
-                        alert("Erro ao atualizar status");
-                    }
-                };
-
-                const copyKey = () => {
-                    navigator.clipboard.writeText(generatedKey.value);
-                    alert("Copiado!");
-                };
-
-                // Carregar licenças automaticamente ao entrar na tela
-                watch(currentView, (newVal) => {
-                    if (newVal === 'licenses') loadLicenses();
-                });
-
-                // Computed
-                const userInitials = computed(() => {
-                    if (!user.value || !user.value.email) return 'U';
-                    return user.value.email.substring(0, 2).toUpperCase();
-                });
-
-                const stats = computed(() => {
-                    const totalSalesCount = sales.value.length;
-                    const totalRevenue = sales.value.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-                    return { totalSalesCount, totalRevenue };
-                });
-
-                // Lifecycle
-                onMounted(() => {
-                    onAuthStateChanged(auth, (currentUser) => {
-                        user.value = currentUser;
-                        if (currentUser) {
-                            loadData();
-                        }
-                    });
-                });
-
-                // Actions
-                const login = async () => {
-                    loading.value = true;
-                    loginError.value = '';
-                    try {
-                        // BYPASS LOGIN FOR TESTING
-                        user.value = { email: 'admin@teste.com', uid: 'test-admin' };
-                        loadData();
+                // AUTH ACTIONS
+                const checkSession = async () => {
+                    // Limpa sessão antiga se houver alteração de segredos
+                    if (!localStorage.getItem('plena_admin_pass')) {
+                        auth.isLoggedIn = false;
                         return;
+                    }
+                    // Tenta logar com a senha salva
+                    loginPass.value = localStorage.getItem('plena_admin_pass');
+                    await login();
+                };
 
-                        // REAL AUTH (Commented out for tests)
-                        /* await signInWithEmailAndPassword(auth, loginForm.email, loginForm.password); */
-                    } catch (err) {
-                        console.error(err);
-                        loginError.value = "Erro ao entrar. Verifique suas credenciais.";
+                const login = async () => {
+                    if (!loginPass.value) return;
+                    loading.value = true;
+                    auth.error = '';
+
+                    try {
+                        const req = await fetch('api_auth.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: loginPass.value })
+                        });
+
+                        if (req.ok) {
+                            const res = await req.json();
+                            if (res.auth) {
+                                auth.isLoggedIn = true;
+                                password.value = loginPass.value;
+                                localStorage.setItem('plena_admin_pass', loginPass.value);
+                                await reloadData();
+                            } else {
+                                if (auth.isLoggedIn) auth.isLoggedIn = false; // Force logout if re-check fails
+                                auth.error = 'Senha inválida';
+                                localStorage.removeItem('plena_admin_pass');
+                            }
+                        } else {
+                            auth.error = 'Acesso negado';
+                        }
+                    } catch (e) {
+                        auth.error = 'Erro de conexão';
                     } finally {
                         loading.value = false;
                     }
                 };
 
-                const loginGoogle = async () => {
-                    try {
-                        const provider = new GoogleAuthProvider();
-                        await signInWithPopup(auth, provider);
-                    } catch (err) {
-                        console.error(err);
-                        loginError.value = "Erro no Login Google.";
-                    }
+                const logout = () => {
+                    auth.isLoggedIn = false;
+                    password.value = '';
+                    loginPass.value = '';
+                    localStorage.removeItem('plena_admin_pass');
                 };
 
-                const logout = async () => {
-                    await signOut(auth);
-                    products.value = [];
-                    sales.value = [];
+                // DATA ACTIONS
+                const reloadData = async () => {
+                    loadingData.value = true;
+                    try {
+                        // 1. Dashboard Stats
+                        const res = await fetch(`api_licenca.php?action=dashboard_stats&secret=${password.value}`).then(r => r.json());
+                        Object.assign(stats, res);
+                        updateChart();
+
+                        // 2. Licenças
+                        const resLic = await fetch(`api_licenca.php?action=list&secret=${password.value}`).then(r => r.json());
+                        if (Array.isArray(resLic)) licenses.value = resLic;
+
+                        // 3. Logs
+                        const resLogs = await fetch(`debug_log.txt?t=${Date.now()}`).then(r => r.text());
+                        logsContent.value = resLogs;
+
+                    } catch (e) { console.error(e); }
+                    finally { loadingData.value = false; }
                 };
 
-                // DATA LOADING (REALTIME)
-                const loadData = () => {
-                    // Load Products
-                    const qProducts = query(collection(db, 'products'), orderBy('name'));
-                    onSnapshot(qProducts, (snapshot) => {
-                        products.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    });
+                const updateChart = () => {
+                    if (view.value !== 'dashboard') return;
+                    nextTick(() => {
+                        const ctx = document.getElementById('salesChart');
+                        if (!ctx) return;
 
-                    // Load Sales
-                    try {
-                        const qSales = query(collection(db, 'sales')); // Add orderBy if field exists
-                        onSnapshot(qSales, (snapshot) => {
-                            sales.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        if (chartInstance) chartInstance.destroy();
+
+                        chartInstance = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: stats.chart.labels,
+                                datasets: [{
+                                    label: 'Vendas',
+                                    data: stats.chart.data,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                                }
+                            }
                         });
-                    } catch (e) {
-                        console.log("Sales collection might be empty or missing index");
-                    }
+                    });
                 };
 
-                // CRUD PRODUCTS
-                const openProductModal = (product = null) => {
-                    editingProduct.value = product;
-                    if (product) {
-                        form.name = product.name;
-                        form.kiwify_id = product.kiwify_id || '';
-                        form.link = product.link || '';
-                        form.price = product.price || '';
-                    } else {
-                        form.name = '';
-                        form.kiwify_id = '';
-                        form.link = '';
-                        form.price = '';
-                    }
-                    showModal.value = true;
-                };
-
-                const saveProduct = async () => {
+                // CRUD
+                const createLicense = async () => {
                     try {
-                        const payload = { ...form };
-                        if (editingProduct.value) {
-                            await updateDoc(doc(db, 'products', editingProduct.value.id), payload);
-                        } else {
-                            await addDoc(collection(db, 'products'), payload);
-                        }
-                        showModal.value = false;
-                    } catch (e) {
-                        alert("Erro ao salvar: " + e.message);
-                    }
+                        const req = await fetch('api_licenca.php?action=create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ secret: password.value, client_name: form.client, product: form.product })
+                        });
+                        const res = await req.json();
+                        if (res.success) {
+                            generatedKey.value = res.license_key;
+                            reloadData();
+                        } else alert(res.error);
+                    } catch (e) { alert("Erro ao criar"); }
                 };
 
-                const deleteProduct = async (id) => {
-                    if (confirm("Tem certeza que deseja excluir este produto?")) {
-                        await deleteDoc(doc(db, 'products', id));
-                    }
+                const actionLicense = async (key, action) => {
+                    if (!confirm("Tem certeza?")) return;
+                    try {
+                        const req = await fetch('api_licenca.php?action=update_status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ secret: password.value, key: key, status: action })
+                        });
+                        const res = await req.json();
+                        if (res.success) reloadData();
+                        else alert(res.error);
+                    } catch (e) { alert("Erro"); }
                 };
+
+                const copyKey = () => {
+                    navigator.clipboard.writeText(generatedKey.value);
+                }
 
                 // UTILS
-                const formatDate = (timestamp) => {
-                    if (!timestamp) return '-';
-                    // Handle Firestore Timestamp or Date string
-                    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-                    return new Intl.DateTimeFormat('pt-BR').format(date);
-                };
+                const formatDate = (d) => { if (!d) return '-'; return new Date(d).toLocaleDateString('pt-BR'); }
+                const viewNames = { dashboard: 'Dashboard Geral', licenses: 'Gestão de Licenças', crm: 'Base de Clientes', logs: 'Logs do Sistema' };
+
+                // Computed
+                const filteredLicenses = computed(() => {
+                    if (!filters.search) return licenses.value;
+                    const s = filters.search.toLowerCase();
+                    return licenses.value.filter(l =>
+                        l.client.toLowerCase().includes(s) ||
+                        l.key.toLowerCase().includes(s) ||
+                        l.product.toLowerCase().includes(s)
+                    );
+                });
+
+                watch(view, (v) => { if (v === 'dashboard') reloadData(); });
+
+                onMounted(() => {
+                    checkSession();
+                });
 
                 return {
-                    user, loading, sidebarOpen, loginError, loginForm,
-                    currentView, products, sales, stats, userInitials,
-                    login, loginGoogle, logout,
-                    showModal, editingProduct, form, openProductModal, saveProduct, deleteProduct,
-                    formatDate,
-                    // Licenças
-                    licensesList, licenseForm, createLicense, loadLicenses, manageLicense, generatedKey, copyKey, loadingLicense
+                    auth, loginPass, login, logout, password, loading, loadingData,
+                    view, viewNames, stats, licenses, filteredLicenses, filters, logsContent,
+                    showCreateModal, form, createLicense, generatedKey, actionLicense, copyKey,
+                    formatDate, reloadData
                 };
             }
         }).mount('#app');

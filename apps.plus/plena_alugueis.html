@@ -15,6 +15,9 @@
     <link rel="manifest"
         href='data:application/manifest+json,{"name":"Plena Aluguéis","short_name":"Plena","start_url":".","display":"standalone","background_color":"#F3F4F6","theme_color":"#2563EB","icons":[{"src":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI1NjNFQiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Im0zIDkgOS03IDkgN3YxMWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiLz48cG9seWxpbmUgcG9pbnRzPSI5IDIyIDkgMTIgMTUgMTIgMTUgMjIiLz48L3N2Zz4=","sizes":"192x192","type":"image/svg+xml"}]}'>
 
+    <!-- GATEKEEPER DE SEGURANÇA -->
+    <script src="../assets/js/plena-lock.js"></script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -3186,11 +3189,11 @@
 
         function updateChecklist() {
             const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
-            if(checkboxes.length === 0) return;
+            if (checkboxes.length === 0) return;
 
             const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
             const percentage = (checked / checkboxes.length) * 100;
-            
+
             const progressBar = document.getElementById('checklist-progress');
             const percentageText = document.getElementById('checklist-percent');
             const completedText = document.getElementById('checklist-completed');
@@ -3207,11 +3210,11 @@
                     const label = document.querySelector(`label[for="${cb.id}"]`);
                     return label ? label.textContent.trim() : '';
                 }).filter(text => text);
-                
+
                 nextTasks.innerHTML = uncheckedItems.length > 0
                     ? uncheckedItems.map(task => `<div class="flex items-center"><i data-lucide="circle" class="w-3 h-3 text-white/60 mr-2"></i><span class="text-xs text-white/90">${task}</span></div>`).join('')
                     : `<div class="flex items-center"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 mr-2"></i><span class="text-xs text-white/90">Todas as tarefas concluídas!</span></div>`;
-                if(lucide) lucide.createIcons();
+                if (lucide) lucide.createIcons();
             }
 
             const checklistState = {};
@@ -3222,12 +3225,12 @@
                     item.classList.toggle('completed', cb.checked);
                 }
             });
-            
+
             if (!db.settings.tutorial) db.settings.tutorial = {};
             db.settings.tutorial.checklist = checklistState;
             save();
         }
-        
+
         function loadTutorialState() {
             const savedChecklist = (db.settings.tutorial && db.settings.tutorial.checklist) ? db.settings.tutorial.checklist : {};
             Object.keys(savedChecklist).forEach(id => {
@@ -3237,7 +3240,7 @@
 
             updateTutorialProgress();
         }
-        
+
         function resetChecklist() {
             showCustomConfirm('Reiniciar Checklist', 'Tem certeza que deseja reiniciar todas as tarefas do checklist da semana?', () => {
                 const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');

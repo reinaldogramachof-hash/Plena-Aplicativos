@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalizar Compra | Plena Aplicativos</title>
+    <title>Finalizar Compra Seguro | Plena</title>
 
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://sdk.mercadopago.com/js/v2"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
@@ -27,18 +27,12 @@
             display: none;
         }
 
-        .tech-bg {
-            background-color: #0f172a;
-            background-image: radial-gradient(#1e293b 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        .loader {
-            border: 3px solid #f3f3f3;
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top: 3px solid #3b82f6;
-            width: 20px;
-            height: 20px;
+            border-top: 3px solid #2563EB;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
         }
 
@@ -51,294 +45,555 @@
                 transform: rotate(360deg);
             }
         }
+
+        .sidebar-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        input {
+            transition: all 0.2s ease-in-out;
+        }
     </style>
 </head>
 
-<body class="text-slate-800 h-screen flex flex-col">
+<body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-    <div id="app" v-cloak class="flex-1 flex flex-col">
-        <header class="bg-white border-b border-slate-200 py-4 sticky top-0 z-50">
-            <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-                <a href="index.html" class="flex items-center gap-2 group">
-                    <div class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold">P
-                    </div>
-                    <span class="font-bold text-slate-800 group-hover:text-blue-600 transition">PLENA</span>
-                </a>
-                <div class="text-xs font-medium text-slate-500 flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-green-500"></i> Ambiente Seguro
-                </div>
+    <div id="app" v-cloak class="flex-1 flex flex-col h-full">
+
+        <!-- Header Mobile Sticky -->
+        <div class="md:hidden bg-slate-900 text-white p-3 shadow-md flex justify-between items-center z-30 shrink-0">
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Você está comprando:</p>
+                <p class="font-bold text-sm truncate max-w-[200px] leading-tight">{{ product.name }}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-blue-400 font-bold text-lg">R$ {{ product.price }}</p>
+            </div>
+        </div>
+
+        <header
+            class="bg-white border-b border-slate-200 py-4 px-6 flex justify-between items-center shadow-sm z-20 shrink-0 hidden md:flex">
+            <div class="flex items-center gap-2">
+                <div
+                    class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold shadow-lg shadow-blue-200">
+                    P</div>
+                <span class="font-bold text-slate-700 tracking-tight">PLENA CHECKOUT</span>
+            </div>
+            <div
+                class="flex items-center gap-2 text-xs font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
+                <i class="fa-solid fa-lock"></i> Ambiente Criptografado
             </div>
         </header>
 
         <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
-            <aside class="md:w-5/12 tech-bg text-white p-6 md:p-12 overflow-y-auto relative">
-                <div class="relative z-10 max-w-md mx-auto md:mx-0 md:ml-auto">
-                    <div class="mb-8">
+
+            <aside
+                class="md:w-5/12 sidebar-bg text-white p-8 overflow-y-auto border-r border-slate-800 relative hidden md:block">
+                <div class="max-w-md mx-auto md:ml-auto md:mr-0 h-full flex flex-col">
+                    <div class="flex-1">
                         <button onclick="history.back()"
-                            class="text-slate-400 hover:text-white text-sm flex items-center gap-2 mb-6 transition">
+                            class="text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider mb-8 flex items-center gap-2 transition">
                             <i class="fa-solid fa-arrow-left"></i> Voltar
                         </button>
-                        <h2 class="text-slate-400 uppercase tracking-widest text-xs font-bold mb-2">Resumo do Pedido
-                        </h2>
-                        <h1 class="text-3xl font-bold mb-4">{{ product.name || 'Carregando...' }}</h1>
-                        <div class="text-3xl font-bold text-green-400">
-                            R$ {{ product.price || '0,00' }}
-                            <span class="text-sm text-slate-400 font-normal">/ Pagamento Único</span>
+
+                        <!-- Produto Destaque e Resumo -->
+                        <div class="mb-8">
+                            <div v-if="product.image"
+                                class="mb-4 rounded-xl overflow-hidden border border-slate-700 shadow-lg">
+                                <img :src="product.image" class="w-full h-auto object-cover" alt="Produto"
+                                    onerror="this.style.display='none'">
+                            </div>
+
+                            <h1 class="text-3xl font-bold mb-2 leading-tight">{{ product.name }}</h1>
+                            <p v-if="product.desc"
+                                class="text-sm text-slate-400 mb-4 leading-relaxed border-l-2 border-blue-500 pl-3">{{
+                                product.desc }}</p>
+
+                            <div class="flex flex-wrap gap-2 mt-3 mb-6">
+                                <span
+                                    class="bg-indigo-900/50 text-indigo-200 text-[10px] font-bold px-2 py-1 rounded border border-indigo-700/50"><i
+                                        class="fa-brands fa-pix mr-1"></i> Pix Imediato</span>
+                                <span
+                                    class="bg-blue-900/50 text-blue-200 text-[10px] font-bold px-2 py-1 rounded border border-blue-700/50"><i
+                                        class="fa-regular fa-credit-card mr-1"></i> Cartão em 12x</span>
+                                <span
+                                    class="bg-green-900/50 text-green-200 text-[10px] font-bold px-2 py-1 rounded border border-green-700/50"><i
+                                        class="fa-solid fa-bolt mr-1"></i> Acesso Liberado na Hora</span>
+                            </div>
+
+                            <div class="flex items-end gap-2 mt-4 pb-6 border-b border-slate-700/50">
+                                <span class="text-4xl font-bold text-blue-400">R$ {{ totalPrice }}</span>
+                                <span class="text-slate-400 text-xs mb-1 uppercase font-bold">Pagamento Único</span>
+                            </div>
+
+                            <!-- Upsell / Order Bump -->
+                            <div class="mt-6 bg-slate-800/40 border border-slate-700 rounded-xl p-4 hover:border-blue-500/50 transition cursor-pointer"
+                                @click="toggleOrderBump">
+                                <div class="flex items-start gap-3">
+                                    <div class="pt-1">
+                                        <div class="w-5 h-5 rounded border flex items-center justify-center transition"
+                                            :class="addSupport ? 'bg-blue-500 border-blue-500' : 'border-slate-500'">
+                                            <i v-if="addSupport" class="fa-solid fa-check text-xs text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-white text-sm">Suporte Prioritário via WhatsApp</h4>
+                                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Tenha acesso direto ao
+                                            nosso time de especialistas para tirar dúvidas e configurar seu sistema.</p>
+                                        <p class="text-blue-400 font-bold text-sm mt-2">+ R$ 19,90 <span
+                                                class="text-[10px] text-slate-500 line-through ml-1">R$ 49,90</span></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div
-                        class="bg-slate-800/50 border border-slate-700 rounded-2xl p-4 mb-8 backdrop-blur-sm flex gap-4 items-start">
-                        <img :src="product.img || 'https://placehold.co/100'"
-                            class="w-20 h-20 object-cover rounded-lg bg-slate-900">
-                        <div>
-                            <h3 class="font-bold text-white text-sm mb-1">{{ product.name }}</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed mb-2">{{ product.desc }}</p>
-                            <span
-                                class="inline-block bg-blue-600/20 text-blue-400 text-[10px] px-2 py-1 rounded font-bold uppercase">Licença
-                                Vitalícia</span>
-                        </div>
-                    </div>
-                    <div class="mt-12 pt-8 border-t border-slate-700/50 flex items-center gap-4 opacity-50">
-                        <i class="fa-brands fa-cc-mastercard text-2xl"></i>
-                        <i class="fa-brands fa-cc-visa text-2xl"></i>
-                        <i class="fa-brands fa-pix text-2xl"></i>
-                        <div class="h-4 w-px bg-slate-600"></div>
-                        <span class="text-xs">Pagamento processado por <strong>Mercado Pago</strong></span>
                     </div>
                 </div>
             </aside>
 
-            <section class="md:w-7/12 bg-slate-50 p-6 md:p-12 overflow-y-auto">
-                <div class="max-w-md mx-auto md:mr-auto">
+            <section class="md:w-7/12 bg-white p-4 md:p-12 overflow-y-auto w-full">
+                <div class="max-w-md mx-auto md:mr-auto md:ml-10 pt-2 md:pt-0">
 
-                    <div v-if="purchaseSuccess" class="text-center py-10 animate-fade-in">
-                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fa-solid fa-check text-4xl text-green-600"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Pagamento Aprovado!</h2>
-                        <p class="text-slate-500 mb-8">Sua compra foi confirmada com segurança.</p>
-                        <div class="bg-white p-6 rounded-xl shadow border border-slate-200 mb-8 text-left">
-                            <p class="text-xs text-slate-400 uppercase font-bold mb-1">Acesso ao Sistema:</p>
-                            <div class="flex items-center gap-2 bg-slate-50 p-3 rounded border border-slate-200">
-                                <code
-                                    class="text-blue-600 font-mono text-sm break-all flex-1">{{ product.link ? 'https://plena-aplicativos.web.app/' + product.link : 'Link enviado por email' }}</code>
+                    <div v-if="purchaseSuccess" class="animate-fade-in text-center pt-8 md:pt-10">
+                        <div v-if="paymentType === 'pix'">
+                            <div
+                                class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-lg shadow-green-200">
+                                <i class="fa-brands fa-pix"></i>
                             </div>
-                            <p class="text-xs text-amber-600 mt-2"><i class="fa-solid fa-triangle-exclamation"></i>
-                                Verifique também seu email.</p>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">QR Code Gerado!</h2>
+                            <p class="text-slate-500 text-sm mb-6">Pague agora para liberar seu acesso imediatamente.
+                            </p>
+
+                            <div
+                                class="bg-slate-50 border-2 border-dashed border-slate-300 p-4 rounded-xl inline-block mb-6">
+                                <img :src="'data:image/jpeg;base64,' + pixData.qr_base64"
+                                    class="w-48 h-48 object-contain mix-blend-multiply">
+                            </div>
+
+                            <div class="w-full">
+                                <div class="relative">
+                                    <input :value="pixData.qr_code" readonly
+                                        class="w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-12 py-3 text-xs text-slate-600 font-mono focus:outline-none">
+                                    <button @click="copyPix"
+                                        class="absolute right-2 top-2 bottom-2 bg-white text-blue-600 hover:text-blue-700 px-3 rounded border border-slate-200 text-xs font-bold uppercase transition">
+                                        Copiar
+                                    </button>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-4">Enviamos os dados também para: <strong>{{
+                                        form.email }}</strong></p>
+                            </div>
+                        </div>
+
+                        <div v-else>
+                            <div
+                                class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl animate-bounce">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Pagamento Aprovado!</h2>
+                            <p class="text-slate-500 mb-8">Seu acesso foi enviado para <strong>{{ form.email
+                                    }}</strong>.</p>
+                            <a :href="generatedLink"
+                                class="block w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-1">
+                                Acessar Painel Agora
+                            </a>
                         </div>
                     </div>
 
                     <div v-else>
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
-                                <span class="text-sm font-bold text-slate-800">Dados</span>
+                        <div class="flex items-center gap-3 mb-6 md:mb-8">
+                            <span
+                                class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-bold shadow-md">1</span>
+                            <h2 class="text-lg font-bold text-slate-800">Seus Dados</h2>
+                        </div>
+
+                        <form class="space-y-4 md:space-y-5" @submit.prevent>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Nome
+                                    Completo</label>
+                                <div class="relative">
+                                    <input v-model="form.name" @blur="saveLead" type="text"
+                                        :class="{'border-green-500 ring-1 ring-green-500/20': validations.name, 'border-red-300': !validations.name && form.name.length > 0}"
+                                        class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none"
+                                        placeholder="Nome e Sobrenome">
+                                </div>
+                                <p v-if="form.name.length > 0 && !validations.name"
+                                    class="text-[10px] text-red-500 mt-1 ml-1">Digite seu nome e sobrenome.</p>
                             </div>
-                            <div class="h-px w-8 bg-slate-300"></div>
-                            <div class="flex items-center gap-2" :class="mpLoaded ? 'opacity-100' : 'opacity-50'">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 text-xs flex items-center justify-center font-bold">2</span>
-                                <span class="text-sm font-bold text-slate-800">Pagamento</span>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">E-mail</label>
+                                <input v-model="form.email" @blur="saveLead" type="email"
+                                    :class="{'border-green-500 ring-1 ring-green-500/20': validations.email, 'border-red-300': !validations.email && form.email.length > 0}"
+                                    class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none"
+                                    placeholder="seu@email.com">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">CPF ou
+                                        CNPJ</label>
+                                    <input v-model="form.doc" @blur="markTouched('doc'); saveLead()" @input="maskDoc"
+                                        maxlength="18" type="tel"
+                                        :class="{'border-green-500 ring-1 ring-green-500/20': validations.doc, 'border-red-300 ring-1 ring-red-300': !validations.doc && form.doc.length > 0 && touched.doc}"
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 outline-none"
+                                        placeholder="CPF ou CNPJ (Somente números)">
+                                    <p v-if="!validations.doc && form.doc.length > 0 && touched.doc"
+                                        class="text-[10px] text-red-500 mt-1 font-bold ml-1 animate-pulse">
+                                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Documento inválido.
+                                        Verifique os números.
+                                    </p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">WhatsApp</label>
+                                    <input v-model="form.phone" @blur="saveLead" @input="maskPhone" maxlength="15"
+                                        type="tel"
+                                        :class="{'border-green-500 ring-1 ring-green-500/20': validations.phone, 'border-red-300': !validations.phone && form.phone.length > 0}"
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 outline-none"
+                                        placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
+                        </form>
+
+                        <button v-if="isFormValid && !mpLoaded" @click="initBrick"
+                            class="w-full mt-6 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 transition flex items-center justify-center gap-2 shadow-lg shadow-slate-200">
+                            Carregar Opções de Pagamento <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="my-8 border-t border-slate-100 relative">
+                            <span
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs font-bold text-slate-300 uppercase">Pagamento</span>
+                        </div>
+
+                        <div class="relative min-h-[120px]">
+                            <div v-show="!isFormValid"
+                                class="absolute inset-0 bg-white/90 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 transition-all text-center p-4">
+                                <div class="text-slate-300 text-3xl mb-2"><i class="fa-solid fa-lock"></i></div>
+                                <p class="text-sm font-bold text-slate-400">Preencha seus dados acima para liberar o
+                                    pagamento seguro.</p>
+                            </div>
+
+                            <div class="bg-white p-1 rounded-xl">
+                                <div id="paymentBrick_container"></div>
+                            </div>
+
+                            <div v-if="processing"
+                                class="absolute inset-0 bg-white/95 z-20 flex flex-col items-center justify-center rounded-xl">
+                                <div class="spinner mb-4"></div>
+                                <p class="text-sm font-bold text-slate-700 animate-pulse">Processando pagamento...</p>
+                                <p class="text-xs text-slate-400 mt-1">Não feche esta página</p>
                             </div>
                         </div>
 
-                        <form @submit.prevent class="space-y-6">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <i class="fa-regular fa-user text-blue-500"></i> Informações Pessoais
-                                </h3>
-                                <div class="grid gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome
-                                            Completo</label>
-                                        <input v-model="form.name" type="text" required
-                                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 outline-none"
-                                            placeholder="Ex: João da Silva">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email (Onde
-                                            receberá o acesso)</label>
-                                        <input v-model="form.email" type="email" required @blur="initPaymentBrick"
-                                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 outline-none"
-                                            placeholder="seu@email.com">
-                                        <p class="text-[10px] text-blue-600 mt-1" v-if="form.email && !mpLoaded">*
-                                            Preencha para liberar o pagamento</p>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label
-                                                class="block text-xs font-bold text-slate-500 uppercase mb-1">CPF/CNPJ</label>
-                                            <input v-model="form.doc" type="text"
-                                                class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 outline-none"
-                                                placeholder="000.000.000-00">
-                                        </div>
-                                        <div>
-                                            <label
-                                                class="block text-xs font-bold text-slate-500 uppercase mb-1">Celular</label>
-                                            <input v-model="form.phone" type="tel"
-                                                class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 outline-none"
-                                                placeholder="(00) 00000-0000">
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="mt-8 text-center pb-8 border-t border-slate-50 pt-4">
+                            <div
+                                class="flex justify-center gap-4 mb-2 opacity-50 grayscale hover:grayscale-0 transition">
+                                <i class="fa-brands fa-cc-mastercard text-2xl"></i>
+                                <i class="fa-brands fa-cc-visa text-2xl"></i>
+                                <i class="fa-brands fa-pix text-2xl"></i>
                             </div>
-
-                            <div v-show="form.email && form.name"
-                                class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 animate-fade-in">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <i class="fa-regular fa-credit-card text-blue-500"></i> Pagamento Seguro
-                                </h3>
-
-                                <div v-if="loadingBrick" class="text-center py-8">
-                                    <div class="loader mx-auto mb-2"></div>
-                                    <p class="text-xs text-slate-400">Conectando ao Mercado Pago...</p>
-                                </div>
-
-                                <div id="cardPaymentBrick_container"></div>
-                            </div>
-
-                            <button v-if="form.email && form.name && !mpLoaded && !loadingBrick"
-                                @click="initPaymentBrick"
-                                class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">
-                                Carregar Opções de Pagamento
-                            </button>
-
-                            <p class="text-center text-xs text-slate-400">
-                                <i class="fa-solid fa-lock"></i> Seus dados estão criptografados e seguros.
+                            <p class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-lock text-green-500"></i> Seus dados estão protegidos com
+                                criptografia de 256 bits.
                             </p>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <script src="assets/js/config.js"></script>
+    <!-- Configurações: Altere sua Public Key abaixo -->
+    <script>
+        window.CONFIG = {
+            // COLOQUE SUA PUBLIC KEY DE PRODUÇÃO AQUI PARA O TESTE REAL
+            // Exemplo Produção: 'APP_USR-...'
+            // Exemplo Teste: 'TEST-...'
+            MP_PUBLIC_KEY: 'APP_USR-cff766f9-e148-47d4-ad54-22c2f5c64a2c',
+            DEBUG: true
+        };
+    </script>
+
+    <!-- Tenta carregar config externo se existir (opcional), mas usa o acima como padrão -->
+    <script src="assets/js/config.js" onerror="console.log('Usando config interna')"></script>
+
     <script type="module">
-        const { createApp, ref, onMounted, reactive } = Vue;
+        const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
         createApp({
             setup() {
-                const product = ref({});
-                const purchaseSuccess = ref(false);
-                const mpLoaded = ref(false);
-                const loadingBrick = ref(false);
-
+                const product = ref({ name: 'Carregando...', price: '0,00', desc: '', image: '' });
                 const form = reactive({ name: '', email: '', doc: '', phone: '' });
+                const touched = reactive({ doc: false }); // Para controlar quando mostrar erro
+                const addSupport = ref(false); // Order bump
 
-                // INICIALIZA O SDK (Chave Pública carregada de assets/js/config.js)
-                const mp = new MercadoPago(CONFIG.MP_PUBLIC_KEY, { locale: 'pt-BR' });
+                const mpLoaded = ref(false);
+                const processing = ref(false);
+                const purchaseSuccess = ref(false);
+                const paymentType = ref('');
+                const pixData = reactive({ qr_base64: '', qr_code: '' });
+                const generatedLink = ref('https://plena-aplicativos.web.app/');
 
-                onMounted(() => {
-                    // 1. Carrega dados da URL
-                    const params = new URLSearchParams(window.location.search);
+                const toggleOrderBump = () => { addSupport.value = !addSupport.value; };
+                const markTouched = (field) => { touched[field] = true; };
 
-                    // Verifica se voltou do pagamento com sucesso
-                    if (params.get('status') === 'approved' || params.get('collection_status') === 'approved') {
-                        purchaseSuccess.value = true;
-                    }
-
-                    if (params.has('name')) {
-                        product.value = {
-                            name: params.get('name'),
-                            price: params.get('price'),
-                            img: params.get('img'),
-                            desc: params.get('desc'),
-                            link: params.get('link')
-                        };
-                    } else {
-                        // Demo Fallback
-                        product.value = { name: "Plena System", price: "97,00", desc: "Software de Gestão" };
-                    }
+                // Preço Total Calculado
+                const totalPrice = computed(() => {
+                    let base = parseFloat(String(product.value.price).replace('R$', '').replace(',', '.').trim()) || 0.00;
+                    if (addSupport.value) base += 19.90;
+                    return base.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                 });
 
-                // FUNÇÃO PRINCIPAL: CHAMA O PHP PARA CRIAR O PAGAMENTO
-                const initPaymentBrick = async () => {
-                    if (!form.email || !form.name || mpLoaded.value || loadingBrick.value) return;
+                // Valida Docs Híbrido
+                const validarCpfCnpj = (val) => {
+                    val = val.replace(/[^\d]+/g, '');
+                    if (val === '') return false;
 
-                    loadingBrick.value = true;
-                    console.log("Iniciando conexão com Backend PHP...");
+                    // CPF
+                    if (val.length === 11) {
+                        if (/^(\d)\1{10}$/.test(val)) return false;
+                        let add = 0;
+                        for (let i = 0; i < 9; i++) add += parseInt(val.charAt(i)) * (10 - i);
+                        let rev = 11 - (add % 11);
+                        if (rev === 10 || rev === 11) rev = 0;
+                        if (rev !== parseInt(val.charAt(9))) return false;
+                        add = 0;
+                        for (let i = 0; i < 10; i++) add += parseInt(val.charAt(i)) * (11 - i);
+                        rev = 11 - (add % 11);
+                        if (rev === 10 || rev === 11) rev = 0;
+                        if (rev !== parseInt(val.charAt(10))) return false;
+                        return true;
+                    }
+                    // CNPJ
+                    else if (val.length === 14) {
+                        if (/^(\d)\1{13}$/.test(val)) return false;
+                        let tamanho = val.length - 2;
+                        let numeros = val.substring(0, tamanho);
+                        let digitos = val.substring(tamanho);
+                        let soma = 0;
+                        let pos = tamanho - 7;
+                        for (let i = tamanho; i >= 1; i--) {
+                            soma += numeros.charAt(tamanho - i) * pos--;
+                            if (pos < 2) pos = 9;
+                        }
+                        let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                        if (resultado != digitos.charAt(0)) return false;
+
+                        tamanho = tamanho + 1;
+                        numeros = val.substring(0, tamanho);
+                        soma = 0;
+                        pos = tamanho - 7;
+                        for (let i = tamanho; i >= 1; i--) {
+                            soma += numeros.charAt(tamanho - i) * pos--;
+                            if (pos < 2) pos = 9;
+                        }
+                        resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                        if (resultado != digitos.charAt(1)) return false;
+                        return true;
+                    }
+                    return false;
+                };
+
+                // 1. Validações Individuais
+                const validations = computed(() => ({
+                    name: form.name.trim().split(' ').length >= 2,
+                    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email),
+                    doc: validarCpfCnpj(form.doc),
+                    phone: form.phone.replace(/\D/g, '').length >= 10
+                }));
+
+                const isFormValid = computed(() => {
+                    return validations.value.name &&
+                        validations.value.email &&
+                        validations.value.doc &&
+                        validations.value.phone;
+                });
+
+                // 2. Máscaras
+                const maskDoc = (e) => {
+                    let v = e.target.value.replace(/\D/g, "");
+                    // Limita a 14 digitos (CNPJ)
+                    if (v.length > 14) v = v.substring(0, 14);
+
+                    if (v.length <= 11) {
+                        // CPF Mask
+                        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                    } else {
+                        // CNPJ Mask
+                        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+                        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+                    }
+                    form.doc = v;
+                };
+
+                const maskPhone = (e) => {
+                    let v = e.target.value.replace(/\D/g, "").substring(0, 11);
+                    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+                    v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+                    form.phone = v;
+                };
+
+                // 3. Captura de Lead (Abandono v3)
+                const saveLead = async () => {
+                    // Previne envios excessivos ou incompletos
+                    if (form.name.length < 3) return;
+                    if (!validations.value.email && !validations.value.phone) return;
 
                     try {
-                        // 1. Chama seu arquivo PHP na HostGator
-                        // IMPORTANTE: Se estiver testando localmente, use a URL completa do seu site (https://seu-site.com/api_pagamento.php)
-                        const response = await fetch('api_pagamento.php?action=create_preference', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                        // "Fire and forget" - não precisamos esperar a resposta para UI
+                        fetch("api_pagamento.php?action=save_lead", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
-                                product: {
-                                    name: product.value.name,
-                                    price: parseFloat(product.value.price.replace(',', '.').replace('R$', '').trim()),
-                                    desc: product.value.desc
-                                },
-                                payer: {
-                                    name: form.name,
-                                    email: form.email,
-                                    doc: form.doc
-                                }
+                                name: form.name,
+                                email: form.email,
+                                phone: form.phone,
+                                product: product.value.name
                             })
                         });
+                        // console.log("Lead salvo silenciosamente");
+                    } catch (e) {
+                        // Ignora erros silenciosamente para não atrapalhar UX
+                    }
+                };
 
-                        if (!response.ok) throw new Error('Falha na comunicação com api_pagamento.php (Status ' + response.status + ')');
+                // 4. Inicialização MP
+                const initBrick = async () => {
+                    if (mpLoaded.value) return;
 
-                        const data = await response.json();
+                    try {
+                        // Tenta usar a configuração global (Produção)
+                        const MP_KEY = (window.CONFIG && window.CONFIG.MP_PUBLIC_KEY) ? window.CONFIG.MP_PUBLIC_KEY : 'TEST-cb348507-8898-472d-8686-25f095908b6e';
+                        console.log("Iniciando MP com Key:", MP_KEY);
 
-                        if (data.error) {
-                            console.error("Erro do Backend:", data);
-                            alert("Erro ao criar pagamento: " + JSON.stringify(data));
-                            loadingBrick.value = false;
-                            return;
-                        }
-
-                        const preferenceId = data.id;
-                        console.log("Preference ID recebido:", preferenceId);
-
-                        // 2. Renderiza o Brick com o ID real
+                        const mp = new MercadoPago(MP_KEY, { locale: 'pt-BR' });
                         const bricksBuilder = mp.bricks();
 
-                        document.getElementById('cardPaymentBrick_container').innerHTML = ''; // Limpa anterior
+                        let priceRaw = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
+                        const amount = parseFloat(priceRaw) || 1.00;
+                        const description = addSupport.value ? product.value.name + " + Suporte WhatsApp" : product.value.name;
 
-                        await bricksBuilder.create("payment", "cardPaymentBrick_container", {
+                        console.log("Iniciando Brick com valor:", amount, "Desc:", description);
+
+                        const cleanDoc = form.doc.replace(/\D/g, '');
+                        const docType = cleanDoc.length === 14 ? 'CNPJ' : 'CPF';
+
+                        await bricksBuilder.create("payment", "paymentBrick_container", {
                             initialization: {
-                                amount: parseFloat(product.value.price.replace(',', '.').replace('R$', '').trim()),
-                                preferenceId: preferenceId,
+                                amount: amount,
+                                payer: {
+                                    email: form.email,
+                                    firstName: form.name.split(' ')[0],
+                                    lastName: form.name.split(' ').slice(1).join(' ') || 'Cliente',
+                                    identification: { type: docType, number: cleanDoc }
+                                }
                             },
                             customization: {
                                 paymentMethods: {
                                     ticket: "all",
+                                    bankTransfer: "all",
                                     creditCard: "all",
-                                    pix: "all"
+                                    maxInstallments: 12
                                 },
+                                visual: {
+                                    style: {
+                                        theme: 'default',
+                                        customVariables: { baseColor: '#2563EB' }
+                                    }
+                                }
                             },
                             callbacks: {
-                                onReady: () => {
-                                    mpLoaded.value = true;
-                                    loadingBrick.value = false;
-                                },
+                                onReady: () => { mpLoaded.value = true; },
                                 onSubmit: ({ selectedPaymentMethod, formData }) => {
                                     return new Promise((resolve, reject) => {
-                                        // O Brick processa sozinho no backend do MP
-                                        console.log("Processando pagamento via Brick...");
-                                        resolve();
+                                        processing.value = true;
+
+                                        fetch("api_pagamento.php?action=process_payment", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                ...formData,
+                                                description: description,
+                                                transaction_amount: amount,
+                                                payer: {
+                                                    email: form.email,
+                                                    identification: {
+                                                        type: form.doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF',
+                                                        number: form.doc.replace(/\D/g, '')
+                                                    },
+                                                    first_name: form.name
+                                                }
+                                            })
+                                        })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                processing.value = false;
+
+                                                // Sucesso Pix
+                                                if (data.status === 'pending' && data.point_of_interaction) {
+                                                    paymentType.value = 'pix';
+                                                    pixData.qr_base64 = data.point_of_interaction.transaction_data.qr_code_base64;
+                                                    pixData.qr_code = data.point_of_interaction.transaction_data.qr_code;
+                                                    purchaseSuccess.value = true;
+                                                    resolve();
+                                                }
+                                                // Sucesso Cartão
+                                                else if (data.status === 'approved') {
+                                                    paymentType.value = 'credit_card';
+                                                    purchaseSuccess.value = true;
+                                                    resolve();
+                                                } else {
+                                                    alert("Status: " + (data.status_detail || data.message || "Não aprovado"));
+                                                    resolve();
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.error(err);
+                                                alert("Erro de comunicação com o servidor.");
+                                                processing.value = false;
+                                                resolve();
+                                            });
                                     });
                                 },
-                                onError: (error) => {
-                                    console.error("Erro no Brick:", error);
-                                    alert("Erro no componente de pagamento (Brick): " + JSON.stringify(error));
-                                    loadingBrick.value = false;
-                                },
+                                onError: (error) => { console.error(error); }
                             },
                         });
-
                     } catch (e) {
-                        console.error("Erro fatal:", e);
-                        alert("Erro ao carregar o pagamento: " + e.message);
-                        loadingBrick.value = false;
+                        console.error("Erro MP Init:", e);
                     }
                 };
 
-                return { product, form, purchaseSuccess, mpLoaded, loadingBrick, initPaymentBrick };
+                const copyPix = () => {
+                    navigator.clipboard.writeText(pixData.qr_code);
+                    alert("Código Pix copiado!");
+                };
+
+                onMounted(() => {
+                    const params = new URLSearchParams(window.location.search);
+                    product.value = {
+                        name: params.get('name') || 'Produto Demo',
+                        price: params.get('price') || '1,00',
+                        desc: params.get('desc') || '',
+                        link: params.get('link'),
+                        image: params.get('image') || ''
+                    };
+                });
+
+                watch(isFormValid, (val) => {
+                    if (val && !mpLoaded.value) initBrick();
+                });
+
+                return {
+                    product, form, validations, isFormValid, mpLoaded, processing,
+                    purchaseSuccess, paymentType, pixData, generatedLink,
+                    maskDoc, maskPhone, copyPix, initBrick, saveLead,
+                    addSupport, toggleOrderBump, totalPrice, touched, markTouched
+                };
             }
         }).mount('#app');
     </script>
