@@ -1,114 +1,112 @@
 <?php
 /**
- * PLENA LICENSE MANAGER (Gatekeeper)
- * Sistema de validação e travamento de dispositivo
+ * PLENA LICENSE SERVER V2 (Com Listagem Admin)
  */
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once 'secrets.php';
-// $ADMIN_SECRET é carregado do arquivo secrets.php
+// $ADMIN_SECRET vem do secrets.php
 
-// Arquivo que guarda as licenças (Oculto)
 $DB_FILE = 'database_licenses_secure.json';
 
-// Inicializa o banco se não existir
-if (!file_exists($DB_FILE)) {
-    file_put_contents($DB_FILE, json_encode([]));
-}
+if (!file_exists($DB_FILE)) file_put_contents($DB_FILE, json_encode([]));
 
 $action = $_GET['action'] ?? '';
 $data = json_decode(file_get_contents('php://input'), true);
 
-// =============================================================
-// AÇÃO 1: CRIAR LICENÇA (Admin)
-// Chamada: POST ?action=create
-// Body: { "secret": "...", "client_name": "João", "product": "Barbearia" }
-// =============================================================
+// 1. LISTAR LICENÇAS (Novo: Para o Admin.html)
+if ($action === 'list') {
+    // Verifica senha enviada via Header ou GET para segurança básica
+    $auth = $_SERVER['HTTP_X_ADMIN_SECRET'] ?? $_GET['secret'] ?? '';
+    if ($auth !== $ADMIN_SECRET) {
+        http_response_code(403); echo json_encode(['error' => 'Acesso Negado']); exit;
+    }
+    
+    $db = json_decode(file_get_contents($DB_FILE), true);
+    // Transforma objeto em array para o Vue
+    $list = [];
+    foreach ($db as $key => $val) {
+        $val['key'] = $key; // Inclui a chave no objeto
+        $list[] = $val;
+    }
+    // Ordena por data (mais recentes primeiro)
+    usort($list, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
+    
+    echo json_encode($list);
+    exit;
+}
+
+// 2. CRIAR LICENÇA
 if ($action === 'create') {
     if (($data['secret'] ?? '') !== $ADMIN_SECRET) {
-        http_response_code(403); echo json_encode(['error' => 'Acesso negado']); exit;
+        http_response_code(403); echo json_encode(['error' => 'Senha incorreta']); exit;
     }
-
     $db = json_decode(file_get_contents($DB_FILE), true);
     
-    // Gera chave única
+    // Gera chave legível: PLENA-XXXX-YYYY
     $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
     
     $db[$key] = [
         "client" => $data['client_name'],
         "product" => $data['product'],
-        "device_id" => null, // Ainda não ativado
+        "device_id" => null,
         "status" => "active",
         "created_at" => date('Y-m-d H:i:s')
     ];
     
-    file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT));
+    file_put_contents($DB_FILE, json_encode($db));
     echo json_encode(["success" => true, "license_key" => $key]);
     exit;
 }
 
-// =============================================================
-// AÇÃO 2: VALIDAR / ATIVAR (App do Cliente)
-// Chamada: POST ?action=validate
-// Body: { "license_key": "...", "device_fingerprint": "..." }
-// =============================================================
+// 3. VALIDAR (Para os Apps)
 if ($action === 'validate') {
     $key = $data['license_key'] ?? '';
     $device = $data['device_fingerprint'] ?? '';
-    
     $db = json_decode(file_get_contents($DB_FILE), true);
     
-    // 1. Licença existe?
-    if (!isset($db[$key])) {
-        echo json_encode(["valid" => false, "message" => "Licença inválida."]);
-        exit;
-    }
+    if (!isset($db[$key])) { echo json_encode(["valid" => false, "message" => "Chave Inválida"]); exit; }
     
-    $license = $db[$key];
+    $lic = $db[$key];
+    if ($lic['status'] !== 'active') { echo json_encode(["valid" => false, "message" => "Licença Suspensa"]); exit; }
     
-    // 2. Está ativa?
-    if ($license['status'] !== 'active') {
-        echo json_encode(["valid" => false, "message" => "Licença suspensa."]);
-        exit;
-    }
-    
-    // 3. Verificação de Dispositivo (A TRAVA)
-    if ($license['device_id'] === null) {
-        // Primeira vez: VINCULAR DISPOSITIVO
+    if ($lic['device_id'] === null) {
         $db[$key]['device_id'] = $device;
         $db[$key]['activated_at'] = date('Y-m-d H:i:s');
-        file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT));
-        
-        echo json_encode(["valid" => true, "message" => "Licença ativada com sucesso neste dispositivo!"]);
-    } elseif ($license['device_id'] === $device) {
-        // Dispositivo correto
-        echo json_encode(["valid" => true, "message" => "Acesso permitido."]);
+        file_put_contents($DB_FILE, json_encode($db));
+        echo json_encode(["valid" => true, "message" => "Ativado com Sucesso!"]);
+    } elseif ($lic['device_id'] === $device) {
+        echo json_encode(["valid" => true, "message" => "Acesso Permitido"]);
     } else {
-        // Dispositivo pirata (tentativa de uso em outro local)
-        echo json_encode(["valid" => false, "message" => "Licença já em uso em outro aparelho. Contate o suporte."]);
+        echo json_encode(["valid" => false, "message" => "Chave já usada em outro dispositivo."]);
     }
     exit;
 }
 
-// =============================================================
-// AÇÃO 3: RESETAR DISPOSITIVO (Suporte)
-// Útil se o cliente trocou de celular
-// =============================================================
-if ($action === 'reset') {
-    if (($data['secret'] ?? '') !== $ADMIN_SECRET) {
-        http_response_code(403); exit;
-    }
-    $key = $data['license_key'];
-    $db = json_decode(file_get_contents($DB_FILE), true);
+// 4. RESETAR/BANIR (Novo: Ações Admin Extras)
+if ($action === 'update_status') {
+    if (($data['secret'] ?? '') !== $ADMIN_SECRET) { http_response_code(403); exit; }
     
-    if (isset($db[$key])) {
-        $db[$key]['device_id'] = null; // Libera para ativar em novo device
-        file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT));
+    $key = $data['key'];
+    $newStatus = $data['status']; // 'active', 'banned', 'reset_device'
+    
+    $db = json_decode(file_get_contents($DB_FILE), true);
+    if(isset($db[$key])) {
+        if ($newStatus === 'reset_device') {
+            $db[$key]['device_id'] = null;
+        } else {
+            $db[$key]['status'] = $newStatus;
+        }
+        file_put_contents($DB_FILE, json_encode($db));
         echo json_encode(["success" => true]);
+    } else {
+        echo json_encode(["error" => "Chave não encontrada"]);
     }
     exit;
 }
 
-echo json_encode(["status" => "License Server Online"]);
+echo json_encode(["status" => "Online"]);
 ?>

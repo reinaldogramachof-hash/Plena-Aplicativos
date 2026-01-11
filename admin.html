@@ -336,42 +336,114 @@
 
                     <!-- LICENSES VIEW -->
                     <div v-if="currentView === 'licenses'" class="animate-fade-in">
-                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Gerador de Licenças</h2>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Gestão de Licenças (DRM)</h2>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-4">Criar Chave Manual</h3>
-                                <div class="space-y-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-fit">
+                                <h3 class="font-bold text-slate-800 mb-4">Gerar Nova Licença</h3>
+                                <form @submit.prevent="createLicense" class="space-y-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cliente
-                                            (Nome)</label>
-                                        <input type="text"
-                                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                            placeholder="Ex: João da Silva">
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Cliente</label>
+                                        <input v-model="licenseForm.client" type="text" required
+                                            class="w-full px-4 py-2 border rounded-lg" placeholder="Nome do Cliente">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">Produto</label>
-                                        <select
-                                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                                            <option v-for="p in products" :value="p.id">{{ p.name }}</option>
+                                        <select v-model="licenseForm.product"
+                                            class="w-full px-4 py-2 border rounded-lg bg-white">
+                                            <option value="" disabled>Selecione...</option>
+                                            <option v-for="p in products" :value="p.name">{{ p.name }}</option>
+                                            <option value="Outro">Outro (Manual)</option>
                                         </select>
                                     </div>
-                                    <button
-                                        class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition">
-                                        <i class="fa-solid fa-magic-wand-sparkles mr-2"></i> Gerar e Copiar Chave
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Senha Admin</label>
+                                        <input v-model="licenseForm.secret" type="password" required
+                                            class="w-full px-4 py-2 border rounded-lg"
+                                            placeholder="Senha do secrets.php">
+                                    </div>
+
+                                    <button type="submit" :disabled="loadingLicense"
+                                        class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition flex justify-center items-center gap-2">
+                                        <i v-if="loadingLicense" class="fa-solid fa-spinner fa-spin"></i>
+                                        {{ loadingLicense ? 'Gerando...' : 'Gerar Chave' }}
                                     </button>
+                                </form>
+
+                                <div v-if="generatedKey"
+                                    class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center animate-fade-in">
+                                    <p class="text-xs text-green-800 uppercase font-bold mb-1">Chave Gerada:</p>
+                                    <code
+                                        class="text-lg font-mono font-bold text-slate-800 select-all block bg-white p-2 rounded border border-green-100 mb-2">{{ generatedKey }}</code>
+                                    <button @click="copyKey" class="text-xs text-green-700 hover:underline"><i
+                                            class="fa-solid fa-copy"></i> Copiar</button>
                                 </div>
                             </div>
 
-                            <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
-                                <h3 class="font-bold text-indigo-900 mb-2"><i
-                                        class="fa-solid fa-info-circle mr-2"></i>Como funciona</h3>
-                                <p class="text-sm text-indigo-700 leading-relaxed">
-                                    Este gerador cria um código JSON criptografado que permite liberar o acesso
-                                    manualmente para clientes que compraram fora do checkout automático.
-                                    <br><br>
-                                    Basta enviar o código gerado para o cliente ativar no aplicativo.
-                                </p>
+                            <div
+                                class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                                    <h3 class="font-bold text-slate-800">Últimas Licenças</h3>
+                                    <div class="flex gap-2">
+                                        <input v-model="licenseForm.secret" type="password" placeholder="Senha Admin"
+                                            class="text-xs border rounded px-2 py-1 w-24">
+                                        <button @click="loadLicenses" class="text-sm text-indigo-600 hover:underline"><i
+                                                class="fa-solid fa-rotate"></i> Atualizar</button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto flex-1">
+                                    <table class="w-full text-sm text-left text-slate-600">
+                                        <thead class="bg-slate-50 text-xs text-slate-500 uppercase font-bold">
+                                            <tr>
+                                                <th class="px-4 py-3">Cliente / Produto</th>
+                                                <th class="px-4 py-3">Chave</th>
+                                                <th class="px-4 py-3">Status</th>
+                                                <th class="px-4 py-3 text-right">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            <tr v-for="lic in licensesList" :key="lic.key" class="hover:bg-slate-50">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-bold text-slate-800">{{ lic.client }}</div>
+                                                    <div class="text-xs text-slate-400">{{ lic.product }}</div>
+                                                    <div class="text-[10px] text-slate-300">{{
+                                                        formatDate(lic.created_at) }}</div>
+                                                </td>
+                                                <td class="px-4 py-3 font-mono text-xs select-all text-slate-500">{{
+                                                    lic.key }}</td>
+                                                <td class="px-4 py-3">
+                                                    <span v-if="lic.status === 'banned'"
+                                                        class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">Banido</span>
+                                                    <span v-else-if="lic.device_id"
+                                                        class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold"
+                                                        title="Dispositivo Vinculado">Em Uso</span>
+                                                    <span v-else
+                                                        class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">Aguardando</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-right space-x-2">
+                                                    <button v-if="lic.device_id"
+                                                        @click="manageLicense(lic.key, 'reset_device')"
+                                                        title="Resetar Dispositivo (Troca de Celular)"
+                                                        class="text-slate-400 hover:text-blue-600 transition"><i
+                                                            class="fa-solid fa-mobile-screen-button"></i></button>
+                                                    <button v-if="lic.status !== 'banned'"
+                                                        @click="manageLicense(lic.key, 'banned')"
+                                                        title="Bloquear Acesso"
+                                                        class="text-slate-400 hover:text-red-600 transition"><i
+                                                            class="fa-solid fa-ban"></i></button>
+                                                    <button v-if="lic.status === 'banned'"
+                                                        @click="manageLicense(lic.key, 'active')" title="Desbloquear"
+                                                        class="text-slate-400 hover:text-green-600 transition"><i
+                                                            class="fa-solid fa-check"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="licensesList.length === 0">
+                                                <td colspan="4" class="px-6 py-8 text-center text-slate-400">Nenhuma
+                                                    licença carregada (Insira a senha e clique em atualizar).</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -450,7 +522,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const { createApp, ref, computed, onMounted, reactive } = Vue;
+        const { createApp, ref, computed, onMounted, reactive, watch } = Vue;
 
         createApp({
             setup() {
@@ -470,6 +542,105 @@
                 const showModal = ref(false);
                 const editingProduct = ref(null);
                 const form = reactive({ name: '', kiwify_id: '', link: '', price: '' });
+
+                // --- LICENÇAS ---
+                const licensesList = ref([]);
+                const loadingLicense = ref(false);
+                const generatedKey = ref('');
+                // Mantenha o secret aqui vazio para o usuário digitar, ou hardcoded se for uso pessoal local
+                const licenseForm = reactive({ client: '', product: '', secret: '' });
+
+                // 1. Carregar Licenças
+                const loadLicenses = async () => {
+                    if (!licenseForm.secret) {
+                        // Tenta pegar do localStorage se tiver salvo
+                        const savedSecret = localStorage.getItem('plena_admin_secret');
+                        if (savedSecret) licenseForm.secret = savedSecret;
+                        else return; // Não carrega sem senha
+                    }
+
+                    try {
+                        const req = await fetch(`api_licenca.php?action=list&secret=${licenseForm.secret}`);
+                        const data = await req.json();
+
+                        if (data.error) {
+                            alert(data.error);
+                        } else if (Array.isArray(data)) {
+                            licensesList.value = data;
+                            // Salva a senha para facilitar navegação
+                            localStorage.setItem('plena_admin_secret', licenseForm.secret);
+                        }
+                    } catch (e) {
+                        console.error("Erro ao carregar licenças", e);
+                    }
+                };
+
+                // 2. Criar Licença
+                const createLicense = async () => {
+                    loadingLicense.value = true;
+                    try {
+                        const req = await fetch('api_licenca.php?action=create', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                secret: licenseForm.secret,
+                                client_name: licenseForm.client,
+                                product: licenseForm.product
+                            })
+                        });
+                        const res = await req.json();
+
+                        if (res.success) {
+                            generatedKey.value = res.license_key;
+                            licenseForm.client = ''; // Limpa cliente
+                            localStorage.setItem('plena_admin_secret', licenseForm.secret); // Salva senha
+                            loadLicenses(); // Atualiza a tabela
+                        } else {
+                            alert("Erro: " + (res.error || "Falha desconhecida"));
+                        }
+                    } catch (e) {
+                        alert("Erro de conexão");
+                    } finally {
+                        loadingLicense.value = false;
+                    }
+                };
+
+                // 3. Gerenciar (Banir/Resetar)
+                const manageLicense = async (key, actionType) => {
+                    let confirmMsg = "Confirmar alteração?";
+                    if (actionType === 'banned') confirmMsg = "Tem certeza que deseja BLOQUEAR esta licença?";
+                    if (actionType === 'reset_device') confirmMsg = "Isso permitirá que o cliente ative em um NOVO dispositivo. Confirmar?";
+
+                    if (!confirm(confirmMsg)) return;
+
+                    try {
+                        const req = await fetch('api_licenca.php?action=update_status', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                secret: licenseForm.secret,
+                                key: key,
+                                status: actionType
+                            })
+                        });
+                        const res = await req.json();
+                        if (res.success) {
+                            loadLicenses();
+                        } else {
+                            alert("Erro: " + res.error);
+                        }
+                    } catch (e) {
+                        alert("Erro ao atualizar status");
+                    }
+                };
+
+                const copyKey = () => {
+                    navigator.clipboard.writeText(generatedKey.value);
+                    alert("Copiado!");
+                };
+
+                // Carregar licenças automaticamente ao entrar na tela
+                watch(currentView, (newVal) => {
+                    if (newVal === 'licenses') loadLicenses();
+                });
 
                 // Computed
                 const userInitials = computed(() => {
@@ -538,8 +709,6 @@
                     });
 
                     // Load Sales
-                    // Note: If sales collection doesn't exist yet, this will just return empty, which is fine.
-                    // Assuming 'created_at' field exists for ordering
                     try {
                         const qSales = query(collection(db, 'sales')); // Add orderBy if field exists
                         onSnapshot(qSales, (snapshot) => {
@@ -600,7 +769,9 @@
                     currentView, products, sales, stats, userInitials,
                     login, loginGoogle, logout,
                     showModal, editingProduct, form, openProductModal, saveProduct, deleteProduct,
-                    formatDate
+                    formatDate,
+                    // Licenças
+                    licensesList, licenseForm, createLicense, loadLicenses, manageLicense, generatedKey, copyKey, loadingLicense
                 };
             }
         }).mount('#app');
