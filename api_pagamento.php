@@ -10,8 +10,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // ==================================================================
-// 🔑 COLOQUE SUA CHAVE DE PRODUÇÃO AQUI (Começa com APP_USR-...)
-$ACCESS_TOKEN = "APP_USR-5973790079521605-010916-8b6b65897e6c7c7adafbffd1dc9b62d7-3124472146"; 
+require_once 'secrets.php';
+// $ACCESS_TOKEN é carregado do arquivo secrets.php 
 // ==================================================================
 
 $json_input = file_get_contents('php://input');
@@ -42,7 +42,11 @@ if ($action === 'create_preference') {
         ]],
         "payer" => [
             "name" => $payer['name'],
-            "email" => $payer['email']
+            "email" => $payer['email'],
+            "identification" => [
+                "type" => strlen(preg_replace('/\D/', '', $payer['doc'])) > 11 ? "CNPJ" : "CPF",
+                "number" => preg_replace('/\D/', '', $payer['doc'])
+            ]
         ],
         "back_urls" => [
             "success" => "$baseUrl/checkout.html",

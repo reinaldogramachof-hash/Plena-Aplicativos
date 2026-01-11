@@ -214,6 +214,7 @@
         </main>
     </div>
 
+    <script src="assets/js/config.js"></script>
     <script type="module">
         const { createApp, ref, onMounted, reactive } = Vue;
 
@@ -226,8 +227,8 @@
 
                 const form = reactive({ name: '', email: '', doc: '', phone: '' });
 
-                // INICIALIZA O SDK (Chave Pública - Pode ficar no Front)
-                const mp = new MercadoPago('TEST-cb348507-8898-472d-8686-25f095908b6e', { locale: 'pt-BR' });
+                // INICIALIZA O SDK (Chave Pública carregada de assets/js/config.js)
+                const mp = new MercadoPago(CONFIG.MP_PUBLIC_KEY, { locale: 'pt-BR' });
 
                 onMounted(() => {
                     // 1. Carrega dados da URL
@@ -261,6 +262,7 @@
 
                     try {
                         // 1. Chama seu arquivo PHP na HostGator
+                        // IMPORTANTE: Se estiver testando localmente, use a URL completa do seu site (https://seu-site.com/api_pagamento.php)
                         const response = await fetch('api_pagamento.php?action=create_preference', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -272,12 +274,13 @@
                                 },
                                 payer: {
                                     name: form.name,
-                                    email: form.email
+                                    email: form.email,
+                                    doc: form.doc
                                 }
                             })
                         });
 
-                        if (!response.ok) throw new Error('Falha na comunicação com api_pagamento.php');
+                        if (!response.ok) throw new Error('Falha na comunicação com api_pagamento.php (Status ' + response.status + ')');
 
                         const data = await response.json();
 
@@ -305,7 +308,7 @@
                                 paymentMethods: {
                                     ticket: "all",
                                     creditCard: "all",
-                                    pix: "all" // Garante que Pix apareça
+                                    pix: "all"
                                 },
                             },
                             callbacks: {
@@ -316,12 +319,13 @@
                                 onSubmit: ({ selectedPaymentMethod, formData }) => {
                                     return new Promise((resolve, reject) => {
                                         // O Brick processa sozinho no backend do MP
-                                        // Se precisar enviar dados extras para seu PHP, faça outro fetch aqui
+                                        console.log("Processando pagamento via Brick...");
                                         resolve();
                                     });
                                 },
                                 onError: (error) => {
-                                    console.error(error);
+                                    console.error("Erro no Brick:", error);
+                                    alert("Erro no componente de pagamento (Brick): " + JSON.stringify(error));
                                     loadingBrick.value = false;
                                 },
                             },
@@ -329,7 +333,7 @@
 
                     } catch (e) {
                         console.error("Erro fatal:", e);
-                        alert("Erro ao carregar módulo de pagamento. Verifique o console.");
+                        alert("Erro ao carregar o pagamento: " + e.message);
                         loadingBrick.value = false;
                     }
                 };
