@@ -6,8 +6,8 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-// SENHA MESTRA DO ADMIN (Para você criar licenças via URL ou Postman)
-$ADMIN_SECRET = "MUDE_ISSO_PARA_UMA_SENHA_FORTE";
+require_once 'secrets.php';
+// $ADMIN_SECRET é carregado do arquivo secrets.php
 
 // Arquivo que guarda as licenças (Oculto)
 $DB_FILE = 'database_licenses_secure.json';

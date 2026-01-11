@@ -1,0 +1,8 @@
+secrets.php
+config.js
+assets/js/config.js
+database_licenses_secure.json
+.DS_Store
+node_modules/
+.env
+*.log
