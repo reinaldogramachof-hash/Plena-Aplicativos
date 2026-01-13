@@ -51,16 +51,75 @@ if ($action === 'create') {
     
     // Gera chave legível: PLENA-XXXX-YYYY
     $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
+    $product = $data['product'];
+    $client = $data['client_name']; // Pode ser email ou nome
     
+    // Define Link baseado no produto
+    $linkMap = [
+        'Plena Aluguéis' => 'apps.plus/plena_alugueis.html',
+        'Plena System' => 'apps.plus/plena_system.html', // Exemplo
+        'Plena Odonto' => 'apps.plus/plena_odonto.html'
+    ];
+    $appPath = $linkMap[$product] ?? 'apps.plus/plena_alugueis.html';
+    $fullLink = "https://plenaaplicativos.com.br/" . $appPath;
+
     $db[$key] = [
-        "client" => $data['client_name'],
-        "product" => $data['product'],
+        "client" => $client,
+        "product" => $product,
         "device_id" => null,
         "status" => "active",
-        "created_at" => date('Y-m-d H:i:s')
+        "created_at" => date('Y-m-d H:i:s'),
+        "app_link" => $fullLink
     ];
     
     file_put_contents($DB_FILE, json_encode($db));
+
+    // ENVIO DE EMAIL AUTOMÁTICO
+    // Só envia se parecer um email
+    if (filter_var($client, FILTER_VALIDATE_EMAIL)) {
+        $to = $client;
+        $subject = "✅ Seu Acesso Liberado: $product";
+        
+        $htmlContent = "
+        <html>
+        <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>
+            <div style='max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);'>
+                <div style='text-align: center; margin-bottom: 30px;'>
+                    <h1 style='color: #2563EB;'>Plena Aplicativos</h1>
+                </div>
+                <p>Olá,</p>
+                <p>Seu acesso ao sistema <strong>$product</strong> foi gerado manualmente pela nossa equipe.</p>
+                
+                <div style='background-color: #eff6ff; border: 1px dashed #2563EB; padding: 20px; text-align: center; margin: 30px 0; border-radius: 8px;'>
+                    <p style='margin: 0; color: #64748b; font-size: 14px;'>SUA CHAVE DE ACESSO</p>
+                    <h2 style='margin: 10px 0; font-family: monospace; letter-spacing: 2px; color: #1e293b;'>$key</h2>
+                    <br>
+                    <a href='$fullLink' style='display: inline-block; background-color: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 10px;'>ACESSAR SISTEMA AGORA</a>
+                </div>
+
+                <p><strong>Como ativar:</strong></p>
+                <ol>
+                    <li>Clique no botão acima.</li>
+                    <li>Na tela de bloqueio, cole a chave.</li>
+                    <li>Clique em 'Liberar Acesso'.</li>
+                </ol>
+
+                <p style='margin-top: 30px; font-size: 12px; color: #94a3b8; text-align: center;'>
+                    Plena Soluções Digitais
+                </p>
+            </div>
+        </body>
+        </html>
+        ";
+
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: Plena Tecnologia <tecnologia@plenainformatica.com.br>" . "\r\n";
+        $headers .= "Reply-To: suporte@plenaaplicativos.com.br" . "\r\n";
+
+        mail($to, $subject, $htmlContent, $headers);
+    }
+
     echo json_encode(["success" => true, "license_key" => $key]);
     exit;
 }
@@ -206,6 +265,96 @@ if ($action === 'update_status') {
     } else {
         echo json_encode(["error" => "Chave não encontrada"]);
     }
+    exit;
+}
+
+// ==================================================================
+// 6. UTILS E HELPER DE EMAIL (Mesma lógica do api_pagamento.php)
+// ==================================================================
+function sendLicenseEmail($to, $productName, $key, $link) {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
+
+    $subject = "✅ Seu Acesso Liberado: $productName";
+    
+    // HTML Template (Compacto para o Admin)
+    $htmlContent = "
+    <!DOCTYPE html>
+    <html>
+    <body style='font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px;'>
+        <div style='max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0;'>
+            <h1 style='color: #2563EB;'>Plena Aplicativos</h1>
+            <p>Olá,</p>
+            <p>Aqui está o reenvio da sua licença para <strong>$productName</strong>.</p>
+            <div style='background-color: #eff6ff; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;'>
+                <h2 style='color: #1e293b; background: white; padding: 10px; display: inline-block;'>$key</h2>
+                <br><br>
+                <a href='$link' style='background-color: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;'>ACESSAR AGORA</a>
+            </div>
+            <p style='font-size: 12px; color: #94a3b8;'>Reenviado manualmente pelo Suporte.</p>
+        </div>
+    </body>
+    </html>
+    ";
+
+    $headers = array(
+        'MIME-Version: 1.0',
+        'Content-type: text/html; charset=UTF-8',
+        'From: Plena Tecnologia <tecnologia@plenainformatica.com.br>',
+        'Reply-To: suporte@plenainformatica.com.br',
+        'X-Mailer: PHP/' . phpversion()
+    );
+
+    return mail($to, $subject, $htmlContent, implode("\r\n", $headers));
+}
+
+// ------------------------------------------------------------------
+// 7. GET LOGS (Leitura Segura)
+// ------------------------------------------------------------------
+if ($action === 'get_logs') {
+    if (($data['secret'] ?? $_GET['secret'] ?? '') !== $ADMIN_SECRET) {
+        http_response_code(403); echo json_encode(['error' => 'Acesso negado']); exit;
+    }
+
+    $logFile = 'debug_log.txt';
+    if (!file_exists($logFile)) {
+        echo json_encode(['logs' => ["Sistema de Logs Iniciado."]]);
+        exit;
+    }
+
+    // Lê as últimas 100 linhas para não travar
+    $lines = file($logFile);
+    $lastLines = array_slice($lines, -200); 
+    
+    // Limpa espaços
+    $cleanedLogs = array_map('trim', $lastLines);
+    
+    echo json_encode(['logs' => array_values($cleanedLogs)]);
+    exit;
+}
+
+// ------------------------------------------------------------------
+// 8. RESEND EMAIL
+// ------------------------------------------------------------------
+if ($action === 'resend_email') {
+    if (($data['secret'] ?? '') !== $ADMIN_SECRET) {
+        http_response_code(403); echo json_encode(['error' => 'Acesso negado']); exit;
+    }
+
+    $key = $data['key'] ?? '';
+    if (!$key) { echo json_encode(['error' => 'Chave não informada']); exit; }
+
+    $db = json_decode(file_get_contents($DB_FILE), true);
+    if (!isset($db[$key])) { echo json_encode(['error' => 'Licença não encontrada']); exit; }
+
+    $lic = $db[$key];
+    
+    // Tenta Reenviar
+    $sent = sendLicenseEmail($lic['client'], $lic['product'], $key, $lic['app_link']);
+
+    echo json_encode([
+        'success' => $sent, 
+        'message' => $sent ? 'Email reenviado com sucesso' : 'Falha ao reenviar email (check logs)'
+    ]);
     exit;
 }
 

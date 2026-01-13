@@ -5,269 +5,587 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Comanda Digital | Plena</title>
+
+    <meta name="theme-color" content="#1F2937">
+
     <!-- CDNs -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            primary: '#7C3AED',
+                            secondary: '#10B981',
+                            danger: '#EF4444',
+                            warning: '#F59E0B',
+                            dark: '#1F2937',
+                            light: '#F3F4F6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Upsell Script -->
     <script src="../../../assets/js/plena_upsell.js"></script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+            touch-action: manipulation;
         }
 
-        [v-cloak] {
-            display: none;
+        /* Prevent double tap zoom */
+        button {
+            touch-action: manipulation;
         }
 
-        .table-card {
-            transition: all 0.2s;
+        /* Sidebar transitions */
+        .sidebar-right {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
         }
 
-        .table-card:active {
-            transform: scale(0.95);
+        .sidebar-right.open {
+            transform: translateX(0);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Notification Toast */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            background: white;
+            color: #1F2937;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #7C3AED;
+        }
+
+        .notification.show {
+            transform: translateX(0);
         }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden">
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
 
-    <div id="app" v-cloak class="flex h-full">
+    <!-- Overlay Global -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm transition-opacity opacity-0"
+        onclick="closeAllDrawers()"></div>
 
-        <!-- SIDEBAR -->
-        <aside
-            :class="['fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transition-transform lg:static lg:translate-x-0 flex flex-col', isMenuOpen ? 'translate-x-0' : '-translate-x-full']">
-            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg"><i class="fa-solid fa-utensils"></i></div>
-                <span class="font-bold text-lg leading-tight">Comanda Pro</span>
+    <!-- MAIN SIDEBAR (LEFT) -->
+    <aside id="main-sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="h-20 flex items-center px-6 bg-gray-800 border-b border-gray-700">
+            <div
+                class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg shadow-blue-500/20">
+                <i data-lucide="utensils-crossed" class="w-6 h-6 text-white"></i>
             </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <button
-                    class="w-full text-left px-4 py-3 rounded-xl bg-white/10 text-white font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells"></i> Mesas
-                </button>
-                <div class="px-4 py-2 text-slate-500 text-xs uppercase font-bold mt-4">Gestão</div>
-                <button @click="backupData"
-                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> Backup
-                </button>
-                <label
-                    class="w-full text-left px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Restaurar
-                    <input type="file" @change="restoreData" class="hidden" accept=".json">
-                </label>
-            </nav>
-            <div class="p-4 border-t border-slate-800">
-                <a href="../../../index.html"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition px-4 py-2">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar à Loja
-                </a>
-            </div>
-        </aside>
-
-        <!-- OVERLAY MOBILE -->
-        <div v-if="isMenuOpen" @click="isMenuOpen = false" class="fixed inset-0 bg-black/50 z-40 lg:hidden"></div>
-
-        <!-- MAIN CONTENT (GRID) -->
-        <main class="flex-1 flex flex-col relative w-full overflow-hidden">
-            <!-- Header Mobile -->
-            <header class="lg:hidden bg-white p-4 border-b flex justify-between items-center shadow-sm z-30">
-                <button @click="isMenuOpen = true" class="text-slate-600"><i
-                        class="fa-solid fa-bars text-xl"></i></button>
-                <span class="font-bold text-slate-800">Comanda Pro</span>
-                <span class="w-6"></span>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-4 lg:p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Salão de Mesas</h2>
-                        <p class="text-sm text-slate-500">Toque em uma mesa para abrir a comanda.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
-                    <div v-for="t in tables" :key="t.id" @click="openTable(t)"
-                        class="table-card p-4 rounded-2xl cursor-pointer relative h-32 flex flex-col justify-between shadow-sm border transaction hover:shadow-md"
-                        :class="t.items.length > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200 hover:border-blue-300'">
-
-                        <div class="flex justify-between items-start">
-                            <span class="text-2xl font-bold"
-                                :class="t.items.length > 0 ? 'text-red-600' : 'text-slate-700'">{{ t.id }}</span>
-                            <i class="fa-solid fa-users text-xl"
-                                :class="t.items.length > 0 ? 'text-red-300' : 'text-slate-200'"></i>
-                        </div>
-
-                        <div class="text-right">
-                            <span v-if="t.items.length > 0" class="block font-bold text-lg text-slate-800">R$ {{
-                                getTableTotal(t).toFixed(2) }}</span>
-                            <span v-else
-                                class="block text-green-500 text-xs font-bold uppercase bg-green-50 px-2 py-1 rounded-full w-fit ml-auto border border-green-100">Livre</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- RIGHT PANEL (DETAILS) -->
-        <div v-if="selectedTable"
-            class="absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl border-l border-slate-200 z-50 flex flex-col transform transition-transform duration-300">
-            <!-- Header -->
-            <div class="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
-                <div>
-                    <span class="text-xs font-bold text-slate-400 uppercase">Comanda</span>
-                    <h2 class="font-bold text-xl leading-none">Mesa {{ selectedTable.id }}</h2>
-                </div>
-                <button @click="selectedTable = null" class="text-slate-400 hover:text-white transition p-2"><i
-                        class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-
-            <!-- Items List -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50">
-                <div v-for="(item, idx) in selectedTable.items" :key="idx"
-                    class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-100">
-                    <div>
-                        <p class="font-bold text-slate-800 text-sm">{{ item.name }}</p>
-                        <p class="text-xs text-slate-500">R$ {{ item.price.toFixed(2) }}</p>
-                    </div>
-                    <button @click="selectedTable.items.splice(idx, 1)" class="text-red-300 hover:text-red-500 p-2"><i
-                            class="fa-solid fa-trash"></i></button>
-                </div>
-                <div v-if="selectedTable.items.length === 0"
-                    class="h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
-                    <i class="fa-solid fa-basket-shopping text-4xl opacity-20"></i>
-                    <p class="text-sm">Nenhum pedido lançado</p>
-                </div>
-            </div>
-
-            <!-- Add Item -->
-            <div class="p-4 bg-white border-t border-slate-200 space-y-3">
-                <label class="block text-xs font-bold text-slate-400 uppercase">Adicionar Produto</label>
-                <div class="flex gap-2">
-                    <select v-model="selectedProduct"
-                        class="flex-grow bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                        <option :value="null">Selecione...</option>
-                        <option v-for="p in menu" :value="p">{{ p.name }} - {{ p.price }}</option>
-                    </select>
-                    <button @click="addItem"
-                        class="bg-blue-600 hover:bg-blue-700 text-white w-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20"><i
-                            class="fa-solid fa-plus"></i></button>
-                </div>
-            </div>
-
-            <!-- Footer Actions -->
-            <div class="p-4 bg-slate-100 border-t border-slate-200 space-y-4">
-                <div class="flex justify-between items-end">
-                    <span class="text-slate-500 text-sm font-bold uppercase">Total</span>
-                    <span class="text-3xl font-bold text-slate-800">R$ {{ getTableTotal(selectedTable).toFixed(2)
-                        }}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button @click="closeTable"
-                        class="bg-white border-2 border-red-100 text-red-500 hover:bg-red-50 py-3 rounded-xl font-bold text-sm transition">Encerrar</button>
-                    <button @click="shareWhatsapp"
-                        class="bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"><i
-                            class="fa-brands fa-whatsapp"></i> Enviar</button>
-                </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">Comanda <span class="text-blue-500">Pro</span></h1>
             </div>
         </div>
 
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="router('tables')"
+                class="w-full flex items-center px-4 py-3 rounded-xl bg-gray-800 text-white border border-gray-700 shadow-sm transition-all hover:bg-gray-700">
+                <i data-lucide="layout-grid" class="w-5 h-5 mr-3 text-blue-500"></i>
+                <span class="font-medium">Mesas</span>
+            </button>
+
+            <div class="px-4 py-2 text-gray-500 text-xs uppercase font-bold mt-4 tracking-wider">Gestão</div>
+
+            <button onclick="handleBackup()"
+                class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition flex items-center gap-2">
+                <i data-lucide="download" class="w-5 h-5"></i> Backup
+            </button>
+            <label
+                class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition flex items-center gap-2 cursor-pointer">
+                <i data-lucide="upload" class="w-5 h-5"></i> Restaurar
+                <input type="file" id="restore-input" onchange="handleRestore(this)" class="hidden" accept=".json">
+            </label>
+        </nav>
+
+        <div class="p-6 border-t border-gray-800">
+            <a href="../../../index.html"
+                class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition group">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                Voltar à Loja
+            </a>
+        </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden md:ml-64 bg-gray-50">
+        <!-- Header Mobile -->
+        <header class="md:hidden h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-30">
+            <button onclick="toggleMainSidebar()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <span class="font-bold text-gray-800">Comanda Pro</span>
+            <div class="w-10"></div> <!-- spacer -->
+        </header>
+
+        <!-- Tables View -->
+        <div id="view-tables" class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Salão Principal</h2>
+                    <p class="text-sm text-gray-500">Toque em uma mesa para abrir a comanda</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetAllTables()"
+                        class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-50 transition">Limpar
+                        Tudo</button>
+                </div>
+            </div>
+
+            <!-- Grid de Mesas -->
+            <div id="tables-grid"
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- TABLE DETAILS DRAWER (RIGHT) -->
+    <div id="table-drawer"
+        class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col sidebar-right">
+        <!-- Drawer Header -->
+        <div class="h-20 flex items-center justify-between px-6 bg-gray-900 border-b border-gray-800 shrink-0">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Comanda</span>
+                <h2 id="drawer-title" class="text-xl font-bold text-white leading-none mt-1">Mesa 01</h2>
+            </div>
+            <button onclick="closeTableDrawer()" class="p-2 text-gray-400 hover:text-white rounded-lg transition">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Items List -->
+        <div id="drawer-items" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Quick Add Panel -->
+        <div class="p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Adicionar Produto Rápido</label>
+            <div class="flex gap-2 mb-2">
+                <select id="product-select"
+                    class="flex-grow bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <option value="">Selecione um item...</option>
+                    <!-- Options injected by JS -->
+                </select>
+                <button onclick="addItemFromSelect()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white w-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-95 transition-transform">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer / Totals -->
+        <div class="p-6 bg-gray-50 border-t border-gray-200 space-y-4">
+            <div class="flex justify-between items-end">
+                <span class="text-gray-500 text-sm font-bold uppercase">Total da Mesa</span>
+                <span id="drawer-total" class="text-3xl font-bold text-gray-800">R$ 0,00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeAccount()"
+                    class="bg-white border-2 border-red-100 text-red-500 hover:bg-red-50 py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2">
+                    <i data-lucide="ban" class="w-4 h-4"></i> Encerrar
+                </button>
+                <button onclick="shareWhatsapp()"
+                    class="bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-green-500/20 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar
+                </button>
+            </div>
+        </div>
     </div>
 
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
     <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
+        // --- DATA & STATE ---
+        const state = {
+            tables: Array.from({ length: 20 }, (_, i) => ({ id: i + 1, items: [] })),
+            products: [
+                { id: 1, name: 'Cerveja 600ml', price: 12.00 },
+                { id: 2, name: 'Refrigerante Lata', price: 6.00 },
+                { id: 3, name: 'Água Mineral', price: 4.00 },
+                { id: 4, name: 'Porção Fritas', price: 25.00 },
+                { id: 5, name: 'Isca de Peixe', price: 45.00 },
+                { id: 6, name: 'Hamburguer Artesanal', price: 28.00 },
+                { id: 7, name: 'Suco Natural', price: 10.00 },
+                { id: 8, name: 'Caipirinha Limão', price: 18.00 }
+            ],
+            currentTableId: null,
+            isMainSidebarOpen: false
+        };
 
-        createApp({
-            setup() {
-                const isMenuOpen = ref(false);
-                const tables = ref(Array.from({ length: 20 }, (_, i) => ({ id: i + 1, items: [] })));
-                const selectedTable = ref(null);
-                const selectedProduct = ref(null);
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderTables();
+            populateProductSelect();
+            lucide.createIcons();
 
-                const menu = ref([
-                    { name: 'Cerveja 600ml', price: 12.00 },
-                    { name: 'Refrigerante Lata', price: 6.00 },
-                    { name: 'Água Cristal', price: 4.00 },
-                    { name: 'Porção Fritas', price: 25.00 },
-                    { name: 'Porção Isca Peixe', price: 45.00 },
-                    { name: 'Hamburguer Artesanal', price: 28.00 },
-                    { name: 'Suco Natural', price: 10.00 },
-                    { name: 'Caipirinha', price: 18.00 }
-                ]);
-
-                const openTable = (t) => selectedTable.value = t;
-                const getTableTotal = (t) => t.items.reduce((acc, i) => acc + i.price, 0);
-
-                const addItem = () => {
-                    if (!selectedProduct.value || !selectedTable.value) return;
-                    selectedTable.value.items.push({ ...selectedProduct.value });
-                    // selectedProduct.value = null; // Optional: keep selection for quick add
-                };
-
-                const closeTable = () => {
-                    if (confirm(`Encerrar mesa ${selectedTable.value.id} e limpar comanda?`)) {
-                        selectedTable.value.items = [];
-                        selectedTable.value = null;
-                    }
-                };
-
-                const shareWhatsapp = () => {
-                    const t = selectedTable.value;
-                    let text = `🧾 *Conta - Mesa ${t.id}*\n\n`;
-
-                    const grouped = {};
-                    t.items.forEach(i => {
-                        grouped[i.name] = grouped[i.name]
-                            ? { ...grouped[i.name], qty: grouped[i.name].qty + 1, total: grouped[i.name].total + i.price }
-                            : { name: i.name, qty: 1, total: i.price };
-                    });
-
-                    for (const key in grouped) {
-                        text += `▪️ ${grouped[key].qty}x ${key} - R$ ${grouped[key].total.toFixed(2)}\n`;
-                    }
-
-                    text += `\n💰 *TOTAL: R$ ${getTableTotal(t).toFixed(2)}*\n`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                };
-
-                const backupData = () => {
-                    const blob = new Blob([JSON.stringify(tables.value)], { type: "application/json" });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `backup_comandas_${Date.now()}.json`;
-                    a.click();
-                };
-
-                const restoreData = (e) => {
-                    const f = e.target.files[0];
-                    if (!f) return;
-                    const r = new FileReader();
-                    r.onload = (v) => { try { tables.value = JSON.parse(v.target.result); alert("Restaurado!"); } catch (e) { alert("Erro!"); } };
-                    r.readAsText(f);
-                };
-
-                onMounted(() => {
-                    const d = localStorage.getItem('plena_comanda_tables');
-                    if (d) tables.value = JSON.parse(d);
-
-                    if (window.PlenaUpsell) {
-                        PlenaUpsell.init({
-                            appName: 'Comanda Digital',
-                            plusName: 'Plena Restaurante',
-                            plusLink: '../../../../Mercado Livre/apps.plus/plena_restaurante.html',
-                            dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
-                        });
-                    }
+            // Init Upsell if available
+            if (window.PlenaUpsell) {
+                PlenaUpsell.init({
+                    appName: 'Comanda Digital',
+                    plusName: 'Plena Restaurante',
+                    plusLink: '../../../../Mercado Livre/apps.plus/plena_restaurante.html',
+                    dashboardPreview: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80'
                 });
-                watch(tables, () => localStorage.setItem('plena_comanda_tables', JSON.stringify(tables.value)), { deep: true });
-
-                return {
-                    isMenuOpen, tables, selectedTable, menu, selectedProduct,
-                    openTable, getTableTotal, addItem, closeTable, shareWhatsapp, backupData, restoreData
-                };
             }
-        }).mount('#app');
+        });
+
+        // --- CORE FUNCTIONS ---
+
+        function renderTables() {
+            const grid = document.getElementById('tables-grid');
+            grid.innerHTML = '';
+
+            state.tables.forEach(table => {
+                const total = getTableTotal(table);
+                const hasItems = table.items.length > 0;
+
+                const el = document.createElement('div');
+                // Card styling based on state
+                let bgClass = hasItems ? 'bg-red-50 border-red-200 shadow-md shadow-red-100' : 'bg-white border-gray-200 hover:border-blue-300 shadow-sm';
+                let iconClass = hasItems ? 'text-red-400' : 'text-gray-300';
+                let textClass = hasItems ? 'text-red-600' : 'text-gray-600';
+
+                el.className = `${bgClass} p-5 rounded-2xl cursor-pointer relative h-36 flex flex-col justify-between border transition-all active:scale-95 duration-200 group`;
+                el.onclick = () => openTableDrawer(table.id);
+
+                el.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-3xl font-bold ${textClass}">${table.id}</span>
+                        <i data-lucide="users" class="${iconClass} w-6 h-6 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div class="text-right">
+                        ${hasItems
+                        ? `<span class="block font-bold text-xl text-gray-800">R$ ${total.toFixed(2)}</span>`
+                        : `<span class="inline-block text-green-600 text-xs font-bold uppercase bg-green-100 px-3 py-1 rounded-full border border-green-200">Livre</span>`
+                    }
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function openTableDrawer(id) {
+            state.currentTableId = id;
+            const table = state.tables.find(t => t.id === id);
+
+            document.getElementById('drawer-title').textContent = `Mesa ${id.toString().padStart(2, '0')}`;
+            renderDrawerItems();
+            updateDrawerTotal();
+
+            // Open drawer
+            document.getElementById('table-drawer').classList.add('open');
+            document.getElementById('overlay').classList.remove('hidden');
+            setTimeout(() => document.getElementById('overlay').classList.remove('opacity-0'), 10);
+        }
+
+        function closeTableDrawer() {
+            document.getElementById('table-drawer').classList.remove('open');
+            closeOverlay();
+            state.currentTableId = null;
+        }
+
+        function renderDrawerItems() {
+            const container = document.getElementById('drawer-items');
+            container.innerHTML = '';
+
+            const table = state.tables.find(t => t.id === state.currentTableId);
+
+            if (table.items.length === 0) {
+                container.innerHTML = `
+                    <div class="h-64 flex flex-col items-center justify-center text-gray-400 space-y-3">
+                        <i data-lucide="shopping-basket" class="w-12 h-12 opacity-30"></i>
+                        <p class="text-sm font-medium">Nenhum pedido lançado</p>
+                    </div>
+                `;
+            } else {
+                table.items.forEach((item, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-gray-200 animate-[fadeIn_0.2s_ease-out]';
+                    el.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">${item.name}</p>
+                            <p class="text-xs text-gray-500">R$ ${item.price.toFixed(2)}</p>
+                        </div>
+                        <button onclick="removeItem(${idx})" class="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    `;
+                    container.appendChild(el);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function populateProductSelect() {
+            const sel = document.getElementById('product-select');
+            state.products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.name} - R$ ${p.price.toFixed(2)}`;
+                sel.appendChild(opt);
+            });
+        }
+
+        function addItemFromSelect() {
+            const sel = document.getElementById('product-select');
+            const pid = parseInt(sel.value);
+            if (!pid) return showNotification('Selecione um produto!', 'warning');
+
+            const product = state.products.find(p => p.id === pid);
+            if (product && state.currentTableId) {
+                const table = state.tables.find(t => t.id === state.currentTableId);
+                table.items.push({ ...product }); // Clone
+
+                renderDrawerItems();
+                renderTables(); // Update grid status
+                updateDrawerTotal();
+                saveData();
+
+                // Keep selected for rapid entry? Or clear? Let's keep it for speed.
+                // sel.value = ""; 
+                showNotification('Item adicionado!', 'success');
+            }
+        }
+
+        function removeItem(idx) {
+            const table = state.tables.find(t => t.id === state.currentTableId);
+            table.items.splice(idx, 1);
+            renderDrawerItems();
+            renderTables();
+            updateDrawerTotal();
+            saveData();
+        }
+
+        function updateDrawerTotal() {
+            const table = state.tables.find(t => t.id === state.currentTableId);
+            const total = getTableTotal(table);
+            document.getElementById('drawer-total').textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+        function getTableTotal(table) {
+            return table.items.reduce((acc, i) => acc + i.price, 0);
+        }
+
+        function closeAccount() {
+            const table = state.tables.find(t => t.id === state.currentTableId);
+            if (table.items.length === 0) return showNotification('Comanda já está vazia!', 'warning');
+
+            if (confirm(`Encerrar a Mesa ${state.currentTableId}?\nTotal: R$ ${getTableTotal(table).toFixed(2)}`)) {
+                table.items = [];
+                renderDrawerItems();
+                renderTables();
+                updateDrawerTotal();
+                saveData();
+                closeTableDrawer();
+                showNotification('Mesa encerrada com sucesso!', 'success');
+            }
+        }
+
+        function shareWhatsapp() {
+            const table = state.tables.find(t => t.id === state.currentTableId);
+            if (table.items.length === 0) return showNotification('Adicione itens antes de enviar!', 'warning');
+
+            let text = `🧾 *Conta - Mesa ${table.id}*\n\n`;
+
+            // Group items
+            const grouped = {};
+            table.items.forEach(i => {
+                const k = i.name;
+                if (!grouped[k]) grouped[k] = { qty: 0, total: 0, price: i.price };
+                grouped[k].qty++;
+                grouped[k].total += i.price;
+            });
+
+            for (const name in grouped) {
+                const i = grouped[name];
+                text += `▪️ ${i.qty}x ${name} - R$ ${i.total.toFixed(2)}\n`;
+            }
+
+            text += `\n💰 *TOTAL: R$ ${getTableTotal(table).toFixed(2)}*\n`;
+
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // --- BACKUP / RESTORE ---
+
+        function handleBackup() {
+            const dataStr = JSON.stringify(state.tables);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_comandas_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Backup baixado com sucesso!', 'success');
+        }
+
+        function handleRestore(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data) && data.length > 0) {
+                        state.tables = data;
+                        renderTables();
+                        saveData();
+                        showNotification('Dados restaurados com sucesso!', 'success');
+                    } else {
+                        throw new Error('Formato inválido');
+                    }
+                } catch (err) {
+                    showNotification('Erro ao restaurar arquivo!', 'danger');
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset
+        }
+
+        function resetAllTables() {
+            if (confirm("Tem certeza que deseja fechar TODAS as mesas?")) {
+                state.tables.forEach(t => t.items = []);
+                renderTables();
+                saveData();
+                showNotification("Todas as mesas foram resetadas.", "info");
+            }
+        }
+
+        // --- UI HELPERS ---
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const el = document.createElement('div');
+            el.className = 'notification';
+
+            let iconName = 'info';
+            let colorClass = 'border-l-blue-500';
+            let iconColor = 'text-blue-500';
+
+            if (type === 'success') { iconName = 'check-circle'; colorClass = 'border-l-green-500'; iconColor = 'text-green-500'; }
+            if (type === 'warning') { iconName = 'alert-triangle'; colorClass = 'border-l-orange-500'; iconColor = 'text-orange-500'; }
+            if (type === 'danger') { iconName = 'x-circle'; colorClass = 'border-l-red-500'; iconColor = 'text-red-500'; }
+
+            el.classList.add(colorClass.replace('border-l-', 'border-l-')); // Tailwind dynamic fix needing safelist or explicit style
+            el.style.borderLeftColor = type === 'success' ? '#10B981' : type === 'warning' ? '#F59E0B' : type === 'danger' ? '#EF4444' : '#3B82F6';
+
+            el.innerHTML = `
+                <i data-lucide="${iconName}" class="${iconColor} w-6 h-6"></i>
+                <span class="font-medium text-sm text-gray-700">${message}</span>
+            `;
+
+            container.appendChild(el);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => el.classList.add('show'));
+            setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleMainSidebar() {
+            const sb = document.getElementById('main-sidebar');
+            state.isMainSidebarOpen = !state.isMainSidebarOpen;
+
+            if (state.isMainSidebarOpen) {
+                sb.classList.remove('-translate-x-full');
+                document.getElementById('overlay').classList.remove('hidden');
+                setTimeout(() => document.getElementById('overlay').classList.remove('opacity-0'), 10);
+            } else {
+                sb.classList.add('-translate-x-full');
+                closeOverlay();
+            }
+        }
+
+        function closeAllDrawers() {
+            closeTableDrawer();
+            if (state.isMainSidebarOpen) toggleMainSidebar();
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('overlay').classList.add('hidden'), 300);
+        }
+
+        // --- PERSISTENCE ---
+        function saveData() {
+            localStorage.setItem('plena_comanda_tables_v2', JSON.stringify(state.tables));
+        }
+
+        function loadData() {
+            const d = localStorage.getItem('plena_comanda_tables_v2');
+            if (d) {
+                try {
+                    state.tables = JSON.parse(d);
+                } catch (e) { console.error(e); }
+            }
+        }
+
+        // Shim for router (placeholder if needed by sidebar links)
+        function router(route) {
+            console.log("Navigating to", route);
+            if (window.innerWidth < 768) toggleMainSidebar();
+        }
+
     </script>
 </body>
 

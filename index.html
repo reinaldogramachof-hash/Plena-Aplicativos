@@ -182,7 +182,7 @@
             <!-- KITS PROMOCIONAIS -->
             <div class="mb-16 animate-fade-in-up">
                 <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-gift text-orange-500"></i> Kits Promocionais
+                    <i class="fa-solid fa-briefcase text-blue-600"></i> Kits Profissionais Personalizados
                 </h3>
                 <div class="grid md:grid-cols-3 gap-6">
                     <a v-for="kit in kits" :key="kit.name" :href="kit.link"
@@ -196,9 +196,13 @@
                                 {{ kit.badge }}</div>
                             <h4 class="text-white font-bold text-xl leading-tight mb-1">{{ kit.name }}</h4>
                             <p class="text-slate-300 text-sm line-clamp-2 mb-2">{{ kit.desc }}</p>
-                            <div class="flex items-center gap-2">
-                                <span class="text-slate-400 line-through text-xs">R$ {{ kit.oldPrice }}</span>
-                                <span class="text-white font-bold text-lg">R$ {{ kit.price }}</span>
+                            <div class="mt-2">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1 leading-none">A
+                                    partir de</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500 line-through text-xs">R$ {{ kit.oldPrice }}</span>
+                                    <span class="text-white font-bold text-xl">R$ {{ kit.price }}</span>
+                                </div>
                             </div>
                         </div>
                     </a>
@@ -248,6 +252,16 @@
                                 <span
                                     class="bg-amber-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase">
                                     SISTEMA PLUS
+                                </span>
+                                <span v-if="app.mobileBadge"
+                                    class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase ml-2 animate-pulse">
+                                    ESPECIAL MOBILE 📱
+                                </span>
+                            </div>
+                            <div v-if="app.mobileBadge" class="absolute top-4 left-4">
+                                <span
+                                    class="bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-full shadow-lg uppercase">
+                                    LANÇAMENTO
                                 </span>
                             </div>
                         </div>
@@ -472,9 +486,9 @@
 
                     // KITS (BUNDLES) - Destaque
                     const kits = ref([
-                        { name: "Kit Gastronomia Pro", link: "restaurantes.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80", desc: "Comanda, Cardápio, KDS e Delivery.", price: "97,00", oldPrice: "551,00", badge: "80% OFF" },
-                        { name: "Kit Oficina & Serviços", link: "servicos.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80", desc: "OS, Recibo, Vistoria e Orçamento.", price: "97,00", oldPrice: "497,00", badge: "BEST SELLER" },
-                        { name: "Kit Beleza & Estética", link: "beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80", desc: "Agenda, Ficha, Comissões e BioLink.", price: "97,00", oldPrice: "597,00", badge: "NOVO" }
+                        { name: "Kit Gastronomia Pro", link: "restaurantes.html", img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80", desc: "Sua marca, suas cores. App de Comanda e Delivery prontos para seu restaurante.", price: "299,90", oldPrice: "551,00", badge: "PERSONALIZADO" },
+                        { name: "Kit Oficina & Serviços", link: "servicos.html", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80", desc: "Sua marca, suas cores. App de OS e Orçamentos com a sua identidade.", price: "299,90", oldPrice: "497,00", badge: "PERSONALIZADO" },
+                        { name: "Kit Beleza & Estética", link: "beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80", desc: "Sua marca, suas cores. App de Agenda e Ficha com a sua logomarca.", price: "299,90", oldPrice: "597,00", badge: "PERSONALIZADO" }
                     ]);
 
                     // LISTA COMPLETA DE APPS PROFISSIONAIS
@@ -482,23 +496,24 @@
                         // APPS PLUS (TIER GOLD)
                         { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "1,00", oldPrice: "197,00", link: "apps.plus/plena_alugueis.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
                         { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
-                        { name: "Plena Barbearia", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia.html", img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500", desc: "Agenda, controle de comissões e financeiro para barbearias." },
+                        { name: "Plena Barbearia", tier: "plus", category: "Beleza", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia.html", img: "https://images.unsplash.com/photo-1503951914205-b27cf76540c6?w=500", desc: "Gestão completa para barbearias: agenda, comissões, vendas e fechamento de caixa." },
                         { name: "Plena Beleza", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
                         { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas." },
                         { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
-                        { name: "Plena Custos", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
-                        { name: "Plena Delivery", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_delivery.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema de pedidos online com gestão de entregas." },
+                        { name: "Plena Artesanato", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
                         { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
-                        { name: "Plena Driver", tier: "plus", category: "Transporte", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_driver.html", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500", desc: "Gestão financeira para motoristas de aplicativo." },
+                        { name: "Plena Motorista", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motorista.html", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500", desc: "Interface mobile ultra-rápida para gestão de ganhos e gastos em movimento.", mobileBadge: true },
                         { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
                         { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
+                        { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas, viagens e manutenção." },
+                        { name: "Plena Motoboy", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motoboy.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle ágil de entregas e caixa para motoboys, 100% focado em uso mobile.", mobileBadge: true },
                         { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
+                        { name: "Plena Odonto", tier: "plus", category: "Gestão", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para consultórios odontológicos." },
                         { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos." },
                         { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_sorveteria.html", img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=500", desc: "Gestão específica para sorveterias e açaiterias." },
-                        { name: "Plena Feirante", tier: "plus", category: "Food", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_feirante.html", img: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=500", desc: "Gestão ágil para feirantes com controle de estoque e vendas rápidas." },
-                        { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas, viagens e manutenção." },
-                        { name: "Plena Odonto", tier: "plus", category: "Gestão", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para consultórios odontológicos." }
+                        { name: "Plena Terapia", tier: "plus", category: "Serviços", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_terapia.html", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500", desc: "Prontuário eletrônico completo e gestão financeira para clínicas de psicologia e terapeutas." },
+                        { name: "Plena Nutri", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_nutri.html", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500", desc: "Gestão completa para nutricionistas: pacientes, dietas e evolução clínica." },
+                        { name: "Plena Fit", tier: "plus", category: "Gestão", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_fit.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Controle de alunos, treinos e mensalidades para academias e studios." },
                     ]);
 
                     const filteredApps = computed(() => {

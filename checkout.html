@@ -193,7 +193,7 @@
                             <h2 class="text-2xl font-bold text-slate-800 mb-2">Pagamento Aprovado!</h2>
                             <p class="text-slate-500 mb-8">Seu acesso foi enviado para <strong>{{ form.email
                                     }}</strong>.</p>
-                            <a :href="generatedLink"
+                            <a :href="generatedLink" target="_blank"
                                 class="block w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-1">
                                 Acessar Painel Agora
                             </a>
@@ -491,6 +491,9 @@
                                     firstName: form.name.split(' ')[0],
                                     lastName: form.name.split(' ').slice(1).join(' ') || 'Cliente',
                                     identification: { type: docType, number: cleanDoc }
+                                },
+                                metadata: {
+                                    app_link: product.value.link
                                 }
                             },
                             customization: {
@@ -520,6 +523,9 @@
                                                 ...formData,
                                                 description: description,
                                                 transaction_amount: amount,
+                                                metadata: {
+                                                    app_link: product.value.link
+                                                },
                                                 payer: {
                                                     email: form.email,
                                                     identification: {
@@ -540,12 +546,21 @@
                                                     pixData.qr_base64 = data.point_of_interaction.transaction_data.qr_code_base64;
                                                     pixData.qr_code = data.point_of_interaction.transaction_data.qr_code;
                                                     purchaseSuccess.value = true;
+
+                                                    // Inicia Polling
+                                                    if (data.id) startPolling(data.id);
+
                                                     resolve();
                                                 }
                                                 // Sucesso Cartão
                                                 else if (data.status === 'approved') {
                                                     paymentType.value = 'credit_card';
                                                     purchaseSuccess.value = true;
+
+                                                    // Atualiza link final
+                                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
+                                                    generatedLink.value = "https://plenaaplicativos.com.br/" + finalLink;
+
                                                     resolve();
                                                 } else {
                                                     alert("Status: " + (data.status_detail || data.message || "Não aprovado"));
@@ -573,6 +588,31 @@
                     alert("Código Pix copiado!");
                 };
 
+                // Polling Status
+                let pollingInterval = null;
+                const startPolling = (id) => {
+                    console.log("Iniciando verificação de status para:", id);
+                    if (pollingInterval) clearInterval(pollingInterval);
+
+                    pollingInterval = setInterval(() => {
+                        fetch(`api_pagamento.php?action=check_status&id=${id}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                console.log("Status Check:", data.status);
+                                if (data.status === 'approved') {
+                                    clearInterval(pollingInterval);
+
+                                    // Atualiza link final
+                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
+                                    generatedLink.value = "https://plenaaplicativos.com.br/" + finalLink;
+
+                                    paymentType.value = 'credit_card'; // Torna a tela de sucesso visível
+                                }
+                            })
+                            .catch(console.error);
+                    }, 5000); // Checa a cada 5s
+                };
+
                 onMounted(() => {
                     const params = new URLSearchParams(window.location.search);
                     product.value = {
@@ -591,7 +631,7 @@
                 return {
                     product, form, validations, isFormValid, mpLoaded, processing,
                     purchaseSuccess, paymentType, pixData, generatedLink,
-                    maskDoc, maskPhone, copyPix, initBrick, saveLead,
+                    maskDoc, maskPhone, copyPix, initBrick, saveLead, startPolling,
                     addSupport, toggleOrderBump, totalPrice, touched, markTouched
                 };
             }

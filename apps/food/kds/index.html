@@ -3,37 +3,65 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDS Kitchen | Plena Chefs</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena KDS - Kitchen Display System</title>
+
+    <meta name="theme-color" content="#1F2937">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            primary: '#7C3AED',
+                            secondary: '#10B981',
+                            danger: '#EF4444',
+                            warning: '#F59E0B',
+                            dark: '#1F2937',
+                            light: '#F3F4F6',
+                            kitchen: '#111827' // Fundo mais escuro para cozinha (conforto visual)
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
+        /* Tipografia Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #111827;
-            color: #f3f4f6;
+            /* Dark background para KDS */
+            color: #F3F4F6;
+            overflow-x: hidden;
         }
 
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        [v-cloak] {
-            display: none;
-        }
-
-        /* Custom Scrollbar for Dark Theme */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #1f2937;
+            background: #1F2937;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -42,333 +70,577 @@
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
+            background: #4B5563;
+        }
+
+        /* Sidebar Transitions */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+                width: 280px;
+                background-color: #1F2937;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .sidebar {
+                width: 280px;
+                position: fixed;
+                height: 100vh;
+                background-color: #1F2937;
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+        }
+
+        /* Cards e Animações */
+        .order-card {
+            transition: all 0.2s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Status Borders */
+        .border-l-status {
+            border-left-width: 5px;
+        }
+
+        /* Notification Toast */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            background: white;
+            color: #1F2937;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #7C3AED;
+        }
+
+        .notification.show {
+            transform: translateX(0);
         }
     </style>
 </head>
 
-<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+<body>
 
-    <div id="app" v-cloak class="flex-1 flex h-full w-full relative">
+    <!-- Overlay Mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/70 hidden z-40 backdrop-blur-sm transition-opacity"
+        onclick="toggleSidebar()"></div>
 
-        <!-- SIDEBAR -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed md:relative md:translate-x-0 w-64 bg-slate-900 border-r border-slate-800 h-full z-30 transition-transform duration-300 flex flex-col shadow-2xl">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div
-                    class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/20">
-                    <i class="fa-solid fa-fire-burner text-slate-900 text-sm"></i>
-                </div>
-                <span class="font-bold text-lg tracking-tight text-white">Plena<span
-                        class="text-orange-500">KDS</span></span>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar border-r border-gray-800 flex flex-col shadow-2xl">
+        <!-- Header Sidebar -->
+        <div class="h-20 flex items-center px-6 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700">
+            <div
+                class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3 shadow-lg shadow-orange-500/20">
+                <i data-lucide="flame" class="w-6 h-6 text-white"></i>
             </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">Plena <span class="text-orange-500">KDS</span>
+                </h1>
+                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Kitchen Display</p>
+            </div>
+        </div>
 
-            <nav class="flex-1 py-6 px-4 space-y-4">
+        <!-- Clock Widget -->
+        <div class="p-6 pb-2">
+            <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-center">
+                <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Horário da Cozinha</div>
+                <div id="kitchen-clock" class="text-3xl font-bold text-white font-mono">00:00</div>
+            </div>
+        </div>
 
-                <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Cozinha</div>
-                    <div class="text-2xl font-bold text-white font-mono">{{ currentTime }}</div>
-                </div>
+        <!-- Nav Links -->
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+            <button onclick="renderKanban()"
+                class="w-full flex items-center px-4 py-3 rounded-xl bg-gray-800 text-white border border-gray-700 shadow-sm transition-all hover:bg-gray-700">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-orange-500"></i>
+                <span class="font-medium">Painel de Pedidos</span>
+            </button>
 
-                <button @click="newOrder"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Novo Pedido
-                </button>
+            <button onclick="triggerNewOrderDemo()"
+                class="w-full flex items-center px-4 py-3 rounded-xl hover:bg-gray-800/50 text-gray-400 hover:text-white transition-all">
+                <i data-lucide="plus-circle" class="w-5 h-5 mr-3"></i>
+                Simular Novo Pedido
+            </button>
 
-                <div class="px-2">
-                    <div class="flex justify-between items-center text-sm text-slate-400 mb-2">
-                        <span>Fila</span>
-                        <span class="font-bold text-white">{{ orders.filter(o => o.status === 'todo').length }}</span>
+            <!-- Stats Mini -->
+            <div class="mt-8 px-2 space-y-4">
+                <div>
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
+                        <span>Fila (A Fazer)</span>
+                        <span id="count-todo" class="font-bold text-white">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div class="bg-red-500 h-1.5 rounded-full" :style="{ width: getPercentage('todo') + '%' }">
-                        </div>
+                    <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                        <div id="bar-todo" class="bg-red-500 h-1.5 rounded-full transition-all duration-500"
+                            style="width: 0%"></div>
                     </div>
                 </div>
-
-                <div class="px-2">
-                    <div class="flex justify-between items-center text-sm text-slate-400 mb-2">
+                <div>
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
                         <span>Em Preparo</span>
-                        <span class="font-bold text-white">{{ orders.filter(o => o.status === 'prep').length }}</span>
+                        <span id="count-prep" class="font-bold text-white">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div class="bg-yellow-500 h-1.5 rounded-full" :style="{ width: getPercentage('prep') + '%' }">
-                        </div>
+                    <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                        <div id="bar-prep" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500"
+                            style="width: 0%"></div>
                     </div>
-                </div>
-
-            </nav>
-
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-                <a href="../../../index.html"
-                    class="flex items-center gap-2 hover:text-white transition text-sm px-2 group">
-                    <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Voltar à Loja
-                </a>
-            </div>
-        </aside>
-
-        <!-- OVERLAY -->
-        <div v-if="sidebarOpen" @click="sidebarOpen = false"
-            class="fixed inset-0 bg-black/80 z-20 md:hidden backdrop-blur-sm"></div>
-
-        <!-- MAIN KANBAN -->
-        <main class="flex-1 h-full flex flex-col bg-slate-950 relative w-full overflow-hidden">
-
-            <!-- MOBILE HEADER -->
-            <header
-                class="md:hidden h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 z-20 shrink-0">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-slate-900">
-                        <i class="fa-solid fa-fire-burner text-xs"></i>
-                    </div>
-                    <!-- Time in mobile header -->
-                    <span class="font-mono font-bold text-white">{{ currentTime }}</span>
-                </div>
-                <button @click="sidebarOpen = !sidebarOpen"
-                    class="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-800 rounded-lg transition">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-            </header>
-
-            <!-- KANBAN BOARD -->
-            <div class="flex-1 overflow-x-auto overflow-y-hidden p-4 md:p-6">
-                <div class="flex h-full gap-4 md:gap-6 min-w-[900px]">
-
-                    <!-- COL: A FAZER -->
-                    <div
-                        class="flex-1 flex flex-col bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden">
-                        <div
-                            class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80 backdrop-blur">
-                            <h2 class="font-bold text-red-500 flex items-center gap-2">
-                                <i class="fa-solid fa-receipt"></i> A Fazer
-                            </h2>
-                            <span
-                                class="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-xs font-bold border border-red-500/20">
-                                {{ orders.filter(o => o.status === 'todo').length }}
-                            </span>
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
-                            <transition-group name="list">
-                                <div v-for="order in orders.filter(o => o.status === 'todo')" :key="order.id"
-                                    class="bg-slate-800 rounded-xl p-4 border-l-4 border-red-500 shadow-lg group hover:bg-slate-750 transition relative">
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-xl text-white">#{{ order.id }}</span>
-                                            <span class="text-[10px] text-slate-500 font-mono">Chegou: {{ order.time
-                                                }}</span>
-                                        </div>
-                                        <div
-                                            class="flex items-center gap-1 text-red-400 font-mono font-bold bg-red-950/30 px-2 py-1 rounded">
-                                            <i class="fa-regular fa-clock text-xs"></i>
-                                            {{ getTimer(order) }}
-                                        </div>
-                                    </div>
-                                    <ul class="text-slate-300 text-sm space-y-1 mb-4 font-medium pl-1">
-                                        <li v-for="item in order.items" class="flex items-start gap-2">
-                                            <span class="text-slate-500 text-xs mt-1">1x</span> {{ item }}
-                                        </li>
-                                    </ul>
-                                    <button @click="setStatus(order, 'prep')"
-                                        class="w-full bg-slate-700 hover:bg-yellow-600 hover:text-white text-slate-300 py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2">
-                                        Iniciar Preparo <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
-                                </div>
-                            </transition-group>
-                        </div>
-                    </div>
-
-                    <!-- COL: PREPARANDO -->
-                    <div
-                        class="flex-1 flex flex-col bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden">
-                        <div
-                            class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80 backdrop-blur">
-                            <h2 class="font-bold text-yellow-500 flex items-center gap-2">
-                                <i class="fa-solid fa-fire animate-pulse"></i> Preparando
-                            </h2>
-                            <span
-                                class="bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded text-xs font-bold border border-yellow-500/20">
-                                {{ orders.filter(o => o.status === 'prep').length }}
-                            </span>
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
-                            <transition-group name="list">
-                                <div v-for="order in orders.filter(o => o.status === 'prep')" :key="order.id"
-                                    class="bg-slate-800 rounded-xl p-4 border-l-4 border-yellow-500 shadow-lg ring-1 ring-yellow-500/20">
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-xl text-white">#{{ order.id }}</span>
-                                        </div>
-                                        <div
-                                            class="flex items-center gap-1 text-yellow-500 font-mono font-bold bg-yellow-950/30 px-2 py-1 rounded animate-pulse">
-                                            <i class="fa-solid fa-stopwatch text-xs"></i>
-                                            {{ getTimer(order) }}
-                                        </div>
-                                    </div>
-                                    <ul class="text-white text-sm space-y-1 mb-4 font-medium pl-1">
-                                        <li v-for="item in order.items" class="flex items-start gap-2">
-                                            <i class="fa-solid fa-check text-[10px] mt-1 text-yellow-500"></i> {{ item
-                                            }}
-                                        </li>
-                                    </ul>
-                                    <button @click="setStatus(order, 'ready')"
-                                        class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold text-sm transition shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-check"></i> PRONTO
-                                    </button>
-                                </div>
-                            </transition-group>
-                        </div>
-                    </div>
-
-                    <!-- COL: PRONTO -->
-                    <div
-                        class="flex-1 flex flex-col bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden">
-                        <div
-                            class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80 backdrop-blur">
-                            <h2 class="font-bold text-green-500 flex items-center gap-2">
-                                <i class="fa-solid fa-bell-concierge"></i> Pronto / Entregar
-                            </h2>
-                            <span
-                                class="bg-green-500/10 text-green-500 px-2 py-0.5 rounded text-xs font-bold border border-green-500/20">
-                                {{ orders.filter(o => o.status === 'ready').length }}
-                            </span>
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
-                            <transition-group name="list">
-                                <div v-for="order in orders.filter(o => o.status === 'ready')" :key="order.id"
-                                    class="bg-slate-800/80 rounded-xl p-4 border-l-4 border-green-500 shadow-lg opacity-90 hover:opacity-100 transition">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <span class="font-bold text-xl text-green-400">#{{ order.id }}</span>
-                                        <span
-                                            class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase">Aguardando</span>
-                                    </div>
-                                    <ul class="text-slate-400 text-sm space-y-1 mb-3 pl-1">
-                                        <li v-for="item in order.items">{{ item }}</li>
-                                    </ul>
-                                    <div class="flex justify-between items-center pt-3 border-t border-slate-700">
-                                        <span class="text-xs text-slate-500 font-mono">Total: {{ order.finishTime ||
-                                            '00:00' }}</span>
-                                        <button @click="archiveOrder(order.id)"
-                                            class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
-                                            <i class="fa-solid fa-box-archive"></i> Arquivar
-                                        </button>
-                                    </div>
-                                </div>
-                            </transition-group>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+        </nav>
 
-        </main>
-    </div>
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-800/50">
+            <a href="../../../index.html"
+                class="flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors group">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                Voltar ao Menu Principal
+            </a>
+        </div>
+    </aside>
 
-    <style>
-        .list-enter-active,
-        .list-leave-active {
-            transition: all 0.4s ease;
-        }
+    <!-- Main Content -->
+    <main class="main-content min-h-screen flex flex-col relative h-screen overflow-hidden">
+        <!-- Header Mobile -->
+        <header
+            class="lg:hidden h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-4 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
+                    <i data-lucide="flame" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-bold text-white">Plena KDS</span>
+            </div>
+            <button onclick="toggleSidebar()" class="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </header>
 
-        .list-enter-from,
-        .list-leave-to {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-    </style>
+        <!-- KANBAN BOARD -->
+        <div class="flex-1 overflow-x-auto overflow-y-hidden p-4 lg:p-6 bg-gray-950">
+            <div class="flex h-full gap-4 lg:gap-6 min-w-[900px]">
 
+                <!-- COLUNA: A FAZER -->
+                <div
+                    class="flex-1 flex flex-col bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm">
+                    <div
+                        class="p-4 border-b border-gray-800 bg-gray-900/80 sticky top-0 flex justify-between items-center">
+                        <h2 class="font-bold text-red-500 flex items-center gap-2 uppercase tracking-wide text-sm">
+                            <i data-lucide="clipboard-list" class="w-4 h-4"></i> A Fazer
+                        </h2>
+                        <span id="header-count-todo"
+                            class="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-xs font-bold border border-red-500/20">0</span>
+                    </div>
+                    <div id="col-todo" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUNA: PREPARANDO -->
+                <div
+                    class="flex-1 flex flex-col bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm">
+                    <div
+                        class="p-4 border-b border-gray-800 bg-gray-900/80 sticky top-0 flex justify-between items-center">
+                        <h2 class="font-bold text-yellow-500 flex items-center gap-2 uppercase tracking-wide text-sm">
+                            <i data-lucide="chef-hat" class="w-4 h-4"></i> Preparando
+                        </h2>
+                        <span id="header-count-prep"
+                            class="bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded text-xs font-bold border border-yellow-500/20">0</span>
+                    </div>
+                    <div id="col-prep" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUNA: PRONTO -->
+                <div
+                    class="flex-1 flex flex-col bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm">
+                    <div
+                        class="p-4 border-b border-gray-800 bg-gray-900/80 sticky top-0 flex justify-between items-center">
+                        <h2 class="font-bold text-green-500 flex items-center gap-2 uppercase tracking-wide text-sm">
+                            <i data-lucide="bell-ring" class="w-4 h-4"></i> Pronto / Entregar
+                        </h2>
+                        <span id="header-count-ready"
+                            class="bg-green-500/10 text-green-500 px-2 py-0.5 rounded text-xs font-bold border border-green-500/20">0</span>
+                    </div>
+                    <div id="col-ready" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                        <!-- Cards injetados via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Scripts -->
     <script>
-        const { createApp, ref, computed, onMounted, onUnmounted, watch } = Vue;
+        // --- ESTADO GLOBAL DO KDS ---
+        const state = {
+            orders: [
+                {
+                    id: 101,
+                    customer: "Mesa 04",
+                    startTime: Date.now() - (1000 * 60 * 12), // 12 min atrás
+                    status: 'prep',
+                    items: [
+                        { name: "Hamburguer Duplo", obs: "Sem picles" },
+                        { name: "Batata Frita G", obs: "" }
+                    ]
+                },
+                {
+                    id: 102,
+                    customer: "Delivery #482",
+                    startTime: Date.now() - (1000 * 60 * 5), // 5 min atrás
+                    status: 'todo',
+                    items: [
+                        { name: "X-Bacon", obs: "" },
+                        { name: "Coca-Cola Zero", obs: "Bem gelada" }
+                    ]
+                }
+            ],
+            isSidebarOpen: false
+        };
 
-        createApp({
-            setup() {
-                const sidebarOpen = ref(false);
-                const currentTime = ref('');
-                const now = ref(Date.now());
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            startClock();
+            loadState();
+            renderKanban();
+            updateStats();
 
-                // Sample Data
-                const orders = ref([
-                    { id: 101, time: '12:00', startTimestamp: Date.now() - 300000, status: 'prep', items: ['Hamburguer Duplo', 'Batata Frita'] },
-                    { id: 102, time: '12:05', startTimestamp: Date.now() - 60000, status: 'todo', items: ['Coca-Cola', 'X-Salada'] }
-                ]);
+            // Loop de atualização dos timers a cada segundo
+            setInterval(() => {
+                updateTimers();
+            }, 1000);
+        });
 
-                // Timer
-                const interval = setInterval(() => {
-                    now.value = Date.now();
-                    currentTime.value = new Date().toLocaleTimeString().slice(0, 5);
-                }, 1000);
-                onUnmounted(() => clearInterval(interval));
+        // --- LÓGICA DE UI ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
 
-                const getTimer = (order) => {
-                    if (order.finishTime) return order.finishTime;
-                    // Prevent negative if system time changes weirdly, mostly for demo safety
-                    const diff = Math.max(0, Math.floor((now.value - order.startTimestamp) / 1000));
-                    const m = Math.floor(diff / 60).toString().padStart(2, '0');
-                    const s = (diff % 60).toString().padStart(2, '0');
-                    return `${m}:${s}`;
-                };
+            state.isSidebarOpen = !state.isSidebarOpen;
 
-                const getPercentage = (status) => {
-                    const total = orders.value.length;
-                    if (total === 0) return 0;
-                    return (orders.value.filter(o => o.status === status).length / total) * 100;
-                };
-
-                const newOrder = () => {
-                    const id = orders.value.length > 0 ? Math.max(...orders.value.map(o => o.id)) + 1 : 100;
-                    const itemsOpts = ['Cheeseburger', 'Bacon Blast', 'Fritas Grande', 'Onion Rings', 'Milkshake Choc', 'Suco Laranja', 'Combo Família'];
-                    const count = Math.ceil(Math.random() * 3);
-                    const randomItems = [];
-                    for (let i = 0; i < count; i++) randomItems.push(itemsOpts[Math.floor(Math.random() * itemsOpts.length)]);
-
-                    orders.value.push({
-                        id: id,
-                        time: new Date().toLocaleTimeString().slice(0, 5),
-                        startTimestamp: Date.now(),
-                        status: 'todo',
-                        items: randomItems
-                    });
-                    // Scroll effect via animation handles itself
-                };
-
-                const setStatus = (order, status) => {
-                    order.status = status;
-                    if (status === 'ready') {
-                        const diff = Math.floor((Date.now() - order.startTimestamp) / 1000);
-                        const m = Math.floor(diff / 60).toString().padStart(2, '0');
-                        const s = (diff % 60).toString().padStart(2, '0');
-                        order.finishTime = `${m}:${s}`;
-                    }
-                };
-
-                const archiveOrder = (id) => {
-                    // Could confirm here? nah, speed is key in KDS
-                    orders.value = orders.value.filter(o => o.id !== id);
-                };
-
-                // Persistence
-                onMounted(() => {
-                    const d = localStorage.getItem('plena_kds_v2');
-                    if (d) {
-                        try {
-                            const parsed = JSON.parse(d);
-                            // Adjust startTimestamp to resume relative timing?
-                            // For simplicity in this demo, we assume relatively fresh data or reset.
-                            // Ideally KDS connects to backend. Here we just load.
-                            orders.value = parsed;
-                        } catch (e) { }
-                    }
-                });
-
-                watch(orders, () => {
-                    localStorage.setItem('plena_kds_v2', JSON.stringify(orders.value));
-                }, { deep: true });
-
-                return {
-                    sidebarOpen, currentTime, orders,
-                    getTimer, newOrder, setStatus, archiveOrder, getPercentage
-                };
+            if (state.isSidebarOpen) {
+                sidebar.classList.add('open');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10); // Fade in
+            } else {
+                sidebar.classList.remove('open');
+                overlay.classList.add('opacity-0'); // Fade out
+                setTimeout(() => overlay.classList.add('hidden'), 300);
             }
-        }).mount('#app');
+        }
+
+        function startClock() {
+            const el = document.getElementById('kitchen-clock');
+            const update = () => {
+                const now = new Date();
+                el.innerText = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            };
+            update();
+            setInterval(update, 1000);
+        }
+
+        // --- LÓGICA DO KANBAN ---
+        function renderKanban() {
+            const cols = {
+                todo: document.getElementById('col-todo'),
+                prep: document.getElementById('col-prep'),
+                ready: document.getElementById('col-ready')
+            };
+
+            // Limpa colunas
+            Object.values(cols).forEach(col => col.innerHTML = '');
+
+            state.orders.forEach(order => {
+                const card = createOrderCard(order);
+                if (cols[order.status]) {
+                    cols[order.status].appendChild(card);
+                }
+            });
+
+            lucide.createIcons();
+            updateStats();
+        }
+
+        function createOrderCard(order) {
+            const el = document.createElement('div');
+            el.className = `order-card fade-in bg-gray-800 rounded-xl p-4 shadow-lg border-l-status mb-3 relative group`;
+
+            // Cores baseadas no status
+            let borderColor = 'border-red-500';
+            let timerBg = 'bg-red-500/10 text-red-500';
+            let btnAction = '';
+
+            if (order.status === 'todo') {
+                borderColor = 'border-red-500';
+            } else if (order.status === 'prep') {
+                borderColor = 'border-yellow-500';
+                timerBg = 'bg-yellow-500/10 text-yellow-500';
+            } else if (order.status === 'ready') {
+                borderColor = 'border-green-500';
+                timerBg = 'bg-green-500/10 text-green-500';
+            }
+
+            el.classList.add(borderColor);
+
+            // Botão de Ação Principal
+            let actionHtml = '';
+            if (order.status === 'todo') {
+                actionHtml = `
+                    <button onclick="moveOrder(${order.id}, 'prep')" class="w-full mt-4 bg-gray-700 hover:bg-yellow-600 hover:text-white text-gray-300 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                        Iniciar Preparo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                `;
+            } else if (order.status === 'prep') {
+                actionHtml = `
+                    <button onclick="moveOrder(${order.id}, 'ready')" class="w-full mt-4 bg-green-600 hover:bg-green-500 text-white py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+                        <i data-lucide="check" class="w-4 h-4"></i> PRONTO
+                    </button>
+                `;
+            } else if (order.status === 'ready') {
+                actionHtml = `
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="archiveOrder(${order.id})" class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
+                            <i data-lucide="archive" class="w-3 h-3"></i> Arquivar
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Itens do Pedido
+            const itemsHtml = order.items.map(item => `
+                <li class="flex items-start gap-2 py-1 border-b border-gray-700/50 last:border-0">
+                    <span class="text-xs font-bold text-gray-500 mt-1 min-w-[20px]">1x</span>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium ${order.status === 'ready' ? 'text-gray-400 line-through' : 'text-gray-200'}">${item.name}</span>
+                        ${item.obs ? `<span class="text-[10px] text-yellow-500/80 font-mono bg-yellow-900/20 px-1 rounded inline-block w-max mt-0.5">${item.obs}</span>` : ''}
+                    </div>
+                </li>
+            `).join('');
+
+            el.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xl text-white">#${order.id}</span>
+                        <span class="text-[10px] text-gray-500 font-mono tracking-wide uppercase">${order.customer}</span>
+                    </div>
+                    <div class="flex items-center gap-1 font-mono font-bold text-sm px-2 py-1 rounded ${timerBg}" data-timer-id="${order.id}">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        <span>00:00</span>
+                    </div>
+                </div>
+                
+                <ul class="space-y-1 mb-2">
+                    ${itemsHtml}
+                </ul>
+
+                ${actionHtml}
+            `;
+
+            return el;
+        }
+
+        // --- AÇÕES DO SISTEMA ---
+
+        function moveOrder(id, newStatus) {
+            const order = state.orders.find(o => o.id === id);
+            if (order) {
+                order.status = newStatus;
+                renderKanban(); // Re-render completo é barato aqui e evita bugs de DOM
+                saveState();
+
+                // Feedback Sonoro/Visual (Opcional)
+                if (newStatus === 'ready') {
+                    showNotification('Pedido #' + id + ' marcado como PRONTO!', 'success');
+                }
+            }
+        }
+
+        function archiveOrder(id) {
+            state.orders = state.orders.filter(o => o.id !== id);
+            renderKanban();
+            saveState();
+            showNotification('Pedido #' + id + ' arquivado.', 'info');
+        }
+
+        function triggerNewOrderDemo() {
+            const id = state.orders.length > 0 ? Math.max(...state.orders.map(o => o.id)) + 1 : 100;
+            const itemsPool = [
+                { name: "Cheeseburger Clássico", obs: "" },
+                { name: "Batata Frita Suprema", obs: "Extra Bacon" },
+                { name: "Milkshake Morango", obs: "" },
+                { name: "Onion Rings", obs: "" },
+                { name: "Refrigerante Lata", obs: "Gelo e Limão" }
+            ];
+
+            // Random Items
+            const newItems = [];
+            const qtd = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < qtd; i++) {
+                newItems.push(itemsPool[Math.floor(Math.random() * itemsPool.length)]);
+            }
+
+            const newOrder = {
+                id: id,
+                customer: ["Balcão", "Delivery", "Mesa 02", "Mesa 08"][Math.floor(Math.random() * 4)],
+                startTime: Date.now(),
+                status: 'todo',
+                items: newItems
+            };
+
+            state.orders.push(newOrder);
+            renderKanban();
+            saveState();
+            showNotification('Novo Pedido #' + id + ' recebido!', 'warning');
+
+            // Desce o scroll pro final da coluna TODO se necessário?
+            // Não precisa, ordem geralmente é FIFO (topo) ou LIFO (baixo). Aqui appendamos no fim.
+        }
+
+        // --- UTILITÁRIOS ---
+
+        function updateTimers() {
+            const now = Date.now();
+
+            state.orders.forEach(order => {
+                // Se já estiver arquivado/sumido, ignore
+                const el = document.querySelector(`[data-timer-id="${order.id}"] span`);
+                if (el) {
+                    // Se for 'ready', o tempo para de contar? Ou mostra há quanto tempo está pronto?
+                    // Usualmente KDS mostra tempo total de preparo até ficar pronto, e depois outro timer.
+                    // Para simplificar: mostra tempo decorrido desde o início sempre.
+
+                    const diff = Math.floor((now - order.startTime) / 1000);
+                    const mm = Math.floor(diff / 60).toString().padStart(2, '0');
+                    const ss = (diff % 60).toString().padStart(2, '0');
+                    el.innerText = `${mm}:${ss}`;
+
+                    // Muda cor se demorar muito (ex: > 15 min)
+                    if (diff > 900 && order.status !== 'ready') {
+                        el.parentElement.classList.remove('bg-yellow-500/10', 'text-yellow-500');
+                        el.parentElement.classList.add('bg-red-500/20', 'text-red-400', 'animate-pulse');
+                    }
+                }
+            });
+        }
+
+        function updateStats() {
+            const todo = state.orders.filter(o => o.status === 'todo').length;
+            const prep = state.orders.filter(o => o.status === 'prep').length;
+            const ready = state.orders.filter(o => o.status === 'ready').length;
+            const total = state.orders.length || 1; // avoid /0
+
+            // Sidebar counts
+            document.getElementById('count-todo').innerText = todo;
+            document.getElementById('count-prep').innerText = prep;
+
+            // Sidebar bars
+            document.getElementById('bar-todo').style.width = (todo / total * 100) + '%';
+            document.getElementById('bar-prep').style.width = (prep / total * 100) + '%';
+
+            // Header counts
+            document.getElementById('header-count-todo').innerText = todo;
+            document.getElementById('header-count-prep').innerText = prep;
+            document.getElementById('header-count-ready').innerText = ready;
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const el = document.createElement('div');
+            el.className = 'notification';
+
+            // Icon handling
+            let iconColor = 'text-gray-600';
+            let iconName = 'info';
+
+            if (type === 'success') { iconColor = 'text-green-500'; iconName = 'check-circle'; el.style.borderLeftColor = '#10B981'; }
+            if (type === 'warning') { iconColor = 'text-orange-500'; iconName = 'alert-circle'; el.style.borderLeftColor = '#F59E0B'; }
+            if (type === 'danger') { iconColor = 'text-red-500'; iconName = 'x-circle'; el.style.borderLeftColor = '#EF4444'; }
+
+            el.innerHTML = `
+                <i data-lucide="${iconName}" class="${iconColor} w-6 h-6"></i>
+                <span class="font-medium text-sm text-gray-700">${message}</span>
+            `;
+
+            container.appendChild(el);
+            lucide.createIcons();
+
+            // Animate In
+            requestAnimationFrame(() => {
+                el.classList.add('show');
+            });
+
+            // Remove after 3s
+            setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        }
+
+        // --- PERSISTÊNCIA ---
+        function saveState() {
+            localStorage.setItem('plena_kds_data_v2', JSON.stringify(state.orders));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('plena_kds_data_v2');
+            if (saved) {
+                try {
+                    state.orders = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Erro ao carregar dados", e);
+                }
+            }
+        }
+
     </script>
 </body>
 

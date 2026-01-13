@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cardápio Digital Premium | PlenaFood</title>
+
+    <meta name="description"
+        content="Sistema de cardápio digital completo para restaurantes e estabelecimentos gastronômicos">
+    <meta name="theme-color" content="#18181B">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            primary: '#F59E0B',
+                            secondary: '#10B981',
+                            accent: '#8B5CF6',
+                            dark: '#18181B',
+                            darker: '#09090B',
+                            light: '#F4F4F5'
+                        }
+                    },
+                    fontFamily: {
+                        brand: ['Oswald', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'pulse-subtle': 'pulseSubtle 2s infinite',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        slideIn: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        pulseSubtle: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.8' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --plena-primary: #F59E0B;
+            --plena-dark: #18181B;
+            --plena-darker: #09090B;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #09090B 0%, #18181B 100%);
+            color: #F4F4F5;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #27272A;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #F59E0B;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D97706;
+        }
+
+        /* Hide scrollbar for certain elements */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Glassmorphism effect */
+        .glass {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Shimmer effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Notification Toast */
+        .notification {
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Menu item card hover effect */
+        .menu-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Category pill */
+        .category-pill {
+            transition: all 0.2s ease;
+        }
+
+        .category-pill:hover {
+            transform: scale(1.05);
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #27272A 25%, #3F3F46 50%, #27272A 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Order summary */
+        .order-summary {
+            background: linear-gradient(135deg, rgba(24, 24, 27, 0.9) 0%, rgba(9, 9, 11, 0.9) 100%);
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay"
+        class="fixed inset-0 bg-zinc-950 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+        <div class="relative">
+            <div class="w-20 h-20 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
+                    <i data-lucide="utensils" class="w-5 h-5 text-zinc-900"></i>
+                </div>
+            </div>
+        </div>
+        <p class="mt-6 text-zinc-400 font-medium animate-pulse">Carregando cardápio...</p>
+    </div>
+
+    <!-- HEADER -->
+    <header class="glass border-b border-zinc-800 z-40 shrink-0">
+        <div class="px-4 h-16 flex items-center justify-between max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
+                    <i data-lucide="chef-hat" class="w-5 h-5 text-zinc-900"></i>
+                </div>
+                <div>
+                    <h1 class="font-brand font-bold text-xl text-white">Plena<span class="gradient-text">Food</span>
+                    </h1>
+                    <p class="text-xs text-zinc-500 -mt-1">Cardápio Digital</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Search Toggle -->
+                <button id="search-toggle"
+                    class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Print Button -->
+                <button onclick="printMenu()"
+                    class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition no-print">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Admin Toggle -->
+                <button onclick="toggleAdminPanel()"
+                    class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <div class="relative ml-2">
+                    <button onclick="toggleCart()"
+                        class="p-2 bg-gradient-to-br from-amber-500 to-amber-600 text-zinc-900 rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        <span id="cart-count" class="font-bold">0</span>
+                    </button>
+                    <div id="cart-badge"
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-zinc-900 hidden">
+                        0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <div id="search-bar" class="bg-zinc-900/95 border-b border-zinc-800 hidden animate-slide-in">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Buscar produtos, categorias..."
+                    class="w-full bg-zinc-800 border border-zinc-700 rounded-xl py-3 pl-12 pr-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-zinc-500"></i>
+                <button onclick="clearSearch()" class="absolute right-4 top-3.5 text-zinc-500 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto">
+
+        <!-- HERO SECTION -->
+        <div class="relative overflow-hidden">
+            <div id="cover-container" class="h-72 md:h-80 w-full bg-zinc-800 group">
+                <img id="cover-img"
+                    src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600&q=80&auto=format&fit=crop"
+                    class="w-full h-full object-cover opacity-70 transition-all duration-700 group-hover:scale-105 group-hover:opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/30 to-transparent"></div>
+
+                <div class="absolute bottom-0 left-0 w-full p-6 max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                        <div>
+                            <h2 id="rest-name"
+                                class="text-4xl md:text-5xl lg:text-6xl font-brand font-bold text-white mb-2 drop-shadow-lg">
+                                Burger House Premium</h2>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <p id="rest-address"
+                                    class="text-zinc-300 text-sm md:text-base flex items-center gap-2 font-medium">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i> Rua dos Sabores, 123 -
+                                    Centro
+                                </p>
+                                <div class="flex items-center gap-1">
+                                    <i data-lucide="star" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+                                    <span class="text-sm text-zinc-300">4.8 • Aberto até 23:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="edit-cover-btn" onclick="editRestaurantInfo()"
+                            class="hidden items-center gap-2 px-4 py-2 bg-black/60 text-white rounded-lg hover:bg-amber-500 hover:text-black transition-all">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CATEGORIES NAV -->
+        <div class="sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800 py-4">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-brand font-bold text-lg text-white">Categorias</h3>
+                    <button onclick="scrollCategories('left')" class="p-1.5 text-zinc-500 hover:text-white">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <div class="overflow-x-auto hide-scrollbar">
+                        <div id="category-nav" class="flex gap-2 pb-2 min-w-max">
+                            <!-- Categories injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU CONTENT -->
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Featured Items -->
+            <div id="featured-section" class="mb-12">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-brand font-bold text-2xl text-white">⭐ Destaques</h3>
+                    <span class="text-sm text-zinc-500 bg-zinc-800 px-3 py-1 rounded-full">Mais pedidos</span>
+                </div>
+                <div id="featured-grid" class="grid md:grid-cols-3 gap-6 mb-8">
+                    <!-- Featured items injected via JS -->
+                </div>
+            </div>
+
+            <!-- All Items -->
+            <div id="menu-section">
+                <h3 id="current-category" class="font-brand font-bold text-2xl text-white mb-6 capitalize">Lanches</h3>
+
+                <!-- Stats Bar -->
+                <div class="flex items-center justify-between mb-6 text-sm text-zinc-500">
+                    <span id="items-count">4 itens disponíveis</span>
+                    <div class="flex items-center gap-4">
+                        <button onclick="sortItems('name')" class="hover:text-white transition">Ordem A-Z</button>
+                        <button onclick="sortItems('price')" class="hover:text-white transition">Menor preço</button>
+                    </div>
+                </div>
+
+                <!-- Menu Grid -->
+                <div id="menu-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <!-- Items injected via JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden py-16 text-center">
+                    <div class="w-24 h-24 mx-auto mb-6 bg-zinc-800 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="search-x" class="w-12 h-12 text-zinc-600"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-2">Nenhum item encontrado</h4>
+                    <p class="text-zinc-500 max-w-md mx-auto">Não encontramos produtos nesta categoria. Tente outra
+                        categoria ou limpe sua busca.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CART SIDEBAR -->
+    <div id="cart-sidebar"
+        class="fixed inset-y-0 right-0 w-full md:w-96 bg-zinc-900 border-l border-zinc-800 transform translate-x-full transition-transform duration-300 z-50 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900">
+            <h2 class="font-brand font-bold text-2xl text-white flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-zinc-900"></i>
+                </div>
+                Seu Pedido
+            </h2>
+            <button onclick="toggleCart()"
+                class="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="cart-content" class="flex-1 overflow-y-auto p-4 space-y-6">
+            <!-- Items List -->
+            <div id="cart-items" class="space-y-4">
+                <!-- Cart items injected via JS -->
+            </div>
+
+            <!-- CHECKOUT FORM -->
+            <div id="checkout-form" class="space-y-6 border-t border-zinc-800 pt-6">
+
+                <!-- Delivery Type -->
+                <div class="bg-zinc-800 p-1 rounded-xl flex text-sm font-medium">
+                    <button onclick="setDeliveryType('delivery')" id="btn-delivery"
+                        class="flex-1 py-2 rounded-lg bg-amber-500 text-black shadow-md transition-all">
+                        Entrega
+                    </button>
+                    <button onclick="setDeliveryType('pickup')" id="btn-pickup"
+                        class="flex-1 py-2 rounded-lg text-zinc-400 hover:text-white transition-all">
+                        Retirada
+                    </button>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
+                        <i data-lucide="user" class="w-4 h-4"></i> Seus Dados
+                    </h3>
+                    <input id="cust-name" type="text" placeholder="Seu Nome Completo"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white focus:border-amber-500 outline-none">
+                    <input id="cust-phone" type="tel" placeholder="Seu WhatsApp (com DDD)"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white focus:border-amber-500 outline-none">
+                </div>
+
+                <!-- Address (Delivery Only) -->
+                <div id="address-block" class="space-y-3">
+                    <h3 class="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i> Endereço de Entrega
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input id="addr-zip" type="text" placeholder="CEP"
+                            class="col-span-1 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none">
+                        <input id="addr-street" type="text" placeholder="Rua / Avenida"
+                            class="col-span-2 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input id="addr-num" type="text" placeholder="Nº"
+                            class="col-span-1 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none">
+                        <input id="addr-comp" type="text" placeholder="Complemento / Bairro"
+                            class="col-span-2 bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none">
+                    </div>
+                </div>
+
+                <!-- Payment -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i> Pagamento
+                    </h3>
+                    <select id="payment-method" onchange="toggleChangeField()"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500">
+                        <option value="">Selecione a forma de pagamento</option>
+                        <option value="pix">Pix (Chave CNPJ)</option>
+                        <option value="credit">Cartão de Crédito (Maquininha)</option>
+                        <option value="debit">Cartão de Débito (Maquininha)</option>
+                        <option value="cash">Dinheiro</option>
+                    </select>
+
+                    <div id="change-field" class="hidden">
+                        <input id="cash-change" type="text" placeholder="Troco para quanto?"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <!-- Observations -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-4 h-4"></i> Observações Gerais
+                    </label>
+                    <textarea id="order-notes" rows="2"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-amber-500 outline-none resize-none placeholder-zinc-500"
+                        placeholder="Ex: Campainha não funciona, deixar na portaria..."></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer Totals -->
+        <div class="p-4 bg-zinc-900 border-t border-zinc-800 shadow-xl z-20">
+            <div class="space-y-1 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-zinc-400">Subtotal</span>
+                    <span id="cart-subtotal" class="font-mono">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between text-sm" id="delivery-row">
+                    <span class="text-zinc-400">Taxa de entrega</span>
+                    <span id="delivery-fee" class="font-mono text-red-400">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 mt-2 border-t border-zinc-800">
+                    <span class="text-white font-bold">TOTAL</span>
+                    <span id="cart-total" class="text-2xl font-brand font-bold gradient-text">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="clearCart()"
+                    class="col-span-1 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 font-medium py-3 rounded-xl transition">
+                    Limpar
+                </button>
+                <button onclick="sendOrder()"
+                    class="col-span-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-900/30">
+                    <i data-lucide="whatsapp" class="w-5 h-5"></i>
+                    <span>Enviar</span>
+                </button>
+            </div>
+            <p class="text-[10px] text-center text-zinc-600 mt-2">Ao enviar, você concorda com nossos termos.</p>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="admin-panel"
+        class="fixed inset-y-0 left-0 w-full md:w-96 bg-zinc-900 border-r border-zinc-800 transform -translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-6 border-b border-zinc-800 bg-zinc-950 flex justify-between items-center">
+            <h2 class="font-bold text-white flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-zinc-900"></i>
+                </div>
+                Painel Administrativo
+            </h2>
+            <button onclick="toggleAdminPanel()" class="text-zinc-500 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+            <!-- Edit Mode Toggle -->
+            <div class="glass p-5 rounded-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-white">Modo Edição</h3>
+                        <p class="text-sm text-zinc-500">Habilita edição de itens</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-mode-toggle" class="sr-only peer" onchange="toggleEditMode()">
+                        <div class="w-12 h-6 bg-zinc-700 rounded-full peer peer-checked:bg-amber-500 transition">
+                            <div
+                                class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6">
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                <div id="edit-indicator" class="hidden items-center gap-2 text-sm text-amber-500 animate-pulse-subtle">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    <span>Modo edição ativo</span>
+                </div>
+            </div>
+
+            <!-- Restaurant Info -->
+            <div>
+                <h3 class="text-sm font-bold text-zinc-500 uppercase mb-4">Configurações do Restaurante</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-zinc-400 mb-1 block">Nome do Estabelecimento</label>
+                        <input id="edit-rest-name" type="text" value="Burger House Premium"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 mb-1 block">Endereço</label>
+                        <input id="edit-rest-address" type="text" value="Rua dos Sabores, 123 - Centro"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 mb-1 block">URL da Imagem de Capa</label>
+                        <input id="edit-rest-cover" type="text" placeholder="https://exemplo.com/imagem.jpg"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white outline-none focus:border-amber-500">
+                    </div>
+                    <button onclick="saveRestaurantInfo()"
+                        class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-lg transition">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add New Item -->
+            <div>
+                <h3 class="text-sm font-bold text-zinc-500 uppercase mb-4">Adicionar Produto</h3>
+                <form id="add-item-form" class="space-y-3">
+                    <div>
+                        <input id="new-item-name" required placeholder="Nome do produto"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <input id="new-item-price" required type="number" step="0.01" placeholder="Preço (R$)"
+                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <select id="new-item-category" required
+                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500">
+                                <!-- Categories injected via JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea id="new-item-desc" rows="2" placeholder="Descrição do produto"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm text-white outline-none focus:border-amber-500 resize-none"></textarea>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="new-item-featured" class="rounded border-zinc-700 bg-zinc-800">
+                        <label for="new-item-featured" class="text-sm text-zinc-400">Destacar produto</label>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3 rounded-lg transition">
+                        Adicionar Produto
+                    </button>
+                </form>
+            </div>
+
+            <!-- Data Management -->
+            <div>
+                <h3 class="text-sm font-bold text-zinc-500 uppercase mb-4">Gerenciar Dados</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="backupData()"
+                        class="flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Backup
+                    </button>
+                    <label
+                        class="flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm transition cursor-pointer">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Restaurar
+                        <input type="file" onchange="restoreData(this)" class="hidden" accept=".json">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="glass p-5 rounded-2xl">
+                <h3 class="text-sm font-bold text-zinc-500 uppercase mb-4">Estatísticas</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-white" id="stats-items">0</div>
+                        <div class="text-xs text-zinc-500">Produtos</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-white" id="stats-categories">0</div>
+                        <div class="text-xs text-zinc-500">Categorias</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="product-modal"
+        class="fixed inset-x-0 bottom-0 md:inset-0 z-50 flex items-end md:items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 pointer-events-auto" onclick="closeProductModal()"></div>
+
+        <!-- Modal Content -->
+        <div
+            class="bg-zinc-900 w-full md:w-[480px] md:rounded-2xl rounded-t-2xl shadow-2xl transform translate-y-full md:translate-y-10 transition-transform duration-300 pointer-events-auto flex flex-col max-h-[90vh] md:max-h-[85vh]">
+
+            <!-- Image Header -->
+            <div class="relative h-48 md:h-56 shrink-0">
+                <img id="modal-img" src="" class="w-full h-full object-cover rounded-t-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent"></div>
+                <button onclick="closeProductModal()"
+                    class="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Header -->
+                <div>
+                    <h2 id="modal-title" class="font-brand font-bold text-2xl text-white leading-tight mb-2"></h2>
+                    <p id="modal-desc" class="text-zinc-400 text-sm leading-relaxed"></p>
+                </div>
+
+                <!-- Mandatory Options -->
+                <div id="modal-options" class="space-y-4"></div>
+
+                <!-- Addons -->
+                <div id="modal-addons" class="space-y-4"></div>
+
+                <!-- Observations -->
+                <div>
+                    <label class="text-sm font-bold text-zinc-500 uppercase mb-2 block flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-4 h-4"></i> Observações
+                    </label>
+                    <textarea id="modal-obs" rows="2"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-amber-500 outline-none resize-none placeholder-zinc-500"
+                        placeholder="Ex: Sem cebola, capricha no molho..."></textarea>
+                </div>
+            </div>
+
+            <!-- Footer / Action -->
+            <div class="p-4 border-t border-zinc-800 bg-zinc-900 md:rounded-b-2xl">
+                <div class="flex items-center justify-between gap-4">
+                    <!-- Quantity Stepper -->
+                    <div class="flex items-center bg-zinc-800 rounded-xl p-1 border border-zinc-700">
+                        <button onclick="adjustModalQty(-1)"
+                            class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 rounded-lg transition">
+                            <i data-lucide="minus" class="w-4 h-4"></i>
+                        </button>
+                        <span id="modal-qty" class="w-8 text-center font-bold text-white">1</span>
+                        <button onclick="adjustModalQty(1)"
+                            class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 rounded-lg transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Add Button -->
+                    <button onclick="confirmAddToCart()"
+                        class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/20 active:scale-[0.98] transition flex items-center justify-between">
+                        <span>Adicionar</span>
+                        <span id="modal-total" class="font-mono text-lg">R$ 0,00</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-sm transition-opacity"
+        onclick="closeAllModals()"></div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-3 w-80"></div>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        const state = {
+            config: {
+                name: 'Burger House Premium',
+                address: 'Rua dos Sabores, 123 - Centro',
+                cover: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600&q=80&auto=format&fit=crop',
+                deliveryFee: 5.00,
+                rating: 4.8,
+                hours: 'Aberto até 23:00'
+            },
+            categories: [
+                { id: 'lanches', name: 'Lanches', icon: 'sandwich' },
+                { id: 'bebidas', name: 'Bebidas', icon: 'coffee' },
+                { id: 'acompanhamentos', name: 'Acompanhamentos', icon: 'french-fries' },
+                { id: 'sobremesas', name: 'Sobremesas', icon: 'ice-cream' },
+                { id: 'combos', name: 'Combos', icon: 'package' },
+                { id: 'vegetariano', name: 'Vegetariano', icon: 'leaf' }
+            ],
+            activeCategory: 'lanches',
+            items: [
+                {
+                    id: 1,
+                    name: 'X-Burger Premium',
+                    desc: 'Pão brioche artesanal, blend 180g de angus, queijo cheddar, bacon crocante e molho especial da casa.',
+                    price: 32.90,
+                    img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
+                    category: 'lanches',
+                    featured: true,
+                    popular: true,
+                    options: [
+                        {
+                            name: "Ponto da Carne",
+                            required: true,
+                            type: "radio",
+                            choices: [
+                                { name: "Ao Ponto", price: 0 },
+                                { name: "Bem Passado", price: 0 },
+                                { name: "Mal Passado", price: 0 }
+                            ]
+                        }
+                    ],
+                    addons: [
+                        { name: "Burger Extra (180g)", price: 12.00 },
+                        { name: "Bacon Extra", price: 4.00 },
+                        { name: "Cheddar Extra", price: 3.50 }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: 'X-Salada Gourmet',
+                    desc: 'Pão australiano, blend 150g, queijo prato, alface crespa, tomate cereja e maionese de ervas.',
+                    price: 28.50,
+                    img: 'https://images.unsplash.com/photo-1586190848861-99c9574548e3?w=800&q=80',
+                    category: 'lanches',
+                    featured: true,
+                    options: [
+                        {
+                            name: "Tipo de Pão",
+                            required: true,
+                            type: "radio",
+                            choices: [
+                                { name: "Brioche", price: 0 },
+                                { name: "Australiano", price: 0 },
+                                { name: "Gergelim", price: 0 }
+                            ]
+                        }
+                    ],
+                    addons: [
+                        { name: "Ovo", price: 2.00 },
+                        { name: "Maionese Extra", price: 0 }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: 'Coca-Cola 600ml',
+                    desc: 'Garrafa 600ml gelada. Opção zero açúcar disponível.',
+                    price: 8.90,
+                    img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=800&q=80',
+                    category: 'bebidas',
+                    popular: true
+                },
+                {
+                    id: 4,
+                    name: 'Batata Frita Crocante',
+                    desc: 'Porção individual com tempero especial e opção de cheddar ou bacon.',
+                    price: 15.90,
+                    img: 'https://images.unsplash.com/photo-1630384060421-a4323ce5663e?w=800&q=80',
+                    category: 'acompanhamentos',
+                    addons: [
+                        { name: "Cheddar e Bacon", price: 8.00 },
+                        { name: "Apenas Cheddar", price: 5.00 }
+                    ]
+                },
+                {
+                    id: 5,
+                    name: 'Milkshake Ovomaltine',
+                    desc: 'Copo 400ml com calda de chocolate e granulados.',
+                    price: 18.90,
+                    img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
+                    category: 'sobremesas',
+                    featured: true
+                },
+                {
+                    id: 6,
+                    name: 'Combo Família',
+                    desc: '3 X-Burgers + Batata Grande + 2 Refrigerantes 600ml.',
+                    price: 89.90,
+                    img: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=800&q=80',
+                    category: 'combos'
+                }
+            ],
+            items: [], // Populated below
+            cart: [],
+            isEditMode: false,
+            isCartOpen: false,
+            isSearchOpen: false,
+            currentModalItem: null,
+            modalState: {
+                qty: 1,
+                selectedOptions: {},
+                selectedAddons: [],
+                obs: ''
+            },
+            checkoutState: {
+                type: 'delivery', // delivery or pickup
+                name: '',
+                phone: '',
+                address: {
+                    zip: '',
+                    street: '',
+                    num: '',
+                    comp: ''
+                },
+                payment: '',
+                change: ''
+            },
+            searchTerm: ''
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved data
+            loadLocalData();
+
+            // Render initial UI
+            renderCategories();
+            renderMenu();
+            renderFeatured();
+            updateStats();
+
+            // Initialize icons
+            lucide.createIcons();
+
+            // Setup event listeners
+            setupEventListeners();
+
+            // Hide loading overlay
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 300);
+            }, 500);
+
+            // Show welcome notification
+            setTimeout(() => {
+                showNotification('Cardápio carregado com sucesso!', 'success');
+            }, 600);
+        });
+
+        // --- EVENT LISTENERS SETUP ---
+        function setupEventListeners() {
+            // Search input
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                state.searchTerm = e.target.value.toLowerCase();
+                if (state.searchTerm.length > 0) {
+                    performSearch();
+                } else {
+                    renderMenu();
+                }
+            });
+
+            // Search toggle
+            document.getElementById('search-toggle').addEventListener('click', toggleSearch);
+
+            // Add item form
+            document.getElementById('add-item-form').addEventListener('submit', addNewItem);
+        }
+
+        // --- UI RENDERING FUNCTIONS ---
+
+        function renderCategories() {
+            const nav = document.getElementById('category-nav');
+            const select = document.getElementById('new-item-category');
+
+            nav.innerHTML = '';
+            select.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+            state.categories.forEach(cat => {
+                // Nav buttons
+                const isActive = state.activeCategory === cat.id;
+                const btn = document.createElement('button');
+                btn.className = `category-pill px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${isActive
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg shadow-amber-500/30'
+                    : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'}`;
+
+                if (isActive) {
+                    btn.innerHTML = `<i data-lucide="${cat.icon}" class="w-4 h-4"></i><span>${cat.name}</span>`;
+                } else {
+                    btn.innerHTML = `<span>${cat.name}</span>`;
+                }
+
+                btn.onclick = () => {
+                    state.activeCategory = cat.id;
+                    state.searchTerm = '';
+                    document.getElementById('search-input').value = '';
+                    renderCategories();
+                    renderMenu();
+                    updateCurrentCategory();
+                    document.getElementById('menu-section').scrollIntoView({ behavior: 'smooth' });
+                };
+
+                nav.appendChild(btn);
+
+                // Admin select options
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                select.appendChild(option);
+            });
+
+            lucide.createIcons();
+        }
+
+        function renderMenu() {
+            const grid = document.getElementById('menu-grid');
+            const empty = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            // Filter items
+            let items = state.items.filter(item =>
+                item.category === state.activeCategory &&
+                (state.searchTerm === '' ||
+                    item.name.toLowerCase().includes(state.searchTerm) ||
+                    item.desc.toLowerCase().includes(state.searchTerm))
+            );
+
+            // Update count
+            document.getElementById('items-count').textContent =
+                `${items.length} ${items.length === 1 ? 'item' : 'itens'} disponível${items.length === 1 ? '' : 's'}`;
+
+            if (items.length === 0) {
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                items.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'menu-card bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col relative overflow-hidden group';
+
+                    // Delete button (edit mode)
+                    const deleteBtn = state.isEditMode ?
+                        `<button onclick="deleteItem(${item.id})" class="absolute top-3 right-3 z-10 p-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>` : '';
+
+                    // Popular badge
+                    const popularBadge = item.popular ?
+                        `<span class="absolute top-3 left-3 z-10 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-bold text-black rounded-full">
+                            POPULAR
+                        </span>` : '';
+
+                    el.innerHTML = `
+                        ${deleteBtn}
+                        ${popularBadge}
+                        
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+                        
+                        <div class="flex-1 mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-brand font-bold text-xl text-white pr-2">${item.name}</h3>
+                                <div class="text-right">
+                                    <span class="font-mono font-bold text-amber-500 text-lg">R$ ${item.price.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <p class="text-zinc-400 text-sm leading-relaxed mb-4">${item.desc}</p>
+                        </div>
+                        
+                        <button onclick="addToCart(${item.id})" 
+                                class="w-full bg-gradient-to-r from-zinc-800 to-zinc-900 hover:from-amber-500 hover:to-orange-500 text-zinc-300 hover:text-black font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02]">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Adicionar ao Pedido
+                        </button>
+                    `;
+
+                    grid.appendChild(el);
+                });
+            }
+
+            lucide.createIcons();
+        }
+
+        function renderFeatured() {
+            const featuredGrid = document.getElementById('featured-grid');
+            const featuredItems = state.items.filter(item => item.featured);
+
+            if (featuredItems.length === 0) {
+                document.getElementById('featured-section').classList.add('hidden');
+                return;
+            }
+
+            featuredGrid.innerHTML = '';
+            featuredItems.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'menu-card bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-5 relative overflow-hidden group';
+
+                el.innerHTML = `
+                    <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-full blur-xl"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-brand font-bold text-xl text-white pr-2">${item.name}</h3>
+                            <span class="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-bold text-black rounded-full">
+                                DESTAQUE
+                            </span>
+                        </div>
+                        <p class="text-zinc-400 text-sm mb-4">${item.desc}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono font-bold text-amber-500 text-lg">R$ ${item.price.toFixed(2)}</span>
+                            <button onclick="addToCart(${item.id})" 
+                                    class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold rounded-lg hover:from-amber-400 hover:to-orange-400 transition flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                featuredGrid.appendChild(el);
+            });
+
+            lucide.createIcons();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+
+            if (state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-64 flex flex-col items-center justify-center text-zinc-600 opacity-60 animate-fade-in">
+                        <div class="w-20 h-20 mb-4 bg-zinc-800 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="shopping-cart" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-white mb-2">Sua sacola está vazia</h4>
+                        <p class="text-sm text-center max-w-xs">Adicione produtos deliciosos do cardápio!</p>
+                    </div>
+                `;
+            } else {
+                state.cart.forEach((item, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-4 flex gap-4 animate-fade-in';
+
+                    // Parse extras string
+                    let extrasText = '';
+                    if (item.selectedOptions) {
+                        const opts = Object.values(item.selectedOptions).map(o => o.name).join(', ');
+                        if (opts) extrasText += `${opts}`;
+                    }
+                    if (item.selectedAddons && item.selectedAddons.length > 0) {
+                        const addons = item.selectedAddons.map(a => a.name).join(', ');
+                        if (extrasText) extrasText += ', ';
+                        extrasText += `${addons}`;
+                    }
+
+                    // Calculate individual item total
+                    let itemTotal = 0;
+                    if (item.finalPrice) {
+                        itemTotal = item.finalPrice;
+                    } else {
+                        itemTotal = item.price * item.qty;
+                    }
+
+                    el.innerHTML = `
+                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-lg flex items-center justify-center shrink-0">
+                            <div class="text-amber-500 font-bold text-sm">${item.qty}x</div>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-white text-sm truncate">${item.name}</h4>
+                                <button onclick="removeFromCart(${idx})" class="text-zinc-500 hover:text-red-400 ml-2">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            
+                            ${extrasText ? `<p class="text-xs text-zinc-400 mt-1 line-clamp-2">${extrasText}</p>` : ''}
+                            ${item.obs ? `<p class="text-xs text-amber-500/80 mt-1 italic">Obs: ${item.obs}</p>` : ''}
+                            
+                            <div class="flex items-center gap-2 mt-3">
+                                ${!item.finalPrice ? `
+                                <button onclick="adjustCartQty(${idx}, -1)" 
+                                        class="w-7 h-7 rounded-lg bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center hover:bg-zinc-600 transition">
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                </button>
+                                <span class="font-mono font-bold text-white min-w-[20px] text-center">${item.qty}</span>
+                                <button onclick="adjustCartQty(${idx}, 1)" 
+                                        class="w-7 h-7 rounded-lg bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center hover:bg-zinc-600 transition">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                </button>
+                                ` : `<span class="text-xs text-zinc-500">Item Personalizado</span>`}
+                            </div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <p class="font-mono font-bold text-amber-500">R$ ${itemTotal.toFixed(2)}</p>
+                        </div>
+                    `;
+
+                    container.appendChild(el);
+                });
+            }
+
+            updateCartTotals();
+            lucide.createIcons();
+        }
+
+        // --- CART & MODAL FUNCTIONS ---
+
+        function addToCart(id) {
+            const item = state.items.find(i => i.id === id);
+            if (!item) return;
+
+            // If item has options or addons, open modal
+            if ((item.options && item.options.length > 0) || (item.addons && item.addons.length > 0)) {
+                openProductModal(item);
+            } else {
+                // Simple add for items with no options
+                const existing = state.cart.find(c => c.id === id && !c.selectedOptions && !c.selectedAddons);
+                if (existing) {
+                    existing.qty++;
+                } else {
+                    state.cart.push({ ...item, qty: 1 });
+                }
+                updateCartUI();
+                showNotification(`${item.name} adicionado ao pedido!`, 'success');
+            }
+        }
+
+        function openProductModal(item) {
+            state.currentModalItem = item;
+            state.modalState = {
+                qty: 1,
+                selectedOptions: {},
+                selectedAddons: [],
+                obs: ''
+            };
+
+            // Populate Modal UI
+            document.getElementById('modal-img').src = item.img || 'https://via.placeholder.com/800x600';
+            document.getElementById('modal-title').textContent = item.name;
+            document.getElementById('modal-desc').textContent = item.desc;
+            document.getElementById('modal-qty').textContent = '1';
+            document.getElementById('modal-obs').value = '';
+
+            renderModalOptions(item);
+            updateModalTotal();
+
+            // Show Modal
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modal.querySelector('div.transform').classList.remove('translate-y-full');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('pointer-events-none', 'opacity-0');
+            modal.querySelector('div.transform').classList.add('translate-y-full');
+            document.body.style.overflow = '';
+
+            // Reset state after transition
+            setTimeout(() => {
+                state.currentModalItem = null;
+            }, 300);
+        }
+
+        function renderModalOptions(item) {
+            const optionsContainer = document.getElementById('modal-options');
+            const addonsContainer = document.getElementById('modal-addons');
+
+            optionsContainer.innerHTML = '';
+            addonsContainer.innerHTML = '';
+
+            // Render Required Options (Radio)
+            if (item.options) {
+                item.options.forEach((opt, optIdx) => {
+                    const el = document.createElement('div');
+                    el.className = 'bg-zinc-800 rounded-xl p-4';
+                    el.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-white">${opt.name}</h3>
+                            <span class="text-xs bg-zinc-700 text-zinc-300 px-2 py-1 rounded">OBRIGATÓRIO</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${opt.choices.map((choice, choiceIdx) => `
+                                <label class="flex items-center justify-between p-3 rounded-lg border border-zinc-700 cursor-pointer hover:bg-zinc-700/50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <input type="radio" name="opt_${optIdx}" value="${choice.name}" 
+                                            onchange="selectOption(${optIdx}, '${choice.name}', ${choice.price || 0})"
+                                            class="w-5 h-5 text-amber-500 bg-zinc-900 border-zinc-600 focus:ring-amber-500">
+                                        <span class="text-zinc-300">${choice.name}</span>
+                                    </div>
+                                    ${choice.price > 0 ? `<span class="text-amber-500 font-mono">+ R$ ${choice.price.toFixed(2)}</span>` : ''}
+                                </label>
+                            `).join('')}
+                        </div>
+                    `;
+                    optionsContainer.appendChild(el);
+
+                    // Auto-select first option if required
+                    if (opt.required && opt.choices.length > 0) {
+                        // state.modalState.selectedOptions[opt.name] = { name: opt.choices[0].name, price: opt.choices[0].price || 0 };
+                    }
+                });
+            }
+
+            // Render Addons (Checkbox)
+            if (item.addons) {
+                const el = document.createElement('div');
+                el.className = 'bg-zinc-800 rounded-xl p-4';
+                el.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-white">Adicionais</h3>
+                        <span class="text-xs text-zinc-500">OPCIONAL</span>
+                    </div>
+                    <div class="space-y-2">
+                        ${item.addons.map((addon, idx) => `
+                            <label class="flex items-center justify-between p-3 rounded-lg border border-zinc-700 cursor-pointer hover:bg-zinc-700/50 transition">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" value="${addon.name}" 
+                                        onchange="toggleAddon('${addon.name}', ${addon.price})"
+                                        class="w-5 h-5 text-amber-500 rounded bg-zinc-900 border-zinc-600 focus:ring-amber-500">
+                                    <span class="text-zinc-300">${addon.name}</span>
+                                </div>
+                                <span class="text-amber-500 font-mono">+ R$ ${addon.price.toFixed(2)}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                addonsContainer.appendChild(el);
+            }
+        }
+
+        function selectOption(optIdx, choiceName, price) {
+            const optName = state.currentModalItem.options[optIdx].name;
+            state.modalState.selectedOptions[optName] = { name: choiceName, price: price };
+            updateModalTotal();
+        }
+
+        function toggleAddon(name, price) {
+            const index = state.modalState.selectedAddons.findIndex(a => a.name === name);
+            if (index >= 0) {
+                state.modalState.selectedAddons.splice(index, 1);
+            } else {
+                state.modalState.selectedAddons.push({ name, price });
+            }
+            updateModalTotal();
+        }
+
+        function adjustModalQty(amount) {
+            const newQty = state.modalState.qty + amount;
+            if (newQty >= 1) {
+                state.modalState.qty = newQty;
+                document.getElementById('modal-qty').textContent = newQty;
+                updateModalTotal();
+            }
+        }
+
+        function updateModalTotal() {
+            const basePrice = state.currentModalItem.price;
+            let optionsTotal = 0;
+            let addonsTotal = 0;
+
+            Object.values(state.modalState.selectedOptions).forEach(opt => optionsTotal += opt.price);
+            state.modalState.selectedAddons.forEach(addon => addonsTotal += addon.price);
+
+            const itemTotal = (basePrice + optionsTotal + addonsTotal) * state.modalState.qty;
+            document.getElementById('modal-total').textContent = `R$ ${itemTotal.toFixed(2)}`;
+        }
+
+        function confirmAddToCart() {
+            // Validate required options
+            if (state.currentModalItem.options) {
+                const missing = state.currentModalItem.options.filter(opt => opt.required && !state.modalState.selectedOptions[opt.name]);
+                if (missing.length > 0) {
+                    showNotification(`Selecione: ${missing.map(m => m.name).join(', ')}`, 'warning');
+                    return;
+                }
+            }
+
+            const item = {
+                ...state.currentModalItem,
+                qty: state.modalState.qty,
+                selectedOptions: state.modalState.selectedOptions,
+                selectedAddons: state.modalState.selectedAddons,
+                obs: document.getElementById('modal-obs').value,
+                finalPrice: parseFloat(document.getElementById('modal-total').textContent.replace('R$ ', '').replace(',', '.'))
+            };
+
+            state.cart.push(item);
+            updateCartUI();
+            closeProductModal();
+            showNotification('Item adicionado com sucesso!', 'success');
+        }
+
+
+        function removeFromCart(index) {
+            state.cart.splice(index, 1);
+            renderCart();
+            updateCartUI();
+        }
+
+        function adjustCartQty(index, amount) {
+            const item = state.cart[index];
+            item.qty += amount;
+
+            if (item.qty <= 0) {
+                state.cart.splice(index, 1);
+            }
+
+            renderCart();
+            updateCartUI();
+        }
+
+        function clearCart() {
+            if (state.cart.length === 0 || !confirm('Tem certeza que deseja limpar sua sacola?')) return;
+
+            state.cart = [];
+            renderCart();
+            updateCartUI();
+            showNotification('Sacola limpa com sucesso', 'info');
+        }
+
+        function updateCartUI() {
+            const count = state.cart.reduce((acc, item) => acc + item.qty, 0);
+
+            // Calculate total considering addons and options
+            const total = state.cart.reduce((acc, item) => {
+                if (item.finalPrice) {
+                    return acc + item.finalPrice; // Already calculated total for complex items
+                } else {
+                    return acc + (item.price * item.qty); // Simple items
+                }
+            }, 0);
+
+            // Update counts
+            document.getElementById('cart-count').textContent = count;
+            const badge = document.getElementById('cart-badge');
+
+            if (count > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = count;
+                badge.classList.add('animate-float');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('animate-float');
+            }
+
+            // Update cart totals
+            document.getElementById('cart-subtotal').textContent = `R$ ${total.toFixed(2)}`;
+
+            const deliveryFee = state.checkoutState.type === 'delivery' ? state.config.deliveryFee : 0;
+            const finalTotal = total + deliveryFee;
+
+            document.getElementById('delivery-fee').textContent = `R$ ${deliveryFee.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `R$ ${finalTotal.toFixed(2)}`;
+
+            // Save to localStorage
+            saveLocalData();
+        }
+
+        function toggleCart() {
+            state.isCartOpen = !state.isCartOpen;
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('overlay');
+
+            if (state.isCartOpen) {
+                renderCart();
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // --- ORDER FUNCTIONS ---
+
+        // --- CHECKOUT FUNCTIONS ---
+
+        function setDeliveryType(type) {
+            state.checkoutState.type = type;
+            const btnDelivery = document.getElementById('btn-delivery');
+            const btnPickup = document.getElementById('btn-pickup');
+            const addrBlock = document.getElementById('address-block');
+            const deliveryRow = document.getElementById('delivery-row');
+
+            if (type === 'delivery') {
+                btnDelivery.className = 'flex-1 py-2 rounded-lg bg-amber-500 text-black shadow-md transition-all';
+                btnPickup.className = 'flex-1 py-2 rounded-lg text-zinc-400 hover:text-white transition-all';
+                addrBlock.classList.remove('hidden');
+                deliveryRow.classList.remove('hidden');
+                updateCartUI(); // Recalculate total with delivery fee
+            } else {
+                btnDelivery.className = 'flex-1 py-2 rounded-lg text-zinc-400 hover:text-white transition-all';
+                btnPickup.className = 'flex-1 py-2 rounded-lg bg-amber-500 text-black shadow-md transition-all';
+                addrBlock.classList.add('hidden');
+                deliveryRow.classList.add('hidden');
+                updateCartUI(); // Recalculate total without delivery fee
+            }
+        }
+
+        function toggleChangeField() {
+            const method = document.getElementById('payment-method').value;
+            const changeField = document.getElementById('change-field');
+            if (method === 'cash') {
+                changeField.classList.remove('hidden');
+            } else {
+                changeField.classList.add('hidden');
+            }
+        }
+
+        function sendOrder() {
+            if (state.cart.length === 0) {
+                showNotification('Adicione itens ao pedido primeiro!', 'warning');
+                return;
+            }
+
+            // Capture Form Data
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const payment = document.getElementById('payment-method').value;
+            const deliveryType = state.checkoutState.type;
+
+            // Validate Basic Info
+            if (!name || !phone || !payment) {
+                showNotification('Preencha seu nome, telefone e forma de pagamento!', 'warning');
+                return;
+            }
+
+            // Validate Address if Delivery
+            let addressText = 'Retirada no Balcão';
+            if (deliveryType === 'delivery') {
+                const street = document.getElementById('addr-street').value.trim();
+                const num = document.getElementById('addr-num').value.trim();
+                const comp = document.getElementById('addr-comp').value.trim();
+
+                if (!street || !num) {
+                    showNotification('Preencha o endereço de entrega!', 'warning');
+                    return;
+                }
+                addressText = `${street}, ${num} ${comp ? `(${comp})` : ''}`;
+            }
+
+            // Calculate Totals
+            const subtotal = state.cart.reduce((acc, item) => {
+                return acc + (item.finalPrice || (item.price * item.qty));
+            }, 0);
+
+            const deliveryFee = deliveryType === 'delivery' ? state.config.deliveryFee : 0;
+            const total = subtotal + deliveryFee;
+
+            // Format Payment Text
+            const paymentMethods = {
+                'pix': 'Pix',
+                'credit': 'Cartão de Crédito',
+                'debit': 'Cartão de Débito',
+                'cash': 'Dinheiro'
+            };
+            let paymentText = paymentMethods[payment];
+            if (payment === 'cash') {
+                const change = document.getElementById('cash-change').value;
+                if (change) paymentText += ` (Troco para: ${change})`;
+            }
+
+            // Format Order Message
+            let message = `*🍔 NOVO PEDIDO - ${state.config.name.toUpperCase()}*\n`;
+            message += `────────────────────\n`;
+            message += `*👤 Cliente:* ${name}\n`;
+            message += `*📞 Telefone:* ${phone}\n`;
+            message += `*🚚 Tipo:* ${deliveryType === 'delivery' ? 'ENTREGA' : 'RETIRADA'}\n`;
+            if (deliveryType === 'delivery') {
+                message += `*📍 End:* ${addressText}\n`;
+            }
+            message += `────────────────────\n`;
+            message += `*📋 ITENS DO PEDIDO:*\n\n`;
+
+            state.cart.forEach(item => {
+                const totalItem = item.finalPrice || (item.price * item.qty);
+                message += `▪️ ${item.qty}x *${item.name}*\n`;
+
+                // Addons and Options
+                if (item.selectedOptions) {
+                    Object.values(item.selectedOptions).forEach(opt => {
+                        message += `   └ ${opt.name}\n`;
+                    });
+                }
+                if (item.selectedAddons && item.selectedAddons.length > 0) {
+                    item.selectedAddons.forEach(addon => {
+                        message += `   └ + ${addon.name}\n`;
+                    });
+                }
+                if (item.obs) {
+                    message += `   └ 📝 _${item.obs}_\n`;
+                }
+
+                message += `   R$ ${totalItem.toFixed(2)}\n`;
+            });
+
+            const generalNotes = document.getElementById('order-notes').value;
+            if (generalNotes) {
+                message += `\n*📝 Obs Gerais:* ${generalNotes}\n`;
+            }
+
+            message += `────────────────────\n`;
+            message += `*💰 Subtotal:* R$ ${subtotal.toFixed(2)}\n`;
+            if (deliveryType === 'delivery') {
+                message += `*🛵 Taxa de Entrega:* R$ ${deliveryFee.toFixed(2)}\n`;
+            }
+            message += `*✅ TOTAL:* R$ ${total.toFixed(2)}\n`;
+            message += `*💳 Pagamento:* ${paymentText}\n\n`;
+            message += `_*Pedido gerado via Cardápio Digital PlenaFood*_`;
+
+            // Open WhatsApp
+            const phoneNumber = '5511999999999';
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+
+            // Success
+            showNotification('Pedido enviado com sucesso!', 'success');
+
+            // Clear cart after sending (optional delay)
+            setTimeout(() => {
+                // clearCart(); // Uncomment to auto-clear
+            }, 2000);
+        }
+
+        // --- SEARCH FUNCTIONALITY ---
+
+        function toggleSearch() {
+            const searchBar = document.getElementById('search-bar');
+            state.isSearchOpen = !state.isSearchOpen;
+
+            if (state.isSearchOpen) {
+                searchBar.classList.remove('hidden');
+                searchBar.classList.add('animate-slide-in');
+                document.getElementById('search-input').focus();
+            } else {
+                searchBar.classList.add('hidden');
+                state.searchTerm = '';
+                document.getElementById('search-input').value = '';
+                renderMenu();
+            }
+        }
+
+        function clearSearch() {
+            state.searchTerm = '';
+            document.getElementById('search-input').value = '';
+            renderMenu();
+        }
+
+        function performSearch() {
+            renderMenu();
+        }
+
+        // --- ADMIN FUNCTIONS ---
+
+        function toggleEditMode() {
+            state.isEditMode = !state.isEditMode;
+            const indicator = document.getElementById('edit-indicator');
+
+            if (state.isEditMode) {
+                indicator.classList.remove('hidden');
+                document.getElementById('edit-cover-btn').classList.remove('hidden');
+                showNotification('Modo edição ativado', 'info');
+            } else {
+                indicator.classList.add('hidden');
+                document.getElementById('edit-cover-btn').classList.add('hidden');
+            }
+
+            renderMenu();
+        }
+
+        function addNewItem(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('new-item-name').value.trim();
+            const price = parseFloat(document.getElementById('new-item-price').value);
+            const category = document.getElementById('new-item-category').value;
+            const desc = document.getElementById('new-item-desc').value.trim();
+            const featured = document.getElementById('new-item-featured').checked;
+
+            if (!name || isNaN(price) || !category) {
+                showNotification('Preencha os campos obrigatórios!', 'warning');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name,
+                price,
+                category,
+                desc: desc || 'Descrição não informada',
+                featured,
+                popular: false
+            };
+
+            state.items.push(newItem);
+            saveLocalData();
+            renderMenu();
+            renderFeatured();
+            updateStats();
+
+            showNotification('Produto adicionado com sucesso!', 'success');
+
+            // Reset form
+            document.getElementById('add-item-form').reset();
+        }
+
+        function deleteItem(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            state.items = state.items.filter(item => item.id !== id);
+            saveLocalData();
+            renderMenu();
+            renderFeatured();
+            updateStats();
+
+            showNotification('Produto removido com sucesso', 'info');
+        }
+
+        function editRestaurantInfo() {
+            // Pre-fill modal inputs
+            document.getElementById('edit-rest-name').value = state.config.name;
+            document.getElementById('edit-rest-address').value = state.config.address;
+            document.getElementById('edit-rest-cover').value = state.config.cover;
+
+            toggleAdminPanel();
+        }
+
+        function saveRestaurantInfo() {
+            state.config.name = document.getElementById('edit-rest-name').value;
+            state.config.address = document.getElementById('edit-rest-address').value;
+            state.config.cover = document.getElementById('edit-rest-cover').value || state.config.cover;
+
+            // Update UI
+            document.getElementById('rest-name').textContent = state.config.name;
+            document.getElementById('rest-address').innerHTML = `
+                <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i> ${state.config.address}
+            `;
+            document.getElementById('cover-img').src = state.config.cover;
+
+            saveLocalData();
+            showNotification('Informações salvas com sucesso!', 'success');
+        }
+
+        function updateStats() {
+            document.getElementById('stats-items').textContent = state.items.length;
+            document.getElementById('stats-categories').textContent = state.categories.length;
+        }
+
+        function updateCurrentCategory() {
+            const currentCat = state.categories.find(c => c.id === state.activeCategory);
+            if (currentCat) {
+                document.getElementById('current-category').textContent = currentCat.name;
+            }
+        }
+
+        // --- UTILITY FUNCTIONS ---
+
+        function sortItems(by) {
+            if (by === 'name') {
+                state.items.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (by === 'price') {
+                state.items.sort((a, b) => a.price - b.price);
+            }
+
+            renderMenu();
+            showNotification(`Itens ordenados por ${by === 'name' ? 'nome' : 'preço'}`, 'info');
+        }
+
+        function backupData() {
+            const data = {
+                items: state.items,
+                config: state.config,
+                categories: state.categories,
+                version: '1.0.0',
+                exported: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_cardapio_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Backup realizado com sucesso!', 'success');
+        }
+
+        function restoreData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Validate backup structure
+                    if (!data.items || !data.config) {
+                        throw new Error('Formato de backup inválido');
+                    }
+
+                    // Restore data with validation
+                    state.items = data.items || state.items;
+                    state.config = data.config || state.config;
+                    state.categories = data.categories || state.categories;
+
+                    // Update UI
+                    renderCategories();
+                    renderMenu();
+                    renderFeatured();
+                    updateStats();
+                    saveLocalData();
+
+                    showNotification('Dados restaurados com sucesso!', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showNotification('Erro ao restaurar backup. Verifique o arquivo.', 'danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+
+            const icons = {
+                success: 'check-circle',
+                warning: 'alert-triangle',
+                danger: 'x-circle',
+                info: 'info'
+            };
+
+            const colors = {
+                success: '#10B981',
+                warning: '#F59E0B',
+                danger: '#EF4444',
+                info: '#3B82F6'
+            };
+
+            notification.className = 'notification glass p-4 rounded-xl flex items-center gap-3';
+            notification.style.borderLeft = `4px solid ${colors[type]}`;
+
+            notification.innerHTML = `
+                <i data-lucide="${icons[type]}" class="w-5 h-5" style="color: ${colors[type]}"></i>
+                <span class="flex-1 text-sm font-medium">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-zinc-500 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+
+            container.appendChild(notification);
+            lucide.createIcons();
+
+            // Animate in
+            setTimeout(() => notification.classList.add('show'), 10);
+
+            // Auto remove
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            const overlay = document.getElementById('overlay');
+            const isOpen = !panel.classList.contains('-translate-x-full');
+
+            if (isOpen) {
+                panel.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            } else {
+                panel.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeAllModals() {
+            if (state.isCartOpen) toggleCart();
+            if (!document.getElementById('admin-panel').classList.contains('-translate-x-full')) {
+                toggleAdminPanel();
+            }
+            if (state.isSearchOpen) toggleSearch();
+        }
+
+        function scrollCategories(direction) {
+            const nav = document.getElementById('category-nav');
+            const scrollAmount = 200;
+            nav.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+
+        function printMenu() {
+            window.print();
+        }
+
+        // --- DATA PERSISTENCE ---
+
+        function saveLocalData() {
+            const data = {
+                items: state.items,
+                config: state.config,
+                categories: state.categories,
+                cart: state.cart
+            };
+            localStorage.setItem('plena_menu_system', JSON.stringify(data));
+        }
+
+        function loadLocalData() {
+            const saved = localStorage.getItem('plena_menu_system');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    state.items = data.items || state.items;
+                    state.config = data.config || state.config;
+                    state.categories = data.categories || state.categories;
+                    state.cart = data.cart || state.cart;
+                } catch (err) {
+                    console.warn('Failed to parse saved data:', err);
+                }
+            }
+        }
+
+        // --- WINDOW EVENT HANDLERS ---
+        window.addEventListener('resize', () => {
+            // Adjust cart sidebar for mobile
+            if (window.innerWidth >= 768 && state.isCartOpen) {
+                document.getElementById('cart-sidebar').classList.remove('translate-x-full');
+            }
+        });
+
+        // Escape key closes modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllModals();
+        });
+    </script>
+</body>
+
+</html>
