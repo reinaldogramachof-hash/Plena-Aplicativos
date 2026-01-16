@@ -128,22 +128,54 @@
                                 <span class="text-slate-400 text-xs mb-1 uppercase font-bold">Pagamento Único</span>
                             </div>
 
-                            <!-- Upsell / Order Bump -->
-                            <div class="mt-6 bg-slate-800/40 border border-slate-700 rounded-xl p-4 hover:border-blue-500/50 transition cursor-pointer"
-                                @click="toggleOrderBump">
-                                <div class="flex items-start gap-3">
-                                    <div class="pt-1">
-                                        <div class="w-5 h-5 rounded border flex items-center justify-center transition"
-                                            :class="addSupport ? 'bg-blue-500 border-blue-500' : 'border-slate-500'">
-                                            <i v-if="addSupport" class="fa-solid fa-check text-xs text-white"></i>
+                            <!-- Upsell / Order Bump Area -->
+                            <div class="space-y-3 mt-6">
+                                <!-- Bump 1: Suporte -->
+                                <div class="bg-indigo-900/30 border border-indigo-500/30 rounded-xl p-4 hover:border-indigo-500 transition cursor-pointer relative overflow-hidden group"
+                                    @click="toggleOrderBump">
+                                    <div
+                                        class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                                        RECOMENDADO</div>
+                                    <div class="flex items-start gap-3 relative z-10">
+                                        <div class="pt-1">
+                                            <div class="w-5 h-5 rounded border flex items-center justify-center transition"
+                                                :class="addSupport ? 'bg-indigo-500 border-indigo-500' : 'border-slate-500'">
+                                                <i v-if="addSupport" class="fa-solid fa-check text-xs text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white text-sm">Suporte Prioritário <span
+                                                    class="bg-green-500 text-[10px] px-1.5 rounded ml-1">VIP</span></h4>
+                                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Atendimento direto
+                                                com especialistas via WhatsApp para tirar dúvidas.</p>
+                                            <p class="text-indigo-400 font-bold text-sm mt-2">+ R$ 19,90 <span
+                                                    class="text-[10px] text-slate-500 line-through ml-1">R$ 49,90</span>
+                                            </p>
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 class="font-bold text-white text-sm">Suporte Prioritário via WhatsApp</h4>
-                                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Tenha acesso direto ao
-                                            nosso time de especialistas para tirar dúvidas e configurar seu sistema.</p>
-                                        <p class="text-blue-400 font-bold text-sm mt-2">+ R$ 19,90 <span
-                                                class="text-[10px] text-slate-500 line-through ml-1">R$ 49,90</span></p>
+                                </div>
+
+                                <!-- Bump 2: Personalização (NOVO) -->
+                                <div class="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4 hover:border-amber-500 transition cursor-pointer relative overflow-hidden"
+                                    @click="toggleCustomization">
+                                    <div class="flex items-start gap-3 relative z-10">
+                                        <div class="pt-1">
+                                            <div class="w-5 h-5 rounded border flex items-center justify-center transition"
+                                                :class="addCustomization ? 'bg-amber-500 border-amber-500' : 'border-slate-500'">
+                                                <i v-if="addCustomization"
+                                                    class="fa-solid fa-check text-xs text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-amber-200 text-sm"><i
+                                                    class="fa-solid fa-paintbrush mr-1"></i> Personalizar com Minha
+                                                Marca</h4>
+                                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Entregamos o app com
+                                                suas Cores e sua Logomarca configuradas.</p>
+                                            <p class="text-amber-400 font-bold text-sm mt-2">+ R$ 29,90 <span
+                                                    class="text-[10px] text-slate-500 line-through ml-1">R$ 97,00</span>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +186,30 @@
 
             <section class="md:w-7/12 bg-white p-4 md:p-12 overflow-y-auto w-full">
                 <div class="max-w-md mx-auto md:mr-auto md:ml-10 pt-2 md:pt-0">
+
+                    <!-- Mobile Product Showcase -->
+                    <div class="md:hidden mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm"
+                        v-if="product.name">
+                        <div class="flex gap-4 items-start">
+                            <div
+                                class="w-20 h-20 bg-white rounded-lg flex items-center justify-center border border-slate-200 overflow-hidden shrink-0">
+                                <img v-if="product.image" :src="product.image" class="w-full h-full object-cover"
+                                    alt="Produto">
+                                <i v-else class="fa-solid fa-box-open text-slate-300 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 leading-tight">{{ product.name }}</h3>
+                                <p class="text-[10px] text-slate-500 mt-1 line-clamp-2" v-if="product.desc">{{
+                                    product.desc }}</p>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <span class="text-blue-600 font-bold text-lg">R$ {{ totalPrice }}</span>
+                                    <span
+                                        class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Oferta
+                                        Especial</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div v-if="purchaseSuccess" class="animate-fade-in text-center pt-8 md:pt-10">
                         <div v-if="paymentType === 'pix'">
@@ -187,15 +243,54 @@
 
                         <div v-else>
                             <div
-                                class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl animate-bounce">
+                                class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl animate-bounce shadow-lg shadow-green-200">
                                 <i class="fa-solid fa-check"></i>
                             </div>
-                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Pagamento Aprovado!</h2>
-                            <p class="text-slate-500 mb-8">Seu acesso foi enviado para <strong>{{ form.email
-                                    }}</strong>.</p>
+                            <h2 class="text-3xl font-bold text-slate-800 mb-2 leading-tight">Parabéns! <br>Compra
+                                Aprovada.</h2>
+                            <p class="text-slate-500 mb-8 text-sm">Seu acesso foi liberado com sucesso. Siga os passos
+                                abaixo:</p>
+
+                            <!-- Step by Step -->
+                            <div
+                                class="text-left bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-4 opacity-10">
+                                    <i class="fa-solid fa-rocket text-6xl text-blue-600"></i>
+                                </div>
+                                <div class="space-y-6 relative z-10">
+                                    <div class="flex gap-4">
+                                        <div class="flex-col items-center flex">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md z-10">
+                                                1</div>
+                                            <div class="h-full w-0.5 bg-blue-100 -my-2"></div>
+                                        </div>
+                                        <div class="pb-2">
+                                            <h4 class="font-bold text-slate-800 text-sm">Verifique seu E-mail</h4>
+                                            <p class="text-xs text-slate-500 mt-1">Enviamos os dados de acesso para:
+                                                <strong>{{ form.email }}</strong></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <div class="flex-col items-center flex">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md z-10">
+                                                2</div>
+                                            <!-- <div class="h-full w-0.5 bg-blue-100 -my-2"></div> -->
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-800 text-sm">Acesse o Sistema</h4>
+                                            <p class="text-xs text-slate-500 mt-1">Clique no botão abaixo para entrar no
+                                                seu painel imediatamente.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <a :href="generatedLink" target="_blank"
-                                class="block w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-1">
-                                Acessar Painel Agora
+                                class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-xl shadow-xl shadow-blue-200 hover:shadow-2xl hover:scale-[1.02] transition-all transform flex items-center justify-center gap-2 group">
+                                Acessar Painel Agora <i
+                                    class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                             </a>
                         </div>
                     </div>
@@ -227,6 +322,9 @@
                                     :class="{'border-green-500 ring-1 ring-green-500/20': validations.email, 'border-red-300': !validations.email && form.email.length > 0}"
                                     class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none"
                                     placeholder="seu@email.com">
+                                <p class="text-[10px] text-slate-400 mt-1 ml-1"><i
+                                        class="fa-regular fa-envelope mr-1"></i> Seu acesso será enviado para este
+                                    e-mail.</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,6 +350,9 @@
                                         :class="{'border-green-500 ring-1 ring-green-500/20': validations.phone, 'border-red-300': !validations.phone && form.phone.length > 0}"
                                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 outline-none"
                                         placeholder="(00) 00000-0000">
+                                    <p class="text-[10px] text-slate-400 mt-1 ml-1"><i
+                                            class="fa-brands fa-whatsapp mr-1"></i> Apenas para recuperação de acesso.
+                                    </p>
                                 </div>
                             </div>
                         </form>
@@ -286,22 +387,46 @@
                             </div>
                         </div>
 
-                        <div class="mt-8 text-center pb-8 border-t border-slate-50 pt-4">
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 gap-4">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <div
-                                class="flex justify-center gap-4 mb-2 opacity-50 grayscale hover:grayscale-0 transition">
-                                <i class="fa-brands fa-cc-mastercard text-2xl"></i>
-                                <i class="fa-brands fa-cc-visa text-2xl"></i>
-                                <i class="fa-brands fa-pix text-2xl"></i>
+                                class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                                <i class="fa-solid fa-shield-halved"></i>
                             </div>
-                            <p class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-lock text-green-500"></i> Seus dados estão protegidos com
-                                criptografia de 256 bits.
-                            </p>
+                            <div class="text-[10px] leading-tight font-medium">
+                                <span class="block font-bold text-slate-700">Compra Segura</span>
+                                Dados Protegidos
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </div>
+                            <div class="text-[10px] leading-tight font-medium">
+                                <span class="block font-bold text-slate-700">Garantia 7 Dias</span>
+                                Satisfação garantida
+                            </div>
                         </div>
                     </div>
+
+                    <div class="mt-8 text-center pb-8">
+                        <div class="flex justify-center gap-4 mb-2 opacity-50 grayscale hover:grayscale-0 transition">
+                            <i class="fa-brands fa-cc-mastercard text-2xl"></i>
+                            <i class="fa-brands fa-cc-visa text-2xl"></i>
+                            <i class="fa-brands fa-pix text-2xl"></i>
+                        </div>
+                        <p class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-lock text-green-500"></i> Seus dados estão protegidos com
+                            criptografia de 256 bits.
+                        </p>
+                    </div>
                 </div>
-            </section>
-        </main>
+    </div>
+    </section>
+    </main>
     </div>
 
     <!-- Configurações: Altere sua Public Key abaixo -->
@@ -326,7 +451,8 @@
                 const product = ref({ name: 'Carregando...', price: '0,00', desc: '', image: '' });
                 const form = reactive({ name: '', email: '', doc: '', phone: '' });
                 const touched = reactive({ doc: false }); // Para controlar quando mostrar erro
-                const addSupport = ref(false); // Order bump
+                const addSupport = ref(false); // Order bump 1: Suporte
+                const addCustomization = ref(false); // Order bump 2: Personalização
 
                 const mpLoaded = ref(false);
                 const processing = ref(false);
@@ -336,12 +462,14 @@
                 const generatedLink = ref('https://plena-aplicativos.web.app/');
 
                 const toggleOrderBump = () => { addSupport.value = !addSupport.value; };
+                const toggleCustomization = () => { addCustomization.value = !addCustomization.value; };
                 const markTouched = (field) => { touched[field] = true; };
 
                 // Preço Total Calculado
                 const totalPrice = computed(() => {
                     let base = parseFloat(String(product.value.price).replace('R$', '').replace(',', '.').trim()) || 0.00;
                     if (addSupport.value) base += 19.90;
+                    if (addCustomization.value) base += 29.90;
                     return base.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                 });
 
@@ -476,7 +604,13 @@
 
                         let priceRaw = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
                         const amount = parseFloat(priceRaw) || 1.00;
-                        const description = addSupport.value ? product.value.name + " + Suporte WhatsApp" : product.value.name;
+
+                        // Constrói descrição do pedido
+                        let itemsDesc = [product.value.name];
+                        if (addSupport.value) itemsDesc.push("Suporte WhatsApp");
+                        if (addCustomization.value) itemsDesc.push("Personalização");
+
+                        const description = itemsDesc.join(' + ');
 
                         console.log("Iniciando Brick com valor:", amount, "Desc:", description);
 
@@ -632,7 +766,7 @@
                     product, form, validations, isFormValid, mpLoaded, processing,
                     purchaseSuccess, paymentType, pixData, generatedLink,
                     maskDoc, maskPhone, copyPix, initBrick, saveLead, startPolling,
-                    addSupport, toggleOrderBump, totalPrice, touched, markTouched
+                    addSupport, addCustomization, toggleOrderBump, toggleCustomization, totalPrice, touched, markTouched
                 };
             }
         }).mount('#app');

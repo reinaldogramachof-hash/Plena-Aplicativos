@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plena Control Tower 2.0</title>
+    <title>Plena Nexus CRM | Admin 2.0</title>
 
     <!-- TAILWIND & FONTS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,6 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- VUE 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <!-- CHART.JS -->
@@ -20,346 +19,329 @@
 
     <style>
         :root {
-            --bg-deep: #030712;
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(17, 24, 39, 0.7);
+            --bg-deep: #0f172a;
+            --sidebar-bg: #1e293b;
             --primary: #3b82f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
+            --accent: #8b5cf6;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-deep);
-            color: #cbd5e1;
+            color: #e2e8f0;
             overflow: hidden;
-            /* App view */
         }
 
-        /* Glassmorphism Classes */
+        /* Glass / Neumorphism bits */
         .glass-panel {
-            background: var(--glass-bg);
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .glass-header {
-            background: rgba(3, 7, 18, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .glass-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
-        .animate-enter {
-            animation: fadeIn 0.4s ease-out forwards;
+        /* Transitions */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
         }
 
-        /* Custom Scrollbar */
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.2);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
+            background: #475569;
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        /* Matrix Log Console */
-        .console-font {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .log-line:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: #64748b;
         }
 
         [v-cloak] {
             display: none;
         }
+
+        /* Matrix Font for Logs */
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 
-<body class="h-screen w-screen flex">
+<body class="h-screen w-screen text-sm">
 
-    <div id="app" v-cloak class="w-full h-full flex flex-col">
+    <div id="app" v-cloak class="flex h-full w-full">
 
-        <!-- LOCK SCREEN -->
+        <!-- LOGIM SCREEN -->
         <div v-if="!auth.isLoggedIn"
             class="fixed inset-0 z-50 flex items-center justify-center bg-[#020617] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
-            <div
-                class="glass-panel p-10 rounded-3xl w-full max-w-sm shadow-2xl relative overflow-hidden text-center border-t-4 border-t-blue-600">
-                <div
-                    class="w-20 h-20 bg-blue-600/20 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(37,99,235,0.3)]">
-                    <i class="fa-solid fa-layer-group text-3xl text-blue-500"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Control Tower</h1>
-                <p class="text-slate-500 text-sm mb-8">Identifique-se, Administrador.</p>
-
-                <form @submit.prevent="login" class="space-y-4">
-                    <div class="relative">
-                        <i class="fa-solid fa-lock absolute left-4 top-4 text-slate-500"></i>
-                        <input v-model="loginPass" type="password"
-                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3.5 pl-12 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                            placeholder="Chave de Acesso" autofocus>
+            <div class="glass-panel p-8 rounded-2xl w-full max-w-sm border-t-4 border-blue-600 shadow-2xl">
+                <div class="text-center mb-8">
+                    <div
+                        class="w-16 h-16 bg-blue-600/20 rounded-xl mx-auto flex items-center justify-center mb-4 border border-blue-500/30">
+                        <i class="fa-solid fa-bolt text-2xl text-blue-500"></i>
                     </div>
+                    <h1 class="text-2xl font-bold text-white">Plena Nexus</h1>
+                    <p class="text-slate-400 text-xs">Gestão Comercial & CRM 2.0</p>
+                </div>
+                <form @submit.prevent="login" class="space-y-4">
+                    <input v-model="loginPass" type="password" placeholder="Access Key" autofocus
+                        class="w-full glass-input rounded-lg h-12 px-4">
                     <button :disabled="loading"
-                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span v-if="loading"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Verificando...</span>
-                        <span v-else>Acessar Sistema</span>
+                        class="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg shadow-blue-600/20">
+                        <span v-if="loading"><i class="fa-solid fa-spinner fa-spin mr-2"></i></span>
+                        <span v-else>Entrar</span>
                     </button>
+                    <p v-if="auth.error" class="text-red-400 text-center text-xs mt-2">{{ auth.error }}</p>
                 </form>
-                <p v-if="auth.error"
-                    class="mt-4 text-red-400 text-sm bg-red-400/10 py-2 rounded-lg border border-red-400/20">{{
-                    auth.error }}</p>
             </div>
         </div>
 
         <!-- MAIN LAYOUT -->
-        <div v-else class="flex flex-1 overflow-hidden">
-
+        <template v-else>
             <!-- SIDEBAR -->
             <aside
-                class="w-72 bg-[#0b1121] border-r border-gray-800 flex flex-col z-20 shadow-2xl transition-all duration-300"
-                :class="{'w-20': sidebarCollapsed}">
+                class="w-64 bg-[#0b1121] border-r border-slate-800 flex flex-col shrink-0 transition-all duration-300"
+                :class="{'w-20': !sidebarOpen}">
                 <!-- Brand -->
-                <div class="h-20 flex items-center px-6 border-b border-gray-800/50"
-                    :class="{'justify-center px-0': sidebarCollapsed}">
-                    <div
-                        class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
-                        <i class="fa-solid fa-rocket text-white"></i>
-                    </div>
-                    <div class="ml-3 overflow-hidden transition-all duration-300"
-                        :class="{'w-0 opacity-0': sidebarCollapsed}">
-                        <h2 class="font-bold text-white text-lg leading-tight">Plena<br><span
-                                class="text-xs text-blue-400 font-normal uppercase tracking-wider">Apps Admin</span>
-                        </h2>
-                    </div>
+                <div class="h-16 flex items-center justify-center border-b border-slate-800/50">
+                    <i class="fa-solid fa-infinity text-2xl text-blue-500"></i>
+                    <span v-if="sidebarOpen" class="ml-3 font-bold text-lg tracking-tight">Nexus <span
+                            class="text-blue-500">CRM</span></span>
                 </div>
 
                 <!-- Nav -->
                 <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <a v-for="item in navItems" :key="item.id" @click="view = item.id"
-                        class="flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 group"
-                        :class="view === item.id ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' : 'text-slate-400 hover:bg-white/5 hover:text-white'">
-                        <i
-                            :class="item.icon + ' text-lg w-6 text-center transition-colors group-hover:text-white ' + (view === item.id ? 'text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : '')"></i>
-                        <span class="font-medium whitespace-nowrap transition-all duration-300"
-                            :class="{'w-0 opacity-0 hidden': sidebarCollapsed}">{{ item.name }}</span>
-                    </a>
+                    <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
+                        class="w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 group relative"
+                        :class="currentTab === tab.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
+                        <i :class="[tab.icon, 'text-lg w-6 text-center']"></i>
+                        <span v-if="sidebarOpen" class="font-medium whitespace-nowrap">{{ tab.label }}</span>
+                        <!-- Tooltip if closed -->
+                        <div v-if="!sidebarOpen"
+                            class="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">
+                            {{ tab.label }}
+                        </div>
+                    </button>
                 </nav>
 
-                <!-- User & Collapse -->
-                <div class="p-4 border-t border-gray-800/50">
-                    <div class="flex items-center gap-3 mb-4 px-2 overflow-hidden"
-                        :class="{'justify-center': sidebarCollapsed}">
-                        <div
-                            class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white shrink-0 border border-slate-600">
-                            RG</div>
-                        <div class="min-w-0" :class="{'hidden': sidebarCollapsed}">
-                            <p class="text-sm font-medium text-white truncate">Reinaldo G.</p>
-                            <p class="text-[10px] text-emerald-400 flex items-center gap-1"><span
-                                    class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button @click="logout"
-                            class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg text-red-400 hover:bg-red-400/10 transition text-sm font-medium"
-                            :title="sidebarCollapsed ? 'Sair' : ''">
-                            <i class="fa-solid fa-right-from-bracket"></i> <span
-                                :class="{'hidden': sidebarCollapsed}">Sair</span>
-                        </button>
-                        <button @click="sidebarCollapsed = !sidebarCollapsed"
-                            class="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition">
-                            <i class="fa-solid" :class="sidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'"></i>
-                        </button>
-                    </div>
+                <!-- Footer -->
+                <div class="p-4 border-t border-slate-800/50 flex flex-col gap-2">
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="w-full py-2 rounded-lg hover:bg-slate-800 text-slate-500 transition">
+                        <i class="fa-solid" :class="sidebarOpen ? 'fa-angle-left' : 'fa-angle-right'"></i>
+                    </button>
+                    <button @click="logout"
+                        class="w-full py-2 rounded-lg hover:bg-red-500/10 text-red-400 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-power-off"></i> <span v-if="sidebarOpen">Sair</span>
+                    </button>
                 </div>
             </aside>
 
-            <!-- CONTENT AREA -->
-            <main class="flex-1 bg-[#020617] relative flex flex-col min-w-0">
-
-                <!-- HEADER -->
-                <header class="glass-header h-20 px-8 flex justify-between items-center z-10 shrink-0">
+            <!-- CONTENT -->
+            <main class="flex-1 flex flex-col bg-[#020617] relative min-w-0">
+                <!-- Header -->
+                <header
+                    class="h-16 border-b border-slate-800/50 flex justify-between items-center px-6 bg-slate-900/50 backdrop-blur-md sticky top-0 z-30">
                     <div>
-                        <h2 class="text-2xl font-bold text-white tracking-tight">{{ currentViewTitle }}</h2>
-                        <p class="text-xs text-slate-500 mt-1">Última atualização: {{ lastUpdate }}</p>
+                        <h2 class="text-lg font-bold text-white">{{ currentTabLabel }}</h2>
                     </div>
                     <div class="flex items-center gap-4">
-                        <!-- Test Email Action -->
-                        <button @click="openTestEmailModal"
-                            class="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
-                            <i class="fa-regular fa-paper-plane"></i> Testar Email
+                        <button @click="showEmailModal=true"
+                            class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs text-slate-300 transition">
+                            <i class="fa-solid fa-vial"></i> Testar Email
                         </button>
-                        <button @click="reloadData"
-                            class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center transition border border-slate-700 shadow-lg"
-                            :class="{'animate-spin text-blue-400': loadingData}">
+                        <button @click="refreshData"
+                            class="w-8 h-8 rounded-full bg-slate-800 hover:text-blue-400 flex items-center justify-center transition"
+                            :class="{'animate-spin text-blue-500': loadingData}">
                             <i class="fa-solid fa-sync"></i>
                         </button>
                     </div>
                 </header>
 
-                <!-- SCROLLABLE CONTENT -->
-                <div class="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8 custom-scrollbar">
+                <!-- View Container -->
+                <div class="flex-1 overflow-auto p-6 scroll-smooth">
 
-                    <!-- DASHBOARD -->
-                    <div v-if="view === 'dashboard'" class="animate-enter space-y-8">
-                        <!-- KPI GRID -->
+                    <!-- DASHBOARD VIEW -->
+                    <div v-if="currentTab === 'dashboard'" class="space-y-6 animate-enter">
+                        <!-- KPI Cards -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div v-for="(card, idx) in kpiCards" :key="idx"
-                                class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                                <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 blur-xl group-hover:opacity-20 transition duration-500"
-                                    :style="{background: card.color}"></div>
-                                <div class="relative z-10">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div class="p-2 rounded-lg bg-white/5 w-10 h-10 flex items-center justify-center text-lg"
-                                            :style="{color: card.color}"><i :class="card.icon"></i></div>
-                                        <div
-                                            class="text-[10px] font-bold px-2 py-1 rounded-full bg-white/5 text-slate-400">
-                                            {{ card.trend }}</div>
-                                    </div>
-                                    <h3 class="text-2xl font-bold text-white mb-1">{{ card.value }}</h3>
-                                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">{{ card.label
-                                        }}</p>
+                            <div
+                                class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400"><i
+                                            class="fa-solid fa-sack-dollar"></i></div>
+                                    <span
+                                        class="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">+12%</span>
                                 </div>
+                                <div class="text-2xl font-bold text-white">R$ {{ stats.total_revenue.toFixed(2) }}</div>
+                                <div class="text-slate-500 text-xs mt-1">Faturamento Total</div>
+                            </div>
+
+                            <div
+                                class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400"><i
+                                            class="fa-solid fa-users"></i></div>
+                                    <span
+                                        class="text-[10px] font-bold bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">Ativos</span>
+                                </div>
+                                <div class="text-2xl font-bold text-white">{{ stats.total_clients }}</div>
+                                <div class="text-slate-500 text-xs mt-1">Clientes Únicos</div>
+                            </div>
+
+                            <div
+                                class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400"><i
+                                            class="fa-solid fa-magnet"></i></div>
+                                    <span
+                                        class="text-[10px] font-bold bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">CRM</span>
+                                </div>
+                                <div class="text-2xl font-bold text-white">{{ leads.length }}</div>
+                                <div class="text-slate-500 text-xs mt-1">Leads (Abandono)</div>
+                            </div>
+
+                            <div
+                                class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="p-2 bg-amber-500/10 rounded-lg text-amber-400"><i
+                                            class="fa-solid fa-percent"></i></div>
+                                </div>
+                                <div class="text-2xl font-bold text-white">{{ conversionRate }}%</div>
+                                <div class="text-slate-500 text-xs mt-1">Taxa de Conversão</div>
                             </div>
                         </div>
 
-                        <!-- CHARTS & TABLES -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <!-- Main Chart -->
-                            <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800/60">
-                                <div class="flex justify-between items-center mb-6">
-                                    <h3 class="font-bold text-white">Performance de Vendas</h3>
-                                    <select
-                                        class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-1 text-slate-300">
-                                        <option>Últimos 30 dias</option>
-                                    </select>
-                                </div>
-                                <div class="h-72 w-full">
+                        <!-- Chart Section -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                                <h3 class="font-bold text-white mb-4">Evolução de Vendas (30d)</h3>
+                                <div class="h-64 relative w-full">
                                     <canvas id="salesChart"></canvas>
                                 </div>
                             </div>
-
-                            <!-- Top Products -->
                             <div class="glass-panel p-6 rounded-2xl">
-                                <h3 class="font-bold text-white mb-6">Produtos Mais Vendidos</h3>
+                                <h3 class="font-bold text-white mb-4">Top Produtos</h3>
                                 <div class="space-y-4">
                                     <div v-for="(qty, name, i) in stats.top_products" :key="name"
-                                        class="flex items-center justify-between group">
+                                        class="flex items-center justify-between">
                                         <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 border border-slate-700 group-hover:border-blue-500/50 group-hover:text-blue-400 transition">
-                                                {{ i+1 }}</div>
-                                            <span class="text-sm text-slate-300 font-medium truncate w-32"
-                                                :title="name">{{ name }}</span>
+                                            <span class="text-xs font-mono text-slate-500">{{ i+1 }}</span>
+                                            <span class="text-sm text-slate-300 truncate w-32" :title="name">{{ name
+                                                }}</span>
                                         </div>
-                                        <div class="text-xs font-bold text-white">{{ qty }} <span
-                                                class="text-slate-500 font-normal">vendas</span></div>
+                                        <div class="h-1.5 w-16 bg-slate-800 rounded-full overflow-hidden">
+                                            <div class="h-full bg-blue-500" :style="'width:' + (qty/10)*100 + '%'">
+                                            </div>
+                                        </div>
+                                        <span class="text-xs font-bold">{{ qty }}</span>
                                     </div>
-                                    <div v-if="!Object.keys(stats.top_products).length"
-                                        class="text-center py-10 text-slate-600 text-sm">Sem dados disponíveis</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- LICENSES -->
-                    <div v-if="view === 'licenses'" class="animate-enter flex flex-col h-full">
-                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                            <div class="relative w-full md:w-96">
-                                <i class="fa-solid fa-search absolute left-4 top-3 text-slate-500 text-sm"></i>
-                                <input v-model="filterText" type="text" placeholder="Buscar por email, chave ou ID..."
-                                    class="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition">
+                    <!-- CRM / LEADS VIEW -->
+                    <div v-if="currentTab === 'crm'" class="animate-enter h-full flex flex-col">
+                        <div class="mb-6 flex justify-between items-end">
+                            <div>
+                                <h1 class="text-2xl font-bold text-white">Recuperação de Vendas</h1>
+                                <p class="text-slate-400 text-xs mt-1">Gerencie carrinhos abandonados e leads pendentes.
+                                </p>
                             </div>
-                            <button @click="showCreateModal=true"
-                                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition flex items-center gap-2">
-                                <i class="fa-solid fa-plus"></i> Nova Licença
-                            </button>
+                            <div class="flex gap-2">
+                                <div class="glass-input flex items-center px-3 py-2 rounded-lg">
+                                    <i class="fa-solid fa-search text-slate-500 mr-2"></i>
+                                    <input v-model="leadSearch" type="text" placeholder="Buscar lead..."
+                                        class="bg-transparent outline-none text-xs w-48 text-white">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="glass-panel rounded-2xl overflow-hidden flex-1 border border-slate-800">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-slate-400">
+                        <div
+                            class="glass-panel rounded-2xl overflow-hidden flex-1 border border-slate-800 flex flex-col">
+                            <div class="overflow-auto custom-scrollbar flex-1">
+                                <table class="w-full text-left border-collapse">
                                     <thead
-                                        class="bg-slate-900/80 text-xs uppercase font-bold text-slate-500 border-b border-slate-800">
+                                        class="bg-slate-900/50 text-xs uppercase text-slate-500 font-semibold sticky top-0 z-10 backdrop-blur-sm">
                                         <tr>
+                                            <th class="px-6 py-4">Data</th>
+                                            <th class="px-6 py-4">Lead / Email</th>
+                                            <th class="px-6 py-4">Interesse</th>
                                             <th class="px-6 py-4">Status</th>
-                                            <th class="px-6 py-4">Cliente / Produto</th>
-                                            <th class="px-6 py-4">Chave de Licença</th>
-                                            <th class="px-6 py-4">Dispositivo</th>
-                                            <th class="px-6 py-4 text-right">Ações</th>
+                                            <th class="px-6 py-4 text-right">Ação</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-800/50">
-                                        <tr v-for="lic in filteredLicenses" :key="lic.key"
-                                            class="hover:bg-slate-800/30 transition group">
-                                            <td class="px-6 py-4">
-                                                <span v-if="lic.status === 'banned'"
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20"><span
-                                                        class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                                    Banido</span>
-                                                <span v-else-if="lic.device_id"
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"><span
-                                                        class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                    Ativo</span>
-                                                <span v-else
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20"><span
-                                                        class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                                    Aguardando</span>
+                                    <tbody class="divide-y divide-slate-800/50 text-sm md:text-xs lg:text-sm">
+                                        <tr v-for="lead in filteredLeads" :key="lead.email"
+                                            class="hover:bg-white/5 transition group">
+                                            <td class="px-6 py-4 text-slate-400 whitespace-nowrap">
+                                                {{ formatDate(lead.date) }}<br>
+                                                <span class="text-[10px] opacity-60">{{ timeAgo(lead.date) }}</span>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-white font-medium">{{ lic.client }}</div>
-                                                <div class="text-xs text-slate-500 mt-0.5">{{ lic.product }}</div>
+                                                <div class="font-bold text-white">{{ lead.name || 'Visitante' }}</div>
+                                                <div class="text-slate-500 text-xs">{{ lead.email }}</div>
+                                                <div v-if="lead.phone" class="text-slate-500 text-xs"><i
+                                                        class="fa-brands fa-whatsapp flex-inline mr-1"></i>{{ lead.phone
+                                                    }}</div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <code
-                                                    class="font-mono text-xs bg-black/30 px-2 py-1 rounded text-blue-300 border border-blue-900/30 select-all">{{ lic.key }}</code>
+                                                <span
+                                                    class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 text-xs">{{
+                                                    lead.product }}</span>
                                             </td>
-                                            <td class="px-6 py-4 text-xs">
-                                                {{ lic.device_id ? 'ID: ' + lic.device_id.substring(0,8) + '...' : '-'
-                                                }}
+                                            <td class="px-6 py-4">
+                                                <span v-if="isConverted(lead.email)"
+                                                    class="text-emerald-400 font-bold flex items-center gap-1"><i
+                                                        class="fa-solid fa-check-circle"></i> Recuperado</span>
+                                                <span v-else class="text-amber-400 font-bold flex items-center gap-1"><i
+                                                        class="fa-regular fa-clock"></i> Pendente</span>
                                             </td>
                                             <td class="px-6 py-4 text-right">
-                                                <div
-                                                    class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button @click="resendEmail(lic.key)"
-                                                        class="p-2 text-blue-400 hover:bg-blue-400/10 rounded transition"
-                                                        title="Reenviar Email"><i
-                                                            class="fa-solid fa-envelope"></i></button>
-                                                    <button v-if="lic.status !== 'banned'"
-                                                        @click="actionLicense(lic.key, 'banned')"
-                                                        class="p-2 text-red-400 hover:bg-red-400/10 rounded transition"
-                                                        title="Bloquear"><i class="fa-solid fa-ban"></i></button>
-                                                    <button v-if="lic.device_id"
-                                                        @click="actionLicense(lic.key, 'reset_device')"
-                                                        class="p-2 text-amber-400 hover:bg-amber-400/10 rounded transition"
-                                                        title="Resetar ID"><i class="fa-solid fa-mobile"></i></button>
+                                                <div class="flex justify-end gap-2">
+                                                    <!-- WhatsApp Action -->
+                                                    <a :href="getWhatsappLink(lead)" target="_blank"
+                                                        class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 transition hover:-translate-y-0.5 shadow-lg shadow-emerald-900/20">
+                                                        <i class="fa-brands fa-whatsapp"></i> <span
+                                                            class="hidden md:inline">Chamar</span>
+                                                    </a>
+                                                    <!-- Manual Convert -->
+                                                    <button @click="openPaymentGen(lead)" title="Gerar Link Pagamento"
+                                                        class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition hover:-translate-y-0.5 shadow-lg shadow-blue-900/20">
+                                                        <i class="fa-solid fa-link"></i>
+                                                    </button>
                                                 </div>
                                             </td>
+                                        </tr>
+                                        <tr v-if="leads.length === 0">
+                                            <td colspan="5" class="py-12 text-center text-slate-500">Nenhum lead
+                                                encontrado.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -367,109 +349,247 @@
                         </div>
                     </div>
 
-                    <!-- LOGS "MATRIX" CONSOLE -->
-                    <div v-if="view === 'logs'" class="h-full flex flex-col animate-enter">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex gap-2">
-                                <span class="w-3 h-3 rounded-full bg-red-500/50"></span>
-                                <span class="w-3 h-3 rounded-full bg-yellow-500/50"></span>
-                                <span class="w-3 h-3 rounded-full bg-green-500/50"></span>
+                    <!-- CUSTOMERS / LICENSES VIEW -->
+                    <div v-if="currentTab === 'customers'" class="animate-enter h-full flex flex-col">
+                        <div
+                            class="mb-6 flex justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-800">
+                            <div class="flex-1 max-w-md relative">
+                                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-500"></i>
+                                <input v-model="customerSearch" type="text"
+                                    placeholder="Buscar Cliente, Email ou Chave..."
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:border-blue-500 outline-none">
                             </div>
-                            <div class="text-xs font-mono text-slate-500">server_logs.log</div>
+                            <div class="flex gap-3">
+                                <button @click="showCreateModal=true"
+                                    class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg font-bold shadow-lg shadow-blue-600/20 flex items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i> Nova Licença
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 pb-20">
+                            <!-- Customer Card Loop -->
+                            <div v-for="cust in paginatedCustomers" :key="cust.email"
+                                class="glass-panel p-0 rounded-xl overflow-hidden hover:border-slate-600 transition duration-300">
+                                <div class="p-4 bg-slate-900/40 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
+                                    @click="cust.expanded = !cust.expanded">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/20">
+                                            {{ cust.email.substring(0,2).toUpperCase() }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-white text-base">{{ cust.name || cust.email }}
+                                            </h3>
+                                            <p class="text-xs text-slate-500">{{ cust.items.length }} Produto(s) • LTV:
+                                                <span class="text-emerald-400 font-bold">R$ {{ cust.ltv.toFixed(2)
+                                                    }}</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+                                        <span>Última compra: {{ formatDate(cust.last_purchase) }}</span>
+                                        <i class="fa-solid fa-chevron-down transition-transform duration-300"
+                                            :class="{'rotate-180': cust.expanded}"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Expanded Details -->
+                                <div v-show="cust.expanded" class="p-4 bg-[#0b1121] border-t border-slate-800">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-xs text-left">
+                                            <thead class="text-slate-500 bg-slate-800/50 uppercase">
+                                                <th class="p-2 rounded-l">Produto</th>
+                                                <th class="p-2">Chave</th>
+                                                <th class="p-2">Status</th>
+                                                <th class="p-2">Dispositivo</th>
+                                                <th class="p-2 rounded-r text-right">Ações</th>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-800">
+                                                <tr v-for="lic in cust.items" :key="lic.key">
+                                                    <td class="p-3 font-medium text-white">{{ lic.product }}</td>
+                                                    <td class="p-3"><code
+                                                            class="bg-black/50 px-2 py-1 rounded text-blue-300 border border-slate-700 select-all">{{ lic.key }}</code>
+                                                    </td>
+                                                    <td class="p-3">
+                                                        <span v-if="lic.status=='active'"
+                                                            class="text-emerald-400">Ativo</span>
+                                                        <span v-else class="text-red-400">Bloqueado</span>
+                                                    </td>
+                                                    <td class="p-3 text-slate-500">{{ lic.device_id ? 'Vinculado' :
+                                                        'Livre' }}</td>
+                                                    <td class="p-3 text-right flex justify-end gap-2">
+                                                        <button @click.stop="resendEmail(lic.key)"
+                                                            class="text-blue-400 hover:text-white"
+                                                            title="Reenviar Email"><i
+                                                                class="fa-solid fa-envelope"></i></button>
+                                                        <button v-if="lic.device_id"
+                                                            @click.stop="actionLicense(lic.key, 'reset_device')"
+                                                            class="text-amber-400 hover:text-white"
+                                                            title="Resetar ID"><i
+                                                                class="fa-solid fa-mobile-screen"></i></button>
+                                                        <button v-if="lic.status!=='banned'"
+                                                            @click.stop="actionLicense(lic.key, 'banned')"
+                                                            class="text-red-400 hover:text-white" title="Bloquear"><i
+                                                                class="fa-solid fa-ban"></i></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-slate-800 flex justify-end">
+                                        <!-- Open Details Modal -->
+                                        <button @click.stop="openCustomerModal(cust)"
+                                            class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                                            Ver Histórico Completo <i class="fa-solid fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex justify-center items-center gap-4 mt-6">
+                                <button @click="currentPage--" :disabled="currentPage===1"
+                                    class="w-8 h-8 rounded bg-slate-800 disabled:opacity-50"><i
+                                        class="fa-solid fa-chevron-left"></i></button>
+                                <span class="text-xs text-slate-400">Página {{ currentPage }} de {{ totalPages }}</span>
+                                <button @click="currentPage++" :disabled="currentPage===totalPages"
+                                    class="w-8 h-8 rounded bg-slate-800 disabled:opacity-50"><i
+                                        class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOGS VIEW -->
+                    <div v-if="currentTab === 'logs'" class="h-full flex flex-col animate-enter">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-white">Console do Servidor</h3>
+                            <input v-model="logFilter" class="glass-input px-3 py-1 rounded text-xs w-64"
+                                placeholder="Grep logs...">
                         </div>
                         <div
-                            class="flex-1 bg-black rounded-xl border border-slate-800 p-4 overflow-y-auto custom-scrollbar shadow-inner relative font-mono text-xs group">
-                            <!-- Matrix Rain Effect Overlay (Optional/CSS only) -->
-                            <div
-                                class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-green-500/5 to-transparent pointer-events-none sticky">
+                            class="flex-1 bg-black rounded-xl border border-slate-800 p-4 overflow-y-auto font-mono-code text-xs">
+                            <div v-for="(log, idx) in filteredLogs" :key="idx"
+                                class="mb-1 p-0.5 hover:bg-white/5 rounded flex gap-3 text-slate-300 break-all border-b border-transparent hover:border-slate-800">
+                                <span class="text-slate-600 shrink-0">[{{ log.time }}]</span>
+                                <span :class="log.color">{{ log.msg }}</span>
                             </div>
-
-                            <div v-if="!parsedLogs.length" class="text-slate-600 italic p-4 text-center">Nenhum log
-                                registrado ainda...</div>
-
-                            <div v-for="(log, idx) in parsedLogs" :key="idx"
-                                class="log-line mb-1 p-1 rounded transition flex gap-3 break-all cursor-default">
-                                <span class="text-slate-600 shrink-0 select-none">[{{ log.time }}]</span>
-                                <span :class="log.colorClass">{{ log.msg }}</span>
-                            </div>
-                            <div id="logs-end"></div>
-                        </div>
-                        <div class="mt-4 flex gap-4">
-                            <input v-model="logSearch" type="text" placeholder="Filtrar logs (grep)..."
-                                class="flex-1 bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs font-mono text-green-400 focus:border-green-500 outline-none">
-                            <button @click="reloadData"
-                                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white rounded border border-slate-700">Tail
-                                -f (Refresh)</button>
                         </div>
                     </div>
 
                 </div>
             </main>
-        </div>
 
-        <!-- NEW LICENSE MODAL -->
-        <div v-if="showCreateModal"
-            class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
-            <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-700 bg-slate-900">
-                <h3 class="text-lg font-bold text-white mb-6">Nova Licença Manual</h3>
-                <form @submit.prevent="createLicense" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Cliente / Email</label>
-                        <input v-model="form.client" type="text"
-                            class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none"
-                            required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Produto</label>
-                        <select v-model="form.product"
-                            class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white outline-none">
-                            <option value="Plena Aluguéis">Plena Aluguéis</option>
-                            <option value="Plena System">Plena System</option>
-                            <option value="Plena Odonto">Plena Odonto</option>
-                            <option value="Outro">Outro</option>
-                        </select>
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" @click="showCreateModal=false"
-                            class="flex-1 py-3 rounded-lg text-slate-300 font-bold hover:bg-slate-800 transition">Cancelar</button>
-                        <button type="submit"
-                            class="flex-1 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/20">Gerar</button>
-                    </div>
-                </form>
+            <!-- MODALS -->
+
+            <!-- NEW LICENSE MODAL -->
+            <div v-if="showCreateModal"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <div
+                    class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl bg-slate-900 border border-slate-700">
+                    <h3 class="text-lg font-bold text-white mb-6">Nova Licença Manual</h3>
+                    <form @submit.prevent="createLicense" class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-400">Email do Cliente</label>
+                            <input v-model="form.client" type="email" class="w-full mt-1 glass-input rounded-lg p-3"
+                                required placeholder="cliente@email.com">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-400">Produto</label>
+                            <select v-model="form.product" class="w-full mt-1 glass-input rounded-lg p-3">
+                                <option value="Plena Aluguéis">Plena Aluguéis</option>
+                                <option value="Plena System">Plena System</option>
+                                <option value="Plena Odonto">Plena Odonto</option>
+                            </select>
+                        </div>
+                        <div class="pt-4 flex gap-3">
+                            <button type="button" @click="showCreateModal=false"
+                                class="flex-1 py-3 rounded-lg bg-slate-800 text-white hover:bg-slate-700">Cancelar</button>
+                            <button type="submit"
+                                class="flex-1 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 font-bold">Gerar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- TEST EMAIL MODAL -->
-        <div v-if="showEmailModal"
-            class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
-            <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-700 bg-slate-900">
-                <h3 class="text-lg font-bold text-white mb-2"> <i
-                        class="fa-regular fa-paper-plane mr-2 text-blue-400"></i>Teste de Envio de Email</h3>
-                <p class="text-xs text-slate-400 mb-6">Envia um email de teste usando a função <code>mail()</code> do
-                    servidor com os novos headers.</p>
+            <!-- CUSTOMER DETAILS MODAL -->
+            <div v-if="selectedCustomer"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <div
+                    class="glass-panel w-full max-w-2xl rounded-2xl p-0 overflow-hidden bg-slate-900 border border-slate-700 shadow-2xl flex flex-col max-h-[90vh]">
+                    <div class="p-6 border-b border-slate-800 bg-slate-900 flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-xl font-bold text-white">
+                                {{ selectedCustomer.email.substring(0,1).toUpperCase() }}</div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">{{ selectedCustomer.email }}</h3>
+                                <p class="text-xs text-slate-400">Cliente desde {{
+                                    formatDate(selectedCustomer.first_purchase) }}</p>
+                            </div>
+                        </div>
+                        <button @click="selectedCustomer=null" class="text-slate-400 hover:text-white"><i
+                                class="fa-solid fa-times text-xl"></i></button>
+                    </div>
+                    <div class="p-6 overflow-y-auto space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-800">
+                                <div class="text-xs text-slate-500 uppercase font-bold">LTV Total</div>
+                                <div class="text-2xl font-bold text-emerald-400">R$ {{ selectedCustomer.ltv.toFixed(2)
+                                    }}</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-800">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Licenças</div>
+                                <div class="text-2xl font-bold text-blue-400">{{ selectedCustomer.items.length }}</div>
+                            </div>
+                        </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Email de Destino</label>
-                        <input v-model="testEmailAddr" type="email" placeholder="seu@email.com"
-                            class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
-                    </div>
-                    <div v-if="emailTestStatus" class="p-3 rounded bg-slate-800 text-xs font-mono"
-                        :class="emailTestStatus.includes('TRUE') ? 'text-green-400' : 'text-red-400'">
-                        {{ emailTestStatus }}
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button @click="showEmailModal=false; emailTestStatus=''"
-                            class="flex-1 py-3 rounded-lg text-slate-300 font-bold hover:bg-slate-800 transition">Fechar</button>
-                        <button @click="runEmailTest" :disabled="loadingData"
-                            class="flex-1 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50">
-                            {{ loadingData ? 'Enviando...' : 'Enviar Teste' }}
-                        </button>
+                        <div>
+                            <h4 class="font-bold text-white mb-3 text-sm">Histórico de Pedidos</h4>
+                            <div class="space-y-2">
+                                <div v-for="order in selectedCustomer.items" :key="order.key"
+                                    class="p-3 rounded-lg bg-slate-800/30 border border-slate-800 flex justify-between items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-white">{{ order.product }}</div>
+                                        <div class="text-xs text-slate-500">{{ formatDate(order.created_at) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs font-mono text-blue-300">{{ order.payment_id || 'Manual' }}
+                                        </div>
+                                        <div class="text-[10px] text-emerald-500 font-bold uppercase">Pago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-white mb-3 text-sm">Anotações Internas</h4>
+                            <textarea placeholder="Adicione notas sobre este cliente (ex: Pediu reembolso, VIP, etc)..."
+                                class="w-full h-24 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-blue-500 outline-none"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <!-- EMAIL TEST MODAL -->
+            <div v-if="showEmailModal"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <div class="glass-panel w-full max-w-sm rounded-2xl p-6 bg-slate-900 border border-slate-700">
+                    <h3 class="font-bold text-white mb-4">Teste de Email (SMTP/Mail)</h3>
+                    <input v-model="testEmailAddr" class="w-full glass-input p-3 rounded-lg mb-4"
+                        placeholder="email@teste.com">
+                    <p v-if="emailStatus" class="mb-4 text-xs font-mono p-2 rounded bg-black/30"
+                        :class="emailStatus.includes('SUCESSO') ? 'text-green-400' : 'text-red-400'">{{ emailStatus }}
+                    </p>
+                    <div class="flex gap-2">
+                        <button @click="showEmailModal=false;emailStatus=''"
+                            class="flex-1 py-2 bg-slate-800 rounded">Cancelar</button>
+                        <button @click="runEmailTest"
+                            class="flex-1 py-2 bg-blue-600 rounded text-white font-bold">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+        </template> <!-- End Logged In -->
     </div>
 
     <!-- APP LOGIC -->
@@ -478,249 +598,311 @@
 
         createApp({
             setup() {
-                // --- STATE ---
+                // STATE
                 const auth = reactive({ isLoggedIn: false, error: '' });
-                const loginPass = ref('');
+                const loginPass = ref(localStorage.getItem('plena_admin_pass') || '');
                 const loading = ref(false);
                 const loadingData = ref(false);
-                const sidebarCollapsed = ref(false);
-                const view = ref('dashboard');
-                const password = ref('');
-                const lastUpdate = ref('-');
+                const sidebarOpen = ref(true);
+                const currentTab = ref('dashboard');
 
                 // DATA
-                const stats = reactive({ total_revenue: 0, sales_today: 0, sales_month: 0, total_clients: 0, top_products: {}, chart: { labels: [], data: [] } });
+                const stats = reactive({ total_revenue: 0, sales_today: 0, total_clients: 0, top_products: {} });
+                const chartData = reactive({ labels: [], data: [] });
                 const licenses = ref([]);
+                const leads = ref([]);
                 const logs = ref([]);
 
-                // UI & FILTERS
-                const filterText = ref('');
-                const logSearch = ref('');
+                // UI
                 const showCreateModal = ref(false);
-                const form = reactive({ client: '', product: 'Plena Aluguéis' });
-
-                // EMAIL TEST
                 const showEmailModal = ref(false);
+                const selectedCustomer = ref(null);
+                const form = reactive({ client: '', product: 'Plena Aluguéis' });
+                const customerSearch = ref('');
+                const leadSearch = ref('');
+                const logFilter = ref('');
+                const currentPage = ref(1);
+                const itemsPerPage = 20;
+
+                // TEST EMAIL
                 const testEmailAddr = ref('');
-                const emailTestStatus = ref('');
+                const emailStatus = ref('');
 
-                let chartInstance = null;
-
-                const navItems = [
-                    { id: 'dashboard', name: 'Dashboard Geral', icon: 'fa-solid fa-chart-line' },
-                    { id: 'licenses', name: 'Gestão de Licenças', icon: 'fa-solid fa-key' },
-                    { id: 'logs', name: 'Logs do Servidor', icon: 'fa-solid fa-terminal' },
+                // NAV
+                const tabs = [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-pie' },
+                    { id: 'crm', label: 'CRM / Recuperação', icon: 'fa-solid fa-rocket' },
+                    { id: 'customers', label: 'Clientes & Licenças', icon: 'fa-solid fa-users-viewfinder' },
+                    { id: 'logs', label: 'Tech Logs', icon: 'fa-solid fa-terminal' }
                 ];
 
-                // --- AUTH ---
-                const checkSession = async () => {
-                    const saved = localStorage.getItem('plena_admin_pass');
-                    if (saved) { loginPass.value = saved; await login(); }
-                };
+                const currentTabLabel = computed(() => tabs.find(t => t.id === currentTab.value)?.label);
 
+                // --- AUTH ---
                 const login = async () => {
-                    if (!loginPass.value) return;
-                    loading.value = true; auth.error = '';
+                    loading.value = true;
+                    // Simple Local Auth validation against API to see if secret works
                     try {
-                        const r = await fetch('api_auth.php', { method: 'POST', body: JSON.stringify({ password: loginPass.value }) });
-                        const data = await r.json();
-                        if (r.ok && data.auth) {
+                        const r = await fetch(`api_licenca.php?action=list&secret=${loginPass.value}`);
+                        const d = await r.json();
+                        if (r.ok && !d.error) {
                             auth.isLoggedIn = true;
-                            password.value = loginPass.value;
                             localStorage.setItem('plena_admin_pass', loginPass.value);
-                            await reloadData();
+                            refreshData();
                         } else {
-                            throw new Error('Senha inválida');
+                            auth.error = "Chave de acesso inválida.";
                         }
-                    } catch (e) {
-                        auth.error = e.message || 'Erro de conexão';
-                        auth.isLoggedIn = false;
-                        localStorage.removeItem('plena_admin_pass');
-                    } finally { loading.value = false; }
+                    } catch (e) { auth.error = "Erro de conexão."; }
+                    finally { loading.value = false; }
                 };
 
                 const logout = () => {
                     auth.isLoggedIn = false;
-                    password.value = '';
                     localStorage.removeItem('plena_admin_pass');
+                    loginPass.value = '';
                 };
 
-                // --- DATA LOADER ---
-                const reloadData = async () => {
+                // --- DATA ---
+                const refreshData = async () => {
                     if (!auth.isLoggedIn) return;
                     loadingData.value = true;
+                    const sec = loginPass.value;
+
                     try {
-                        const sec = `?secret=${password.value}`;
+                        // 1. Stats
+                        fetch(`api_licenca.php?action=dashboard_stats&secret=${sec}`).then(r => r.json()).then(d => {
+                            Object.assign(stats, d);
+                            chartData.labels = d.chart.labels;
+                            chartData.data = d.chart.data;
+                            renderChart();
+                        });
 
-                        // Parallel Fetch
-                        const [resStats, resLic, resLogs] = await Promise.all([
-                            fetch('api_licenca.php?action=dashboard_stats' + sec.replace('?', '&')).then(r => r.json()),
-                            fetch('api_licenca.php?action=list' + sec.replace('?', '&')).then(r => r.json()),
-                            fetch('api_licenca.php?action=get_logs' + sec.replace('?', '&')).then(r => r.json())
-                        ]);
+                        // 2. Licenses
+                        fetch(`api_licenca.php?action=list&secret=${sec}`).then(r => r.json()).then(d => {
+                            licenses.value = Array.isArray(d) ? d : [];
+                        });
 
-                        Object.assign(stats, resStats);
-                        licenses.value = Array.isArray(resLic) ? resLic : [];
-                        logs.value = resLogs.logs || [];
-                        lastUpdate.value = new Date().toLocaleTimeString();
+                        // 3. Leads (CRM)
+                        fetch(`api_licenca.php?action=get_leads&secret=${sec}`).then(r => r.json()).then(d => {
+                            leads.value = Array.isArray(d) ? d : [];
+                        });
 
-                        updateChart();
+                        // 4. Logs
+                        fetch(`api_licenca.php?action=get_logs&secret=${sec}`).then(r => r.json()).then(d => {
+                            logs.value = d.logs || [];
+                        });
 
-                    } catch (e) { console.error("Data load error", e); }
+                    } catch (e) { console.error(e); }
                     finally { loadingData.value = false; }
                 };
 
-                // --- COMPUTED ---
-                const kpiCards = computed(() => [
-                    { label: 'Faturamento Total', value: `R$ ${stats.total_revenue.toFixed(2)}`, icon: 'fa-solid fa-dollar-sign', color: '#10b981', trend: '+12%' },
-                    { label: 'Licenças Ativas', value: stats.total_clients, icon: 'fa-solid fa-users', color: '#8b5cf6', trend: 'Total' },
-                    { label: 'Vendas Hoje', value: stats.sales_today, icon: 'fa-solid fa-cart-shopping', color: '#3b82f6', trend: '24h' },
-                    { label: 'Esta Semana', value: stats.sales_month, icon: 'fa-solid fa-calendar-week', color: '#f59e0b', trend: '7d' },
-                ]);
+                // --- COMPUTED HELPERS ---
 
-                const currentViewTitle = computed(() => navItems.find(i => i.id === view.value)?.name || 'Admin');
+                // 1. Customer Grouping
+                const customersGrouped = computed(() => {
+                    const map = {};
+                    licenses.value.forEach(lic => {
+                        const email = (lic.client || 'sem_email').toLowerCase();
+                        if (!map[email]) {
+                            map[email] = {
+                                email: lic.client,
+                                name: lic.client.split('@')[0],
+                                items: [],
+                                ltv: 0,
+                                first_purchase: lic.created_at,
+                                last_purchase: lic.created_at,
+                                expanded: false
+                            };
+                        }
+                        map[email].items.push(lic);
 
-                const filteredLicenses = computed(() => {
-                    if (!filterText.value) return licenses.value;
-                    const lw = filterText.value.toLowerCase();
-                    return licenses.value.filter(l => l.client?.toLowerCase().includes(lw) || l.key?.toLowerCase().includes(lw) || l.payment_id?.toString().includes(lw));
-                });
+                        // Fake prices for LTV calculation
+                        let price = 97;
+                        if (lic.product.includes('Odonto')) price = 127;
+                        if (lic.product.includes('System')) price = 147;
 
-                const parsedLogs = computed(() => {
-                    const raw = logs.value;
-                    if (!Array.isArray(raw)) return [];
+                        map[email].ltv += price;
 
-                    // Filter first
-                    let filtered = raw;
-                    if (logSearch.value) {
-                        const s = logSearch.value.toLowerCase();
-                        filtered = raw.filter(l => l.toLowerCase().includes(s));
+                        if (lic.created_at > map[email].last_purchase) map[email].last_purchase = lic.created_at;
+                        if (lic.created_at < map[email].first_purchase) map[email].first_purchase = lic.created_at;
+                    });
+
+                    let arr = Object.values(map);
+
+                    // Filter
+                    if (customerSearch.value) {
+                        const q = customerSearch.value.toLowerCase();
+                        arr = arr.filter(c => c.email.toLowerCase().includes(q) || c.items.some(i => i.key.toLowerCase().includes(q)));
                     }
 
-                    // Parse & Colorize
-                    return filtered.map(line => {
-                        // Ex: 14:00:22 - Msg
-                        const match = line.match(/^(\d{2}:\d{2}:\d{2})\s-\s(.*)/);
-                        const time = match ? match[1] : '';
-                        const msg = match ? match[2] : line;
+                    // Sort by recent purchase
+                    return arr.sort((a, b) => new Date(b.last_purchase) - new Date(a.last_purchase));
+                });
 
-                        let colorClass = 'text-slate-300';
-                        const lower = msg.toLowerCase();
-                        if (lower.includes('erro') || lower.includes('falha') || lower.includes('false')) colorClass = 'text-red-400 font-bold';
-                        else if (lower.includes('sucesso') || lower.includes('aprovad') || lower.includes('true') || lower.includes('enviado')) colorClass = 'text-emerald-400';
-                        else if (lower.includes('check status')) colorClass = 'text-blue-300';
-                        else if (lower.includes('aviso')) colorClass = 'text-amber-400';
+                const totalPages = computed(() => Math.ceil(customersGrouped.value.length / itemsPerPage));
+                const paginatedCustomers = computed(() => {
+                    const start = (currentPage.value - 1) * itemsPerPage;
+                    return customersGrouped.value.slice(start, start + itemsPerPage);
+                });
 
-                        return { time, msg, colorClass };
-                    }).reverse(); // Most recent first
+                // 2. Leads Filtering
+                const filteredLeads = computed(() => {
+                    let arr = leads.value;
+                    if (leadSearch.value) {
+                        const s = leadSearch.value.toLowerCase();
+                        arr = arr.filter(l => l.email?.toLowerCase().includes(s) || l.name?.toLowerCase().includes(s));
+                    }
+                    return arr;
+                });
+
+                // Check if lead is converted (exists in licenses)
+                const isConverted = (email) => {
+                    if (!email) return false;
+                    return licenses.value.some(l => l.client.toLowerCase() === email.toLowerCase());
+                };
+
+                const conversionRate = computed(() => {
+                    if (leads.value.length === 0) return 0;
+                    // Count how many leads are in licenses list
+                    const convertedCount = leads.value.filter(lead => isConverted(lead.email)).length;
+                    return ((convertedCount / leads.value.length) * 100).toFixed(1);
+                });
+
+                // 3. Logs
+                const filteredLogs = computed(() => {
+                    let arr = logs.value.map(l => {
+                        const parts = l.match(/^(\d{2}:\d{2}:\d{2})\s-\s(.*)/);
+                        const time = parts ? parts[1] : '';
+                        const msg = parts ? parts[2] : l;
+                        let color = 'text-slate-300';
+                        if (msg.toLowerCase().includes('erro') || msg.toLowerCase().includes('falha')) color = 'text-red-400 font-bold';
+                        if (msg.toLowerCase().includes('sucesso') || msg.toLowerCase().includes('aprovado')) color = 'text-emerald-400';
+                        return { time, msg, color };
+                    }).reverse();
+
+                    if (logFilter.value) return arr.filter(l => l.msg.toLowerCase().includes(logFilter.value.toLowerCase()));
+                    return arr;
                 });
 
                 // --- ACTIONS ---
-                const updateChart = () => {
-                    if (view.value !== 'dashboard') return;
+                // WhatsApp Link Generator
+                const getWhatsappLink = (lead) => {
+                    if (!lead.phone) return '#';
+                    const phone = lead.phone.replace(/\D/g, '');
+                    const msg = `Olá ${lead.name}, vi que você tentou comprar o ${lead.product} mas não concluiu. Ficou alguma dúvida? Posso te ajudar?`;
+                    return `https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`;
+                };
+
+                // Manual Payment Link (Mock)
+                const openPaymentGen = (lead) => {
+                    // In real scenario, this would generate a MP preference
+                    const link = `https://plenaaplicativos.com.br/checkout?email=${lead.email}&prod=${encodeURIComponent(lead.product)}`;
+                    prompt("Link de Pagamento Pré-preenchido (Copie e envie):", link);
+                };
+
+                const createLicense = async () => {
+                    if (!confirm("Gerar licença manual?")) return;
+                    loadingData.value = true;
+                    try {
+                        const r = await fetch('api_licenca.php?action=create', {
+                            method: 'POST', body: JSON.stringify({ secret: loginPass.value, client_name: form.client, product: form.product })
+                        });
+                        const d = await r.json();
+                        if (d.success) { alert("Gerado: " + d.license_key); showCreateModal.value = false; refreshData(); }
+                        else alert("Erro: " + d.error);
+                    } catch (e) { alert(e); }
+                    finally { loadingData.value = false; }
+                };
+
+                const actionLicense = async (key, type) => {
+                    if (!confirm("Confirmar ação?")) return;
+                    try {
+                        const r = await fetch('api_licenca.php?action=update_status', {
+                            method: 'POST', body: JSON.stringify({ secret: loginPass.value, key, status: type })
+                        });
+                        refreshData();
+                    } catch (e) { console.error(e); }
+                };
+
+                const resendEmail = async (key) => {
+                    if (!confirm("Reenviar email?")) return;
+                    try {
+                        const r = await fetch('api_licenca.php?action=resend_email', {
+                            method: 'POST', body: JSON.stringify({ secret: loginPass.value, key })
+                        });
+                        const d = await r.json();
+                        alert(d.message);
+                    } catch (e) { alert("Erro ao enviar"); }
+                };
+
+                const openCustomerModal = (cust) => { selectedCustomer.value = cust; };
+
+                // Email Test
+                const runEmailTest = async () => {
+                    emailStatus.value = "Enviando...";
+                    try {
+                        const r = await fetch(`api_pagamento.php?action=test_email&email=${testEmailAddr.value}`);
+                        const d = await r.json();
+                        emailStatus.value = d.success ? `SUCESSO: ${d.msg}` : `ERRO: ${d.msg}`;
+                    } catch (e) { emailStatus.value = "Erro de Conexão"; }
+                };
+
+                // Utils
+                const formatDate = (str) => { if (!str) return '-'; return new Date(str).toLocaleDateString('pt-BR'); };
+                const timeAgo = (dateStr) => {
+                    if (!dateStr) return '';
+                    const diff = new Date() - new Date(dateStr);
+                    const hours = Math.floor(diff / 3600000);
+                    if (hours < 24) return `${hours}h atrás`;
+                    return Math.floor(hours / 24) + 'd atrás';
+                };
+
+                // Chart
+                let chartInstance = null;
+                const renderChart = () => {
+                    if (currentTab.value !== 'dashboard') return;
                     nextTick(() => {
                         const ctx = document.getElementById('salesChart');
                         if (!ctx) return;
                         if (chartInstance) chartInstance.destroy();
-
                         chartInstance = new Chart(ctx, {
                             type: 'line',
                             data: {
-                                labels: stats.chart.labels,
+                                labels: chartData.labels,
                                 datasets: [{
                                     label: 'Vendas',
-                                    data: stats.chart.data,
+                                    data: chartData.data,
                                     borderColor: '#3b82f6',
-                                    backgroundColor: (item) => {
-                                        const gradient = item.chart.ctx.createLinearGradient(0, 0, 0, 300);
-                                        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
-                                        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
-                                        return gradient;
-                                    },
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                     fill: true,
-                                    tension: 0.4,
-                                    pointBackgroundColor: '#fff',
-                                    pointBorderColor: '#3b82f6',
-                                    pointRadius: 4
+                                    tension: 0.4
                                 }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
-                                plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                                scales: {
-                                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                                }
+                                plugins: { legend: { display: false } },
+                                scales: { x: { display: false }, y: { display: false } }
                             }
                         });
                     });
                 };
 
-                const createLicense = async () => {
-                    if (!confirm("Gerar licença manualmente?")) return;
-                    loadingData.value = true;
-                    try {
-                        const r = await fetch('api_licenca.php?action=create', {
-                            method: 'POST', body: JSON.stringify({ secret: password.value, client_name: form.client, product: form.product })
-                        });
-                        const d = await r.json();
-                        if (d.success) { alert(`Licença Gerada: ${d.license_key}`); showCreateModal.value = false; reloadData(); }
-                        else alert("Erro: " + d.error);
-                    } catch (e) { alert("Erro ao criar"); }
-                    finally { loadingData.value = false; }
-                };
+                watch(currentTab, renderChart);
 
-                const actionLicense = async (key, action) => {
-                    if (!confirm(`Confirma ação: ${action}?`)) return;
-                    try {
-                        await fetch('api_licenca.php?action=update_status', {
-                            method: 'POST', body: JSON.stringify({ secret: password.value, key, status: action })
-                        });
-                        reloadData();
-                    } catch (e) { alert("Erro de ação"); }
-                };
-
-                const resendEmail = async (key) => {
-                    if (!confirm("Reenviar email da licença?")) return;
-                    loadingData.value = true;
-                    try {
-                        const r = await fetch('api_licenca.php?action=resend_email', {
-                            method: 'POST', body: JSON.stringify({ secret: password.value, key })
-                        });
-                        const d = await r.json();
-                        alert(d.message);
-                        reloadData(); // Update logs
-                    } catch (e) { alert("Erro ao reenviar"); }
-                    finally { loadingData.value = false; }
-                };
-
-                // Email Test Modal
-                const openTestEmailModal = () => { showEmailModal.value = true; };
-                const runEmailTest = async () => {
-                    if (!testEmailAddr.value) return;
-                    loadingData.value = true;
-                    emailTestStatus.value = 'Enviando...';
-                    try {
-                        const r = await fetch(`api_pagamento.php?action=test_email&email=${testEmailAddr.value}`);
-                        const d = await r.json();
-                        emailTestStatus.value = d.success ? `SUCESSO: ${d.msg}` : `ERRO: ${d.msg}`;
-                    } catch (e) { emailTestStatus.value = "Erro na requisição"; }
-                    finally { loadingData.value = false; }
-                };
-
-                // Watchers
-                watch(view, (v) => { if (v === 'dashboard') reloadData(); });
-
-                onMounted(() => { checkSession(); });
+                // Auto Login
+                if (loginPass.value) login();
 
                 return {
-                    auth, loginPass, login, logout, loading, loadingData, sidebarCollapsed,
-                    view, navItems, currentViewTitle, lastUpdate,
-                    stats, filteredLicenses, parsedLogs, kpiCards,
-                    filterText, logSearch, showCreateModal, form,
-                    showEmailModal, testEmailAddr, emailTestStatus, openTestEmailModal, runEmailTest,
-                    reloadData, createLicense, actionLicense, resendEmail
+                    auth, loginPass, login, logout, loading, loadingData,
+                    sidebarOpen, currentTab, tabs, currentTabLabel,
+                    stats, leads, licenses, customersGrouped, paginatedCustomers, filteredLeads, filteredLogs, conversionRate,
+                    refreshData, createLicense, actionLicense, resendEmail,
+                    showCreateModal, showEmailModal, form, selectedCustomer, openCustomerModal,
+                    customerSearch, leadSearch, logFilter,
+                    currentPage, totalPages,
+                    testEmailAddr, emailStatus, runEmailTest,
+                    formatDate, timeAgo, getWhatsappLink, openPaymentGen, isConverted
                 };
             }
         }).mount('#app');

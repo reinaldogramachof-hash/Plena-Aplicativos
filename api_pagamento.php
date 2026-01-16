@@ -4,208 +4,243 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 
-require_once 'secrets.php';
+// Carrega segredos (Token MP e Senha Admin)
+if(file_exists('secrets.php')) require_once 'secrets.php';
 
 $json_input = file_get_contents('php://input');
 $data = json_decode($json_input, true);
 $action = $_GET['action'] ?? '';
 
-// LOGGERS
+// --- LOGGING ---
 function logMsg($msg) {
-    file_put_contents('debug_log.txt', date('H:i:s') . " - $msg" . PHP_EOL, FILE_APPEND);
+    file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . " - $msg" . PHP_EOL, FILE_APPEND);
 }
 
-// HELPER: Envio de E-mail Reutilizável com Logs Detalhados
+// --- EMAIL SENDER (Robust) ---
 function sendLicenseEmail($to, $productName, $key, $link) {
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-        logMsg("ERRO EMAIL: Endereço inválido ($to)");
+        logMsg("ERRO EMAIL: Destinatário inválido ($to)");
         return false;
     }
 
     $subject = "✅ Seu Acesso Liberado: $productName";
     
-    // Template Melhorado
     $htmlContent = "
     <!DOCTYPE html>
     <html>
-    <head>
-        <meta charset='UTF-8'>
-        <title>Acesso Liberado</title>
-    </head>
-    <body style='font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px; margin: 0;'>
-        <div style='max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;'>
-            <div style='text-align: center; margin-bottom: 30px;'>
-                <h1 style='color: #2563EB; margin: 0; font-size: 24px;'>Plena Aplicativos</h1>
-                <p style='color: #64748b; margin-top: 5px;'>Tecnologia para o seu negócio</p>
-            </div>
-            
-            <p style='color: #334155; font-size: 16px; line-height: 1.5;'>Olá,</p>
-            <p style='color: #334155; font-size: 16px; line-height: 1.5;'>Pagamento confirmado! 🚀<br>Aqui está o seu acesso oficial ao <strong>$productName</strong>.</p>
+    <head><meta charset='UTF-8'></head>
+    <body style='font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px;'>
+        <div style='max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; border: 1px solid #e2e8f0;'>
+            <h1 style='color: #2563EB; text-align: center;'>Plena Aplicativos</h1>
+            <p style='color: #334155; font-size: 16px;'>Olá,</p>
+            <p style='color: #334155;'>Pagamento confirmado! 🚀<br>Aqui está seu acesso ao <strong>$productName</strong>.</p>
             
             <div style='background-color: #eff6ff; border: 1px dashed #2563EB; padding: 25px; text-align: center; margin: 30px 0; border-radius: 8px;'>
-                <p style='margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;'>SUA CHAVE DE LICENÇA</p>
-                <h2 style='margin: 10px 0 20px 0; font-family: monospace; font-size: 20px; letter-spacing: 2px; color: #1e293b; background: white; padding: 10px; border-radius: 4px; border: 1px solid #cbd5e1; display: inline-block;'>$key</h2>
-                <br>
-                <a href='$link' style='display: inline-block; background-color: #2563EB; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);'>👉 ACESSAR SISTEMA AGORA</a>
+                <p style='margin: 0; color: #64748b; font-size: 12px; font-weight: bold;'>SUA CHAVE DE LICENÇA</p>
+                <h2 style='margin: 10px 0; font-family: monospace; font-size: 20px; color: #1e293b; background: white; padding: 10px; border: 1px solid #cbd5e1; display: inline-block;'>$key</h2>
+                <br><br>
+                <a href='$link' style='display: inline-block; background-color: #2563EB; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;'>👉 ACESSAR SISTEMA</a>
             </div>
 
-            <div style='background-color: #f1f5f9; padding: 20px; border-radius: 8px;'>
-                <p style='margin: 0 0 10px 0; font-weight: bold; color: #475569;'>📖 Como ativar:</p>
-                <ol style='margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;'>
-                    <li>Clique no botão azul acima.</li>
-                    <li>Quando o sistema abrir, cole a chave que está no quadro.</li>
-                    <li>Clique em 'Liberar Acesso'.</li>
-                </ol>
-            </div>
-
-            <p style='margin-top: 40px; font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;'>
-                Precisa de ajuda? Responda este e-mail.<br>
-                &copy; " . date('Y') . " Plena Soluções Digitais
-            </p>
+            <p style='font-size: 12px; color: #94a3b8; text-align: center;'>Plena Soluções Digitais</p>
         </div>
     </body>
-    </html>
-    ";
+    </html>";
 
-    // Headers Robustas para Entregabilidade (SPF/DKIM friendly)
     $headers = array(
         'MIME-Version: 1.0',
         'Content-type: text/html; charset=UTF-8',
         'From: Plena Tecnologia <tecnologia@plenainformatica.com.br>',
         'Reply-To: suporte@plenainformatica.com.br',
-        'X-Mailer: PHP/' . phpversion(),
-        'X-Priority: 1 (Highest)',
-        'X-MSMail-Priority: High',
-        'Importance: High'
+        'X-Mailer: PHP/' . phpversion()
     );
 
-    // Tenta enviar e loga o resultado booleano
     $sent = mail($to, $subject, $htmlContent, implode("\r\n", $headers));
-
-    if ($sent) {
-        logMsg("SUCESSO EMAIL: Enviado para $to via mail() nativo.");
-        return true;
-    } else {
-        logMsg("FALHA EMAIL: A função mail() retornou FALSE para $to. Verifique logs do servidor/SMTP.");
-        return false;
-    }
+    if($sent) logMsg("SUCESSO EMAIL: Enviado para $to");
+    else logMsg("FALHA EMAIL: Função mail() retornou FALSE para $to");
+    
+    return $sent;
 }
 
-// HELPER: Processa Pagamento Aprovado (Gera Licença + Email)
+// --- HELPER: LEADS STATUS UPDATE (CRM) ---
+function updateLeadStatus($email, $newStatus) {
+    if(!$email) return;
+    $file = 'leads_abandono.json';
+    if(!file_exists($file)) return;
+
+    $fp = fopen($file, 'c+'); // Read/Write, Create if missing (though we checked exists)
+    if (flock($fp, LOCK_EX)) {
+        $filesize = filesize($file);
+        $content = $filesize > 0 ? fread($fp, $filesize) : '[]';
+        $leads = json_decode($content, true) ?? [];
+        
+        $changed = false;
+        // Se for array indexado (novo formato)
+        if (array_keys($leads) === range(0, count($leads) - 1) && !empty($leads)) {
+            foreach($leads as &$l) {
+                if(strtolower($l['email']) === strtolower($email)) {
+                    $l['status'] = $newStatus;
+                    $changed = true;
+                }
+            }
+        } else {
+            // Formato map antigo (fallback)
+            if(isset($leads[$email])) {
+                $leads[$email]['status'] = $newStatus;
+                $changed = true;
+            }
+        }
+
+        if($changed) {
+            ftruncate($fp, 0);       // Truncate file
+            rewind($fp);             // Rewind to start
+            fwrite($fp, json_encode($leads, JSON_PRETTY_PRINT));
+        }
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+}
+
+// --- HELPER: PROCESS APPROVED ---
 function processApprovedPayment($payment) {
     global $ACCESS_TOKEN;
     
     $id = $payment['id'];
-    $email_cliente = $payment['payer']['email'];
-    $produto_nome = $payment['description'];
+    $email = $payment['payer']['email'];
+    $prod = $payment['description'];
     
-    // 1. VERIFICA SE JÁ EXISTE (Idempotência)
+    // 1. Check Idempotency (File Lock)
     $db_file = 'database_licenses_secure.json';
-    $db = file_exists($db_file) ? json_decode(file_get_contents($db_file), true) : [];
     
-    foreach ($db as $k => $v) {
-        if (isset($v['payment_id']) && $v['payment_id'] == $id) {
-            logMsg("Pagamento $id já processado anteriormente. Chave: $k");
-            return $k;
+    $fp = fopen($db_file, 'c+');
+    if (!$fp) { logMsg("ERRO FATAL: Não foi possível abrir DB licenses."); return false; }
+    
+    if (flock($fp, LOCK_EX)) {
+        $fsize = filesize($db_file);
+        $content = $fsize > 0 ? fread($fp, $fsize) : '{}';
+        $db = json_decode($content, true) ?? [];
+        
+        // Verifica se já existe esse payment_id
+        foreach ($db as $k => $v) {
+            if (isset($v['payment_id']) && $v['payment_id'] == $id) {
+                logMsg("Pagamento $id duplicado (ignorado).");
+                flock($fp, LOCK_UN);
+                fclose($fp);
+                return $k;
+            }
         }
-    }
-
-    logMsg("Gerando nova licença para pagamento $id ($email_cliente)");
-
-    // 2. GERAÇÃO CHAVE
-    $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
-    
-    // 3. Link do App
-    $app_link = $payment['metadata']['app_link'] ?? 'apps.plus/plena_alugueis.html';
-    if (strpos($app_link, 'http') === 0) {
-        $full_link = $app_link;
+        
+        // 2. Generate Key
+        $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
+        
+        // 3. Prepare Data
+        $app_link = $payment['metadata']['app_link'] ?? 'apps.plus/plena_alugueis.html';
+        $full_link = (strpos($app_link, 'http') === 0) ? $app_link : "https://plenaaplicativos.com.br/" . ltrim($app_link, '/');
+        
+        $db[$key] = [
+            "client" => $email,
+            "product" => $prod,
+            "device_id" => null,
+            "status" => "active",
+            "created_at" => date('Y-m-d H:i:s'),
+            "payment_id" => $id,
+            "app_link" => $full_link
+        ];
+        
+        // 4. Write
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($db));
+        fflush($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        
+        logMsg("Licença GERADA: $key ($email) - Pagamento $id");
+        
+        // 5. CRM Update & Email
+        updateLeadStatus($email, 'converted');
+        sendLicenseEmail($email, $prod, $key, $full_link);
+        
+        return $key;
+        
     } else {
-        $full_link = "https://plenaaplicativos.com.br/" . ltrim($app_link, '/');
+        fclose($fp);
+        logMsg("ERRO LOCK: Falha ao obter lock do DB licenses.");
+        return false;
     }
-
-    // 4. GRAVAÇÃO DB
-    $db[$key] = [
-        "client" => $email_cliente,
-        "product" => $produto_nome,
-        "device_id" => null,
-        "status" => "active",
-        "created_at" => date('Y-m-d H:i:s'),
-        "payment_id" => $id,
-        "app_link" => $full_link
-    ];
-    file_put_contents($db_file, json_encode($db), LOCK_EX);
-
-    // 5. ENVIO DE EMAIL (Usando Helper)
-    sendLicenseEmail($email_cliente, $produto_nome, $key, $full_link);
-
-    // Retorna chave
-    return $key;
 }
 
 // ==================================================================
-// -1. ACTION TESTE EMAIL (Para Admin Panel)
+// ACTIONS
 // ==================================================================
-if ($action === 'test_email') {
-    $to = $data['email'] ?? $_GET['email'] ?? '';
-    if (!$to) { echo json_encode(['success'=>false, 'msg'=>'Email vazio']); exit; }
 
-    logMsg("TESTE EMAIL: Iniciando teste manual para $to");
-    $result = sendLicenseEmail($to, "Produto de Teste Admin", "PLENA-TESTE-1234", "https://plenaaplicativos.com.br/admin.html");
-    
-    echo json_encode([
-        'success' => $result, 
-        'msg' => $result ? 'Função mail() retornou TRUE' : 'Função mail() retornou FALSE'
-    ]);
-    exit;
-}
-
-
-
-// ==================================================================
-// 0. CAPTURA DE LEAD (ABANDONO DE CARRINHO)
-// ==================================================================
+// 0. CAPTURA DE LEAD (ABANDONO) - COM LOCK
 if ($action === 'save_lead') {
-    if (!$data || empty($data['email'])) {
-        echo json_encode(['status' => 'ignored']); exit;
-    }
+    if (!$data || empty($data['email'])) { echo json_encode(['status'=>'ignored']); exit; }
 
-    $lead = [
+    $file = 'leads_abandono.json';
+    $leadData = [
         'date' => date('Y-m-d H:i:s'),
         'name' => $data['name'] ?? 'Visitante',
         'email' => $data['email'],
         'phone' => $data['phone'] ?? '',
-        'product' => $data['product'] ?? 'Checkout Genérico',
-        'status' => 'abandoned' // Inicialmente é abandono, se comprar vira 'converted' (futuro)
+        'product' => $data['product'] ?? 'Checkout',
+        'status' => 'pending' // Default pending
     ];
 
-    // Salva em um arquivo JSON simples para CRM
-    $file = 'leads_abandono.json';
-    $leads = [];
-    if (file_exists($file)) {
-        $leads = json_decode(file_get_contents($file), true) ?? [];
+    $fp = fopen($file, 'c+');
+    if (flock($fp, LOCK_EX)) {
+        $size = filesize($file);
+        $content = $size > 0 ? fread($fp, $size) : '[]';
+        $leads = json_decode($content, true) ?? [];
+        
+        // Converte para array indexado se não for (Legacy fix)
+        // Se for map, vamos converter para lista, mas mantendo histórico é complicado.
+        // Vamos assumir formato lista de objetos para o novo padrão.
+        if (!is_array($leads)) $leads = [];
+        $is_assoc = array_keys($leads) !== range(0, count($leads) - 1) && !empty($leads);
+        if($is_assoc) $leads = array_values($leads); // Flatten legacy map
+        
+        // Check exist
+        $exists = false;
+        foreach ($leads as &$l) {
+            if (isset($l['email']) && strtolower($l['email']) === strtolower($data['email'])) {
+                // Upsert: Update date & product ONLY, keep status unless it was converted (optional decision)
+                // Se já comprou (converted), não voltamos para pending por enquanto.
+                $l['date'] = $leadData['date'];
+                $l['product'] = $leadData['product'];
+                if(isset($data['name'])) $l['name'] = $data['name'];
+                if(isset($data['phone'])) $l['phone'] = $data['phone'];
+                $exists = true;
+                break;
+            }
+        }
+        
+        if (!$exists) {
+            $leads[] = $leadData;
+        }
+
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($leads, JSON_PRETTY_PRINT));
+        flock($fp, LOCK_UN);
     }
-    
-    // Atualiza se já existir (pelo email)
-    $leads[$data['email']] = $lead;
-    
-    file_put_contents($file, json_encode($leads, JSON_PRETTY_PRINT));
+    fclose($fp);
     
     echo json_encode(['status' => 'saved']);
     exit;
 }
 
-// ------------------------------------------------------------------
-// 1. PROCESSAR PAGAMENTO (Cartão e Pix)
-// ------------------------------------------------------------------
+// 1. PROCESSAR PAGAMENTO (Cria preferência MP)
 if ($action === 'process_payment') {
-    if (!$data) {
-        http_response_code(400); echo json_encode(['error' => 'Nenhum dado recebido.']); exit;
-    }
+    if (!$data) { http_response_code(400); echo json_encode(['error' => 'No Data']); exit; }
+    
+    logMsg("Iniciando pgto: " . ($data['payer']['email'] ?? 'NoEmail'));
 
-    logMsg("Processando (v3): " . ($data['payer']['email'] ?? 'Sem email'));
-
-    // Sanitização e Preparação Payload MP
-    $payment_payload = [
+    // Sanitização CPF/CNPJ
+    $docNumber = preg_replace('/\D/', '', $data['payer']['identification']['number'] ?? '');
+    
+    $payload = [
         "transaction_amount" => (float)$data['transaction_amount'],
         "token" => $data['token'] ?? null,
         "description" => $data['description'] ?? 'Produto Digital',
@@ -217,121 +252,116 @@ if ($action === 'process_payment') {
             "email" => filter_var($data['payer']['email'], FILTER_SANITIZE_EMAIL),
             "identification" => [
                 "type" => $data['payer']['identification']['type'] ?? "CPF",
-                "number" => preg_replace('/\D/', '', $data['payer']['identification']['number'] ?? '')
+                "number" => $docNumber
             ]
         ],
         "notification_url" => (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . dirname($_SERVER['PHP_SELF']) . "/api_pagamento.php?action=webhook"
     ];
 
     if ($data['payment_method_id'] === 'pix') {
-        $name_parts = explode(' ', $data['payer']['first_name'] ?? 'Cliente Plena');
-        $payment_payload['payer']['first_name'] = $name_parts[0];
-        $payment_payload['payer']['last_name'] = $name_parts[1] ?? 'App';
+        $parts = explode(' ', $data['payer']['first_name'] ?? 'Cliente');
+        $payload['payer']['first_name'] = $parts[0];
+        $payload['payer']['last_name'] = $parts[1] ?? 'App';
     }
 
-    // Call Mercado Pago
-    $curl = curl_init();
-    curl_setopt_array($curl, [
+    $ch = curl_init();
+    curl_setopt_array($ch, [
         CURLOPT_URL => "https://api.mercadopago.com/v1/payments",
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode($payment_payload),
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_HTTPHEADER => [
             "Content-Type: application/json",
-            "Authorization: Bearer " . $ACCESS_TOKEN,
+            "Authorization: Bearer " . ($ACCESS_TOKEN ?? ''),
             "X-Idempotency-Key: " . uniqid()
-        ],
+        ]
     ]);
-
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    curl_close($curl);
-
-    if ($err) {
-        logMsg("Erro CURL: $err");
-        echo json_encode(['status' => 'error', 'message' => 'Erro interno de pagamento.']);
-    } else {
-        echo $response;
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode >= 400) {
+        // Log detalhado de erro do MP
+        logMsg("ERRO MP ($httpCode): $response");
     }
+    
+    echo $response;
     exit;
 }
 
-// ------------------------------------------------------------------
 // 2. CHECK STATUS (Pooling)
-// ------------------------------------------------------------------
 if ($action === 'check_status') {
     $id = $_GET['id'] ?? '';
-    if(!$id) { echo json_encode(['status' => 'error']); exit; }
+    if(!$id) { echo json_encode(['status'=>'error']); exit; }
 
-    $curl = curl_init();
-    curl_setopt_array($curl, [
+    // Check na API MP
+    $ch = curl_init();
+    curl_setopt_array($ch, [
         CURLOPT_URL => "https://api.mercadopago.com/v1/payments/$id",
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ["Authorization: Bearer " . $ACCESS_TOKEN],
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer " . ($ACCESS_TOKEN ?? '')]
     ]);
-    $response = curl_exec($curl);
-    curl_close($curl);
+    $resp = curl_exec($ch);
+    curl_close($ch);
     
-    $payment = json_decode($response, true);
-    $status = $payment['status'] ?? 'pending';
+    $json = json_decode($resp, true);
+    $status = $json['status'] ?? 'pending';
     
-    // Recupera chave se aprovado
-    $license_key = null;
+    $key = null;
     if ($status === 'approved') {
-        $db_file = 'database_licenses_secure.json';
-        if (file_exists($db_file)) {
-            $db = json_decode(file_get_contents($db_file), true);
-            foreach ($db as $key => $val) {
-                if (isset($val['payment_id']) && $val['payment_id'] == $id) {
-                    $license_key = $key;
-                    break;
-                }
-            }
+        // Tenta recuperar do DB (via webhook anterior)
+        $db = json_decode(file_get_contents('database_licenses_secure.json'), true) ?? [];
+        foreach($db as $k => $v) {
+            if(($v['payment_id'] ?? '') == $id) { $key = $k; break; }
+        }
+        
+        // Se aprovado mas sem chave, força geração agora (Fallback)
+        if (!$key) {
+            logMsg("FALLBACK: Pagamento $id aprovado no check, mas sem licença. Gerando...");
+            $key = processApprovedPayment($json);
         }
     }
-
-    // FALLBACK: Se aprovado e sem licença (Webhook falhou ou atrasou), gera agora
-    if ($status === 'approved' && !$license_key) {
-        logMsg("Check Status: Aprovado mas sem licença. Forçando geração para ID $id");
-        $license_key = processApprovedPayment($payment);
-    }
-
-    echo json_encode(['status' => $status, 'license_key' => $license_key]);
+    
+    echo json_encode(['status'=>$status, 'license_key'=>$key]);
     exit;
 }
 
-// ------------------------------------------------------------------
-// 3. WEBHOOK (Callback & Entrega)
-// ------------------------------------------------------------------
+// 3. WEBHOOK
 if ($action === 'webhook') {
-    $topic = $_GET['topic'] ?? $_GET['type'] ?? '';
     $id = $_GET['id'] ?? $_GET['data_id'] ?? '';
-
-    if (empty($id)) {
+    if (!$id) {
         $body = json_decode(file_get_contents('php://input'), true);
         $id = $body['data']['id'] ?? $body['id'] ?? '';
     }
-
+    
     if ($id) {
-        $curl = curl_init();
-        curl_setopt_array($curl, [
+        // Valida status real no MP
+        $ch = curl_init();
+        curl_setopt_array($ch, [
             CURLOPT_URL => "https://api.mercadopago.com/v1/payments/$id",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: Bearer " . $ACCESS_TOKEN],
+            CURLOPT_HTTPHEADER => ["Authorization: Bearer " . ($ACCESS_TOKEN ?? '')]
         ]);
-        $response = curl_exec($curl);
-        $payment = json_decode($response, true);
-        curl_close($curl);
-
-        $status = $payment['status'] ?? 'unknown';
-
-        if ($status === 'approved') {
+        $resp = curl_exec($ch);
+        curl_close($ch);
+        
+        $payment = json_decode($resp, true);
+        if (($payment['status'] ?? '') === 'approved') {
             processApprovedPayment($payment);
         }
     }
-    
-    http_response_code(200); echo "OK"; exit;
+    http_response_code(200); echo "OK";
+    exit;
 }
 
-echo json_encode(['status' => 'online', 'msg' => 'API Plena V3 (Checkout Optimized)']);
+// 4. TEST EMAIL
+if ($action === 'test_email') {
+    $email = $_GET['email'] ?? '';
+    $res = sendLicenseEmail($email, "Teste Admin", "TEST-KEY", "http://plena.com");
+    echo json_encode(['success'=>$res, 'msg'=>$res?'OK':'Fail']);
+    exit;
+}
+
+echo json_encode(['status'=>'online', 'v'=>'4.0']);
 ?>
