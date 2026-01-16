@@ -63,7 +63,7 @@ function sendLicenseEmail($to, $productName, $key, $link) {
     <body>
         <div class='container'>
             <div class='header'>
-                <h1>Plena Compropay</h1>
+                <h1>Plena Pagamentos</h1>
             </div>
             <div class='content'>
                 <p class='greeting'>Olá!</p>
@@ -83,7 +83,7 @@ function sendLicenseEmail($to, $productName, $key, $link) {
                 </div>
 
                 <p class='message' style='font-size: 14px; color: #64748b;'>
-                    <strong>Importante:</strong> Ao acessar, o sistema pedirá essa chave de licença. Ela é única e intransferível.
+                    <strong>Importante:</strong> Ao acessar, o sistema pedirá essa chave de licença. Ela é única e intransferível, a ativação é aplicada apenas em um dispositivo!
                 </p>
             </div>
             <div class='footer'>

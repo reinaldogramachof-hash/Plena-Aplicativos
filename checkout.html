@@ -117,7 +117,7 @@
                                         class="fa-brands fa-pix mr-1"></i> Pix Imediato</span>
                                 <span
                                     class="bg-blue-900/50 text-blue-200 text-[10px] font-bold px-2 py-1 rounded border border-blue-700/50"><i
-                                        class="fa-regular fa-credit-card mr-1"></i> Cartão em 12x</span>
+                                        class="fa-regular fa-credit-card mr-1"></i> Cartão de crédito</span>
                                 <span
                                     class="bg-green-900/50 text-green-200 text-[10px] font-bold px-2 py-1 rounded border border-green-700/50"><i
                                         class="fa-solid fa-bolt mr-1"></i> Acesso Liberado na Hora</span>
@@ -148,7 +148,7 @@
                                                     class="bg-green-500 text-[10px] px-1.5 rounded ml-1">VIP</span></h4>
                                             <p class="text-xs text-slate-400 mt-1 leading-relaxed">Atendimento direto
                                                 com especialistas via WhatsApp para tirar dúvidas.</p>
-                                            <p class="text-indigo-400 font-bold text-sm mt-2">+ R$ 19,90 <span
+                                            <p class="text-indigo-400 font-bold text-sm mt-2">+ R$ 00,10 <span
                                                     class="text-[10px] text-slate-500 line-through ml-1">R$ 49,90</span>
                                             </p>
                                         </div>
@@ -172,7 +172,7 @@
                                                 Marca</h4>
                                             <p class="text-xs text-slate-400 mt-1 leading-relaxed">Entregamos o app com
                                                 suas Cores e sua Logomarca configuradas.</p>
-                                            <p class="text-amber-400 font-bold text-sm mt-2">+ R$ 29,90 <span
+                                            <p class="text-amber-400 font-bold text-sm mt-2">+ R$ 00,10 <span
                                                     class="text-[10px] text-slate-500 line-through ml-1">R$ 97,00</span>
                                             </p>
                                         </div>
@@ -308,11 +308,112 @@
                                 </div>
                             </div>
 
+                            <!-- 1. DEVICE WARNING -->
+                            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-4 text-left rounded-r-lg">
+                                <div class="flex items-start gap-3">
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-1"></i>
+                                    <div>
+                                        <p class="font-bold text-amber-800 text-sm">Importante: Licença de Dispositivo
+                                            Único</p>
+                                        <p class="text-[11px] text-amber-700 mt-1 leading-tight">
+                                            Sua licença será vinculada ao <strong>primeiro dispositivo</strong> que
+                                            acessar o sistema.
+                                            Se você está no celular mas vai usar no computador, <span
+                                                class="font-bold underline">NÃO acesse agora</span>.
+                                            Copie a chave e abra este link no seu computador.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. UPSELL CARD -->
+                            <div
+                                class="mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between shadow-sm">
+                                <div class="text-left pr-4">
+                                    <p class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+                                        <i class="fa-solid fa-laptop-medical"></i> Precisa usar em outro dispositivo ou
+                                        PC?
+                                    </p>
+                                    <p class="text-[10px] text-indigo-600 mt-0.5">Garanta uma licença extra com
+                                        desconto.</p>
+                                </div>
+                                <a :href="'checkout.html?name=' + encodeURIComponent(product.name + ' (Extra)') + '&price=0,10&desc=Licença Adicional&link=' + product.link"
+                                    target="_blank"
+                                    class="whitespace-nowrap px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition shadow-indigo-200 shadow-md">
+                                    + R$ 0,10
+                                </a>
+                            </div>
+
                             <a :href="generatedLink" target="_blank"
                                 class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-xl shadow-xl shadow-blue-200 hover:shadow-2xl hover:scale-[1.02] transition-all transform flex items-center justify-center gap-2 group">
                                 Acessar Painel Agora <i
                                     class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                             </a>
+
+                            <!-- 3. SUPPORT & ONBOARDING -->
+                            <div class="mt-8 border-t border-slate-100 pt-6 text-left">
+                                <h4 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                                    Precisa de Ajuda?
+                                </h4>
+
+                                <!-- General Support -->
+                                <div class="flex items-start gap-3 mb-4 group cursor-pointer"
+                                    onclick="window.open('mailto:tecnologia@plenainformatica.com.br')">
+                                    <div
+                                        class="bg-blue-100 p-2 rounded-lg text-blue-600 group-hover:bg-blue-200 transition">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-700">Suporte Técnico</p>
+                                        <p class="text-xs text-slate-500">tecnologia@plenainformatica.com.br</p>
+                                    </div>
+                                </div>
+
+                                <!-- Priority Support (Conditional) -->
+                                <div v-if="addSupport || addCustomization"
+                                    class="flex items-start gap-3 bg-green-50 p-3 rounded-xl border border-green-100 mb-6 cursor-pointer hover:bg-green-100 transition"
+                                    @click="contactSupport">
+                                    <div class="bg-green-100 p-2 rounded-lg text-green-600"><i
+                                            class="fa-brands fa-whatsapp"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-green-700 flex items-center gap-2">
+                                            Suporte VIP Ativado <span
+                                                class="bg-green-600 text-white text-[10px] px-2 rounded-full">PRO</span>
+                                        </p>
+                                        <p class="text-xs text-green-600 mb-1">Dúvidas e personalização (Cores/Logo).
+                                        </p>
+                                        <span class="text-xs font-bold underline text-green-700">Chamar no WhatsApp
+                                            &rarr;</span>
+                                    </div>
+                                </div>
+
+                                <!-- Onboarding Accordion -->
+                                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                                    <button @click="showOnboarding = !showOnboarding"
+                                        class="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition text-left">
+                                        <span class="text-xs font-bold text-slate-600"><i
+                                                class="fa-solid fa-book-open mr-2"></i> Primeiros Passos e Dicas</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform"
+                                            :class="{'rotate-180': showOnboarding}"></i>
+                                    </button>
+                                    <div v-show="showOnboarding" class="p-4 bg-white text-xs text-slate-500 space-y-3">
+                                        <p class="text-amber-600 bg-amber-50 p-2 rounded border border-amber-100">
+                                            <i class="fa-solid fa-envelope-open-text mr-1"></i> <strong>E-mail de
+                                                Acesso:</strong> Verifique sua caixa de <strong>SPAM</strong> ou
+                                            <strong>Lixo Eletrônico</strong>. Se estiver lá, marque como <u>"Não é
+                                                Spam"</u> para garantir que o sistema funcione corretamente.
+                                        </p>
+                                        <p><strong>1. Manual de Uso:</strong> Dentro do aplicativo, acesse a aba "Manual
+                                            de Uso" para ver o checklist de como usar o sistema.</p>
+                                        <p><strong>2. Backups:</strong> Seus dados ficam salvos no navegador.
+                                            Recomendamos exportar relatórios semanalmente na aba "Configurações".</p>
+                                        <p><strong>3. Atualizações:</strong> Quanto a melhorias e novas funções o
+                                            sistema atualiza automaticamente.</p>
+                                        <p><strong>4. Suporte:</strong> Se precisar de ajuda, entre em contato com o
+                                            suporte: tecnologia@plenainformatica.com.br</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -482,6 +583,7 @@
                 const pixData = reactive({ qr_base64: '', qr_code: '' });
                 const licenseKey = ref('');
                 const generatedLink = ref('https://plena-aplicativos.web.app/');
+                const showOnboarding = ref(false);
 
                 const toggleOrderBump = () => { addSupport.value = !addSupport.value; };
                 const toggleCustomization = () => { addCustomization.value = !addCustomization.value; };
@@ -490,8 +592,8 @@
                 // Preço Total Calculado
                 const totalPrice = computed(() => {
                     let base = parseFloat(String(product.value.price).replace('R$', '').replace(',', '.').trim()) || 0.00;
-                    if (addSupport.value) base += 19.90;
-                    if (addCustomization.value) base += 29.90;
+                    if (addSupport.value) base += 0.10;
+                    if (addCustomization.value) base += 0.10;
                     return base.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                 });
 
@@ -607,6 +709,15 @@
                     } catch (e) { }
                 };
 
+                const contactSupport = () => {
+                    let msg = "Olá, Plena Aplicativos, comprei o sistema com suporte VIP e gostaria de confirmar esse recurso!";
+                    if (addCustomization.value) {
+                        msg = "Olá, Plena Aplicativos, comprei o sistema com personalização, gostaria de falar sobre o meu produto!";
+                    }
+                    const url = `https://wa.me/5512992191018?text=${encodeURIComponent(msg)}`;
+                    window.open(url, '_blank');
+                };
+
                 // 4. Inicialização MP
                 const initBrick = async () => {
                     if (mpLoaded.value) return;
@@ -618,20 +729,15 @@
                         const mp = new MercadoPago(MP_KEY, { locale: 'pt-BR' });
                         const bricksBuilder = mp.bricks();
 
-                        let priceRaw = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
-                        const amount = parseFloat(priceRaw) || 1.00;
-
-                        let itemsDesc = [product.value.name];
-                        if (addSupport.value) itemsDesc.push("Suporte WhatsApp");
-                        if (addCustomization.value) itemsDesc.push("Personalização");
-
-                        const description = itemsDesc.join(' + ');
+                        // Valor inicial para renderização (visual apenas, o real vai no onSubmit)
+                        let priceRawInit = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
+                        const amountInit = parseFloat(priceRawInit) || 1.00;
                         const cleanDoc = form.doc.replace(/\D/g, '');
                         const docType = cleanDoc.length === 14 ? 'CNPJ' : 'CPF';
 
                         await bricksBuilder.create("payment", "paymentBrick_container", {
                             initialization: {
-                                amount: amount,
+                                amount: amountInit,
                                 payer: {
                                     email: form.email,
                                     firstName: form.name.split(' ')[0],
@@ -640,7 +746,7 @@
                                 },
                                 metadata: {
                                     app_link: product.value.link,
-                                    payer_email: form.email // Backup importantíssimo!
+                                    payer_email: form.email
                                 }
                             },
                             customization: {
@@ -663,13 +769,22 @@
                                     return new Promise((resolve, reject) => {
                                         processing.value = true;
 
+                                        // RECALCULO DINÂMICO DO PREÇO E DESCRIÇÃO
+                                        let priceRaw = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
+                                        const finalAmount = parseFloat(priceRaw) || 1.00;
+
+                                        let itemsDesc = [product.value.name];
+                                        if (addSupport.value) itemsDesc.push("Suporte WhatsApp");
+                                        if (addCustomization.value) itemsDesc.push("Personalização");
+                                        const finalDescription = itemsDesc.join(' + ');
+
                                         fetch("api_pagamento.php?action=process_payment", {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({
                                                 ...formData,
-                                                description: description,
-                                                transaction_amount: amount,
+                                                description: finalDescription,
+                                                transaction_amount: finalAmount,
                                                 metadata: {
                                                     app_link: product.value.link,
                                                     payer_email: form.email,
@@ -701,8 +816,6 @@
                                                 else if (data.status === 'approved') {
                                                     paymentType.value = 'credit_card';
                                                     purchaseSuccess.value = true;
-
-                                                    // Captura License direto
                                                     if (data.license_key) licenseKey.value = data.license_key;
 
                                                     const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
@@ -782,7 +895,7 @@
                     purchaseSuccess, paymentType, pixData, generatedLink,
                     maskDoc, maskPhone, copyPix, initBrick, saveLead, startPolling,
                     addSupport, addCustomization, toggleOrderBump, toggleCustomization, totalPrice, touched, markTouched,
-                    licenseKey // Exportando para o template
+                    licenseKey, showOnboarding, contactSupport // Exportando para o template
                 };
             }
         }).mount('#app');
