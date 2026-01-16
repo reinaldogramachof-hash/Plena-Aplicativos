@@ -268,7 +268,8 @@
                                         <div class="pb-2">
                                             <h4 class="font-bold text-slate-800 text-sm">Verifique seu E-mail</h4>
                                             <p class="text-xs text-slate-500 mt-1">Enviamos os dados de acesso para:
-                                                <strong>{{ form.email }}</strong></p>
+                                                <strong>{{ form.email }}</strong>
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="flex gap-4">
@@ -279,9 +280,29 @@
                                             <!-- <div class="h-full w-0.5 bg-blue-100 -my-2"></div> -->
                                         </div>
                                         <div>
+                                            <h4 class="font-bold text-slate-800 text-sm">Sua Chave de Licença</h4>
+                                            <p class="text-xs text-slate-500 mt-1 mb-2">Copie e cole no aplicativo:</p>
+                                            <div v-if="licenseKey"
+                                                class="bg-blue-50 border border-blue-200 text-blue-800 font-mono font-bold text-lg p-2 rounded dashed border-2 text-center select-all cursor-pointer hover:bg-white transition"
+                                                @click="navigator.clipboard.writeText(licenseKey); alert('Chave copiada!')">
+                                                {{ licenseKey }} <i
+                                                    class="fa-regular fa-copy text-sm opacity-50 ml-2"></i>
+                                            </div>
+                                            <div v-else class="text-xs text-slate-400 italic">Verificando licença...
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-4">
+                                        <div class="flex-col items-center flex">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md z-10">
+                                                3</div>
+                                        </div>
+                                        <div>
                                             <h4 class="font-bold text-slate-800 text-sm">Acesse o Sistema</h4>
-                                            <p class="text-xs text-slate-500 mt-1">Clique no botão abaixo para entrar no
-                                                seu painel imediatamente.</p>
+                                            <p class="text-xs text-slate-500 mt-1">Clique no botão abaixo para entrar.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -450,15 +471,16 @@
             setup() {
                 const product = ref({ name: 'Carregando...', price: '0,00', desc: '', image: '' });
                 const form = reactive({ name: '', email: '', doc: '', phone: '' });
-                const touched = reactive({ doc: false }); // Para controlar quando mostrar erro
-                const addSupport = ref(false); // Order bump 1: Suporte
-                const addCustomization = ref(false); // Order bump 2: Personalização
+                const touched = reactive({ doc: false });
+                const addSupport = ref(false);
+                const addCustomization = ref(false);
 
                 const mpLoaded = ref(false);
                 const processing = ref(false);
                 const purchaseSuccess = ref(false);
                 const paymentType = ref('');
                 const pixData = reactive({ qr_base64: '', qr_code: '' });
+                const licenseKey = ref('');
                 const generatedLink = ref('https://plena-aplicativos.web.app/');
 
                 const toggleOrderBump = () => { addSupport.value = !addSupport.value; };
@@ -568,12 +590,10 @@
 
                 // 3. Captura de Lead (Abandono v3)
                 const saveLead = async () => {
-                    // Previne envios excessivos ou incompletos
                     if (form.name.length < 3) return;
                     if (!validations.value.email && !validations.value.phone) return;
 
                     try {
-                        // "Fire and forget" - não precisamos esperar a resposta para UI
                         fetch("api_pagamento.php?action=save_lead", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -584,10 +604,7 @@
                                 product: product.value.name
                             })
                         });
-                        // console.log("Lead salvo silenciosamente");
-                    } catch (e) {
-                        // Ignora erros silenciosamente para não atrapalhar UX
-                    }
+                    } catch (e) { }
                 };
 
                 // 4. Inicialização MP
@@ -595,7 +612,6 @@
                     if (mpLoaded.value) return;
 
                     try {
-                        // Tenta usar a configuração global (Produção)
                         const MP_KEY = (window.CONFIG && window.CONFIG.MP_PUBLIC_KEY) ? window.CONFIG.MP_PUBLIC_KEY : 'TEST-cb348507-8898-472d-8686-25f095908b6e';
                         console.log("Iniciando MP com Key:", MP_KEY);
 
@@ -605,15 +621,11 @@
                         let priceRaw = String(totalPrice.value).replace('R$', '').replace('.', '').replace(',', '.').trim();
                         const amount = parseFloat(priceRaw) || 1.00;
 
-                        // Constrói descrição do pedido
                         let itemsDesc = [product.value.name];
                         if (addSupport.value) itemsDesc.push("Suporte WhatsApp");
                         if (addCustomization.value) itemsDesc.push("Personalização");
 
                         const description = itemsDesc.join(' + ');
-
-                        console.log("Iniciando Brick com valor:", amount, "Desc:", description);
-
                         const cleanDoc = form.doc.replace(/\D/g, '');
                         const docType = cleanDoc.length === 14 ? 'CNPJ' : 'CPF';
 
@@ -627,7 +639,8 @@
                                     identification: { type: docType, number: cleanDoc }
                                 },
                                 metadata: {
-                                    app_link: product.value.link
+                                    app_link: product.value.link,
+                                    payer_email: form.email // Backup importantíssimo!
                                 }
                             },
                             customization: {
@@ -658,13 +671,16 @@
                                                 description: description,
                                                 transaction_amount: amount,
                                                 metadata: {
-                                                    app_link: product.value.link
+                                                    app_link: product.value.link,
+                                                    payer_email: form.email,
+                                                    payer_phone: form.phone,
+                                                    created_by: 'checkout_v2'
                                                 },
                                                 payer: {
                                                     email: form.email,
                                                     identification: {
-                                                        type: form.doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF',
-                                                        number: form.doc.replace(/\D/g, '')
+                                                        type: docType,
+                                                        number: cleanDoc
                                                     },
                                                     first_name: form.name
                                                 }
@@ -674,27 +690,25 @@
                                             .then(data => {
                                                 processing.value = false;
 
-                                                // Sucesso Pix
                                                 if (data.status === 'pending' && data.point_of_interaction) {
                                                     paymentType.value = 'pix';
                                                     pixData.qr_base64 = data.point_of_interaction.transaction_data.qr_code_base64;
                                                     pixData.qr_code = data.point_of_interaction.transaction_data.qr_code;
                                                     purchaseSuccess.value = true;
-
-                                                    // Inicia Polling
                                                     if (data.id) startPolling(data.id);
-
                                                     resolve();
                                                 }
-                                                // Sucesso Cartão
                                                 else if (data.status === 'approved') {
                                                     paymentType.value = 'credit_card';
                                                     purchaseSuccess.value = true;
 
-                                                    // Atualiza link final
-                                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
-                                                    generatedLink.value = "https://plenaaplicativos.com.br/" + finalLink;
+                                                    // Captura License direto
+                                                    if (data.license_key) licenseKey.value = data.license_key;
 
+                                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
+                                                    generatedLink.value = "https://www.plenaaplicativos.com.br/" + finalLink;
+
+                                                    if (!data.license_key && data.id) startPolling(data.id);
                                                     resolve();
                                                 } else {
                                                     alert("Status: " + (data.status_detail || data.message || "Não aprovado"));
@@ -736,15 +750,16 @@
                                 if (data.status === 'approved') {
                                     clearInterval(pollingInterval);
 
-                                    // Atualiza link final
-                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
-                                    generatedLink.value = "https://plenaaplicativos.com.br/" + finalLink;
+                                    if (data.license_key) licenseKey.value = data.license_key;
 
-                                    paymentType.value = 'credit_card'; // Torna a tela de sucesso visível
+                                    const finalLink = product.value.link || 'apps.plus/plena_alugueis.html';
+                                    generatedLink.value = "https://www.plenaaplicativos.com.br/" + finalLink;
+
+                                    paymentType.value = 'credit_card';
                                 }
                             })
                             .catch(console.error);
-                    }, 5000); // Checa a cada 5s
+                    }, 5000);
                 };
 
                 onMounted(() => {
@@ -766,7 +781,8 @@
                     product, form, validations, isFormValid, mpLoaded, processing,
                     purchaseSuccess, paymentType, pixData, generatedLink,
                     maskDoc, maskPhone, copyPix, initBrick, saveLead, startPolling,
-                    addSupport, addCustomization, toggleOrderBump, toggleCustomization, totalPrice, touched, markTouched
+                    addSupport, addCustomization, toggleOrderBump, toggleCustomization, totalPrice, touched, markTouched,
+                    licenseKey // Exportando para o template
                 };
             }
         }).mount('#app');

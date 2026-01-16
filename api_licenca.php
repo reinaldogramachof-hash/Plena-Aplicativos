@@ -35,6 +35,9 @@ if (!file_exists($LEADS_FILE)) {
     file_put_contents($LEADS_FILE, json_encode([]));
 }
 
+// 2.1 MAILER CENTRALIZADO
+require_once 'api_mailer.php';
+
 // 3. CAPTURA DE INPUT
 $action = $_GET['action'] ?? '';
 $json_input = file_get_contents('php://input');
@@ -212,7 +215,7 @@ if ($action === 'create') {
     if(strpos($product, 'Odonto') !== false) $path = 'apps.plus/plena_odonto.html';
     if(strpos($product, 'System') !== false) $path = 'apps.plus/plena_pdv.html'; // Exemplo
     
-    $fullLink = "https://plenaaplicativos.com.br/" . $path;
+    $fullLink = "https://www.plenaaplicativos.com.br/" . $path;
     
     $newLic = [
         "client" => $client,
@@ -336,26 +339,7 @@ if ($action === 'validate' || $action === 'validate_access') {
 
 
 // UTIL: EMAIL SENDER
-function sendLicenseEmail($to, $productName, $key, $link) {
-    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
-    
-    $subject = "✅ Seu Acesso: $productName";
-    $html = "
-    <div style='font-family:sans-serif; padding:20px;'>
-        <h2>Acesso Liberado</h2>
-        <p>Produto: <strong>$productName</strong></p>
-        <div style='background:#f0f9ff; padding:15px; border:1px solid #bae6fd; margin:10px 0;'>
-            Chave: <strong style='font-size:1.2em'>$key</strong>
-        </div>
-        <a href='$link' style='display:inline-block; padding:10px 20px; background:#2563eb; color:white; text-decoration:none; border-radius:5px;'>Acessar Sistema</a>
-    </div>";
-    
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: Plena Tecnologia <tecnologia@plenainformatica.com.br>\r\n";
-    
-    return mail($to, $subject, $html, $headers);
-}
+// Função sendLicenseEmail local removida. Usa api_mailer.php.
 
 // Default Check
 echo json_encode(["status" => "Online", "version" => "3.0"]);

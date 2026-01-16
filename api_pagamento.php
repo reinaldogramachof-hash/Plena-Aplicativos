@@ -16,51 +16,10 @@ function logMsg($msg) {
     file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . " - $msg" . PHP_EOL, FILE_APPEND);
 }
 
-// --- EMAIL SENDER (Robust) ---
-function sendLicenseEmail($to, $productName, $key, $link) {
-    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-        logMsg("ERRO EMAIL: Destinatário inválido ($to)");
-        return false;
-    }
+// --- EMAIL SENDER (Centralized) ---
+require_once 'api_mailer.php';
 
-    $subject = "✅ Seu Acesso Liberado: $productName";
-    
-    $htmlContent = "
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset='UTF-8'></head>
-    <body style='font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px;'>
-        <div style='max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; border: 1px solid #e2e8f0;'>
-            <h1 style='color: #2563EB; text-align: center;'>Plena Aplicativos</h1>
-            <p style='color: #334155; font-size: 16px;'>Olá,</p>
-            <p style='color: #334155;'>Pagamento confirmado! 🚀<br>Aqui está seu acesso ao <strong>$productName</strong>.</p>
-            
-            <div style='background-color: #eff6ff; border: 1px dashed #2563EB; padding: 25px; text-align: center; margin: 30px 0; border-radius: 8px;'>
-                <p style='margin: 0; color: #64748b; font-size: 12px; font-weight: bold;'>SUA CHAVE DE LICENÇA</p>
-                <h2 style='margin: 10px 0; font-family: monospace; font-size: 20px; color: #1e293b; background: white; padding: 10px; border: 1px solid #cbd5e1; display: inline-block;'>$key</h2>
-                <br><br>
-                <a href='$link' style='display: inline-block; background-color: #2563EB; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;'>👉 ACESSAR SISTEMA</a>
-            </div>
-
-            <p style='font-size: 12px; color: #94a3b8; text-align: center;'>Plena Soluções Digitais</p>
-        </div>
-    </body>
-    </html>";
-
-    $headers = array(
-        'MIME-Version: 1.0',
-        'Content-type: text/html; charset=UTF-8',
-        'From: Plena Tecnologia <tecnologia@plenainformatica.com.br>',
-        'Reply-To: suporte@plenainformatica.com.br',
-        'X-Mailer: PHP/' . phpversion()
-    );
-
-    $sent = mail($to, $subject, $htmlContent, implode("\r\n", $headers));
-    if($sent) logMsg("SUCESSO EMAIL: Enviado para $to");
-    else logMsg("FALHA EMAIL: Função mail() retornou FALSE para $to");
-    
-    return $sent;
-}
+// (Função sendLicenseEmail local removida para usar a do api_mailer.php)
 
 // --- HELPER: LEADS STATUS UPDATE (CRM) ---
 function updateLeadStatus($email, $newStatus) {
@@ -106,7 +65,19 @@ function processApprovedPayment($payment) {
     global $ACCESS_TOKEN;
     
     $id = $payment['id'];
-    $email = $payment['payer']['email'];
+    
+    // Tenta pegar email do payer. Se vier mascarado ou vazio, tenta metadata.
+    $email = $payment['payer']['email'] ?? '';
+    if (empty($email) || strpos($email, 'XXX') !== false) {
+        $email = $payment['metadata']['payer_email'] ?? $payment['metadata']['email'] ?? ''; // Tenta metadata
+    }
+    // Último recurso: tenta achar no log de leads pelo ID externo (se houvesse)
+    
+    if (empty($email) || strpos($email, '@') === false) {
+         logMsg("ERRO CRÍTICO: Não foi possível identificar o email do pagador. ID: $id");
+         $email = "erro_no_email_$id@plena.error"; // Placeholder para não quebrar a geração
+    }
+
     $prod = $payment['description'];
     
     // 1. Check Idempotency (File Lock)
@@ -135,16 +106,33 @@ function processApprovedPayment($payment) {
         
         // 3. Prepare Data
         $app_link = $payment['metadata']['app_link'] ?? 'apps.plus/plena_alugueis.html';
-        $full_link = (strpos($app_link, 'http') === 0) ? $app_link : "https://plenaaplicativos.com.br/" . ltrim($app_link, '/');
+        $full_link = (strpos($app_link, 'http') === 0) ? $app_link : "https://www.plenaaplicativos.com.br/" . ltrim($app_link, '/');
         
+        // 3.1 Metadata logging for debug
+        if (empty($email) || strpos($email, 'erro_no') !== false) {
+             logMsg("DEBUG METADATA: " . json_encode($payment['metadata']));
+        }
+
+        // 3.2 Extract Phone from Metadata
+        $phone = $payment['metadata']['payer_phone'] ?? '';
+
+        // 5. Envia Email E Captura Resultado (Moved up meant for Status)
+        $sentInfo = sendLicenseEmail($email, $prod, $key, $full_link);
+        $emailStatus = ($sentInfo === true || $sentInfo === 1) ? 'sent' : 'failed';
+
+        // 5.1 Update Lead CRM
+        updateLeadStatus($email, 'converted');
+
         $db[$key] = [
             "client" => $email,
+            "phone" => $phone, // Saving Phone
             "product" => $prod,
             "device_id" => null,
             "status" => "active",
             "created_at" => date('Y-m-d H:i:s'),
             "payment_id" => $id,
-            "app_link" => $full_link
+            "app_link" => $full_link,
+            "email_status" => $emailStatus 
         ];
         
         // 4. Write
@@ -155,11 +143,7 @@ function processApprovedPayment($payment) {
         flock($fp, LOCK_UN);
         fclose($fp);
         
-        logMsg("Licença GERADA: $key ($email) - Pagamento $id");
-        
-        // 5. CRM Update & Email
-        updateLeadStatus($email, 'converted');
-        sendLicenseEmail($email, $prod, $key, $full_link);
+        logMsg("Licença GERADA: $key ($email) - Status Email: $emailStatus");
         
         return $key;
         
