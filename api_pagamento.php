@@ -5,7 +5,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 
 // Carrega segredos (Token MP e Senha Admin)
-if(file_exists('secrets.php')) require_once 'secrets.php';
+if(file_exists(__DIR__ . '/secrets.php')) require_once __DIR__ . '/secrets.php';
 
 $json_input = file_get_contents('php://input');
 $data = json_decode($json_input, true);
@@ -17,7 +17,12 @@ function logMsg($msg) {
 }
 
 // --- EMAIL SENDER (Centralized) ---
-require_once 'api_mailer.php';
+// Verifica se o mailer existe antes de carregar
+if (file_exists(__DIR__ . '/api_mailer.php')) {
+    require_once __DIR__ . '/api_mailer.php';
+} else {
+    logMsg("ERRO CRÍTICO: api_mailer.php não encontrado!");
+}
 
 // (Função sendLicenseEmail local removida para usar a do api_mailer.php)
 
@@ -81,10 +86,13 @@ function processApprovedPayment($payment) {
     $prod = $payment['description'];
     
     // 1. Check Idempotency (File Lock)
-    $db_file = 'database_licenses_secure.json';
+    $data_dir = __DIR__ . '/';
+    // if (!file_exists($data_dir)) { mkdir($data_dir, 0755, true); }
+    
+    $db_file = $data_dir . 'database_licenses_secure.json';
     
     $fp = fopen($db_file, 'c+');
-    if (!$fp) { logMsg("ERRO FATAL: Não foi possível abrir DB licenses."); return false; }
+    if (!$fp) { logMsg("ERRO FATAL: Não foi possível abrir DB licenses em $db_file"); return false; }
     
     if (flock($fp, LOCK_EX)) {
         $fsize = filesize($db_file);
@@ -123,16 +131,33 @@ function processApprovedPayment($payment) {
         // 5.1 Update Lead CRM
         updateLeadStatus($email, 'converted');
 
+        // Calcula expiração (Padrão 30 dias para testes/mensal)
+        $expiresIndex = 30; // Dias
+        $licenseType = 'monthly';
+        
+        $price = $payment['transaction_amount'] ?? 0;
+        
+        // Simples lógica para detectar anual/vitalício pelo valor (opcional) ou metadata
+        // Se metadata tiver duration, usamos
+        if(isset($payment['metadata']['duration_days'])) {
+             $expiresIndex = (int)$payment['metadata']['duration_days'];
+        }
+        
+        $expires_at = date('Y-m-d H:i:s', strtotime("+$expiresIndex days"));
+
         $db[$key] = [
             "client" => $email,
-            "phone" => $phone, // Saving Phone
+            "phone" => $phone,
             "product" => $prod,
+            "price" => (float)$price,
+            "license_type" => $licenseType,
             "device_id" => null,
             "status" => "active",
             "created_at" => date('Y-m-d H:i:s'),
+            "expires_at" => $expires_at,
             "payment_id" => $id,
             "app_link" => $full_link,
-            "email_status" => $emailStatus 
+            "email_status" => $emailStatus
         ];
         
         // 4. Write
