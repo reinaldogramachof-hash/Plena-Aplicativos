@@ -27,10 +27,9 @@
 
     <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
 
-    <!-- Gatekeeper License & Demo Mode -->
-    <script src="../assets/js/plena-lock.js"></script>
+
 
     <!-- Configuração Tailwind -->
     <script>
@@ -57,7 +56,7 @@
         }
     </script>
 
-    <style>
+    <style type="text/tailwindcss">
         /* Mobile Optimizations */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -457,7 +456,7 @@
         <button onclick="router('dashboard')"
             class="nav-btn active flex-1 flex flex-col items-center justify-center gap-1 text-gray-400 p-2"
             id="nav-dashboard">
-            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+            <i data-lucide="bike" class="w-6 h-6"></i>
             <span class="text-[10px] font-medium">Início</span>
         </button>
 

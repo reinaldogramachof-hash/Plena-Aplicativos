@@ -385,7 +385,7 @@
         </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
-            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2025</p>
+            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2026</p>
             <a href="https://www.plenaaplicativos.com.br" target="_blank"
                 class="text-[10px] text-gray-600 hover:text-plena-blue transition-colors mt-1 block decoration-0">
                 Plena Soluções Digitais LTDA
@@ -1533,10 +1533,10 @@
                         <p class="text-gray-500 text-sm mb-6">
                             Nossa equipe de suporte responde em até 24h úteis.
                         </p>
-                        <a href="mailto:tecnologia@plenainformatica.com.br"
+                        <a href="mailto:tecnologia@plenaaplicativos.com.br"
                             class="inline-flex items-center text-plena-blue font-bold hover:underline">
                             <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
-                            tecnologia@plenainformatica.com.br
+                            tecnologia@plenaaplicativos.com.br
                         </a>
                     </div>
 
@@ -1649,12 +1649,12 @@
                             </div>
 
                             <div>
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                <a href="mailto:tecnologia@plenaaplicativos.com.br"
                                     class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-slate-100 transition-transform transform hover:scale-105 shadow-lg">
                                     <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                     Falar com Suporte
                                 </a>
-                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
                             </div>
                         </div>
                     </div>
@@ -1939,7 +1939,7 @@
                 <div class="mt-4 pt-4 border-t border-slate-100 text-center">
                     <a href="https://www.plenaaplicativos.com.br" target="_blank"
                         class="text-[10px] text-slate-400 hover:text-plena-blue no-underline">
-                        Plena Soluções Digitais &copy; 2025
+                        Plena Soluções Digitais &copy; 2026
                     </a>
                 </div>
             </div>
@@ -1992,16 +1992,7 @@
 
     <!-- JavaScript -->
     <script>
-        // 🔒 DADOS DA LICENÇA (INSTRUÇÕES PARA O GERADOR)
-        // O Gerador de Licenças deve localizar esta constante e preencher os dados abaixo:
-        const LICENSE_DATA = {
-            active: false,      // ALTERAR PARA true PARA ATIVAR A LICENÇA
-            businessName: "",   // NOME DA BARBEARIA (Ex: Barbearia do Zé)
-            ownerName: "",      // NOME DO RESPONSÁVEL (Ex: João Silva)
-            ownerDoc: ""        // CPF OU CNPJ (Ex: 123.456.789-00)
-        };
-        // Protege contra modificações em tempo de execução via Console
-        Object.freeze(LICENSE_DATA);
+
 
         // ESTADO GLOBAL
         const DB_KEY = 'plena_barber_pro_v2';
@@ -2111,56 +2102,7 @@
             document.getElementById('biz-doc').value = db.settings.businessDoc || '';
             document.getElementById('biz-hours').value = db.settings.businessHours || '';
 
-            // 🔐 VERIFICAÇÃO DE LICENÇA (Hook V4)
-            if (typeof LICENSE_DATA !== 'undefined' && LICENSE_DATA.active) {
-                // 0. Forçar dados no DB
-                // Se o gerador fornecer um nome de barbearia, ele será aplicado. Caso contrário, mantém-se a personalização.
-                if (LICENSE_DATA.businessName && LICENSE_DATA.businessName.trim() !== "") {
-                    db.settings.businessName = LICENSE_DATA.businessName;
-                }
-                db.settings.businessOwner = LICENSE_DATA.ownerName;
-                db.settings.businessDoc = LICENSE_DATA.ownerDoc;
 
-                // 1. Preencher e Travar Dados
-                const nameInput = document.getElementById('biz-name');
-                const ownerInput = document.getElementById('biz-owner');
-                const docInput = document.getElementById('biz-doc');
-                const hoursInput = document.getElementById('biz-hours');
-
-                if (nameInput && LICENSE_DATA.businessName && LICENSE_DATA.businessName.trim() !== "") {
-                    nameInput.value = LICENSE_DATA.businessName;
-                    nameInput.disabled = true;
-                    nameInput.classList.add('bg-slate-100', 'cursor-not-allowed');
-                }
-
-                if (ownerInput) {
-                    ownerInput.value = LICENSE_DATA.ownerName;
-                    ownerInput.disabled = true;
-                    ownerInput.classList.add('bg-slate-100', 'cursor-not-allowed');
-                }
-
-                if (docInput) {
-                    docInput.value = LICENSE_DATA.ownerDoc;
-                    docInput.disabled = true;
-                    docInput.classList.add('bg-slate-100', 'cursor-not-allowed');
-
-                    // Adicionar indicador visual de licença
-                    if (!docInput.parentElement.querySelector('.lock-icon')) {
-                        docInput.parentElement.insertAdjacentHTML('beforeend',
-                            `<span class="lock-icon text-[10px] text-plena-blue font-bold flex items-center mt-1"><i data-lucide="lock" class="w-3 h-3 mr-1"></i> Licença Vitalícia Ativa</span>`
-                        );
-                    }
-                }
-
-                // 2. Marca D'água Sidebar (Rodapé)
-                const sidebarFooter = document.querySelector('aside .border-t');
-                if (sidebarFooter && !sidebarFooter.querySelector('.license-watermark')) {
-                    const licenseDiv = document.createElement('div');
-                    licenseDiv.className = 'license-watermark mt-2 pt-2 border-t border-white/5 text-[10px] text-white/50 font-mono';
-                    licenseDiv.innerHTML = `Licenciado para:<br><strong class="text-white/80">${sanitizeHTML(LICENSE_DATA.ownerName)}</strong><br>CPF/CNPJ: ${sanitizeHTML(LICENSE_DATA.ownerDoc)}`;
-                    sidebarFooter.appendChild(licenseDiv);
-                }
-            }
 
             // Renderizar dados iniciais
             renderDashboard();
@@ -3538,14 +3480,7 @@
             showNotification('Modo offline ativado. Seus dados estão seguros localmente.', 'warning');
         });
 
-        // SECURITY CHECK
-        setInterval(() => {
-            const footer = document.querySelector('.sidebar .border-t');
-            if (footer && !footer.innerText.includes('Plena')) {
-                document.body.innerHTML = '<div style="background:#111;color:red;height:100vh;display:flex;align-items:center;justify-content:center;"><h1>VIOLAÇÃO DE SEGURANÇA</h1></div>';
-                throw new Error("Piracy");
-            }
-        }, 8000);
+
 
         // === MANUAL INTERATIVO PADRONIZADO ===
         function scrollToSection(sectionId) {

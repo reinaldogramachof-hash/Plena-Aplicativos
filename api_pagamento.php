@@ -13,7 +13,7 @@ $action = $_GET['action'] ?? '';
 
 // --- LOGGING ---
 function logMsg($msg) {
-    file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . " - $msg" . PHP_EOL, FILE_APPEND);
+    file_put_contents(__DIR__ . '/debug_log.txt', date('Y-m-d H:i:s') . " - $msg" . PHP_EOL, FILE_APPEND);
 }
 
 // --- EMAIL SENDER (Centralized) ---

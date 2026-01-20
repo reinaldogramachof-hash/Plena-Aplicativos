@@ -1,41 +1,47 @@
 <?php
-// api_mailer.php - V1.0 - Centralized Email Engine
+// api_mailer.php - V2.0 - SMTP Authenticated Mailer
+// Uses SimpleMailer.php for robust delivery
 
-// Evita redefinição se incluído múltiplas vezes
+// Ensure dependencies
+if (file_exists(__DIR__ . '/SimpleMailer.php')) {
+    require_once __DIR__ . '/SimpleMailer.php';
+}
+if (file_exists(__DIR__ . '/secrets.php')) {
+    require_once __DIR__ . '/secrets.php';
+}
+
+// Logging Helper (Absolute Path Fix)
 if (!function_exists('plena_log_mail')) {
     function plena_log_mail($msg) {
-        $logFile = 'debug_log.txt';
+        $logFile = __DIR__ . '/debug_log.txt';
         $entry = date('Y-m-d H:i:s') . " - [MAILER] " . $msg . PHP_EOL;
         file_put_contents($logFile, $entry, FILE_APPEND);
     }
 }
 
 /**
- * Envia o e-mail de licença com template PREMIUM.
- * @param string $to Email do destinatário
- * @param string $productName Nome do Produto
- * @param string $key Chave de Licença
- * @param string $link Link de Acesso
- * @return bool Sucesso ou Falha
+ * Envia o e-mail de licença com template PREMIUM via SMTP.
  */
 function sendLicenseEmail($to, $productName, $key, $link) {
+    global $SMTP_HOST, $SMTP_PORT, $SMTP_USER, $SMTP_PASS;
+
     // 1. Validação Básica
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
         plena_log_mail("ERRO: Email inválido ($to)");
         return false;
     }
 
-    // 2. Configurações de Remetente (ESTRATÉGIA CROSS-DOMAIN)
-    // O 'From' DEVE ser do mesmo domínio onde o site está hospedado (plenaaplicativos)
-    // O 'Reply-To' é para onde a resposta vai (plenainformatica)
-    $senderEmail = 'noreply@plenaaplicativos.com.br'; 
-    $senderName = 'Plena Tecnologia';
-    $replyTo = 'tecnologia@plenainformatica.com.br';
+    // 2. Verifica Credenciais
+    if (empty($SMTP_PASS) || $SMTP_PASS === 'SUA_SENHA_DO_EMAIL_AQUI') {
+        plena_log_mail("ERRO CONFIG: Senha SMTP não configurada em secrets.php");
+        // Fallback to mail() if desired, but let's fail loudly to force fix
+        return false;
+    }
 
-    // 3. Assunto com Emoji para destaque
+    // 3. Assunto
     $subject = "✅ Seu Acesso Liberado: $productName";
 
-    // 4. Template HTML Premium
+    // 4. Template HTML
     $htmlContent = "
     <!DOCTYPE html>
     <html lang='pt-BR'>
@@ -95,26 +101,21 @@ function sendLicenseEmail($to, $productName, $key, $link) {
     </html>
     ";
 
-    // 5. Headers Otimizados para HostGator (Exim/cPanel)
-    $headers  = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8" . "\r\n";
-    $headers .= "From: $senderName <$senderEmail>" . "\r\n";
-    $headers .= "Reply-To: $replyTo" . "\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
-    // Return-Path é definido via paramentro -f abaixo, não no header string, para evitar conflitos.
+    // 5. Instancia SimpleMailer
+    $mailer = new SimpleMailer($SMTP_HOST, $SMTP_PORT, $SMTP_USER, $SMTP_PASS);
+    
+    // Opcional: Ativar debug se necessário
+    // $mailer->setDebug(true);
 
-    // 6. Envio com flag -f (CRUCIAL PARA HOSTGATOR)
-    // O parametro "-f" força o envelope-sender, autenticando o envio no servidor.
-    $params = "-f$senderEmail";
-
-    $sent = mail($to, $subject, $htmlContent, $headers, $params);
+    $sent = $mailer->send($to, $subject, $htmlContent, $SMTP_USER, "Plena Tecnologia");
 
     if($sent) {
-        plena_log_mail("SUCESSO: E-mail de '$productName' enviado para $to");
+        plena_log_mail("SUCESSO SMTP: Licença enviada para $to");
     } else {
-        plena_log_mail("FALHA CRÍTICA: Função mail() falhou para $to");
+        $logs = implode(" | ", $mailer->getLogs());
+        plena_log_mail("FALHA SMTP: erro crítico para $to. LOGS: $logs");
     }
 
     return $sent;
 }
-?>
+

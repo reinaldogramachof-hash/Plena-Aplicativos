@@ -375,7 +375,7 @@
         </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
-            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2025</p>
+            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2026</p>
             <a href="https://www.plenaaplicativos.com.br" target="_blank"
                 class="text-[10px] text-gray-600 hover:text-plena-rose transition-colors mt-1 block decoration-0">
                 Plena Soluções Digitais LTDA
@@ -844,193 +844,716 @@
             </section>
 
             <!-- Instructions View - Manual Completo -->
-            <!-- Manual/Instructions View -->
             <section id="view-instructions" class="view-section hide fade-in">
-                <div class="max-w-4xl mx-auto">
-                    <!-- Hero Section -->
-                    <div class="text-center mb-10">
-                        <div class="inline-flex items-center justify-center p-3 bg-plena-blue/10 rounded-2xl mb-4">
-                            <i data-lucide="book-open" class="w-8 h-8 text-plena-blue"></i>
+                <div class="max-w-5xl mx-auto pb-12">
+                    <!--Hero Header-->
+                    <div class="text-center mb-12">
+                        <div
+                            class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-rose to-plena-dark rounded-2xl mb-6 shadow-lg shadow-pink-200">
+                            <i data-lucide="sparkles" class="w-12 h-12 text-white"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-3">Manual de Uso</h2>
-                        <p class="text-gray-600 max-w-lg mx-auto">Guia completo para você dominar todas as funcionalidades do seu sistema de Gestão de Salão e Beleza.</p>
+                        <h2 class="text-3xl font-bold text-slate-800 mb-3">Manual Completo de Uso</h2>
+                        <p class="text-slate-600 text-lg mb-6">Guia passo a passo para gestores de salões de beleza</p>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <span
+                                class="px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-100">✓
+                                Para Iniciantes</span>
+                            <span
+                                class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">📱
+                                Mobile e Desktop</span>
+                            <span
+                                class="px-4 py-2 bg-purple-50 text-purple-700 rounded-full text-sm font-medium border border-purple-100">⚡
+                                Rápido e Prático</span>
+                        </div>
                     </div>
 
-                    <!-- Progress Bar -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-gray-800">Seu Progresso no Aprendizado</h3>
-                            <span id="tutorial-percent" class="text-plena-blue font-bold">0%</span>
+                    <!-- Tutorial Progress Bar -->
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800">Progresso do Tutorial</h3>
+                            <span id="completed-steps" class="text-sm text-gray-600">0/7 etapas</span>
                         </div>
-                        <div class="progress-bar mb-2">
+                        <div class="progress-bar mb-6">
                             <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
                         </div>
-                        <p class="text-xs text-gray-500">Complete a leitura de todos os tópicos para dominar o sistema.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                            <button onclick="scrollToSection('instalacao')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">1.
+                                Instalação</button>
+                            <button onclick="scrollToSection('primeiro-cadastro')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">2.
+                                Configuração</button>
+                            <button onclick="scrollToSection('agendamentos-gestao')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">3.
+                                Agendamentos</button>
+                            <button onclick="scrollToSection('relatorios')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">4.
+                                Relatórios</button>
+                            <button onclick="scrollToSection('backup')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">5.
+                                Backup</button>
+                            <button onclick="scrollToSection('duvidas')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">6.
+                                FAQ</button>
+                            <button onclick="scrollToSection('checklist')"
+                                class="text-xs py-2 px-3 bg-gray-50 hover:bg-plena-rose hover:text-white rounded-lg transition-colors">7.
+                                Checklist</button>
+                        </div>
                     </div>
 
-                    <!-- Manual Accordion -->
-                    <div class="space-y-4 mb-12">
-                        <!-- Step 1 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step1')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">1</div>
-                                    <h3 class="font-bold text-gray-800">Instalação e Mobile</h3>
+                    <!-- Seção 1: Instalação -->
+                    <div id="instalacao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">1
                                 </div>
-                                <i data-lucide="chevron-down" id="icon-step1" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step1" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Acesse seu salão de qualquer lugar instalando o sistema como um app.</p>
-                                <ul class="space-y-3 text-sm text-gray-600 mb-6">
-                                    <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-500 mt-0.5"></i> <strong>Android:</strong> Menu Chrome > "Instalar aplicativo".</li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-500 mt-0.5"></i> <strong>iPhone:</strong> Compartilhar Safari > "Adicionar à Tela de Início".</li>
-                                </ul>
-                                <button onclick="markSectionComplete('instalacao')" class="w-full mt-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
+                                <h3 class="text-xl font-bold text-gray-800">Instalação do Sistema</h3>
                             </div>
+                            <button onclick="markSectionComplete('instalacao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
                         </div>
 
-                        <!-- Step 2 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step2')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold">2</div>
-                                    <h3 class="font-bold text-gray-800">Equipe e Serviços</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step2" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step2" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Cadastre seus profissionais e os serviços oferecidos com seus respectivos preços e durações.</p>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="p-4 bg-orange-50 rounded-xl">
-                                        <h4 class="font-bold text-orange-700 text-sm mb-2">Equipe</h4>
-                                        <p class="text-xs text-orange-600">Defina as comissões de cada profissional.</p>
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-white mb-6">
+                            <h4 class="font-bold text-lg mb-4 flex items-center">
+                                <i data-lucide="download" class="w-5 h-5 mr-2 text-green-400"></i>
+                                Transforme em App no Seu Celular
+                            </h4>
+                            <p class="text-sm text-gray-300 mb-6">O Plena Beleza funciona como um aplicativo nativo.
+                                Siga os passos abaixo para instalar:</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Android -->
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <i data-lucide="smartphone" class="w-5 h-5 mr-2"></i>Android (Chrome)
                                     </div>
-                                    <div class="p-4 bg-orange-50 rounded-xl">
-                                        <h4 class="font-bold text-orange-700 text-sm mb-2">Serviços</h4>
-                                        <p class="text-xs text-orange-600">Organize seu catálogo de procedimentos.</p>
+                                    <ol class="space-y-2 text-sm text-gray-200">
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                1</div>
+                                            <span>Abra este site no <strong>Google Chrome</strong></span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                2</div>
+                                            <span>Toque nos <strong>3 pontinhos</strong> no canto superior</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                3</div>
+                                            <span>Selecione <strong>"Adicionar à tela inicial"</strong></span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                4</div>
+                                            <span>Confirme e pronto! O ícone aparecerá na tela</span>
+                                        </li>
+                                    </ol>
+                                </div>
+
+                                <!-- iPhone -->
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <i data-lucide="apple" class="w-5 h-5 mr-2"></i>iPhone (Safari)
+                                    </div>
+                                    <ol class="space-y-2 text-sm text-gray-200">
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                1</div>
+                                            <span>Abra este site no <strong>Safari</strong></span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                2</div>
+                                            <span>Toque no botão <strong>Compartilhar</strong> (seta para cima)</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                3</div>
+                                            <span>Role e toque em <strong>"Adicionar à Tela de Início"</strong></span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                4</div>
+                                            <span>Toque em <strong>"Adicionar"</strong> no canto superior</span>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                                <p class="text-sm flex items-center">
+                                    <i data-lucide="alert-circle" class="w-5 h-5 mr-2 text-yellow-300"></i>
+                                    <strong>Importante:</strong> <span class="ml-2">Sempre abra pelo ícone na tela
+                                        inicial, não pelo navegador.</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção 2: Configuração Inicial -->
+                    <div id="primeiro-cadastro"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">2
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Configuração Inicial (10 Minutos)</h3>
+                            </div>
+                            <button onclick="markSectionComplete('primeiro-cadastro')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="bg-rose-50 p-5 rounded-xl border border-rose-100">
+                                    <h4 class="font-bold text-rose-700 mb-3 flex items-center"><i data-lucide="sparkles"
+                                            class="w-5 h-5 mr-2"></i>PASSO 1: Dados do Salão</h4>
+                                    <ol class="space-y-3 text-sm">
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
+                                            <div><strong>Clique em "Configurações"</strong>
+                                                <p class="text-gray-600 text-xs">Ícone da engrenagem</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
+                                            <div><strong>Nome do Salão</strong>
+                                                <p class="text-gray-600 text-xs">Ex: "Glamour Beleza"</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                C</div>
+                                            <div><strong>Horário de Funcionamento</strong>
+                                                <p class="text-gray-600 text-xs">Ex: "09:00 às 19:00"</p>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                </div>
+                                <div class="bg-green-50 p-5 rounded-xl border border-green-100">
+                                    <h4 class="font-bold text-green-700 mb-3 flex items-center"><i
+                                            data-lucide="calendar" class="w-5 h-5 mr-2"></i>PASSO 2: Primeiro
+                                        Agendamento</h4>
+                                    <ol class="space-y-3 text-sm">
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
+                                            <div><strong>Clique em "Novo Agendamento"</strong>
+                                                <p class="text-gray-600 text-xs">Botão rosa no topo</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
+                                            <div><strong>Preencha os dados:</strong>
+                                                <div class="code-block mt-1 text-xs">Cliente: "Maria
+                                                    Silva"<br>Data/Hora: Escolha<br>Serviço: "Corte
+                                                    Feminino"<br>Profissional: Selecione</div>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-purple-50 p-5 rounded-xl border border-purple-100">
+                                    <h4 class="font-bold text-plena-rose mb-3 flex items-center"><i data-lucide="user"
+                                            class="w-5 h-5 mr-2"></i>PASSO 3: Cadastrar Profissional</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-start"><i data-lucide="check"
+                                                class="w-4 h-4 text-green-500 mt-0.5 mr-2"></i><span><strong>Nome
+                                                    completo</strong></span></div>
+                                        <div class="flex items-start"><i data-lucide="check"
+                                                class="w-4 h-4 text-green-500 mt-0.5 mr-2"></i><span><strong>Porcentagem
+                                                    de comissão</strong> (ex: 50%)</span></div>
+                                    </div>
+                                    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                        <p class="text-xs text-yellow-800"><strong>💡 Dica:</strong> A comissão é
+                                            calculada automaticamente!</p>
                                     </div>
                                 </div>
-                                <button onclick="markSectionComplete('config')" class="w-full mt-6 py-3 bg-orange-50 text-orange-600 font-bold rounded-lg hover:bg-orange-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
+                                <div
+                                    class="bg-gradient-to-r from-green-50 to-rose-50 p-5 rounded-xl border border-green-200">
+                                    <h4 class="font-bold text-gray-800 mb-2 flex items-center"><i data-lucide="zap"
+                                            class="w-5 h-5 mr-2 text-green-600"></i>Configuração Concluída!</h4>
+                                    <p class="text-sm text-gray-700 mb-3">Sistema pronto para uso!</p>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="bg-white p-2 rounded-lg text-center"><i data-lucide="calendar"
+                                                class="w-5 h-5 text-plena-rose mx-auto mb-1"></i>
+                                            <p class="text-[10px] font-bold">Agenda</p>
+                                        </div>
+                                        <div class="bg-white p-2 rounded-lg text-center"><i data-lucide="users"
+                                                class="w-5 h-5 text-plena-rose mx-auto mb-1"></i>
+                                            <p class="text-[10px] font-bold">Profissionais</p>
+                                        </div>
+                                        <div class="bg-white p-2 rounded-lg text-center"><i data-lucide="sparkles"
+                                                class="w-5 h-5 text-plena-rose mx-auto mb-1"></i>
+                                            <p class="text-[10px] font-bold">Serviços</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Step 3 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step3')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold">3</div>
-                                    <h3 class="font-bold text-gray-800">Agendamentos e Atendimentos</h3>
+                    <!-- Seção 3: Gestão de Agendamentos -->
+                    <div id="agendamentos-gestao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">3
                                 </div>
-                                <i data-lucide="chevron-down" id="icon-step3" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                                <h3 class="text-xl font-bold text-gray-800">Gestão de Agendamentos</h3>
+                            </div>
+                            <button onclick="markSectionComplete('agendamentos-gestao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
-                            <div id="step3" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Gerencie sua agenda diária e finalize os atendimentos para alimentar o caixa.</p>
-                                <ul class="space-y-3 text-sm text-gray-600">
-                                    <li class="flex items-start gap-2"><i data-lucide="calendar" class="w-4 h-4 text-green-500 mt-0.5"></i> Clique em "Novo" na Agenda para marcar um horário.</li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check-square" class="w-4 h-4 text-green-500 mt-0.5"></i> Ao terminar o serviço, clique em "Concluir" para registrar o pagamento.</li>
+                        </div>
+                        <div
+                            class="bg-gradient-to-r from-rose-50 to-purple-50 p-5 rounded-xl border border-rose-200 mb-6">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center"><i data-lucide="calendar-check"
+                                    class="w-5 h-5 mr-2 text-plena-rose"></i>Fluxo do Agendamento</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+                                <div class="bg-white p-3 rounded-lg text-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-2">
+                                        <span class="font-bold text-rose-700">1</span>
+                                    </div>
+                                    <p class="font-bold text-gray-800">Agendado</p>
+                                    <p class="text-gray-600">Cliente marcou</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg text-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                                        <span class="font-bold text-green-700">2</span>
+                                    </div>
+                                    <p class="font-bold text-gray-800">Confirmado</p>
+                                    <p class="text-gray-600">Via WhatsApp</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg text-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
+                                        <span class="font-bold text-yellow-700">3</span>
+                                    </div>
+                                    <p class="font-bold text-gray-800">Atendimento</p>
+                                    <p class="text-gray-600">Em andamento</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg text-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
+                                        <span class="font-bold text-purple-700">4</span>
+                                    </div>
+                                    <p class="font-bold text-gray-800">Finalizado</p>
+                                    <p class="text-gray-600">Concluído</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg text-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                                        <span class="font-bold text-green-700">✓</span>
+                                    </div>
+                                    <p class="font-bold text-gray-800">Pago</p>
+                                    <p class="text-gray-600">Caixa + Comissão</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-rose-50 p-4 rounded-xl border border-rose-100">
+                                <h5 class="font-bold text-rose-700 mb-2 flex items-center text-sm"><i
+                                        data-lucide="calendar" class="w-4 h-4 mr-2"></i>Dicas para Agenda</h5>
+                                <ul class="space-y-1 text-xs text-gray-700">
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Confirme horários por
+                                            WhatsApp</span></li>
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Evite atrasos na
+                                            agenda</span></li>
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Deixe intervalo para
+                                            almoço</span></li>
                                 </ul>
-                                <button onclick="markSectionComplete('agendamentos')" class="w-full mt-6 py-3 bg-green-50 text-green-600 font-bold rounded-lg hover:bg-green-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
                             </div>
-                        </div>
-
-                        <!-- Step 4 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step4')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">4</div>
-                                    <h3 class="font-bold text-gray-800">Relatórios Financeiros</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step4" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step4" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Acompanhe o faturamento, despesas e comissões a pagar.</p>
-                                <div class="space-y-4 text-sm text-gray-600">
-                                    <p>O sistema calcula automaticamente quanto cada profissional deve receber de comissão baseado nos serviços realizados.</p>
-                                </div>
-                                <button onclick="markSectionComplete('relatorios')" class="w-full mt-6 py-3 bg-purple-50 text-purple-600 font-bold rounded-lg hover:bg-purple-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step5')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 font-bold">5</div>
-                                    <h3 class="font-bold text-gray-800">Backup e Segurança</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step5" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step5" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-4">
-                                    <p class="text-xs text-red-800 font-bold mb-1">Atenção!</p>
-                                    <p class="text-xs text-red-700 leading-relaxed">Seus dados ficam salvos apenas no seu dispositivo. Faça backup semanal na aba Ajustes para evitar perdas.</p>
-                                </div>
-                                <button onclick="markSectionComplete('backup')" class="w-full mt-6 py-3 bg-yellow-50 text-yellow-600 font-bold rounded-lg hover:bg-yellow-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 6 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step6')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-bold">6</div>
-                                    <h3 class="font-bold text-gray-800">Dúvidas Frequentes</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step6" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step6" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div class="space-y-4 text-sm text-gray-600">
-                                    <details class="group">
-                                        <summary class="font-bold cursor-pointer list-none flex justify-between">Como cadastrar novos serviços? <i data-lucide="plus" class="w-4 h-4"></i></summary>
-                                        <p class="mt-2 text-xs">Vá na aba "Serviços" e preencha o nome, preço e tempo médio de execução.</p>
-                                    </details>
-                                </div>
-                                <button onclick="markSectionComplete('faq')" class="w-full mt-6 py-3 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 7 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step7')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 font-bold">7</div>
-                                    <h3 class="font-bold text-gray-800">Checklist Diário</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step7" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step7" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div id="checklist-container" class="space-y-3">
-                                    <!-- Checklist items -->
-                                </div>
-                                <button onclick="markSectionComplete('checklist')" class="w-full mt-6 py-3 bg-gray-50 text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                                <h5 class="font-bold text-green-700 mb-2 flex items-center text-sm"><i
+                                        data-lucide="dollar-sign" class="w-4 h-4 mr-2"></i>Como Funciona a Comissão</h5>
+                                <ul class="space-y-1 text-xs text-gray-700">
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Calculada
+                                            automaticamente</span></li>
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Baseada no % do
+                                            profissional</span></li>
+                                    <li class="flex items-start"><i data-lucide="check"
+                                            class="w-3 h-3 text-green-500 mr-2 mt-0.5"></i><span>Relatório detalhado
+                                            disponível</span></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Support Card -->
-                    <div class="bg-gradient-to-r from-plena-rose to-pink-700 rounded-3xl p-8 text-white text-center shadow-xl shadow-pink-100">
-                        <h3 class="text-2xl font-bold mb-2">Suporte Plena Beleza</h3>
-                        <p class="text-pink-100 mb-6">tecnologia@plenainformatica.com.br</p>
+                    <!-- Seção 4: Relatórios -->
+                    <div id="relatorios"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">4
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Relatórios e Análise</h3>
+                            </div>
+                            <button onclick="markSectionComplete('relatorios')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-rose-50 to-white p-5 rounded-xl border border-rose-100">
+                                <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center mb-3"><i
+                                        data-lucide="calendar" class="w-5 h-5 text-rose-600"></i></div>
+                                <h4 class="font-bold text-gray-800 mb-2">Mensal</h4>
+                                <p class="text-xs text-gray-600">Resumo de agendamentos, faturamento e clientes</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                                    <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 mb-2">Por Profissional</h4>
+                                <p class="text-xs text-gray-600">Ranking de atendimentos e performance</p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
+                                    <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 mb-2">Comissões</h4>
+                                <p class="text-xs text-gray-600">Total a pagar para cada profissional</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Seção 5: Backup e Segurança -->
+                    <div id="backup"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">5
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Backup e Segurança dos Dados</h3>
+                            </div>
+                            <button onclick="markSectionComplete('backup')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-6">
+                            <h4 class="font-bold text-red-800 mb-3 flex items-center"><i data-lucide="alert-octagon"
+                                    class="w-5 h-5 mr-2"></i>ATENÇÃO: Leia com Cuidado!</h4>
+                            <div class="text-sm text-red-800 space-y-2">
+                                <p>📱 <strong>Seus dados ficam APENAS no seu celular/computador.</strong></p>
+                                <p>🔄 <strong>Se você perder o aparelho, perderá TODOS os dados.</strong></p>
+                                <p>💾 <strong>O backup é SUA responsabilidade.</strong> Faça SEMPRE!</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-green-50 p-5 rounded-xl border border-green-200">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="download"
+                                        class="w-5 h-5 mr-2 text-green-600"></i>Como Fazer Backup</h4>
+                                <ol class="space-y-3 text-sm">
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            1</div>
+                                        <div><strong>Acesse Configurações</strong>
+                                            <p class="text-gray-600 text-xs">Menu lateral → Engrenagem</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            2</div>
+                                        <div><strong>Clique "Baixar Backup (.json)"</strong>
+                                            <p class="text-gray-600 text-xs">Na seção "Segurança de Dados"</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            3</div>
+                                        <div><strong>Salve em 2 Lugares</strong>
+                                            <p class="text-gray-600 text-xs">Google Drive + WhatsApp</p>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="bg-rose-50 p-5 rounded-xl border border-rose-200">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center"><i data-lucide="refresh-cw"
+                                        class="w-5 h-5 mr-2 text-rose-600"></i>Como Restaurar Backup</h4>
+                                <ol class="space-y-3 text-sm">
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            1</div>
+                                        <div><strong>Baixe o arquivo .json</strong>
+                                            <p class="text-gray-600 text-xs">Do Drive ou WhatsApp</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            2</div>
+                                        <div><strong>Vá em Configurações</strong></div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mr-2 text-xs font-bold mt-0.5">
+                                            3</div>
+                                        <div><strong>Clique "Restaurar Backup"</strong>
+                                            <p class="text-gray-600 text-xs">Selecione o arquivo</p>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                            <p class="text-sm text-gray-800 flex items-center"><i data-lucide="calendar"
+                                    class="w-5 h-5 text-yellow-600 mr-2"></i><strong>Frequência Recomendada:</strong>
+                                <span class="ml-2">Faça backup <strong class="text-yellow-800">TODA
+                                        SEMANA!</strong></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Seção 6: FAQ -->
+                    <div id="duvidas"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">6
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Dúvidas Frequentes (FAQ)</h3>
+                            </div>
+                            <button onclick="markSectionComplete('duvidas')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                    <div class="flex items-center gap-3 font-bold text-gray-700">
+                                        <i data-lucide="help-circle" class="w-5 h-5 text-rose-600"></i>
+                                        Perdi meu celular. Como recupero meus dados?
+                                    </div>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-4 pt-0 border-t border-gray-100">
+                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> Se você fez backup
+                                        regularmente:</p>
+                                    <ol class="list-decimal pl-5 space-y-1 text-sm text-gray-600 mt-2">
+                                        <li>Instale o app novamente</li>
+                                        <li>Baixe seu backup (Drive/WhatsApp)</li>
+                                        <li>Vá em Configurações → "Restaurar Backup"</li>
+                                        <li>Selecione o arquivo .json</li>
+                                    </ol>
+                                    <div class="bg-yellow-50 p-3 rounded-lg mt-3">
+                                        <p class="text-xs text-yellow-800"><strong>Importante:</strong> Se NÃO fez
+                                            backup, os dados estão perdidos.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                    <div class="flex items-center gap-3 font-bold text-gray-700">
+                                        <i data-lucide="smartphone" class="w-5 h-5 text-green-600"></i>
+                                        O app funciona sem internet?
+                                    </div>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-4 pt-0 border-t border-gray-100">
+                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> Sim! O sistema
+                                        funciona 100% OFFLINE.</p>
+                                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600 mt-2">
+                                        <li>Agende clientes sem internet</li>
+                                        <li>Gerencie tudo localmente</li>
+                                        <li>Emita recibos offline</li>
+                                    </ul>
+                                    <p class="text-xs text-gray-500 mt-2"><strong>Nota:</strong> Para enviar WhatsApp
+                                        você precisa de internet.</p>
+                                </div>
+                            </details>
+                            <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                                <summary
+                                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                    <div class="flex items-center gap-3 font-bold text-gray-700">
+                                        <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
+                                        Como calcular a comissão dos profissionais?
+                                    </div>
+                                    <i data-lucide="chevron-down"
+                                        class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-4 pt-0 border-t border-gray-100">
+                                    <p class="text-sm text-gray-600 mt-3"><strong>Resposta:</strong> É automático!</p>
+                                    <p class="text-sm text-gray-600 mt-2">Ao finalizar um atendimento, o sistema calcula
+                                        a comissão baseado no percentual definido.</p>
+                                    <p class="text-sm text-gray-600 mt-2">Você pode ver o relatório completo em
+                                        "Financeiro".</p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- Seção 7: Checklist Interativo -->
+                    <div id="checklist"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-rose to-plena-dark text-white">7
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Checklist Interativo - Sua Rotina</h3>
+                            </div>
+                            <button onclick="markSectionComplete('checklist')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-white mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-lg">Progresso do Checklist</h4>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold" id="checklist-percent">0%</div>
+                                    <div class="text-xs text-gray-400"><span id="checklist-completed">0</span>/<span
+                                            id="checklist-total">0</span> tarefas</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar mb-4">
+                                <div id="checklist-progress" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="next-tasks" class="space-y-2">
+                                <p class="text-xs text-gray-400">Marque as tarefas abaixo para acompanhar seu progresso
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-rose-50 p-4 rounded-xl border border-rose-200">
+                                <h5 class="font-bold text-rose-700 mb-3 flex items-center"><i data-lucide="sunrise"
+                                        class="w-4 h-4 mr-2"></i>Abertura do Salão</h5>
+                                <div class="space-y-2">
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-1" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-1">Conferir agenda do dia</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-2" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-2">Confirmar horários por WhatsApp</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-3" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-3">Verificar materiais e produtos</span></label></div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                                <h5 class="font-bold text-green-700 mb-3 flex items-center"><i data-lucide="zap"
+                                        class="w-4 h-4 mr-2"></i>Durante o Dia</h5>
+                                <div class="space-y-2">
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-4" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-4">Lançar atendimentos na agenda</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-5" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-5">Finalizar para gerar comissão</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-6" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-6">Registrar vendas de produtos</span></label></div>
+                                </div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                                <h5 class="font-bold text-purple-700 mb-3 flex items-center"><i data-lucide="sunset"
+                                        class="w-4 h-4 mr-2"></i>Fechamento</h5>
+                                <div class="space-y-2">
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-7" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-7">Fechar caixa do dia</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-8" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-8">Gerar relatório</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-9" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-9">Fazer backup dos dados</span></label></div>
+                                </div>
+                            </div>
+                            <div class="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                                <h5 class="font-bold text-orange-700 mb-3 flex items-center"><i
+                                        data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>Novo Cliente</h5>
+                                <div class="space-y-2">
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-10" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-10">Cadastrar na base de clientes</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-11" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-11">Anotar preferências</span></label></div>
+                                    <div class="checklist-item"><label
+                                            class="flex items-center text-sm cursor-pointer"><input type="checkbox"
+                                                id="check-12" onchange="updateChecklist()" class="mr-2"><span
+                                                for="check-12">Agendar próximo atendimento</span></label></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-center">
+                            <button onclick="resetChecklist()"
+                                class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 transition-colors">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4 inline mr-2"></i>Reiniciar Checklist
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rodapé do Manual -->
+                    <div class="mt-10 bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Dúvidas Técnicas?</h3>
+                        <p class="text-gray-500 text-sm mb-6">Nossa equipe de suporte responde em até 24h úteis.</p>
+                        <a href="mailto:tecnologia@plenaaplicativos.com.br"
+                            class="inline-flex items-center text-plena-rose font-bold hover:underline">
+                            <i data-lucide="mail" class="w-5 h-5 mr-2"></i>tecnologia@plenaaplicativos.com.br
+                        </a>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <p class="text-[10px] text-gray-400">Versão 4.1 Pro • Plena Soluções Digitais</p>
+                    </div>
+
                 </div>
             </section>
-
-            <!-- Clientes View -->
-            <section id="view-clients" class="view-section hide fade-in">
 
             <!-- About View (V4 Standard) -->
             <section id="view-about" class="view-section hide fade-in">
@@ -1134,12 +1657,12 @@
                             </div>
 
                             <div>
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                <a href="mailto:tecnologia@plenaaplicativos.com.br"
                                     class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg">
                                     <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                     Falar com Suporte
                                 </a>
-                                <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                                <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
                             </div>
                         </div>
                     </div>
@@ -1422,7 +1945,7 @@
                 <div class="mt-4 pt-4 border-t border-gray-100 text-center">
                     <a href="https://www.plenaaplicativos.com.br" target="_blank"
                         class="text-[10px] text-gray-400 hover:text-plena-rose no-underline">
-                        Plena Soluções Digitais &copy; 2025
+                        Plena Soluções Digitais &copy; 2026
                     </a>
                 </div>
             </div>
@@ -1512,15 +2035,10 @@
                 theme: 'rose',
                 termsAccepted: false,
                 termsAcceptedAt: null
-            },
-            tutorial: {
-                completedSteps: [],
-                checklistState: {}
             }
         };
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
-        if (!db.tutorial) db.tutorial = defaultDB.tutorial;
 
         // UTILITÁRIOS
         const sanitizeHTML = (str) => {
@@ -1620,8 +2138,6 @@
             // Renderizar dados iniciais
             renderDashboard();
             updateDataStatus();
-            updateTutorialProgress();
-            renderChecklist();
             
             // Garantir que Lucide seja carregado
             if (window.lucide) {
@@ -3002,93 +3518,84 @@
         }, 8000);
 
 
-        // TUTORIAL & CHECKLIST LOGIC
-        function toggleAccordion(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`icon-${id}`);
-            const isHidden = el.classList.contains('hidden');
+        // === FUNÇÕES DO MANUAL INTERATIVO ===
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
 
-            // Close all others
-            document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('[id^="icon-step"]').forEach(i => i.classList.remove('rotate-180'));
-
-            if (isHidden) {
-                el.classList.remove('hidden');
-                icon.classList.add('rotate-180');
+        function markSectionComplete(sectionId) {
+            const completedSections = JSON.parse(localStorage.getItem('tutorial-completed') || '[]');
+            if (!completedSections.includes(sectionId)) {
+                completedSections.push(sectionId);
+                localStorage.setItem('tutorial-completed', JSON.stringify(completedSections));
+                updateTutorialProgress();
+                showNotification('Seção concluída! ✓', 'success');
             }
         }
 
         function updateTutorialProgress() {
-            if (!db.tutorial) return;
-            const steps = ['instalacao', 'config', 'agendamentos', 'relatorios', 'backup', 'faq', 'checklist'];
-            const completedCount = db.tutorial.completedSteps.length;
-            const progress = (completedCount / steps.length) * 100;
+            const completedSections = JSON.parse(localStorage.getItem('tutorial-completed') || '[]');
+            const totalSections = 7;
+            const percentage = (completedSections.length / totalSections) * 100;
 
-            const pb = document.getElementById('tutorial-progress');
-            const pt = document.getElementById('tutorial-percent');
+            const progressBar = document.getElementById('tutorial-progress');
+            const completedSteps = document.getElementById('completed-steps');
 
-            if (pb) pb.style.width = `${progress}%`;
-            if (pt) pt.textContent = `${Math.round(progress)}%`;
-
-            // Update buttons visuals
-            steps.forEach(stepId => {
-                const btn = document.querySelector(`button[onclick="markSectionComplete('${stepId}')"]`);
-                if (btn && db.tutorial.completedSteps.includes(stepId)) {
-                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i> Concluído';
-                    btn.classList.replace('bg-blue-50', 'bg-green-50');
-                    btn.classList.replace('text-blue-600', 'text-green-600');
-                    btn.disabled = true;
-                }
-            });
-            if (window.lucide) lucide.createIcons();
+            if (progressBar) progressBar.style.width = percentage + '%';
+            if (completedSteps) completedSteps.textContent = `${completedSections.length}/${totalSections} etapas`;
         }
 
-        function markSectionComplete(sectionId) {
-            if (!db.tutorial.completedSteps.includes(sectionId)) {
-                db.tutorial.completedSteps.push(sectionId);
-                save();
-                updateTutorialProgress();
-                showNotification('Etapa concluída!', 'success');
-            }
-        }
+        function updateChecklist() {
+            const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+            const total = checkboxes.length;
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percentage = total > 0 ? Math.round((checked / total) * 100) : 0;
 
-        function renderChecklist() {
-            const container = document.getElementById('checklist-container');
-            if (!container) return;
+            const percentEl = document.getElementById('checklist-percent');
+            const completedEl = document.getElementById('checklist-completed');
+            const totalEl = document.getElementById('checklist-total');
+            const progressBar = document.getElementById('checklist-progress');
 
-            const tasks = [
-                { id: 'daily-1', text: 'Conferir agenda de atendimentos do dia' },
-                { id: 'daily-2', text: 'Finalizar atendimentos realizados' },
-                { id: 'daily-3', text: 'Registrar despesas extras do dia' },
-                { id: 'backup-1', text: 'Realizar backup dos dados em Ajustes' }
-            ];
+            if (percentEl) percentEl.textContent = percentage + '%';
+            if (completedEl) completedEl.textContent = checked;
+            if (totalEl) totalEl.textContent = total;
+            if (progressBar) progressBar.style.width = percentage + '%';
 
-            container.innerHTML = tasks.map(task => `
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" onclick="toggleTask('${task.id}')">
-                    <div class="w-6 h-6 rounded-md border-2 ${db.tutorial.checklistState[task.id] ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center transition-colors">
-                        ${db.tutorial.checklistState[task.id] ? '<i data-lucide="check" class="w-4 h-4 text-white"></i>' : ''}
-                    </div>
-                    <span class="text-sm ${db.tutorial.checklistState[task.id] ? 'text-gray-400 line-through' : 'text-gray-700'}">${task.text}</span>
-                </div>
-            `).join('');
-
-            if (window.lucide) lucide.createIcons();
-        }
-
-        function toggleTask(taskId) {
-            db.tutorial.checklistState[taskId] = !db.tutorial.checklistState[taskId];
-            save();
-            renderChecklist();
+            const state = Array.from(checkboxes).map(cb => cb.checked);
+            localStorage.setItem('checklist-state', JSON.stringify(state));
         }
 
         function resetChecklist() {
-            if (confirm('Deseja resetar o checklist diário?')) {
-                db.tutorial.checklistState = {};
-                save();
-                renderChecklist();
-                showNotification('Checklist resetado!', 'info');
+            if (confirm('Deseja realmente reiniciar o checklist?')) {
+                document.querySelectorAll('#checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+                localStorage.removeItem('checklist-state');
+                updateChecklist();
+                showNotification('Checklist reiniciado!', 'success');
             }
         }
+
+        function loadChecklistState() {
+            const state = JSON.parse(localStorage.getItem('checklist-state') || '[]');
+            const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+            checkboxes.forEach((cb, index) => {
+                if (state[index]) cb.checked = true;
+            });
+            updateChecklist();
+        }
+
+        function showExample(type) {
+            // Placeholder para exemplos futuros
+            showNotification('Exemplo: ' + type, 'info');
+        }
+
+        // Carregar estado do manual ao abrir
+        setTimeout(() => {
+            updateTutorialProgress();
+            loadChecklistState();
+        }, 500);
 
         function confirmTerms() {
             if (!confirm('Tem certeza que leu e concorda com todos os termos apresentados?')) return;

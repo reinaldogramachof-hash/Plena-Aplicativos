@@ -15,8 +15,7 @@
     <link rel="manifest"
         href='data:application/manifest+json,{"name":"Plena Aluguéis","short_name":"Plena","start_url":".","display":"standalone","background_color":"#F3F4F6","theme_color":"#2563EB","icons":[{"src":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI1NjNFQiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Im0zIDkgOS03IDkgN3YxMWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiLz48cG9seWxpbmUgcG9pbnRzPSI5IDIyIDkgMTIgMTUgMTIgMTUgMjIiLz48L3N2Zz4=","sizes":"192x192","type":"image/svg+xml"}]}'>
 
-    <!-- GATEKEEPER DE SEGURANÇA -->
-    <script src="../assets/js/plena-lock.js"></script>
+
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -235,28 +234,8 @@
             transition: width 0.5s ease;
         }
 
-        /* Footer Watermark */
-        .license-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(15, 23, 42, 0.95);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 10px;
-            text-align: center;
-            padding: 6px 0;
-            z-index: 50;
-            backdrop-filter: blur(4px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
         .main-content {
-            padding-bottom: 40px;
-            /* Ensure content isn't hidden by footer */
+            padding-bottom: 0;
         }
 
         @media print {
@@ -2262,7 +2241,7 @@
                                 Nossa equipe de suporte responde em até 24h úteis por e-mail.
                             </p>
                             <div class="flex flex-col sm:flex-row gap-3">
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                <a href="mailto:tecnologia@plenaaplicativos.com.br"
                                     class="inline-flex items-center justify-center bg-plena-purple text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-plena-dark transition-colors">
                                     <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
                                     Enviar E-mail para Suporte
@@ -2549,8 +2528,8 @@
                     </p>
                     <p class="text-[10px] text-gray-400">
                         Plena Soluções Digitais LTDA • CNPJ: 17.347.919/0001-59 •
-                        <a href="mailto:tecnologia@plenainformatica.com.br" class="text-plena-blue hover:underline">
-                            tecnologia@plenainformatica.com.br
+                        <a href="mailto:tecnologia@plenaaplicativos.com.br" class="text-plena-blue hover:underline">
+                            tecnologia@plenaaplicativos.com.br
                         </a>
                     </p>
                     <p class="text-[8px] text-gray-300 mt-2">
@@ -2662,45 +2641,17 @@
                         </div>
 
                         <div>
-                            <a href="mailto:tecnologia@plenainformatica.com.br"
+                            <a href="mailto:tecnologia@plenaaplicativos.com.br"
                                 class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg">
                                 <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                 Falar com Suporte
                             </a>
-                            <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                            <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 5. Confirmação e Aceite (Travamento) -->
-                <div class="mt-8 mb-12" id="terms-action-container">
-                    <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
-                        id="terms-box">
-                        <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-300 mb-3" id="terms-icon"></i>
-                        <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
-                        <p class="text-sm text-gray-500 mb-6 max-w-lg" id="terms-desc">
-                            Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
-                            Política de Privacidade e sua responsabilidade sobre os backups.
-                        </p>
-
-                        <button onclick="confirmTerms()" id="btn-confirm-terms"
-                            class="bg-plena-blue hover:bg-plena-dark text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transform hover:scale-105 transition-all flex items-center gap-2 group">
-                            <span>Li, Compreendi e Concordo</span>
-                            <i data-lucide="arrow-right"
-                                class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-
-                        <div id="terms-accepted-badge"
-                            class="hidden flex flex-col items-center animate-in fade-in zoom-in duration-300">
-                            <span
-                                class="bg-green-100 text-green-700 font-bold px-6 py-2 rounded-full text-sm border border-green-200 flex items-center gap-2 mb-2">
-                                <i data-lucide="lock" class="w-4 h-4"></i>
-                                Termos Aceitos e Registrados
-                            </span>
-                            <p class="text-xs text-gray-400 font-mono" id="terms-date">Carregando data...</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- 5. Confirmação e Aceite (REMOVIDO) -->
 
                 <!-- 6. Rodapé Legal -->
                 <div class="text-center border-t border-gray-200 pt-8">
@@ -3046,21 +2997,11 @@
         </div>
     </div>
 
-    <!-- Persistent Watermark Footer -->
-    <footer class="license-footer no-print">
-        <i data-lucide="lock" class="w-3 h-3"></i>
-        <span>Licença de Uso Concedida a: <strong id="footer-owner-name">Não Registrado</strong> <span
-                id="footer-owner-doc"></span></span>
-    </footer>
+
 
     <!-- JavaScript -->
     <script>
-        // 🔒 DADOS DA LICENÇA (PREENCHIDO PELO VENDEDOR)
-        const LICENSE_DATA = {
-            active: false, // Mude para true ao vender
-            ownerName: "", // Ex: "João Silva"
-            ownerDoc: ""   // Ex: "123.456.789-00"
-        };
+
 
         // ESTADO GLOBAL
         const DB_KEY = 'plena_alugueis_pro_v4';
@@ -3338,39 +3279,7 @@
                     }
                 }
 
-                // APPLICAR LICENÇA (SE ATIVA)
-                if (typeof LICENSE_DATA !== 'undefined' && LICENSE_DATA.active) {
-                    // 1. Forçar dados no DB (Sobrescreve qualquer tentativa de mudança)
-                    db.settings.ownerName = LICENSE_DATA.ownerName;
-                    db.settings.ownerDoc = LICENSE_DATA.ownerDoc;
 
-                    // 2. Bloquear Interface de Configuração
-                    const nameInput = document.getElementById('set-owner-name');
-                    const docInput = document.getElementById('set-owner-doc');
-
-                    if (nameInput && docInput) {
-                        nameInput.value = LICENSE_DATA.ownerName;
-                        docInput.value = LICENSE_DATA.ownerDoc;
-                        nameInput.disabled = true;
-                        docInput.disabled = true;
-                        nameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-                        docInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-
-                        // Adicionar ícone de cadeado visualmente
-                        if (!nameInput.parentElement.querySelector('.lock-icon')) {
-                            nameInput.parentElement.insertAdjacentHTML('beforeend', `<span class="lock-icon text-[10px] text-plena-blue font-bold flex items-center mt-1"><i data-lucide="lock" class="w-3 h-3 mr-1"></i> Licença Vitalícia Ativa</span>`);
-                        }
-                    }
-
-                    // 3. Marca D'água na Sidebar
-                    const sidebarFooter = document.querySelector('#sidebar .border-t');
-                    if (sidebarFooter && !sidebarFooter.querySelector('.license-watermark')) {
-                        const licenseDiv = document.createElement('div');
-                        licenseDiv.className = 'license-watermark mt-2 pt-2 border-t border-white/5 text-[10px] text-white/50 font-mono';
-                        licenseDiv.innerHTML = `Licenciado para:<br><strong class="text-white/80">${sanitizeHTML(LICENSE_DATA.ownerName)}</strong><br>CPF/CNPJ: ${sanitizeHTML(LICENSE_DATA.ownerDoc)}`;
-                        sidebarFooter.appendChild(licenseDiv);
-                    }
-                }
 
                 // Configurar datas padrão
                 const today = new Date().toISOString().split('T')[0];
@@ -3394,31 +3303,13 @@
                 renderDashboard();
                 renderCategories();
                 updateDataStatus();
-                if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
 
                 // Carregar configurações globais
                 if (db.settings.ownerName) {
                     document.getElementById('set-owner-name').value = db.settings.ownerName;
-
-                    // Update Footer
-                    document.getElementById('footer-owner-name').textContent = db.settings.ownerName;
-
-                    // Apply Lock logic
-                    const nameInput = document.getElementById('set-owner-name');
-                    const docInput = document.getElementById('set-owner-doc');
-                    if (nameInput && !nameInput.disabled) {
-                        nameInput.disabled = true;
-                        docInput.disabled = true;
-                        nameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-                        docInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-                        if (!nameInput.parentElement.querySelector('.lock-icon')) {
-                            nameInput.parentElement.insertAdjacentHTML('beforeend', `<span class="lock-icon text-[10px] text-plena-blue font-bold flex items-center mt-1"><i data-lucide="lock" class="w-3 h-3 mr-1"></i> Proprietário Registrado</span>`);
-                        }
-                    }
                 }
                 if (db.settings.ownerDoc) {
                     document.getElementById('set-owner-doc').value = db.settings.ownerDoc;
-                    document.getElementById('footer-owner-doc').textContent = ` - ${db.settings.ownerDoc}`;
                 }
                 if (db.settings.lateFee) document.getElementById('set-late-fee').value = db.settings.lateFee;
                 if (db.settings.dailyInterest) document.getElementById('set-daily-interest').value = db.settings.dailyInterest;
@@ -4485,70 +4376,6 @@
             }
         }
 
-        // --- LEGAL TERMS LOGIC ---
-        function confirmTerms() {
-            if (!confirm('Tem certeza que leu e concorda com todos os termos apresentados?')) return;
-
-            // Update DB
-            db.settings.termsAccepted = true;
-            db.settings.termsAcceptedAt = new Date().toISOString();
-            save();
-
-            // Update Visuals
-            updateTermsVisuals();
-
-            // Celebration Effect
-            const btn = document.getElementById('btn-confirm-terms');
-            if (btn) {
-                // Confetti or visual feedback could go here
-                alert('Obrigado! Seu aceite foi registrado com sucesso.');
-            }
-        }
-
-        function updateTermsVisuals() {
-            const hasAccepted = db.settings.termsAccepted;
-            const termsBox = document.getElementById('terms-box');
-            const btn = document.getElementById('btn-confirm-terms');
-            const badge = document.getElementById('terms-accepted-badge');
-            const icon = document.getElementById('terms-icon');
-            const title = document.getElementById('terms-title');
-            const desc = document.getElementById('terms-desc');
-
-            if (hasAccepted && termsBox) {
-                // Change Box Style
-                termsBox.classList.remove('bg-gray-50', 'border-gray-200');
-                termsBox.classList.add('bg-green-50', 'border-green-200');
-
-                // Hide Button / Show Badge
-                if (btn) btn.classList.add('hidden');
-                if (badge) {
-                    badge.classList.remove('hidden');
-                    badge.classList.add('flex');
-                }
-
-                // Update Date
-                const dateElement = document.getElementById('terms-date');
-                if (dateElement && db.settings.termsAcceptedAt) {
-                    const dateObj = new Date(db.settings.termsAcceptedAt);
-                    dateElement.textContent = 'Confirmado em: ' + dateObj.toLocaleString('pt-BR');
-                }
-
-                // Update Icon and Text
-                if (icon) {
-                    icon.setAttribute('class', 'w-16 h-16 text-green-500 mb-3 transition-colors duration-500');
-                }
-                if (title) {
-                    title.textContent = "Você está seguro e ciente";
-                    title.classList.add('text-green-800');
-                }
-                if (desc) {
-                    desc.textContent = "Obrigado por colaborar com a segurança da nossa comunidade. Seu aceite dos termos está registrado localmente.";
-                    desc.classList.remove('text-gray-500');
-                    desc.classList.add('text-green-700/80');
-                }
-            }
-        }
-
         function editTransaction(id) {
             const transaction = db.transactions.find(t => t.id === id);
             if (transaction) {
@@ -4718,20 +4545,6 @@
 
             save();
             showNotification('Configurações salvas com sucesso!', 'success');
-
-            // Apply lock immediately if Owner Name is now set
-            if (ownerName) {
-                // Optional: Update UI to reflect lock state immediately if desired
-                const nameInput = document.getElementById('set-owner-name');
-                const docInput = document.getElementById('set-owner-doc');
-                // We don't disable immediately to allow corrections before reload, or we can.
-                // User said "fixa" (fixed), suggesting it should be locked.
-                // Re-applying lock logic for visual tightness:
-
-                // Update footer
-                document.getElementById('footer-owner-name').textContent = ownerName;
-                document.getElementById('footer-owner-doc').textContent = ownerDoc ? ` - ${ownerDoc}` : '';
-            }
         }
 
         // RELATÓRIOS

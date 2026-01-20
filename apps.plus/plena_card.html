@@ -103,7 +103,7 @@
     </script>
 
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
 
     <style>
         :root {
@@ -374,7 +374,7 @@
             <button onclick="router('dashboard')"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group active-nav"
                 id="nav-dashboard">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                <i data-lucide="credit-card" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Dashboard
             </button>
             <button onclick="router('cards')"
@@ -416,7 +416,7 @@
         </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
-            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2025</p>
+            <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2026</p>
             <a href="https://www.plenaaplicativos.com.br" target="_blank"
                 class="text-[10px] text-gray-600 hover:text-plena-indigo transition-colors mt-1 block decoration-0">
                 Plena Soluções Digitais LTDA
@@ -505,7 +505,7 @@
                             Faturas Abertas (Mês Atual)
                         </h3>
                         <span class="text-xs bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-full uppercase"
-                            id="dash-month-label">JAN/2025</span>
+                            id="dash-month-label">JAN/2026</span>
                     </div>
 
                     <div id="dash-cards-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -551,7 +551,7 @@
                                 <p class="text-xs text-gray-500 mt-1">Nos próximos 3 meses</p>
                             </div>
                             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                                <i data-lucide="calendar" class="w-6 h-6 text-yellow-600"></i>
+                                <i data-lucide="credit-card" class="w-6 h-6 text-yellow-600"></i>
                             </div>
                         </div>
                     </div>
@@ -656,7 +656,7 @@
                             <i data-lucide="chevron-left"></i>
                         </button>
                         <h3 id="inv-month-display" class="text-xl font-bold text-gray-800 min-w-[150px] text-center">
-                            JANEIRO 2025</h3>
+                            JANEIRO 2026</h3>
                         <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded-full">
                             <i data-lucide="chevron-right"></i>
                         </button>
@@ -955,184 +955,206 @@
 
 
             <!-- INSTRUCTIONS View -->
-            <!-- Manual/Instructions View -->
             <section id="view-instructions" class="view-section hide fade-in">
-                <div class="max-w-4xl mx-auto">
-                    <!-- Hero Section -->
-                    <div class="text-center mb-10">
-                        <div class="inline-flex items-center justify-center p-3 bg-plena-blue/10 rounded-2xl mb-4">
-                            <i data-lucide="book-open" class="w-8 h-8 text-plena-blue"></i>
+                <div class="max-w-6xl mx-auto pb-12">
+                    <!-- Hero Header -->
+                    <div class="text-center mb-10 pt-4">
+                        <div
+                            class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-plena-indigo to-plena-dark rounded-2xl mb-4 shadow-lg">
+                            <i data-lucide="credit-card" class="w-12 h-12 text-white"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-3">Manual de Uso</h2>
-                        <p class="text-gray-600 max-w-lg mx-auto">Guia completo para você dominar todas as funcionalidades do seu Controle de Cartões e Faturas.</p>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso</h1>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para gerenciar seus
+                            cartões como um especialista</p>
+                        <div class="mt-4 flex flex-wrap justify-center gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓
+                                Controle Total</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile &
+                                Desktop</span>
+                            <span class="px-3 py-1 bg-indigo-100 text-plena-indigo rounded-full text-xs font-bold">⚡
+                                Gestão Inteligente</span>
+                        </div>
                     </div>
 
                     <!-- Progress Bar -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-gray-800">Seu Progresso no Aprendizado</h3>
-                            <span id="tutorial-percent" class="text-plena-blue font-bold">0%</span>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                            <i data-lucide="compass" class="w-5 h-5 mr-2 text-plena-indigo"></i>
+                            Seu Progresso no Aprendizado
+                        </h3>
+                        <div class="mb-4">
+                            <div class="progress-bar">
+                                <div id="tutorial-progress" class="progress-fill" style="width:0%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                <span>0% Concluído</span>
+                                <span id="completed-steps">0/7 etapas</span>
+                            </div>
                         </div>
-                        <div class="progress-bar mb-2">
-                            <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
+                        <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
+                            <button onclick="scrollToSection('instalacao')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">1.
+                                Instalação</button>
+                            <button onclick="scrollToSection('config')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">2.
+                                Configuração</button>
+                            <button onclick="scrollToSection('gestao')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">3.
+                                Gestão</button>
+                            <button onclick="scrollToSection('relatorios')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">4.
+                                Relatórios</button>
+                            <button onclick="scrollToSection('backup')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">5.
+                                Backup</button>
+                            <button onclick="scrollToSection('faq')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">6.
+                                FAQ</button>
+                            <button onclick="scrollToSection('checklist')"
+                                class="text-center p-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs">7.
+                                Checklist</button>
                         </div>
-                        <p class="text-xs text-gray-500">Complete a leitura de todos os tópicos para dominar o sistema.</p>
                     </div>
 
-                    <!-- Manual Accordion -->
-                    <div class="space-y-4 mb-12">
-                        <!-- Step 1 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step1')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">1</div>
-                                    <h3 class="font-bold text-gray-800">Instalação no Celular</h3>
+                    <!-- Seção 1: Instalação -->
+                    <div id="instalacao"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-indigo to-plena-dark text-white">1
                                 </div>
-                                <i data-lucide="chevron-down" id="icon-step1" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step1" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Instale como um aplicativo para acessar rápido e usar offline.</p>
-                                <ul class="space-y-3 text-sm text-gray-600 mb-6">
-                                    <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-500 mt-0.5"></i> <strong>Android:</strong> Menu do Chrome > "Instalar aplicativo".</li>
-                                    <li class="flex items-start gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-green-500 mt-0.5"></i> <strong>iPhone:</strong> Compartilhar Safari > "Adicionar à Tela de Início".</li>
-                                </ul>
-                                <button onclick="markSectionComplete('instalacao')" class="w-full mt-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
+                                <h3 class="text-xl font-bold text-gray-800">Instalação no Celular</h3>
                             </div>
-                        </div>
-
-                        <!-- Step 2 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step2')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold">2</div>
-                                    <h3 class="font-bold text-gray-800">Configuração de Cartões</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step2" class="w-5 h-5 text-gray-400 transition-transform"></i>
+                            <button onclick="markSectionComplete('instalacao')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
                             </button>
-                            <div id="step2" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Cadastre seus cartões definindo limites, datas de fechamento e vencimento.</p>
-                                <div class="p-4 bg-orange-50 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 text-sm mb-2">Importante:</h4>
-                                    <p class="text-xs text-orange-600">As datas de fechamento e vencimento são fundamentais para que o sistema organize as despesas no mês correto da fatura.</p>
-                                </div>
-                                <button onclick="markSectionComplete('config')" class="w-full mt-6 py-3 bg-orange-50 text-orange-600 font-bold rounded-lg hover:bg-orange-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
                         </div>
-
-                        <!-- Step 3 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step3')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold">3</div>
-                                    <h3 class="font-bold text-gray-800">Gestão de Gastos</h3>
+                        <div class="bg-gray-900 rounded-2xl p-6 text-white shadow-lg mb-6">
+                            <h4 class="font-bold text-lg mb-4 flex items-center">
+                                <i data-lucide="download" class="w-5 h-5 mr-2 text-green-400"></i>
+                                Torne o App Disponível OFFLINE
+                            </h4>
+                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                            <i data-lucide="smartphone" class="w-4 h-4"></i>
+                                        </div>
+                                        Android (Chrome)
+                                    </div>
+                                    <ol class="list-decimal pl-5 space-y-3 text-gray-300">
+                                        <li>Abra no <strong>Chrome</strong></li>
+                                        <li>Toque nos <strong>3 pontinhos</strong> (menu)</li>
+                                        <li>Selecione <strong>"Instalar aplicativo"</strong></li>
+                                    </ol>
                                 </div>
-                                <i data-lucide="chevron-down" id="icon-step3" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step3" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Lance suas compras parceladas ou à vista.</p>
-                                <ul class="space-y-3 text-sm text-gray-600">
-                                    <li class="flex items-start gap-2"><i data-lucide="plus-circle" class="w-4 h-4 text-green-500 mt-0.5"></i> Registre o valor total e o número de parcelas.</li>
-                                    <li class="flex items-start gap-2"><i data-lucide="calendar" class="w-4 h-4 text-green-500 mt-0.5"></i> O sistema distribuirá automaticamente as parcelas nos meses seguintes.</li>
-                                </ul>
-                                <button onclick="markSectionComplete('gestao')" class="w-full mt-6 py-3 bg-green-50 text-green-600 font-bold rounded-lg hover:bg-green-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 4 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step4')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">4</div>
-                                    <h3 class="font-bold text-gray-800">Faturas e Relatórios</h3>
+                                <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div class="font-bold text-white mb-3 flex items-center">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mr-2">
+                                            <i data-lucide="apple" class="w-4 h-4"></i>
+                                        </div>
+                                        iPhone (Safari)
+                                    </div>
+                                    <ol class="list-decimal pl-5 space-y-3 text-gray-300">
+                                        <li>Abra no <strong>Safari</strong></li>
+                                        <li>Toque em <strong>Compartilhar</strong> (quadrado com seta)</li>
+                                        <li>Role e toque em <strong>"Adicionar à Tela de Início"</strong></li>
+                                    </ol>
                                 </div>
-                                <i data-lucide="chevron-down" id="icon-step4" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step4" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <p class="text-gray-600 mb-4">Acompanhe o valor total das suas faturas em cada mês.</p>
-                                <div class="space-y-4 text-sm text-gray-600">
-                                    <p>Visualize gráficos de gastos por categoria e acompanhe o comprometimento do seu limite de crédito.</p>
-                                </div>
-                                <button onclick="markSectionComplete('relatorios')" class="w-full mt-6 py-3 bg-purple-50 text-purple-600 font-bold rounded-lg hover:bg-purple-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step5')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 font-bold">5</div>
-                                    <h3 class="font-bold text-gray-800">Backup e Segurança</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step5" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step5" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-4">
-                                    <p class="text-xs text-red-800 font-bold mb-1">Aviso:</p>
-                                    <p class="text-xs text-red-700 leading-relaxed">Dados 100% locais. Baixe o backup semanalmente para garantir que não perderá nada se houver problemas com seu aparelho.</p>
-                                </div>
-                                <button onclick="markSectionComplete('backup')" class="w-full mt-6 py-3 bg-yellow-50 text-yellow-600 font-bold rounded-lg hover:bg-yellow-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 6 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step6')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-bold">6</div>
-                                    <h3 class="font-bold text-gray-800">Dúvidas Frequentes</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step6" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step6" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div class="space-y-4 text-sm text-gray-600">
-                                    <details class="group">
-                                        <summary class="font-bold cursor-pointer list-none flex justify-between">Como o sistema calcula a fatura? <i data-lucide="plus" class="w-4 h-4"></i></summary>
-                                        <p class="mt-2 text-xs">O sistema olha a data da compra e compara com a data de fechamento configurada para o cartão.</p>
-                                    </details>
-                                </div>
-                                <button onclick="markSectionComplete('faq')" class="w-full mt-6 py-3 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 7 -->
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <button onclick="toggleAccordion('step7')" class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 font-bold">7</div>
-                                    <h3 class="font-bold text-gray-800">Checklist Diário</h3>
-                                </div>
-                                <i data-lucide="chevron-down" id="icon-step7" class="w-5 h-5 text-gray-400 transition-transform"></i>
-                            </button>
-                            <div id="step7" class="hidden p-6 pt-0 border-t border-gray-50">
-                                <div id="checklist-container" class="space-y-3">
-                                    <!-- Checklist items -->
-                                </div>
-                                <button onclick="markSectionComplete('checklist')" class="w-full mt-6 py-3 bg-gray-50 text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition-colors">
-                                    Marcar como Lido
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Support Card -->
-                    <div class="bg-gradient-to-r from-plena-blue to-blue-700 rounded-3xl p-8 text-white text-center shadow-xl shadow-blue-100">
-                        <h3 class="text-2xl font-bold mb-2">Suporte Plena</h3>
-                        <p class="text-blue-100 mb-6">tecnologia@plenainformatica.com.br</p>
+                    <!-- Demais Seções Condensadas -->
+                    <div id="config" class="bg-white border rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-indigo to-plena-dark text-white">2
+                                </div>
+                                <h3 class="text-xl font-bold">Configuração & Primeiro Cartão</h3>
+                            </div>
+                            <button onclick="markSectionComplete('config')"
+                                class="text-xs text-gray-500 hover:text-green-600"><i data-lucide="check-circle"
+                                    class="w-4 h-4"></i></button>
+                        </div>
+                        <p class="mb-4 text-gray-600">Cadastre seu primeiro cartão com: Nome, Bandeira, Limite, Dia de
+                            Fechamento e Vencimento.</p>
                     </div>
-                </div>
-            </section>
+
+                    <div id="gestao" class="bg-white border rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-indigo to-plena-dark text-white">3
+                                </div>
+                                <h3 class="text-xl font-bold">Gestão de Cartões</h3>
+                            </div>
+                            <button onclick="markSectionComplete('gestao')"
+                                class="text-xs text-gray-500 hover:text-green-600"><i data-lucide="check-circle"
+                                    class="w-4 h-4"></i></button>
+                        </div>
+                        <p class="text-gray-600">Sistema identifica automaticamente qual cartão possui melhor data de
+                            compra para maximizar seu prazo de pagamento.</p>
+                    </div>
+
+                    <div id="relatorios" class="bg-white border rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-indigo to-plena-dark text-white">4
+                                </div>
+                                <h3 class="text-xl font-bold">Relatórios</h3>
+                            </div>
+                            <button onclick="markSectionComplete('relatorios')"
+                                class="text-xs text-gray-500 hover:text-green-600"><i data-lucide="check-circle"
+                                    class="w-4 h-4"></i></button>
+                        </div>
+                        <p class="text-gray-600">Gere relatórios personalizados por período, cartão e categoria de
+                            gasto.</p>
+                    </div>
+
+                    <div id="backup"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="step-number bg-gradient-to-r from-plena-indigo to-plena-dark text-white">5
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800">Backup e Segurança dos Dados</h3>
+                            </div>
+                            <button onclick="markSectionComplete('backup')"
+                                class="text-xs text-gray-500 hover:text-green-600">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Marcar como concluído
+                            </button>
+                        </div>
+
+                        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl mb-6">
+                            <h4 class="font-bold text-red-800 mb-3 flex items-center">
+                                <i data-lucide="alert-octagon" class="w-5 h-5 mr-2"></i>
+                                ATENÇÃO: Leia com Cuidado!
+                            </h4>
+                            <div class="text-sm text-red-800 space-y-2">
+                                <p>📱 <strong>Seus dados ficam APENAS no seu celular/computador.</strong></p>
+                                <p>🔄 <strong>Se você perder o aparelho, formatar ou limpar o navegador, perderá TODOS
+                                        os dados.</strong></p>
+                                <p>💾 <strong>O backup é SUA responsabilidade.</strong> Faça SEMPRE!</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <i data-lucide="download" class="w-5 h-5 mr-2 text-green-600"></i>
+                                    Como Fazer Backup (Guia Passo a Passo)
+                                </h4>
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-xl border border-green-200">
+                                        <div class="flex items-center mb-2">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                                <span class="font-bold text-green-700">1</span>
+                                            </div>
                                             <p class="font-bold text-gray-800">Acesse Configurações</p>
                                         </div>
                                         <p class="text-sm text-gray-600 ml-11">Menu lateral → Ícone da engrenagem</p>
@@ -1447,8 +1469,8 @@
                     <!-- Footer -->
                     <div class="text-center text-gray-500 text-sm mt-12 pb-6">
                         <p>💡 Dúvidas? Entre em contato:</p>
-                        <a href="mailto:tecnologia@plenainformatica.com.br"
-                            class="text-plena-indigo font-bold hover:underline">tecnologia@plenainformatica.com.br</a>
+                        <a href="mailto:tecnologia@plenaaplicativos.com.br"
+                            class="text-plena-indigo font-bold hover:underline">tecnologia@plenaaplicativos.com.br</a>
                         <p class="mt-2 text-xs">Plena Card v4.1 Pro • Plena Soluções Digitais</p>
                     </div>
                 </div>
@@ -1556,12 +1578,12 @@
                             </div>
 
                             <div>
-                                <a href="mailto:tecnologia@plenainformatica.com.br"
+                                <a href="mailto:tecnologia@plenaaplicativos.com.br"
                                     class="inline-flex items-center justify-center bg-white text-plena-dark px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg">
                                     <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                     Falar com Suporte
                                 </a>
-                                <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenainformatica.com.br</p>
+                                <p class="text-xs text-center text-gray-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
                             </div>
                         </div>
                     </div>
@@ -1749,7 +1771,7 @@
                 <div class="mt-4 pt-4 border-t border-gray-100 text-center">
                     <a href="https://www.plenaaplicativos.com.br" target="_blank"
                         class="text-[10px] text-gray-400 hover:text-plena-indigo no-underline">
-                        Plena Soluções Digitais &copy; 2025
+                        Plena Soluções Digitais &copy; 2026
                     </a>
                 </div>
             </div>
@@ -1771,15 +1793,10 @@
                 notifications: true,
                 termsAccepted: false,
                 termsAcceptedAt: null
-            },
-            tutorial: {
-                completedSteps: [],
-                checklistState: {}
             }
         };
 
         let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
-        if (!db.tutorial) db.tutorial = defaultDB.tutorial;
         let viewDate = new Date(); // Para navegação por meses
 
         // UTILITÁRIOS
@@ -1850,8 +1867,6 @@
             // Renderizar dados iniciais
             renderDashboard();
             updateDataStatus();
-            updateTutorialProgress();
-            renderChecklist();
             if (typeof updateTermsVisuals === 'function') updateTermsVisuals();
 
             // Configurar periodicidade para salvar
@@ -3172,94 +3187,12 @@
         }, 8000);
 
         // MANUAL FUNCTIONS
-        // TUTORIAL & CHECKLIST LOGIC
-        function toggleAccordion(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`icon-${id}`);
-            const isHidden = el.classList.contains('hidden');
-
-            // Close all others
-            document.querySelectorAll('[id^="step"]').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('[id^="icon-step"]').forEach(i => i.classList.remove('rotate-180'));
-
-            if (isHidden) {
-                el.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-            }
-        }
-
-        function updateTutorialProgress() {
-            if (!db.tutorial) return;
-            const steps = ['instalacao', 'config', 'gestao', 'relatorios', 'backup', 'faq', 'checklist'];
-            const completedCount = db.tutorial.completedSteps.length;
-            const progress = (completedCount / steps.length) * 100;
-
-            const pb = document.getElementById('tutorial-progress');
-            const pt = document.getElementById('tutorial-percent');
-
-            if (pb) pb.style.width = `${progress}%`;
-            if (pt) pt.textContent = `${Math.round(progress)}%`;
-
-            // Update buttons visuals
-            steps.forEach(stepId => {
-                const btn = document.querySelector(`button[onclick="markSectionComplete('${stepId}')"]`);
-                if (btn && db.tutorial.completedSteps.includes(stepId)) {
-                    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i> Concluído';
-                    btn.classList.replace('bg-blue-50', 'bg-green-50');
-                    btn.classList.replace('text-blue-600', 'text-green-600');
-                    btn.disabled = true;
-                }
-            });
-            if (window.lucide) lucide.createIcons();
-        }
-
-        function markSectionComplete(sectionId) {
-            if (!db.tutorial.completedSteps.includes(sectionId)) {
-                db.tutorial.completedSteps.push(sectionId);
-                save();
-                updateTutorialProgress();
-                showNotification('Etapa concluída!', 'success');
-            }
-        }
-
-        function renderChecklist() {
-            const container = document.getElementById('checklist-container');
-            if (!container) return;
-
-            const tasks = [
-                { id: 'daily-1', text: 'Lançar despesas do dia em cada cartão' },
-                { id: 'daily-2', text: 'Verificar limite disponível nos cartões' },
-                { id: 'weekly-1', text: 'Conferir datas de fechamento das faturas' },
-                { id: 'monthly-1', text: 'Gerar relatório de gastos mensal' },
-                { id: 'backup-1', text: 'Realizar backup dos dados em Ajustes' }
-            ];
-
-            container.innerHTML = tasks.map(task => `
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" onclick="toggleTask('${task.id}')">
-                    <div class="w-6 h-6 rounded-md border-2 ${db.tutorial.checklistState[task.id] ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center transition-colors">
-                        ${db.tutorial.checklistState[task.id] ? '<i data-lucide="check" class="w-4 h-4 text-white"></i>' : ''}
-                    </div>
-                    <span class="text-sm ${db.tutorial.checklistState[task.id] ? 'text-gray-400 line-through' : 'text-gray-700'}">${task.text}</span>
-                </div>
-            `).join('');
-
-            if (window.lucide) lucide.createIcons();
-        }
-
-        function toggleTask(taskId) {
-            db.tutorial.checklistState[taskId] = !db.tutorial.checklistState[taskId];
-            save();
-            renderChecklist();
-        }
-
-        function resetChecklist() {
-            if (confirm('Deseja resetar o checklist diário?')) {
-                db.tutorial.checklistState = {};
-                save();
-                renderChecklist();
-                showNotification('Checklist resetado!', 'info');
-            }
-        }
+        function scrollToSection(sectionId) { const el = document.getElementById(sectionId); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function markSectionComplete(id) { const c = JSON.parse(localStorage.getItem('tutorial-completed') || '[]'); if (!c.includes(id)) { c.push(id); localStorage.setItem('tutorial-completed', JSON.stringify(c)); updateTutorialProgress(); showNotification('Seção concluída!', 'success'); } }
+        function updateTutorialProgress() { const s = ['instalacao', 'config', 'gestao', 'relatorios', 'backup', 'faq', 'checklist']; const c = JSON.parse(localStorage.getItem('tutorial-completed') || '[]'); const p = (c.length / s.length) * 100; const pb = document.getElementById('tutorial-progress'); const cs = document.getElementById('completed-steps'); if (pb) pb.style.width = `${p}%`; if (cs) cs.textContent = `${c.length}/${s.length} etapas`; }
+        function updateChecklist() { const cbs = document.querySelectorAll('#checklist input[type="checkbox"]'); const t = cbs.length; const ch = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length; const pct = Math.round((ch / t) * 100); document.getElementById('checklist-percent').textContent = `${pct}%`; document.getElementById('checklist-progress').style.width = `${pct}%`; document.getElementById('checklist-completed').textContent = ch; document.getElementById('checklist-total').textContent = t; cbs.forEach(cb => { const it = cb.closest('.checklist-item'); if (cb.checked) it.classList.add('completed'); else it.classList.remove('completed'); }); const st = {}; cbs.forEach(cb => st[cb.id] = cb.checked); localStorage.setItem('checklist-state', JSON.stringify(st)); }
+        function resetChecklist() { if (confirm('Reiniciar checklist?')) { localStorage.removeItem('checklist-state'); document.querySelectorAll('#checklist input[type="checkbox"]').forEach(cb => cb.checked = false); updateChecklist(); } }
+        function loadChecklistState() { const st = JSON.parse(localStorage.getItem('checklist-state') || '{}'); Object.keys(st).forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = st[id]; }); updateChecklist(); }
         function showExample(type) { showNotification('Exemplo: ' + type, 'info'); }
 
         // INICIALIZAR APLICATIVO
