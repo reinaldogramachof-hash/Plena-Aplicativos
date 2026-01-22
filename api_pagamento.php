@@ -29,7 +29,7 @@ if (file_exists(__DIR__ . '/api_mailer.php')) {
 // --- HELPER: LEADS STATUS UPDATE (CRM) ---
 function updateLeadStatus($email, $newStatus) {
     if(!$email) return;
-    $file = 'leads_abandono.json';
+    $file = __DIR__ . '/leads_crm.json';
     if(!file_exists($file)) return;
 
     $fp = fopen($file, 'c+'); // Read/Write, Create if missing (though we checked exists)
@@ -67,7 +67,7 @@ function updateLeadStatus($email, $newStatus) {
 
 // --- HELPER: PROCESS APPROVED ---
 function processApprovedPayment($payment) {
-    global $ACCESS_TOKEN;
+    global $ACCESS_TOKEN, $ADMIN_SECRET;
     
     $id = $payment['id'];
     
@@ -187,7 +187,7 @@ function processApprovedPayment($payment) {
 if ($action === 'save_lead') {
     if (!$data || empty($data['email'])) { echo json_encode(['status'=>'ignored']); exit; }
 
-    $file = 'leads_abandono.json';
+    $file = __DIR__ . '/leads_crm.json';
     $leadData = [
         'date' => date('Y-m-d H:i:s'),
         'name' => $data['name'] ?? 'Visitante',
@@ -320,7 +320,8 @@ if ($action === 'check_status') {
     $key = null;
     if ($status === 'approved') {
         // Tenta recuperar do DB (via webhook anterior)
-        $db = json_decode(file_get_contents('database_licenses_secure.json'), true) ?? [];
+        $db_file = __DIR__ . '/database_licenses_secure.json';
+        $db = json_decode(file_get_contents($db_file), true) ?? [];
         foreach($db as $k => $v) {
             if(($v['payment_id'] ?? '') == $id) { $key = $k; break; }
         }

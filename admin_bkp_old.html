@@ -1,0 +1,3110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plena Nexus | Control Tower 5.0</title>
+    <!-- TAILWIND & FONTS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- VUE 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .glass-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        /* Animações */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Badges */
+        .status-badge {
+            @apply px-2 py-1 rounded text-xs font-bold;
+        }
+
+        .status-active {
+            @apply bg-green-900/30 text-green-400;
+        }
+
+        .status-pending {
+            @apply bg-amber-900/30 text-amber-400;
+        }
+
+        .status-expired {
+            @apply bg-red-900/30 text-red-400;
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Transições */
+        .slide-fade-enter-active {
+            transition: all 0.3s ease;
+        }
+
+        .slide-fade-leave-active {
+            transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+        }
+
+        .slide-fade-enter,
+        .slide-fade-leave-to {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-screen text-sm select-none">
+    <div id="app" v-cloak class="flex h-full w-full">
+        <!-- LOGIN -->
+        <div v-if="!auth.isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-black">
+            <div class="glass-panel p-8 rounded-2xl w-full max-w-sm border-t-2 border-blue-500 shadow-2xl">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-white">Plena Nexus <span class="text-blue-500">5.0</span></h1>
+                    <p class="text-slate-400 text-sm mt-2">SoftwareHouse Control Tower</p>
+                </div>
+                <form @submit.prevent="login" class="space-y-4">
+                    <input v-model="loginPass" type="password" placeholder="Master Key"
+                        class="w-full glass-input rounded-xl h-12 px-4" autocomplete="current-password">
+                    <button :disabled="loading"
+                        class="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl flex items-center justify-center transition duration-200">
+                        <span v-if="loading" class="loader"></span>
+                        <span v-else>Entrar</span>
+                    </button>
+                    <p v-if="auth.error" class="text-red-400 text-center text-xs mt-2">{{ auth.error }}</p>
+                    <p class="text-slate-500 text-xs text-center mt-4">
+                        Sistema de gestão integrada
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <template v-else>
+            <!-- SIDEBAR -->
+            <aside
+                class="w-20 lg:w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 z-40 transition-all duration-300">
+                <div class="h-16 flex items-center justify-center border-b border-slate-800 px-4">
+                    <span class="font-bold text-white text-lg hidden lg:block">Plena Nexus</span>
+                    <span class="font-bold text-white text-lg lg:hidden">PN</span>
+                    <span class="text-blue-400 text-xs ml-2 hidden lg:inline">5.0</span>
+                </div>
+
+                <!-- USER INFO -->
+                <div class="p-4 border-b border-slate-800 hidden lg:block">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-user text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white font-medium truncate">{{ currentUser?.name }}</p>
+                            <p class="text-slate-500 text-xs truncate">{{ currentUser?.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION -->
+                <nav class="flex-1 p-2 space-y-1">
+                    <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
+                        class="w-full flex items-center gap-4 px-3 py-3 rounded-lg transition-all duration-200 group"
+                        :class="currentTab === tab.id 
+                            ? 'bg-blue-600/20 text-blue-400 border-l-4 border-blue-500' 
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
+                        <i :class="tab.icon" class="text-lg w-6 text-center"></i>
+                        <span class="hidden lg:block">{{ tab.label }}</span>
+                        <span v-if="tab.id === 'crm' && unreadLeads > 0"
+                            class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {{ unreadLeads }}
+                        </span>
+                    </button>
+                </nav>
+
+                <!-- FOOTER -->
+                <div class="p-4 border-t border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-slate-500">Status</span>
+                        <span class="h-2 w-2 rounded-full" :class="health.ok ? 'bg-green-500' : 'bg-red-500'"></span>
+                    </div>
+                    <button @click="logout"
+                        class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-sm transition">
+                        <i class="fa-solid fa-sign-out-alt"></i>
+                        <span class="hidden lg:inline">Sair</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="flex-1 flex flex-col bg-[#020617] relative min-w-0 overflow-hidden">
+                <!-- HEADER -->
+                <header
+                    class="h-16 border-b border-slate-800 flex justify-between items-center px-4 lg:px-6 bg-slate-900/50 backdrop-blur-md sticky top-0 z-30">
+                    <div class="flex items-center gap-4">
+                        <button @click="toggleSidebar" class="lg:hidden p-2 rounded-lg hover:bg-slate-800">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <h2 class="font-bold text-white text-lg">{{ currentTabInfo.label }}</h2>
+                        <span v-if="loadingData" class="text-xs text-blue-400 animate-pulse">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Atualizando...
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <!-- NOTIFICATIONS -->
+                        <div class="relative">
+                            <button @click="showNotifications = !showNotifications"
+                                class="relative p-2 rounded-lg hover:bg-slate-800 transition">
+                                <i class="fa-solid fa-bell text-lg"></i>
+                                <span v-if="unreadNotifications > 0"
+                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                                    {{ unreadNotifications }}
+                                </span>
+                            </button>
+
+                            <!-- NOTIFICATIONS DROPDOWN -->
+                            <div v-if="showNotifications"
+                                class="absolute right-0 mt-2 w-80 glass-panel rounded-xl shadow-2xl z-50 border border-slate-700"
+                                @click.stop>
+                                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                                    <h3 class="font-bold text-white">Notificações</h3>
+                                    <button @click="markAllAsRead" class="text-blue-400 text-xs hover:text-blue-300">
+                                        Marcar todas como lidas
+                                    </button>
+                                </div>
+                                <div class="max-h-96 overflow-auto">
+                                    <div v-if="notifications.length === 0" class="p-8 text-center text-slate-500">
+                                        <i class="fa-regular fa-bell text-3xl mb-2"></i>
+                                        <p>Nenhuma notificação</p>
+                                    </div>
+                                    <div v-for="note in notifications" :key="note.id"
+                                        @click="handleNotificationClick(note)"
+                                        class="p-4 border-b border-slate-800 hover:bg-white/5 cursor-pointer transition"
+                                        :class="note.read ? 'opacity-60' : 'bg-slate-900/30'">
+                                        <div class="flex gap-3">
+                                            <div class="flex-shrink-0 mt-1" :class="note.type === 'alert' ? 'text-red-400' : 
+                                                         note.type === 'success' ? 'text-green-400' : 
+                                                         note.type === 'info' ? 'text-blue-400' : 
+                                                         'text-amber-400'">
+                                                <i :class="note.icon"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-white text-sm leading-tight">{{ note.message }}</p>
+                                                <p class="text-slate-500 text-xs mt-1">{{ formatTimeAgo(note.timestamp)
+                                                    }}</p>
+                                            </div>
+                                            <div v-if="!note.read" class="flex-shrink-0">
+                                                <span class="h-2 w-2 bg-blue-500 rounded-full"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- USER MENU -->
+                        <div class="relative hidden lg:block">
+                            <button @click="showUserMenu = !showUserMenu"
+                                class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                                <div class="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-user text-white"></i>
+                                </div>
+                                <div class="text-left hidden lg:block">
+                                    <p class="text-white text-sm font-medium truncate max-w-[120px]">{{
+                                        currentUser?.name }}</p>
+                                    <p class="text-slate-500 text-xs">{{ currentUser?.role === 'admin' ? 'Administrador'
+                                        :
+                                        currentUser?.role === 'sales' ? 'Vendas' :
+                                        currentUser?.role === 'support' ? 'Suporte' : 'Usuário' }}</p>
+                                </div>
+                            </button>
+
+                            <!-- USER DROPDOWN -->
+                            <div v-if="showUserMenu"
+                                class="absolute right-0 mt-2 w-56 glass-panel rounded-xl shadow-2xl z-50 border border-slate-700"
+                                @click.stop>
+                                <div class="p-4 border-b border-slate-800">
+                                    <p class="text-white font-bold truncate">{{ currentUser?.name }}</p>
+                                    <p class="text-slate-500 text-xs truncate">{{ currentUser?.email }}</p>
+                                    <p class="text-slate-400 text-xs mt-1">Último login: {{
+                                        formatDate(currentUser?.lastLogin) }}</p>
+                                </div>
+                                <div class="p-2">
+                                    <div class="px-3 py-2 text-xs text-slate-400 uppercase font-bold">Trocar para:</div>
+                                    <button v-for="user in users" :key="user.id" @click="switchUser(user)"
+                                        :class="currentUser?.id === user.id ? 'bg-blue-900/30 text-blue-400' : 'hover:bg-slate-800 text-white'"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center justify-between">
+                                        <span>{{ user.name }}</span>
+                                        <span class="text-xs text-slate-500">{{ user.role === 'admin' ? 'Admin' :
+                                            user.role === 'sales' ? 'Vendas' :
+                                            user.role === 'support' ? 'Suporte' : '' }}</span>
+                                    </button>
+                                </div>
+                                <div class="p-3 border-t border-slate-800">
+                                    <button @click="logout"
+                                        class="w-full px-3 py-2 bg-red-900/30 hover:bg-red-800/30 text-red-400 hover:text-red-300 rounded text-sm transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        Sair do sistema
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STATUS & ACTIONS -->
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1.5 rounded-lg text-xs font-bold border" :class="health.ok 
+                                    ? 'bg-green-900/20 text-green-400 border-green-800/30' 
+                                    : 'bg-red-900/20 text-red-400 border-red-800/30'">
+                                <i class="fa-solid fa-circle mr-1"
+                                    :class="health.ok ? 'text-green-500' : 'text-red-500'"></i>
+                                {{ health.ok ? 'ONLINE' : 'OFFLINE' }}
+                            </span>
+                            <button @click="refreshData" :disabled="loadingData"
+                                class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2">
+                                <i class="fa-solid fa-sync-alt" :class="loadingData ? 'animate-spin' : ''"></i>
+                                <span class="hidden lg:inline">Atualizar</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- CONTENT AREA -->
+                <div class="flex-1 overflow-auto p-4 lg:p-6">
+                    <!-- SEARCH & FILTERS (GLOBAL) -->
+                    <div v-if="currentTab !== 'dashboard'" class="mb-6">
+                        <div class="glass-panel p-4 rounded-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <div class="relative">
+                                    <i
+                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                                    <input v-model="searchTerm" placeholder="Buscar..."
+                                        class="w-full glass-input pl-10 pr-4 py-2.5 rounded-lg">
+                                </div>
+                                <select v-model="filterStatus" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="">Todos os status</option>
+                                    <option value="active">Ativo</option>
+                                    <option value="pending">Pendente</option>
+                                    <option value="expired">Expirado</option>
+                                    <option value="banned">Bloqueado</option>
+                                </select>
+                                <input type="date" v-model="filterDateFrom" class="glass-input px-4 py-2.5 rounded-lg">
+                                <input type="date" v-model="filterDateTo" class="glass-input px-4 py-2.5 rounded-lg">
+                            </div>
+                            <div v-if="hasActiveFilters" class="flex items-center gap-2 mt-3">
+                                <span class="text-slate-400 text-xs">Filtros ativos:</span>
+                                <span v-if="searchTerm" class="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
+                                    Busca: {{ searchTerm }}
+                                </span>
+                                <span v-if="filterStatus"
+                                    class="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
+                                    Status: {{ filterStatus }}
+                                </span>
+                                <button @click="clearFilters" class="ml-auto text-red-400 hover:text-red-300 text-xs">
+                                    Limpar filtros
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DASHBOARD -->
+                    <div v-if="currentTab === 'dashboard'" class="space-y-6">
+                        <!-- KPI CARDS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                            <!-- Card 1: Faturamento Total -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-blue-500 hover:border-blue-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">Faturamento Total</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">R$ {{
+                                            formatMoney(stats.total_revenue) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-money-bill-wave text-blue-400 text-lg"></i>
+                                </div>
+                                <div class="flex items-center mt-2">
+                                    <span class="text-xs"
+                                        :class="stats.revenue_growth >= 0 ? 'text-green-400' : 'text-red-400'">
+                                        <i class="fa-solid"
+                                            :class="stats.revenue_growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                                        {{ Math.abs(stats.revenue_growth || 0) }}%
+                                    </span>
+                                    <span class="text-slate-500 text-xs ml-2">vs mês anterior</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: MRR -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-green-500 hover:border-green-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">MRR</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">R$ {{
+                                            formatMoney(stats.mrr || 0) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-chart-line text-green-400 text-lg"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">{{ stats.active_subscriptions || 0 }} assinaturas
+                                    ativas</p>
+                            </div>
+
+                            <!-- Card 3: Clientes -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-purple-500 hover:border-purple-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">Clientes</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">{{ stats.total_clients
+                                            }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-users text-purple-400 text-lg"></i>
+                                </div>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-green-400 text-xs">{{ stats.new_clients_this_month || 0 }}
+                                        novos</span>
+                                    <span class="text-slate-500 text-xs">este mês</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Conversão -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-amber-500 hover:border-amber-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">Conversão</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">{{ conversionRate }}%
+                                        </h3>
+                                    </div>
+                                    <i class="fa-solid fa-percentage text-amber-400 text-lg"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">{{ convertedLeadsCount }} de {{ leads.length }}
+                                    leads</p>
+                            </div>
+
+                            <!-- Card 5: Churn Rate -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-red-500 hover:border-red-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">Churn Rate</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">{{ stats.churn_rate ||
+                                            0 }}%</h3>
+                                    </div>
+                                    <i class="fa-solid fa-user-slash text-red-400 text-lg"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">{{ stats.churned_clients || 0 }} cancelamentos
+                                </p>
+                            </div>
+
+                            <!-- Card 6: LTV Médio -->
+                            <div
+                                class="glass-panel p-4 rounded-xl border-l-4 border-cyan-500 hover:border-cyan-400 transition">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase">LTV Médio</p>
+                                        <h3 class="text-xl lg:text-2xl font-bold text-white mt-1">R$ {{
+                                            formatMoney(stats.avg_ltv || 0) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-trophy text-cyan-400 text-lg"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">por cliente</p>
+                            </div>
+                        </div>
+
+                        <!-- CHARTS SECTION -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Gráfico de Vendas -->
+                            <div class="lg:col-span-2 glass-panel p-6 rounded-xl">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-white font-bold">Vendas Mensais</h3>
+                                    <select v-model="chartPeriod" class="glass-input px-3 py-1.5 rounded-lg text-xs">
+                                        <option value="30d">Últimos 30 dias</option>
+                                        <option value="90d">Últimos 90 dias</option>
+                                        <option value="1y">Último ano</option>
+                                    </select>
+                                </div>
+                                <div class="h-64">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Top Produtos -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-white font-bold">Top Produtos</h3>
+                                    <span class="text-slate-500 text-xs">{{ stats.total_products || 0 }} produtos</span>
+                                </div>
+                                <div class="space-y-4">
+                                    <div v-for="(qty, name) in stats.top_products || {}" :key="name"
+                                        class="flex items-center justify-between group hover:bg-white/5 p-2 rounded-lg transition">
+                                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                                            <div
+                                                class="h-8 w-8 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                                <i class="fa-solid fa-box text-blue-400"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-white text-sm font-medium truncate">{{ name }}</p>
+                                                <p class="text-slate-500 text-xs">{{ qty }} vendas</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                <div class="h-full bg-blue-500"
+                                                    :style="{ width: ((qty/(stats.max_prod || 1))*100) + '%' }"></div>
+                                            </div>
+                                            <span class="text-white font-bold text-sm">{{ qty }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button @click="currentTab = 'products'"
+                                    class="w-full mt-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-sm transition">
+                                    Ver todos os produtos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- RECENT ACTIVITY -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Vendas Recentes -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-white font-bold">Vendas Recentes</h3>
+                                    <button @click="currentTab = 'sales'"
+                                        class="text-blue-400 hover:text-blue-300 text-xs">
+                                        Ver todas
+                                    </button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div v-for="s in recentSales" :key="s.id"
+                                        class="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="h-10 w-10 bg-green-900/30 rounded-lg flex items-center justify-center">
+                                                <i class="fa-solid fa-dollar-sign text-green-400"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">{{ s.client }}</p>
+                                                <p class="text-slate-500 text-xs">{{ s.product }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-green-400 font-bold">R$ {{ formatMoney(s.amount) }}</p>
+                                            <p class="text-slate-500 text-xs">{{ formatDate(s.date) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Leads Recentes -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-white font-bold">Leads Recentes</h3>
+                                    <button @click="currentTab = 'crm'"
+                                        class="text-blue-400 hover:text-blue-300 text-xs">
+                                        Ver todos
+                                    </button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div v-for="l in recentLeads" :key="l.unique_id"
+                                        class="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition">
+                                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                                            <div
+                                                class="h-10 w-10 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                                <i class="fa-solid fa-user text-blue-400"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-white font-medium truncate">{{ l.name }}</p>
+                                                <p class="text-slate-500 text-xs truncate">{{ l.email }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <a :href="getWhatsappLink(l)" target="_blank"
+                                                class="px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-white text-xs font-bold transition flex items-center gap-2">
+                                                <i class="fa-brands fa-whatsapp"></i>
+                                                Contatar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SALES -->
+                    <div v-if="currentTab === 'sales'" class="space-y-6">
+                        <div class="glass-panel rounded-xl overflow-hidden">
+                            <div
+                                class="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="text-white font-bold">Histórico de Vendas</h3>
+                                    <p class="text-slate-500 text-xs mt-1">{{ filteredSales.length }} vendas encontradas
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button @click="exportSalesCSV"
+                                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        Exportar CSV
+                                    </button>
+                                    <button @click="showSalesReport = true"
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-bar"></i>
+                                        Relatório
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-900 text-xs text-slate-500 uppercase sticky top-0">
+                                        <tr>
+                                            <th class="p-4 font-medium">ID</th>
+                                            <th class="p-4 font-medium">Data</th>
+                                            <th class="p-4 font-medium">Cliente</th>
+                                            <th class="p-4 font-medium">Produto</th>
+                                            <th class="p-4 font-medium text-right">Valor</th>
+                                            <th class="p-4 font-medium">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800">
+                                        <tr v-for="s in filteredSales" :key="s.id" class="hover:bg-white/5 transition">
+                                            <td class="p-4">
+                                                <code class="font-mono text-blue-400 text-xs">{{ s.id }}</code>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="text-white">{{ formatDate(s.date) }}</div>
+                                                <div class="text-slate-500 text-xs">{{ formatTime(s.date) }}</div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="text-white font-medium">{{ s.client }}</div>
+                                                <div class="text-slate-500 text-xs">{{ s.email || 'N/A' }}</div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
+                                                    {{ s.product }}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-right">
+                                                <div class="text-green-400 font-bold">R$ {{ formatMoney(s.amount) }}
+                                                </div>
+                                                <div class="text-slate-500 text-xs">{{ s.payment_method || 'N/A' }}
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 rounded text-xs font-bold" :class="s.status === 'paid' ? 'bg-green-900/30 text-green-400' :
+                                                              s.status === 'pending' ? 'bg-amber-900/30 text-amber-400' :
+                                                              'bg-red-900/30 text-red-400'">
+                                                    {{ s.status === 'paid' ? 'Pago' :
+                                                    s.status === 'pending' ? 'Pendente' :
+                                                    s.status === 'refunded' ? 'Reembolsado' : s.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="filteredSales.length === 0" class="p-8 text-center text-slate-500">
+                                <i class="fa-solid fa-receipt text-3xl mb-3"></i>
+                                <p>Nenhuma venda encontrada</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CRM -->
+                    <div v-if="currentTab === 'crm'" class="space-y-6">
+                        <div class="glass-panel rounded-xl overflow-hidden">
+                            <div
+                                class="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="text-white font-bold">Gestão de Leads</h3>
+                                    <p class="text-slate-500 text-xs mt-1">
+                                        {{ filteredLeads.length }} leads •
+                                        {{ convertedLeadsCount }} convertidos •
+                                        {{ unreadLeads }} não contactados
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button @click="showLeadModal = true"
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-plus"></i>
+                                        Novo Lead
+                                    </button>
+                                    <button @click="exportLeadsCSV"
+                                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        Exportar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-900 text-xs text-slate-500 uppercase sticky top-0">
+                                        <tr>
+                                            <th class="p-4 font-medium">Lead</th>
+                                            <th class="p-4 font-medium">Contato</th>
+                                            <th class="p-4 font-medium">Origem</th>
+                                            <th class="p-4 font-medium">Status</th>
+                                            <th class="p-4 font-medium text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800">
+                                        <tr v-for="l in filteredLeads" :key="l.unique_id"
+                                            class="hover:bg-white/5 transition">
+                                            <td class="p-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="h-10 w-10 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                                        <i class="fa-solid fa-user text-blue-400"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-white font-medium">{{ l.name }}</div>
+                                                        <div class="text-slate-500 text-xs">{{ l.company || 'Não
+                                                            informado' }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="text-white">{{ l.email }}</div>
+                                                <div class="text-slate-500 text-xs">{{ l.phone || 'Não informado' }}
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 bg-slate-800 rounded text-xs">
+                                                    {{ l.source || 'Site' }}
+                                                </span>
+                                                <div class="text-slate-500 text-xs mt-1">{{ formatDate(l.created_at) }}
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span v-if="isConverted(l.email)"
+                                                        class="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">
+                                                        <i class="fa-solid fa-check mr-1"></i>Comprador
+                                                    </span>
+                                                    <span v-else-if="l.contacted"
+                                                        class="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
+                                                        Contactado
+                                                    </span>
+                                                    <span v-else
+                                                        class="px-2 py-1 bg-amber-900/30 text-amber-400 rounded text-xs">
+                                                        Pendente
+                                                    </span>
+                                                </div>
+                                                <div v-if="l.notes"
+                                                    class="text-slate-500 text-xs mt-1 truncate max-w-xs">
+                                                    {{ l.notes }}
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <a :href="getWhatsappLink(l)" target="_blank"
+                                                        class="p-2 bg-green-600 hover:bg-green-500 rounded-lg text-white transition"
+                                                        title="WhatsApp">
+                                                        <i class="fa-brands fa-whatsapp"></i>
+                                                    </a>
+                                                    <button @click="editLead(l)"
+                                                        class="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition"
+                                                        title="Editar">
+                                                        <i class="fa-solid fa-edit"></i>
+                                                    </button>
+                                                    <button @click="markAsContacted(l)"
+                                                        class="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white transition"
+                                                        title="Marcar como contactado">
+                                                        <i class="fa-solid fa-phone"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="filteredLeads.length === 0" class="p-8 text-center text-slate-500">
+                                <i class="fa-solid fa-users text-3xl mb-3"></i>
+                                <p>Nenhum lead encontrado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LICENSES -->
+                    <div v-if="currentTab === 'customers'" class="space-y-6">
+                        <!-- FILTROS ESPECÍFICOS DE LICENÇAS -->
+                        <div class="glass-panel p-4 rounded-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <div class="relative">
+                                    <i
+                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                                    <input v-model="licenseSearch" placeholder="Buscar cliente ou chave..."
+                                        class="w-full glass-input pl-10 pr-4 py-2.5 rounded-lg">
+                                </div>
+                                <select v-model="licenseProductFilter" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="">Todos os produtos</option>
+                                    <option v-for="p in allProducts" :key="p" :value="p">{{ p }}</option>
+                                </select>
+                                <select v-model="licenseStatusFilter" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="">Todos os status</option>
+                                    <option value="active">Ativo</option>
+                                    <option value="expired">Expirado</option>
+                                    <option value="banned">Bloqueado</option>
+                                    <option value="trial">Teste</option>
+                                </select>
+                                <div class="flex gap-2">
+                                    <button @click="exportLicensesCSV"
+                                        class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-sm transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        Exportar
+                                    </button>
+                                    <button @click="showCreateModal = true"
+                                        class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-plus"></i>
+                                        Nova
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RESUMO -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="glass-panel p-4 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Licenças Ativas</p>
+                                        <h3 class="text-2xl font-bold text-white">{{ stats.active_licenses || 0 }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-key text-green-400 text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-4 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Expiram em 30 dias</p>
+                                        <h3 class="text-2xl font-bold text-white">{{ stats.expiring_soon || 0 }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-clock text-amber-400 text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-4 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Clientes Únicos</p>
+                                        <h3 class="text-2xl font-bold text-white">{{ customersGrouped.length }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-users text-blue-400 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LISTA DE LICENÇAS -->
+                        <div class="grid grid-cols-1 gap-4">
+                            <div v-for="c in filteredCustomers" :key="c.email"
+                                class="glass-panel p-4 rounded-xl border-l-4 border-blue-500 hover:border-blue-400 transition">
+                                <div class="flex justify-between items-center cursor-pointer"
+                                    @click="c.expanded = !c.expanded">
+                                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                                        <div
+                                            class="h-12 w-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                            <i class="fa-solid fa-user text-blue-400 text-xl"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-bold text-white truncate">{{ c.email }}</h4>
+                                                <span v-if="c.items.some(i => i.status === 'expired')"
+                                                    class="px-2 py-0.5 bg-red-900/30 text-red-400 rounded text-xs">
+                                                    Expirado
+                                                </span>
+                                                <span v-if="c.items.some(i => i.status === 'trial')"
+                                                    class="px-2 py-0.5 bg-amber-900/30 text-amber-400 rounded text-xs">
+                                                    Teste
+                                                </span>
+                                            </div>
+                                            <p class="text-slate-500 text-xs">
+                                                {{ c.items.length }} app{{ c.items.length !== 1 ? 's' : '' }} •
+                                                Último acesso: {{ getLastAccess(c) }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-slate-500 text-sm hidden sm:block">
+                                            {{ c.items.filter(i => i.status === 'active').length }} ativas
+                                        </span>
+                                        <i class="fa-solid text-slate-500 transition-transform duration-300"
+                                            :class="c.expanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                    </div>
+                                </div>
+
+                                <!-- LICENÇAS EXPANDIDAS -->
+                                <div v-if="c.expanded" class="mt-4 space-y-3">
+                                    <div v-for="lic in c.items" :key="lic.key"
+                                        class="bg-black/30 p-4 rounded-xl border border-slate-800">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <span class="font-bold text-white text-sm">{{ lic.product }}</span>
+                                                    <span class="px-2 py-1 rounded text-xs font-bold" :class="lic.status === 'active' ? 'bg-green-900/30 text-green-400' :
+                                                                  lic.status === 'expired' ? 'bg-red-900/30 text-red-400' :
+                                                                  lic.status === 'trial' ? 'bg-amber-900/30 text-amber-400' :
+                                                                  'bg-slate-900/30 text-slate-400'">
+                                                        {{ lic.status === 'active' ? 'Ativo' :
+                                                        lic.status === 'expired' ? 'Expirado' :
+                                                        lic.status === 'trial' ? 'Teste' : lic.status }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex flex-wrap gap-2">
+                                                    <div class="text-xs text-slate-400">
+                                                        <i class="fa-solid fa-calendar mr-1"></i>
+                                                        Criada: {{ formatDate(lic.created_at) }}
+                                                    </div>
+                                                    <div v-if="lic.expires_at" class="text-xs text-slate-400">
+                                                        <i class="fa-solid fa-clock mr-1"></i>
+                                                        Expira: {{ formatDate(lic.expires_at) }}
+                                                    </div>
+                                                    <div v-if="lic.device_id" class="text-xs text-slate-400">
+                                                        <i class="fa-solid fa-mobile mr-1"></i>
+                                                        Dispositivo: {{ lic.device_id }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <div class="flex-1 min-w-0">
+                                                    <code
+                                                        class="text-xs text-slate-400 bg-black/50 p-2 rounded-lg block truncate font-mono select-all">
+                                                        {{ lic.key }}
+                                                    </code>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button @click="actionLicense(lic.key, 'reset_device')"
+                                                        class="p-2 bg-amber-900/30 hover:bg-amber-800/30 text-amber-400 rounded-lg transition"
+                                                        title="Resetar dispositivo">
+                                                        <i class="fa-solid fa-mobile-rotate"></i>
+                                                    </button>
+                                                    <button @click="resendEmail(lic.key)"
+                                                        class="p-2 bg-blue-900/30 hover:bg-blue-800/30 text-blue-400 rounded-lg transition"
+                                                        title="Reenviar email">
+                                                        <i class="fa-solid fa-envelope"></i>
+                                                    </button>
+                                                    <button @click="showLicenseDetails(lic)"
+                                                        class="p-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
+                                                        title="Detalhes">
+                                                        <i class="fa-solid fa-info"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="filteredCustomers.length === 0"
+                            class="glass-panel p-8 rounded-xl text-center text-slate-500">
+                            <i class="fa-solid fa-key text-3xl mb-3"></i>
+                            <p>Nenhuma licença encontrada</p>
+                        </div>
+                    </div>
+
+                    <!-- FINANCEIRO -->
+                    <div v-if="currentTab === 'finance'" class="space-y-6">
+                        <!-- RESUMO FINANCEIRO -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="glass-panel p-5 rounded-xl border-l-4 border-green-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Entradas (Mês)</p>
+                                        <h3 class="text-2xl font-bold text-green-400">R$ {{ formatMoney(finance.incomes
+                                            || 0) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-arrow-down-to-line text-green-400 text-2xl"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">{{ finance.income_count || 0 }} transações</p>
+                            </div>
+
+                            <div class="glass-panel p-5 rounded-xl border-l-4 border-red-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Saídas (Mês)</p>
+                                        <h3 class="text-2xl font-bold text-red-400">R$ {{ formatMoney(finance.expenses
+                                            || 0) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-arrow-up-from-line text-red-400 text-2xl"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">{{ finance.expense_count || 0 }} transações</p>
+                            </div>
+
+                            <div class="glass-panel p-5 rounded-xl border-l-4 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs text-slate-400">Saldo Atual</p>
+                                        <h3 class="text-2xl font-bold text-white">R$ {{ formatMoney(finance.balance ||
+                                            0) }}</h3>
+                                    </div>
+                                    <i class="fa-solid fa-wallet text-blue-400 text-2xl"></i>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">Disponível</p>
+                            </div>
+                        </div>
+
+                        <!-- GRÁFICO FINANCEIRO -->
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="text-white font-bold mb-6">Fluxo de Caixa - Últimos 6 Meses</h3>
+                            <div class="h-64">
+                                <canvas id="financeChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- TRANSAÇÕES RECENTES -->
+                        <div class="glass-panel rounded-xl overflow-hidden">
+                            <div
+                                class="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="text-white font-bold">Transações Recentes</h3>
+                                    <p class="text-slate-500 text-xs mt-1">{{ finance.transactions?.length || 0 }}
+                                        transações</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button @click="exportFinanceCSV"
+                                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        Exportar CSV
+                                    </button>
+                                    <button @click="showNewTransactionModal = true"
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition flex items-center gap-2">
+                                        <i class="fa-solid fa-plus"></i>
+                                        Nova Transação
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-900 text-xs text-slate-500 uppercase sticky top-0">
+                                        <tr>
+                                            <th class="p-4 font-medium">Data</th>
+                                            <th class="p-4 font-medium">Descrição</th>
+                                            <th class="p-4 font-medium">Categoria</th>
+                                            <th class="p-4 font-medium text-right">Valor</th>
+                                            <th class="p-4 font-medium">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800">
+                                        <tr v-for="t in finance.transactions || []" :key="t.id"
+                                            class="hover:bg-white/5 transition">
+                                            <td class="p-4">
+                                                <div class="text-white text-sm">{{ formatDate(t.date) }}</div>
+                                                <div class="text-slate-500 text-xs">{{ formatTime(t.date) }}</div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="text-white font-medium">{{ t.description }}</div>
+                                                <div v-if="t.client" class="text-slate-500 text-xs">{{ t.client }}</div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 rounded text-xs"
+                                                    :class="getCategoryClass(t.category)">
+                                                    {{ t.category }}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-right">
+                                                <div class="font-bold"
+                                                    :class="t.type === 'income' ? 'text-green-400' : 'text-red-400'">
+                                                    {{ t.type === 'income' ? '+' : '-' }} R$ {{ formatMoney(t.amount) }}
+                                                </div>
+                                                <div class="text-slate-500 text-xs">{{ t.payment_method || '' }}</div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 rounded text-xs font-bold" :class="t.status === 'paid' ? 'bg-green-900/30 text-green-400' : 
+                                                              t.status === 'pending' ? 'bg-amber-900/30 text-amber-400' :
+                                                              'bg-red-900/30 text-red-400'">
+                                                    {{ t.status === 'paid' ? 'Pago' :
+                                                    t.status === 'pending' ? 'Pendente' : 'Vencido' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="!finance.transactions || finance.transactions.length === 0"
+                                class="p-8 text-center text-slate-500">
+                                <i class="fa-solid fa-money-bill-wave text-3xl mb-3"></i>
+                                <p>Nenhuma transação registrada</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PRODUTOS -->
+                    <div v-if="currentTab === 'products'" class="space-y-6">
+                        <!-- FILTROS DE PRODUTOS -->
+                        <div class="glass-panel p-4 rounded-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="relative">
+                                    <i
+                                        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                                    <input v-model="productSearch" placeholder="Buscar produto..."
+                                        class="w-full glass-input pl-10 pr-4 py-2.5 rounded-lg">
+                                </div>
+                                <select v-model="productCategoryFilter" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="">Todas categorias</option>
+                                    <option value="aluguel">Aluguéis</option>
+                                    <option value="delivery">Delivery</option>
+                                    <option value="gestao">Gestão</option>
+                                    <option value="servicos">Serviços</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                                <select v-model="productStatusFilter" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="">Todos status</option>
+                                    <option value="active">Ativo</option>
+                                    <option value="inactive">Inativo</option>
+                                    <option value="beta">Beta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CARDS DE PRODUTOS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div v-for="product in filteredProducts" :key="product.id"
+                                class="glass-panel p-4 rounded-xl hover:border-blue-500 border border-transparent transition group">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-bold text-white truncate">{{ product.name }}</h4>
+                                            <span class="px-2 py-0.5 text-xs rounded" :class="product.status === 'active' ? 'bg-green-900/30 text-green-400' : 
+                                                          product.status === 'beta' ? 'bg-blue-900/30 text-blue-400' :
+                                                          'bg-red-900/30 text-red-400'">
+                                                {{ product.status === 'active' ? 'Ativo' :
+                                                product.status === 'beta' ? 'Beta' : 'Inativo' }}
+                                            </span>
+                                        </div>
+                                        <p class="text-slate-500 text-xs truncate">{{ product.category }}</p>
+                                    </div>
+                                    <div
+                                        class="h-10 w-10 bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-800/30 transition">
+                                        <i class="fa-solid fa-box text-blue-400"></i>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 text-sm">Preço:</span>
+                                        <span class="font-bold text-white">R$ {{ formatMoney(product.price) }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 text-sm">Clientes:</span>
+                                        <span class="font-bold text-white">{{ product.client_count || 0 }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 text-sm">MRR:</span>
+                                        <span class="font-bold text-green-400">R$ {{ formatMoney(product.mrr || 0)
+                                            }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 text-sm">Conversão:</span>
+                                        <span class="font-bold text-amber-400">{{ product.conversion_rate || 0
+                                            }}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2 pt-4 border-t border-slate-800">
+                                    <button @click="editProduct(product)"
+                                        class="flex-1 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-xs transition flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-edit"></i>
+                                        Editar
+                                    </button>
+                                    <button @click="toggleProductStatus(product)" :class="product.status === 'active' ? 
+                                                   'bg-red-900/30 hover:bg-red-800/30 text-red-400' : 
+                                                   'bg-green-900/30 hover:bg-green-800/30 text-green-400'"
+                                        class="flex-1 px-3 py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                                        <i class="fa-solid"
+                                            :class="product.status === 'active' ? 'fa-pause' : 'fa-play'"></i>
+                                        {{ product.status === 'active' ? 'Pausar' : 'Ativar' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="filteredProducts.length === 0"
+                            class="glass-panel p-8 rounded-xl text-center text-slate-500">
+                            <i class="fa-solid fa-box-open text-3xl mb-3"></i>
+                            <p>Nenhum produto encontrado</p>
+                            <button @click="showNewProductModal = true"
+                                class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition">
+                                Criar primeiro produto
+                            </button>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <button @click="showNewProductModal = true"
+                                class="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i>
+                                Novo Produto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RELATÓRIOS -->
+                    <div v-if="currentTab === 'reports'" class="space-y-6">
+                        <!-- RELATÓRIOS RÁPIDOS -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- RELATÓRIO DE VENDAS -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-white font-bold">Relatório de Vendas</h3>
+                                    <i class="fa-solid fa-chart-bar text-blue-400 text-xl"></i>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Período</p>
+                                        <select v-model="salesReportPeriod"
+                                            class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                            <option value="today">Hoje</option>
+                                            <option value="yesterday">Ontem</option>
+                                            <option value="week">Esta semana</option>
+                                            <option value="month">Este mês</option>
+                                            <option value="year">Este ano</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Formato</p>
+                                        <select v-model="salesReportFormat"
+                                            class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                            <option value="pdf">PDF</option>
+                                            <option value="excel">Excel</option>
+                                            <option value="csv">CSV</option>
+                                        </select>
+                                    </div>
+                                    <button @click="generateSalesReport"
+                                        class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition">
+                                        Gerar Relatório
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- RELATÓRIO FINANCEIRO -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-white font-bold">Relatório Financeiro</h3>
+                                    <i class="fa-solid fa-money-bill-wave text-green-400 text-xl"></i>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Tipo</p>
+                                        <select v-model="financeReportType"
+                                            class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                            <option value="cashflow">Fluxo de Caixa</option>
+                                            <option value="profit">Lucratividade</option>
+                                            <option value="expenses">Despesas</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <p class="text-slate-400 text-sm">De</p>
+                                            <input type="date" v-model="financeReportFrom"
+                                                class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                        </div>
+                                        <div>
+                                            <p class="text-slate-400 text-sm">Até</p>
+                                            <input type="date" v-model="financeReportTo"
+                                                class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                        </div>
+                                    </div>
+                                    <button @click="generateFinanceReport"
+                                        class="w-full py-3 bg-green-600 hover:bg-green-500 rounded-lg text-white font-bold transition">
+                                        Gerar Relatório
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- RELATÓRIO DE CLIENTES -->
+                            <div class="glass-panel p-6 rounded-xl">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-white font-bold">Relatório de Clientes</h3>
+                                    <i class="fa-solid fa-users text-purple-400 text-xl"></i>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Métrica</p>
+                                        <select v-model="clientsReportMetric"
+                                            class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                            <option value="growth">Crescimento</option>
+                                            <option value="churn">Churn Rate</option>
+                                            <option value="ltv">LTV</option>
+                                            <option value="segmentation">Segmentação</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Agrupamento</p>
+                                        <select v-model="clientsReportGroup"
+                                            class="w-full glass-input px-4 py-2 rounded-lg mt-1">
+                                            <option value="product">Por Produto</option>
+                                            <option value="region">Por Região</option>
+                                            <option value="source">Por Origem</option>
+                                        </select>
+                                    </div>
+                                    <button @click="generateClientsReport"
+                                        class="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-bold transition">
+                                        Gerar Relatório
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HISTÓRICO DE RELATÓRIOS -->
+                        <div class="glass-panel rounded-xl overflow-hidden">
+                            <div class="p-4 border-b border-slate-800">
+                                <h3 class="text-white font-bold">Relatórios Gerados Recentemente</h3>
+                            </div>
+                            <div class="overflow-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-900 text-xs text-slate-500 uppercase">
+                                        <tr>
+                                            <th class="p-4 font-medium">Data</th>
+                                            <th class="p-4 font-medium">Tipo</th>
+                                            <th class="p-4 font-medium">Período</th>
+                                            <th class="p-4 font-medium">Tamanho</th>
+                                            <th class="p-4 font-medium text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800">
+                                        <tr v-for="report in reports" :key="report.id"
+                                            class="hover:bg-white/5 transition">
+                                            <td class="p-4">
+                                                <div class="text-white">{{ formatDate(report.created_at) }}</div>
+                                                <div class="text-slate-500 text-xs">{{ formatTime(report.created_at) }}
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="flex items-center gap-2">
+                                                    <i :class="report.icon" :class="report.type === 'sales' ? 'text-blue-400' :
+                                                               report.type === 'finance' ? 'text-green-400' :
+                                                               'text-purple-400'"></i>
+                                                    <span class="text-white">{{ report.name }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="px-2 py-1 bg-slate-800 rounded text-xs">
+                                                    {{ report.period }}
+                                                </span>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="text-slate-400 text-sm">{{ report.size }}</span>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <button @click="downloadReport(report)"
+                                                        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-xs transition flex items-center gap-1">
+                                                        <i class="fa-solid fa-download"></i>
+                                                        Baixar
+                                                    </button>
+                                                    <button @click="deleteReport(report)"
+                                                        class="px-3 py-1.5 bg-red-900/30 hover:bg-red-800/30 text-red-400 rounded-lg text-xs transition flex items-center gap-1">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                        Excluir
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="reports.length === 0" class="p-8 text-center text-slate-500">
+                                <i class="fa-solid fa-file-chart-column text-3xl mb-3"></i>
+                                <p>Nenhum relatório gerado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EQUIPE -->
+                    <div v-if="currentTab === 'team'" class="space-y-6">
+                        <!-- MEMBROS DA EQUIPE -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div v-for="member in team" :key="member.id"
+                                class="glass-panel p-4 rounded-xl hover:border-blue-500 border border-transparent transition">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                                        :class="member.role === 'admin' ? 'bg-blue-600' :
+                                                 member.role === 'sales' ? 'bg-green-600' :
+                                                 member.role === 'support' ? 'bg-amber-600' :
+                                                 'bg-purple-600'">
+                                        {{ getInitials(member.name) }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-white truncate">{{ member.name }}</h4>
+                                        <p class="text-slate-500 text-xs truncate">{{ member.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-slate-400 text-sm">Cargo:</span>
+                                        <span class="text-white text-sm font-medium">{{ member.position }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-slate-400 text-sm">Permissão:</span>
+                                        <span class="px-2 py-0.5 rounded text-xs" :class="member.role === 'admin' ? 'bg-blue-900/30 text-blue-400' :
+                                                      member.role === 'sales' ? 'bg-green-900/30 text-green-400' :
+                                                      member.role === 'support' ? 'bg-amber-900/30 text-amber-400' :
+                                                      'bg-purple-900/30 text-purple-400'">
+                                            {{ member.role === 'admin' ? 'Administrador' :
+                                            member.role === 'sales' ? 'Vendas' :
+                                            member.role === 'support' ? 'Suporte' : 'Visualização' }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-slate-400 text-sm">Último acesso:</span>
+                                        <span class="text-slate-500 text-xs">{{ formatTimeAgo(member.last_login)
+                                            }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2 pt-4 border-t border-slate-800">
+                                    <button @click="editTeamMember(member)"
+                                        class="flex-1 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-white text-xs transition">
+                                        Editar
+                                    </button>
+                                    <button @click="deleteTeamMember(member)"
+                                        class="flex-1 px-3 py-1.5 bg-red-900/30 hover:bg-red-800/30 text-red-400 rounded-lg text-xs transition">
+                                        Remover
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADICIONAR NOVO MEMBRO -->
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="text-white font-bold mb-4">Adicionar Novo Membro</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input v-model="newMember.name" placeholder="Nome completo"
+                                    class="glass-input px-4 py-2.5 rounded-lg">
+                                <input v-model="newMember.email" type="email" placeholder="Email"
+                                    class="glass-input px-4 py-2.5 rounded-lg">
+                                <input v-model="newMember.position" placeholder="Cargo"
+                                    class="glass-input px-4 py-2.5 rounded-lg">
+                                <select v-model="newMember.role" class="glass-input px-4 py-2.5 rounded-lg">
+                                    <option value="view">Apenas Visualização</option>
+                                    <option value="support">Suporte</option>
+                                    <option value="sales">Vendas</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                            <button @click="addTeamMember"
+                                class="mt-4 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition">
+                                Adicionar Membro
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LOGS -->
+                    <div v-if="currentTab === 'logs'" class="space-y-6">
+                        <!-- DIAGNÓSTICO DO SISTEMA -->
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="text-white font-bold mb-6">Diagnóstico do Sistema</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="p-4 bg-slate-800/50 rounded-xl border"
+                                    :class="health.smtp ? 'border-green-500/30' : 'border-red-500/30'">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-slate-400 text-sm">SMTP</span>
+                                        <i class="fa-solid"
+                                            :class="health.smtp ? 'fa-check text-green-400' : 'fa-times text-red-400'"></i>
+                                    </div>
+                                    <p class="text-white font-bold">{{ health.smtp ? 'OPERACIONAL' : 'ERRO' }}</p>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-xl border"
+                                    :class="health.mp_token ? 'border-green-500/30' : 'border-red-500/30'">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-slate-400 text-sm">Mercado Pago</span>
+                                        <i class="fa-solid"
+                                            :class="health.mp_token ? 'fa-check text-green-400' : 'fa-times text-red-400'"></i>
+                                    </div>
+                                    <p class="text-white font-bold">{{ health.mp_token ? 'OK' : 'ERRO' }}</p>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-xl border"
+                                    :class="health.db_writable ? 'border-green-500/30' : 'border-red-500/30'">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-slate-400 text-sm">Banco de Dados</span>
+                                        <i class="fa-solid"
+                                            :class="health.db_writable ? 'fa-check text-green-400' : 'fa-times text-red-400'"></i>
+                                    </div>
+                                    <p class="text-white font-bold">{{ health.db_writable ? 'GRAVÁVEL' : 'SOMENTE
+                                        LEITURA' }}</p>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-xl border"
+                                    :class="health.cron ? 'border-green-500/30' : 'border-red-500/30'">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-slate-400 text-sm">Agendador (Cron)</span>
+                                        <i class="fa-solid"
+                                            :class="health.cron ? 'fa-check text-green-400' : 'fa-times text-red-400'"></i>
+                                    </div>
+                                    <p class="text-white font-bold">{{ health.cron ? 'ATIVO' : 'INATIVO' }}</p>
+                                </div>
+                            </div>
+
+                            <!-- TESTE DE EMAIL -->
+                            <div class="mt-6 p-4 bg-slate-800/30 rounded-xl">
+                                <h4 class="text-white font-bold mb-3">Teste de Email</h4>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input v-model="testEmailAddr" placeholder="Email para teste"
+                                        class="flex-1 glass-input px-4 py-2.5 rounded-lg">
+                                    <button @click="runEmailTest"
+                                        class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-white transition">
+                                        Enviar Teste
+                                    </button>
+                                </div>
+                                <div v-if="emailStatus" class="mt-3">
+                                    <span class="text-sm"
+                                        :class="emailStatus.includes('Erro') ? 'text-red-400' : 'text-green-400'">
+                                        {{ emailStatus }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- BACKUP -->
+                            <div class="mt-6 p-4 bg-slate-800/30 rounded-xl">
+                                <h4 class="text-white font-bold mb-3">Backup do Sistema</h4>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <select v-model="backupType" class="flex-1 glass-input px-4 py-2.5 rounded-lg">
+                                        <option value="full">Backup Completo</option>
+                                        <option value="database">Somente Banco</option>
+                                        <option value="files">Somente Arquivos</option>
+                                    </select>
+                                    <button @click="createBackup"
+                                        class="px-6 py-2.5 bg-green-600 hover:bg-green-500 rounded-lg text-white transition flex items-center gap-2">
+                                        <i class="fa-solid fa-database"></i>
+                                        Criar Backup
+                                    </button>
+                                </div>
+                                <p class="text-slate-500 text-xs mt-2">Último backup: {{ lastBackup || 'Nunca' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- LOGS DO SISTEMA -->
+                        <div class="glass-panel p-6 rounded-xl">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-white font-bold">Logs do Sistema</h3>
+                                <div class="flex items-center gap-3">
+                                    <select v-model="logLevel" class="glass-input px-3 py-1.5 rounded-lg text-xs">
+                                        <option value="all">Todos</option>
+                                        <option value="error">Apenas Erros</option>
+                                        <option value="warning">Avisos</option>
+                                        <option value="info">Informações</option>
+                                    </select>
+                                    <button @click="clearLogs"
+                                        class="px-3 py-1.5 bg-red-900/30 hover:bg-red-800/30 text-red-400 rounded-lg text-xs transition">
+                                        Limpar Logs
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="bg-black/50 p-4 rounded-xl border border-slate-800 overflow-auto max-h-96">
+                                <div v-for="(l, i) in filteredLogs" :key="i"
+                                    class="mb-2 font-mono text-xs flex items-start gap-3">
+                                    <span class="text-slate-500 flex-shrink-0">[{{ l.time || formatTime(new Date())
+                                        }}]</span>
+                                    <span :class="l.color">{{ l.msg }}</span>
+                                </div>
+                                <div v-if="filteredLogs.length === 0" class="text-center text-slate-500 py-8">
+                                    <i class="fa-solid fa-clipboard-list text-2xl mb-2"></i>
+                                    <p>Nenhum log encontrado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER -->
+                <footer
+                    class="h-12 border-t border-slate-800 flex items-center justify-between px-4 lg:px-6 text-slate-500 text-xs">
+                    <div class="flex items-center gap-4">
+                        <span>Plena Nexus v5.0</span>
+                        <span class="hidden lg:inline">•</span>
+                        <span class="hidden lg:inline">SoftwareHouse Management System</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span>{{ currentTime }}</span>
+                        <span class="hidden lg:inline">•</span>
+                        <span class="hidden lg:inline">Memória: {{ memoryUsage }}</span>
+                    </div>
+                </footer>
+            </main>
+
+            <!-- MODAL: NOVA LICENÇA -->
+            <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+                <div class="glass-panel p-6 rounded-xl w-full max-w-md bg-slate-900 border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold text-lg">Nova Licença</h3>
+                        <button @click="showCreateModal = false"
+                            class="p-2 hover:bg-slate-800 rounded-lg text-slate-400">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <form @submit.prevent="createLicense" class="space-y-4">
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Email do Cliente</label>
+                            <input v-model="form.client" type="email" placeholder="exemplo@empresa.com"
+                                class="w-full glass-input p-3 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Produto</label>
+                            <select v-model="form.product" class="w-full glass-input p-3 rounded-lg">
+                                <option v-for="p in allProducts" :key="p" :value="p">{{ p }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Tipo de Licença</label>
+                            <select v-model="form.license_type" class="w-full glass-input p-3 rounded-lg">
+                                <option value="trial">Teste (7 dias)</option>
+                                <option value="monthly">Mensal</option>
+                                <option value="yearly">Anual</option>
+                                <option value="lifetime">Vitalícia</option>
+                            </select>
+                        </div>
+                        <div v-if="form.license_type !== 'lifetime'">
+                            <label class="block text-slate-400 text-sm mb-2">Duração (dias)</label>
+                            <input v-model="form.duration" type="number" min="1" placeholder="30"
+                                class="w-full glass-input p-3 rounded-lg">
+                        </div>
+                        <div class="flex gap-3 pt-4">
+                            <button type="button" @click="showCreateModal = false"
+                                class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition">
+                                Criar Licença
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: DETALHES DA LICENÇA -->
+            <div v-if="selectedLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+                <div class="glass-panel p-6 rounded-xl w-full max-w-2xl bg-slate-900 border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold text-lg">Detalhes da Licença</h3>
+                        <button @click="selectedLicense = null"
+                            class="p-2 hover:bg-slate-800 rounded-lg text-slate-400">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-6">
+                        <!-- INFORMAÇÕES DA LICENÇA -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Cliente</p>
+                                <p class="text-white font-bold">{{ selectedLicense.client }}</p>
+                            </div>
+                            <div class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Produto</p>
+                                <p class="text-white font-bold">{{ selectedLicense.product }}</p>
+                            </div>
+                            <div class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Status</p>
+                                <span class="px-2 py-1 rounded text-xs font-bold" :class="selectedLicense.status === 'active' ? 'bg-green-900/30 text-green-400' :
+                                              selectedLicense.status === 'expired' ? 'bg-red-900/30 text-red-400' :
+                                              'bg-slate-900/30 text-slate-400'">
+                                    {{ selectedLicense.status === 'active' ? 'Ativo' : 'Expirado' }}
+                                </span>
+                            </div>
+                            <div class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Tipo</p>
+                                <p class="text-white">{{ selectedLicense.license_type || 'Mensal' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- CHAVE DA LICENÇA -->
+                        <div class="p-4 bg-black/50 rounded-lg">
+                            <p class="text-slate-400 text-sm mb-2">Chave de Licença</p>
+                            <div class="flex items-center gap-2">
+                                <code
+                                    class="flex-1 p-3 bg-black text-green-400 rounded-lg font-mono text-sm select-all">
+                                    {{ selectedLicense.key }}
+                                </code>
+                                <button @click="copyToClipboard(selectedLicense.key)"
+                                    class="px-4 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- DATAS IMPORTANTES -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Criada em</p>
+                                <p class="text-white">{{ formatDate(selectedLicense.created_at) }}</p>
+                            </div>
+                            <div v-if="selectedLicense.expires_at" class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Expira em</p>
+                                <p class="text-white">{{ formatDate(selectedLicense.expires_at) }}</p>
+                            </div>
+                            <div v-if="selectedLicense.last_access" class="p-4 bg-slate-800/30 rounded-lg">
+                                <p class="text-slate-400 text-sm">Último acesso</p>
+                                <p class="text-white">{{ formatDate(selectedLicense.last_access) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- AÇÕES -->
+                        <div class="flex gap-3 pt-4 border-t border-slate-800">
+                            <button @click="resendEmail(selectedLicense.key)"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-envelope"></i>
+                                Reenviar Email
+                            </button>
+                            <button @click="actionLicense(selectedLicense.key, 'reset_device')"
+                                class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-mobile-rotate"></i>
+                                Resetar Dispositivo
+                            </button>
+                            <button @click="selectedLicense = null"
+                                class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: NOVO LEAD -->
+            <div v-if="showLeadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+                <div class="glass-panel p-6 rounded-xl w-full max-w-md bg-slate-900 border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold text-lg">{{ editingLead ? 'Editar Lead' : 'Novo Lead' }}</h3>
+                        <button @click="closeLeadModal" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <form @submit.prevent="saveLead" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Nome</label>
+                                <input v-model="leadForm.name" placeholder="Nome completo"
+                                    class="w-full glass-input p-3 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Empresa</label>
+                                <input v-model="leadForm.company" placeholder="Nome da empresa"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Email</label>
+                                <input v-model="leadForm.email" type="email" placeholder="email@empresa.com"
+                                    class="w-full glass-input p-3 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Telefone</label>
+                                <input v-model="leadForm.phone" placeholder="(11) 99999-9999"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Origem</label>
+                            <select v-model="leadForm.source" class="w-full glass-input p-3 rounded-lg">
+                                <option value="site">Site</option>
+                                <option value="indicacao">Indicação</option>
+                                <option value="redes_sociais">Redes Sociais</option>
+                                <option value="google">Google</option>
+                                <option value="evento">Evento</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Interesse</label>
+                            <select v-model="leadForm.interest" class="w-full glass-input p-3 rounded-lg">
+                                <option value="">Selecionar...</option>
+                                <option v-for="p in allProducts" :key="p" :value="p">{{ p }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Observações</label>
+                            <textarea v-model="leadForm.notes" rows="3"
+                                class="w-full glass-input p-3 rounded-lg"></textarea>
+                        </div>
+                        <div class="flex gap-3 pt-4">
+                            <button type="button" @click="closeLeadModal"
+                                class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition">
+                                {{ editingLead ? 'Atualizar' : 'Salvar Lead' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: NOVO PRODUTO -->
+            <div v-if="showNewProductModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+                <div class="glass-panel p-6 rounded-xl w-full max-w-2xl bg-slate-900 border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold text-lg">{{ editingProduct ? 'Editar Produto' : 'Novo Produto'
+                            }}</h3>
+                        <button @click="closeProductModal" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <form @submit.prevent="saveProduct" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Nome do Produto</label>
+                                <input v-model="productForm.name" placeholder="Ex: Plena Aluguéis"
+                                    class="w-full glass-input p-3 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Categoria</label>
+                                <select v-model="productForm.category" class="w-full glass-input p-3 rounded-lg">
+                                    <option value="aluguel">Aluguéis</option>
+                                    <option value="delivery">Delivery</option>
+                                    <option value="gestao">Gestão</option>
+                                    <option value="servicos">Serviços</option>
+                                    <option value="saude">Saúde</option>
+                                    <option value="beleza">Beleza</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Preço Mensal (R$)</label>
+                                <input v-model="productForm.price_monthly" type="number" step="0.01"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Preço Anual (R$)</label>
+                                <input v-model="productForm.price_yearly" type="number" step="0.01"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Preço Vitalício (R$)</label>
+                                <input v-model="productForm.price_lifetime" type="number" step="0.01"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Descrição</label>
+                            <textarea v-model="productForm.description" rows="4"
+                                class="w-full glass-input p-3 rounded-lg"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Status</label>
+                                <select v-model="productForm.status" class="w-full glass-input p-3 rounded-lg">
+                                    <option value="active">Ativo</option>
+                                    <option value="inactive">Inativo</option>
+                                    <option value="beta">Beta</option>
+                                    <option value="coming_soon">Em Breve</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Dias de Teste</label>
+                                <input v-model="productForm.trial_days" type="number" min="0"
+                                    class="w-full glass-input p-3 rounded-lg">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-6 border-t border-slate-800">
+                            <button type="button" @click="closeProductModal"
+                                class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition">
+                                {{ editingProduct ? 'Atualizar Produto' : 'Criar Produto' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: NOVA TRANSAÇÃO -->
+            <div v-if="showNewTransactionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+                <div class="glass-panel p-6 rounded-xl w-full max-w-md bg-slate-900 border border-slate-700">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold text-lg">Nova Transação</h3>
+                        <button @click="showNewTransactionModal = false"
+                            class="p-2 hover:bg-slate-800 rounded-lg text-slate-400">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                    <form @submit.prevent="saveTransaction" class="space-y-4">
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Tipo</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center">
+                                    <input type="radio" v-model="transactionForm.type" value="income" class="mr-2">
+                                    <span class="text-white">Entrada</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" v-model="transactionForm.type" value="expense" class="mr-2">
+                                    <span class="text-white">Saída</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Descrição</label>
+                            <input v-model="transactionForm.description" placeholder="Descrição da transação"
+                                class="w-full glass-input p-3 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Valor (R$)</label>
+                            <input v-model="transactionForm.amount" type="number" step="0.01" placeholder="0.00"
+                                class="w-full glass-input p-3 rounded-lg" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Categoria</label>
+                                <select v-model="transactionForm.category" class="w-full glass-input p-3 rounded-lg">
+                                    <option value="venda">Venda</option>
+                                    <option value="assinatura">Assinatura</option>
+                                    <option value="manutencao">Manutenção</option>
+                                    <option value="taxa">Taxa</option>
+                                    <option value="infra">Infraestrutura</option>
+                                    <option value="salario">Salário</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">Método de Pagamento</label>
+                                <select v-model="transactionForm.payment_method"
+                                    class="w-full glass-input p-3 rounded-lg">
+                                    <option value="cartao">Cartão</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="boleto">Boleto</option>
+                                    <option value="transferencia">Transferência</option>
+                                    <option value="dinheiro">Dinheiro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Cliente (opcional)</label>
+                            <input v-model="transactionForm.client" placeholder="Nome do cliente"
+                                class="w-full glass-input p-3 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">Data</label>
+                            <input v-model="transactionForm.date" type="date" class="w-full glass-input p-3 rounded-lg"
+                                required>
+                        </div>
+                        <div class="flex gap-3 pt-4">
+                            <button type="button" @click="showNewTransactionModal = false"
+                                class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition">
+                                Salvar Transação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </template>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, onUnmounted } = Vue;
+
+        createApp({
+            setup() {
+                // Authentication
+                const auth = reactive({ isLoggedIn: false, error: '' });
+                const loginPass = ref(localStorage.getItem('plena_admin_pass') || '');
+                const loading = ref(false);
+                const loadingData = ref(false);
+
+                // Navigation
+                const currentTab = ref('dashboard');
+                const showSidebar = ref(true);
+
+                // Tabs configuration
+                const tabs = [
+                    { id: 'dashboard', label: 'Painel', icon: 'fa-solid fa-chart-pie' },
+                    { id: 'sales', label: 'Vendas', icon: 'fa-solid fa-dollar-sign' },
+                    { id: 'customers', label: 'Licenças', icon: 'fa-solid fa-users' },
+                    { id: 'crm', label: 'CRM', icon: 'fa-solid fa-magnet' },
+                    { id: 'finance', label: 'Financeiro', icon: 'fa-solid fa-money-bill-wave' },
+                    { id: 'products', label: 'Produtos', icon: 'fa-solid fa-box' },
+                    { id: 'team', label: 'Equipe', icon: 'fa-solid fa-user-group' },
+                    { id: 'reports', label: 'Relatórios', icon: 'fa-solid fa-file-chart-column' },
+                    { id: 'logs', label: 'Sistema', icon: 'fa-solid fa-server' }
+                ];
+
+                // Data
+                const stats = reactive({
+                    total_revenue: 0,
+                    total_clients: 0,
+                    top_products: {},
+                    max_prod: 1,
+                    revenue_growth: 0,
+                    mrr: 0,
+                    active_subscriptions: 0,
+                    new_clients_this_month: 0,
+                    churn_rate: 0,
+                    churned_clients: 0,
+                    avg_ltv: 0,
+                    active_licenses: 0,
+                    expiring_soon: 0,
+                    total_products: 0
+                });
+
+                const licenses = ref([]);
+                const sales = ref([]);
+                const leads = ref([]);
+                const logs = ref([]);
+                const health = reactive({ smtp: false, mp_token: false, db_writable: false, cron: false, ok: false });
+                const finance = reactive({ incomes: 0, expenses: 0, balance: 0, transactions: [], income_count: 0, expense_count: 0 });
+                const products = ref([]);
+                const team = ref([]);
+                const reports = ref([]);
+                const notifications = ref([]);
+
+                // Modals
+                const showCreateModal = ref(false);
+                const showLeadModal = ref(false);
+                const showNewProductModal = ref(false);
+                const showNewTransactionModal = ref(false);
+                const showSalesReport = ref(false);
+                const showNotifications = ref(false);
+                const showUserMenu = ref(false);
+
+                // Forms
+                const form = reactive({ client: '', product: 'Plena Aluguéis', license_type: 'monthly', duration: 30 });
+                const leadForm = reactive({ name: '', email: '', phone: '', company: '', source: 'site', interest: '', notes: '' });
+                const productForm = reactive({
+                    name: '',
+                    category: '',
+                    price_monthly: '',
+                    price_yearly: '',
+                    price_lifetime: '',
+                    description: '',
+                    status: 'active',
+                    trial_days: 7
+                });
+                const transactionForm = reactive({
+                    type: 'income',
+                    description: '',
+                    amount: '',
+                    category: 'venda',
+                    payment_method: 'cartao',
+                    client: '',
+                    date: new Date().toISOString().split('T')[0]
+                });
+                const newMember = reactive({ name: '', email: '', position: '', role: 'view' });
+
+                // Filters
+                const searchTerm = ref('');
+                const filterStatus = ref('');
+                const filterDateFrom = ref('');
+                const filterDateTo = ref('');
+                const licenseSearch = ref('');
+                const licenseProductFilter = ref('');
+                const licenseStatusFilter = ref('');
+                const productSearch = ref('');
+                const productCategoryFilter = ref('');
+                const productStatusFilter = ref('');
+                const logLevel = ref('all');
+
+                // Report filters
+                const salesReportPeriod = ref('month');
+                const salesReportFormat = ref('pdf');
+                const financeReportType = ref('cashflow');
+                const financeReportFrom = ref('');
+                const financeReportTo = ref('');
+                const clientsReportMetric = ref('growth');
+                const clientsReportGroup = ref('product');
+
+                // Other states
+                const testEmailAddr = ref('tecnologia@plenaaplicativos.com.br');
+                const emailStatus = ref('');
+                const selectedLicense = ref(null);
+                const editingLead = ref(null);
+                const editingProduct = ref(null);
+                const chartPeriod = ref('30d');
+                const backupType = ref('full');
+                const lastBackup = ref('');
+                const currentTime = ref('');
+                const memoryUsage = ref('0 MB');
+
+                // Constants
+                const allProducts = [
+                    'Plena Aluguéis', 'Plena Artesanato', 'Plena Assistência', 'Plena Barbearia',
+                    'Plena Beleza', 'Plena Card', 'Plena Checklist', 'Plena Controle',
+                    'Plena Delivery', 'Plena Distribuidora', 'Plena Driver', 'Plena Entregas',
+                    'Plena Estoque', 'Plena Feirante', 'Plena Finanças', 'Plena Fit',
+                    'Plena Frota', 'Plena Hamburgueria', 'Plena Marmita', 'Plena Motoboy',
+                    'Plena Motorista', 'Plena Nutri', 'Plena Obras', 'Plena Odonto',
+                    'Plena Orçamentos', 'Plena PDV', 'Plena Pizzaria', 'Plena Sorveteria', 'Plena Terapia'
+                ];
+
+                // Users and permissions
+                const users = ref([
+                    { id: 1, name: 'Admin Master', email: 'admin@plenaaplicativos.com.br', role: 'admin', position: 'CEO', lastLogin: new Date().toISOString() },
+                    { id: 2, name: 'João Silva', email: 'vendas@plenaaplicativos.com.br', role: 'sales', position: 'Gerente de Vendas', lastLogin: new Date().toISOString() },
+                    { id: 3, name: 'Maria Santos', email: 'suporte@plenaaplicativos.com.br', role: 'support', position: 'Gerente de Suporte', lastLogin: new Date().toISOString() },
+                    { id: 4, name: 'Carlos Oliveira', email: 'financeiro@plenaaplicativos.com.br', role: 'finance', position: 'Analista Financeiro', lastLogin: new Date().toISOString() }
+                ]);
+
+                const currentUser = ref(users.value[0]);
+
+                // Computed properties
+                const currentTabInfo = computed(() => tabs.find(t => t.id === currentTab.value));
+
+                const hasActiveFilters = computed(() => {
+                    return searchTerm.value || filterStatus.value || filterDateFrom.value || filterDateTo.value;
+                });
+
+                const customersGrouped = computed(() => {
+                    const map = {};
+                    licenses.value.forEach(lic => {
+                        const email = (lic.client || '').toLowerCase();
+                        if (!map[email]) map[email] = { email: lic.client, items: [], expanded: false };
+                        map[email].items.push(lic);
+                    });
+                    return Object.values(map);
+                });
+
+                const filteredCustomers = computed(() => {
+                    let filtered = customersGrouped.value;
+
+                    if (licenseSearch.value) {
+                        const search = licenseSearch.value.toLowerCase();
+                        filtered = filtered.filter(c =>
+                            c.email.toLowerCase().includes(search) ||
+                            c.items.some(i => i.key.toLowerCase().includes(search) || i.product.toLowerCase().includes(search))
+                        );
+                    }
+
+                    if (licenseProductFilter.value) {
+                        filtered = filtered.filter(c =>
+                            c.items.some(i => i.product === licenseProductFilter.value)
+                        );
+                    }
+
+                    if (licenseStatusFilter.value) {
+                        filtered = filtered.filter(c =>
+                            c.items.some(i => i.status === licenseStatusFilter.value)
+                        );
+                    }
+
+                    return filtered;
+                });
+
+                const filteredSales = computed(() => {
+                    let filtered = sales.value;
+
+                    if (searchTerm.value) {
+                        const search = searchTerm.value.toLowerCase();
+                        filtered = filtered.filter(s =>
+                            s.client.toLowerCase().includes(search) ||
+                            s.product.toLowerCase().includes(search) ||
+                            s.email?.toLowerCase().includes(search)
+                        );
+                    }
+
+                    if (filterStatus.value) {
+                        filtered = filtered.filter(s => s.status === filterStatus.value);
+                    }
+
+                    if (filterDateFrom.value) {
+                        filtered = filtered.filter(s => new Date(s.date) >= new Date(filterDateFrom.value));
+                    }
+
+                    if (filterDateTo.value) {
+                        filtered = filtered.filter(s => new Date(s.date) <= new Date(filterDateTo.value));
+                    }
+
+                    return filtered;
+                });
+
+                const filteredLeads = computed(() => {
+                    let filtered = leads.value;
+
+                    if (searchTerm.value) {
+                        const search = searchTerm.value.toLowerCase();
+                        filtered = filtered.filter(l =>
+                            l.name.toLowerCase().includes(search) ||
+                            l.email.toLowerCase().includes(search) ||
+                            l.company?.toLowerCase().includes(search)
+                        );
+                    }
+
+                    if (filterStatus.value === 'converted') {
+                        filtered = filtered.filter(l => isConverted(l.email));
+                    } else if (filterStatus.value === 'pending') {
+                        filtered = filtered.filter(l => !isConverted(l.email));
+                    }
+
+                    return filtered;
+                });
+
+                const filteredProducts = computed(() => {
+                    let filtered = products.value;
+
+                    if (productSearch.value) {
+                        const search = productSearch.value.toLowerCase();
+                        filtered = filtered.filter(p =>
+                            p.name.toLowerCase().includes(search) ||
+                            p.category.toLowerCase().includes(search)
+                        );
+                    }
+
+                    if (productCategoryFilter.value) {
+                        filtered = filtered.filter(p => p.category === productCategoryFilter.value);
+                    }
+
+                    if (productStatusFilter.value) {
+                        filtered = filtered.filter(p => p.status === productStatusFilter.value);
+                    }
+
+                    return filtered;
+                });
+
+                const filteredLogs = computed(() => {
+                    if (logLevel.value === 'all') return logs.value;
+                    return logs.value.filter(l => {
+                        if (logLevel.value === 'error') return l.msg.includes('ERRO') || l.color.includes('red');
+                        if (logLevel.value === 'warning') return l.msg.includes('AVISO') || l.color.includes('amber');
+                        if (logLevel.value === 'info') return !l.msg.includes('ERRO') && !l.msg.includes('AVISO');
+                        return true;
+                    });
+                });
+
+                const conversionRate = computed(() => {
+                    if (!leads.value.length) return 0;
+                    const converted = leads.value.filter(l => isConverted(l.email)).length;
+                    return ((converted / leads.value.length) * 100).toFixed(1);
+                });
+
+                const convertedLeadsCount = computed(() => {
+                    return leads.value.filter(l => isConverted(l.email)).length;
+                });
+
+                const unreadLeads = computed(() => {
+                    return leads.value.filter(l => !l.contacted && !isConverted(l.email)).length;
+                });
+
+                const unreadNotifications = computed(() => {
+                    return notifications.value.filter(n => !n.read).length;
+                });
+
+                const recentSales = computed(() => {
+                    return [...sales.value]
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .slice(0, 5);
+                });
+
+                const recentLeads = computed(() => {
+                    return [...leads.value]
+                        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+                        .slice(0, 5);
+                });
+
+                // Charts
+                let salesChart = null;
+                let financeChart = null;
+
+                // Methods
+                const login = async () => {
+                    loading.value = true;
+                    try {
+                        const r = await fetch(`api_licenca.php?action=list&secret=${loginPass.value}`);
+                        const text = await r.text();
+                        let d;
+                        try {
+                            d = JSON.parse(text);
+                        } catch (e) {
+                            auth.error = "Erro API: Resposta Inválida do Servidor. " + text.substring(0, 50);
+                            loading.value = false;
+                            return;
+                        }
+
+                        if (!d.error) {
+                            auth.isLoggedIn = true;
+                            localStorage.setItem('plena_admin_pass', loginPass.value);
+                            currentUser.value.lastLogin = new Date().toISOString();
+                            refreshData();
+                            initializeNotifications();
+                        } else {
+                            auth.error = "Senha incorreta";
+                        }
+                    } catch (e) {
+                        auth.error = "Erro API: " + e.message;
+                    }
+                    loading.value = false;
+                };
+
+                const logout = () => {
+                    auth.isLoggedIn = false;
+                    localStorage.removeItem('plena_admin_pass');
+                };
+
+                const refreshData = async () => {
+                    if (!auth.isLoggedIn) return;
+
+                    loadingData.value = true;
+                    const sec = loginPass.value;
+
+                    try {
+                        const requests = [
+                            fetch(`api_licenca.php?action=dashboard_stats&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_sales_history&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=list&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_leads&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_logs&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=system_health&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_finance&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_products&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_team&secret=${sec}`).then(r => r.json()),
+                            fetch(`api_licenca.php?action=get_reports&secret=${sec}`).then(r => r.json())
+                        ];
+
+                        const [
+                            resStats,
+                            resSales,
+                            resLic,
+                            resLeads,
+                            resLogs,
+                            resHealth,
+                            resFinance,
+                            resProducts,
+                            resTeam,
+                            resReports
+                        ] = await Promise.all(requests);
+
+                        // Update stats
+                        Object.assign(stats, resStats);
+                        stats.max_prod = Math.max(...Object.values(stats.top_products || { a: 1 }));
+
+                        // Update other data
+                        sales.value = resSales || [];
+                        licenses.value = resLic || [];
+                        leads.value = resLeads || [];
+                        products.value = resProducts || [];
+                        team.value = resTeam || users.value;
+                        reports.value = resReports || [];
+
+                        // Update finance
+                        if (resFinance) {
+                            Object.assign(finance, resFinance);
+                        }
+
+                        // Update logs
+                        logs.value = (resLogs.logs || []).map(l => {
+                            let color = 'text-slate-300';
+                            if (l.includes('ERRO') || l.includes('ERROR')) color = 'text-red-400';
+                            if (l.includes('SUCESSO') || l.includes('SUCCESS')) color = 'text-green-400';
+                            if (l.includes('AVISO') || l.includes('WARNING')) color = 'text-amber-400';
+                            return { msg: l, time: '', color };
+                        }).reverse();
+
+                        // Update health
+                        Object.assign(health, resHealth);
+                        health.ok = health.smtp && health.mp_token && health.db_writable;
+
+                        // Update charts
+                        if (resStats.chart) {
+                            renderSalesChart(resStats.chart);
+                        }
+
+                        if (resFinance && resFinance.chart) {
+                            renderFinanceChart(resFinance.chart);
+                        }
+
+                        // Add notification for new data
+                        addNotification('success', 'Dados atualizados com sucesso', 'fa-solid fa-sync');
+
+                    } catch (e) {
+                        console.error('Erro ao atualizar dados:', e);
+                        addNotification('error', 'Erro ao atualizar dados: ' + e.message, 'fa-solid fa-exclamation-triangle');
+                    } finally {
+                        loadingData.value = false;
+                    }
+                };
+
+                const createLicense = async () => {
+                    try {
+                        const r = await fetch('api_licenca.php?action=create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                client_name: form.client,
+                                product: form.product,
+                                license_type: form.license_type,
+                                duration: form.duration
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            alert(`Licença criada com sucesso!\n\nChave: ${d.license_key}`);
+                            showCreateModal.value = false;
+                            form.client = '';
+                            form.product = 'Plena Aluguéis';
+                            form.license_type = 'monthly';
+                            form.duration = 30;
+                            refreshData();
+                            addNotification('success', `Licença criada para ${form.client}`, 'fa-solid fa-key');
+                        } else {
+                            alert('Erro ao criar licença: ' + d.error);
+                        }
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const actionLicense = async (key, type) => {
+                    if (!confirm("Tem certeza que deseja realizar esta ação?")) return;
+
+                    const status = type === 'reset_device' ? 'reset_device' :
+                        type === 'banned' ? 'banned' :
+                            type === 'expired' ? 'expired' : 'active';
+
+                    try {
+                        await fetch('api_licenca.php?action=update_status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ secret: loginPass.value, key, status })
+                        });
+                        refreshData();
+                        addNotification('info', 'Licença atualizada', 'fa-solid fa-key');
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const resendEmail = async (key) => {
+                    if (!confirm("Reenviar email com a chave de licença?")) return;
+
+                    try {
+                        await fetch('api_licenca.php?action=resend_email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ secret: loginPass.value, key })
+                        });
+                        alert("Email enviado com sucesso!");
+                        addNotification('success', 'Email reenviado', 'fa-solid fa-envelope');
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const runEmailTest = async () => {
+                    emailStatus.value = "Enviando teste...";
+                    try {
+                        const r = await fetch(`api_pagamento.php?action=test_email&email=${testEmailAddr.value}`);
+                        const d = await r.json();
+                        emailStatus.value = d.msg;
+                        addNotification('info', 'Teste de email realizado', 'fa-solid fa-envelope');
+                    } catch (e) {
+                        emailStatus.value = "Erro: " + e.message;
+                    }
+                };
+
+                const showLicenseDetails = (license) => {
+                    selectedLicense.value = license;
+                };
+
+                const editLead = (lead) => {
+                    editingLead.value = lead;
+                    Object.assign(leadForm, lead);
+                    showLeadModal.value = true;
+                };
+
+                const saveLead = async () => {
+                    try {
+                        const r = await fetch('api_licenca.php?action=save_lead', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                lead: leadForm,
+                                is_edit: !!editingLead.value
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            closeLeadModal();
+                            refreshData();
+                            addNotification('success', 'Lead salvo com sucesso', 'fa-solid fa-user');
+                        } else {
+                            alert('Erro: ' + d.error);
+                        }
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const markAsContacted = async (lead) => {
+                    try {
+                        const r = await fetch('api_licenca.php?action=mark_contacted', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                lead_id: lead.unique_id
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            refreshData();
+                            addNotification('info', 'Lead marcado como contactado', 'fa-solid fa-phone');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
+                const closeLeadModal = () => {
+                    showLeadModal.value = false;
+                    editingLead.value = null;
+                    Object.keys(leadForm).forEach(key => leadForm[key] = '');
+                    leadForm.source = 'site';
+                };
+
+                const editProduct = (product) => {
+                    editingProduct.value = product;
+                    Object.assign(productForm, product);
+                    showNewProductModal.value = true;
+                };
+
+                const saveProduct = async () => {
+                    try {
+                        const r = await fetch('api_licenca.php?action=save_product', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                product: productForm,
+                                is_edit: !!editingProduct.value
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            closeProductModal();
+                            refreshData();
+                            addNotification('success', 'Produto salvo com sucesso', 'fa-solid fa-box');
+                        } else {
+                            alert('Erro: ' + d.error);
+                        }
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const toggleProductStatus = async (product) => {
+                    const newStatus = product.status === 'active' ? 'inactive' : 'active';
+                    if (!confirm(`Tem certeza que deseja ${newStatus === 'active' ? 'ativar' : 'desativar'} este produto?`)) return;
+
+                    try {
+                        const r = await fetch('api_licenca.php?action=toggle_product', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                product_id: product.id,
+                                status: newStatus
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            refreshData();
+                            addNotification('info', `Produto ${newStatus === 'active' ? 'ativado' : 'desativado'}`, 'fa-solid fa-box');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
+                const closeProductModal = () => {
+                    showNewProductModal.value = false;
+                    editingProduct.value = null;
+                    Object.keys(productForm).forEach(key => {
+                        if (typeof productForm[key] === 'string') productForm[key] = '';
+                        else if (typeof productForm[key] === 'number') productForm[key] = '';
+                    });
+                    productForm.status = 'active';
+                    productForm.trial_days = 7;
+                };
+
+                const saveTransaction = async () => {
+                    try {
+                        const r = await fetch('api_licenca.php?action=save_transaction', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                transaction: transactionForm
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            showNewTransactionModal.value = false;
+                            Object.keys(transactionForm).forEach(key => {
+                                if (key === 'type') transactionForm[key] = 'income';
+                                else if (key === 'date') transactionForm[key] = new Date().toISOString().split('T')[0];
+                                else if (key === 'category') transactionForm[key] = 'venda';
+                                else if (key === 'payment_method') transactionForm[key] = 'cartao';
+                                else transactionForm[key] = '';
+                            });
+                            refreshData();
+                            addNotification('success', 'Transação salva com sucesso', 'fa-solid fa-money-bill-wave');
+                        } else {
+                            alert('Erro: ' + d.error);
+                        }
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const addTeamMember = async () => {
+                    if (!newMember.name || !newMember.email) {
+                        alert('Preencha nome e email do membro');
+                        return;
+                    }
+
+                    try {
+                        const r = await fetch('api_licenca.php?action=add_team_member', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                member: newMember
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            newMember.name = '';
+                            newMember.email = '';
+                            newMember.position = '';
+                            newMember.role = 'view';
+                            refreshData();
+                            addNotification('success', 'Membro adicionado à equipe', 'fa-solid fa-user-plus');
+                        } else {
+                            alert('Erro: ' + d.error);
+                        }
+                    } catch (e) {
+                        alert('Erro: ' + e.message);
+                    }
+                };
+
+                const editTeamMember = (member) => {
+                    // Implementar edição de membro da equipe
+                    alert('Editar membro: ' + member.name);
+                };
+
+                const deleteTeamMember = async (member) => {
+                    if (!confirm(`Tem certeza que deseja remover ${member.name} da equipe?`)) return;
+
+                    try {
+                        const r = await fetch('api_licenca.php?action=delete_team_member', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                member_id: member.id
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            refreshData();
+                            addNotification('info', 'Membro removido da equipe', 'fa-solid fa-user-minus');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
+                const generateSalesReport = async () => {
+                    addNotification('info', 'Gerando relatório de vendas...', 'fa-solid fa-file-pdf');
+                    // Implementar geração de relatório
+                    setTimeout(() => {
+                        addNotification('success', 'Relatório de vendas gerado com sucesso', 'fa-solid fa-file-pdf');
+                    }, 2000);
+                };
+
+                const generateFinanceReport = async () => {
+                    addNotification('info', 'Gerando relatório financeiro...', 'fa-solid fa-file-excel');
+                    // Implementar geração de relatório
+                    setTimeout(() => {
+                        addNotification('success', 'Relatório financeiro gerado com sucesso', 'fa-solid fa-file-excel');
+                    }, 2000);
+                };
+
+                const generateClientsReport = async () => {
+                    addNotification('info', 'Gerando relatório de clientes...', 'fa-solid fa-file-csv');
+                    // Implementar geração de relatório
+                    setTimeout(() => {
+                        addNotification('success', 'Relatório de clientes gerado com sucesso', 'fa-solid fa-file-csv');
+                    }, 2000);
+                };
+
+                const downloadReport = (report) => {
+                    alert('Baixando relatório: ' + report.name);
+                    // Implementar download
+                };
+
+                const deleteReport = async (report) => {
+                    if (!confirm(`Excluir relatório "${report.name}"?`)) return;
+
+                    try {
+                        const r = await fetch('api_licenca.php?action=delete_report', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                secret: loginPass.value,
+                                report_id: report.id
+                            })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            refreshData();
+                            addNotification('info', 'Relatório excluído', 'fa-solid fa-trash');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
+                const createBackup = async () => {
+                    addNotification('info', `Criando backup (${backupType.value})...`, 'fa-solid fa-database');
+                    // Implementar backup
+                    setTimeout(() => {
+                        lastBackup.value = new Date().toLocaleString('pt-BR');
+                        addNotification('success', 'Backup criado com sucesso', 'fa-solid fa-database');
+                    }, 3000);
+                };
+
+                const clearLogs = async () => {
+                    if (!confirm("Limpar todos os logs do sistema?")) return;
+
+                    try {
+                        const r = await fetch('api_licenca.php?action=clear_logs', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ secret: loginPass.value })
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                            logs.value = [];
+                            addNotification('info', 'Logs limpos', 'fa-solid fa-trash');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
+                const exportSalesCSV = () => {
+                    alert('Exportando vendas para CSV...');
+                    // Implementar exportação
+                };
+
+                const exportLeadsCSV = () => {
+                    alert('Exportando leads para CSV...');
+                    // Implementar exportação
+                };
+
+                const exportLicensesCSV = () => {
+                    alert('Exportando licenças para CSV...');
+                    // Implementar exportação
+                };
+
+                const exportFinanceCSV = () => {
+                    alert('Exportando financeiro para CSV...');
+                    // Implementar exportação
+                };
+
+                const clearFilters = () => {
+                    searchTerm.value = '';
+                    filterStatus.value = '';
+                    filterDateFrom.value = '';
+                    filterDateTo.value = '';
+                    licenseSearch.value = '';
+                    licenseProductFilter.value = '';
+                    licenseStatusFilter.value = '';
+                    productSearch.value = '';
+                    productCategoryFilter.value = '';
+                    productStatusFilter.value = '';
+                };
+
+                const switchUser = (user) => {
+                    currentUser.value = user;
+                    showUserMenu.value = false;
+                    addNotification('info', `Usuário alterado para ${user.name}`, 'fa-solid fa-user-circle');
+                };
+
+                const toggleSidebar = () => {
+                    showSidebar.value = !showSidebar.value;
+                };
+
+                const initializeNotifications = () => {
+                    // Notificações de exemplo
+                    notifications.value = [
+                        { id: 1, type: 'info', message: 'Sistema inicializado com sucesso', icon: 'fa-solid fa-check-circle', timestamp: new Date(), read: true },
+                        { id: 2, type: 'alert', message: 'Licença XPTO-123 expira em 3 dias', icon: 'fa-solid fa-exclamation-triangle', timestamp: new Date(Date.now() - 3600000), read: false },
+                        { id: 3, type: 'success', message: 'Nova venda realizada: R$ 1.250,00', icon: 'fa-solid fa-dollar-sign', timestamp: new Date(Date.now() - 7200000), read: false },
+                        { id: 4, type: 'info', message: 'Backup automático realizado', icon: 'fa-solid fa-database', timestamp: new Date(Date.now() - 86400000), read: true }
+                    ];
+                };
+
+                const addNotification = (type, message, icon) => {
+                    const notification = {
+                        id: Date.now(),
+                        type,
+                        message,
+                        icon: icon || 'fa-solid fa-bell',
+                        timestamp: new Date(),
+                        read: false
+                    };
+                    notifications.value.unshift(notification);
+                };
+
+                const markAllAsRead = () => {
+                    notifications.value.forEach(n => n.read = true);
+                };
+
+                const handleNotificationClick = (note) => {
+                    note.read = true;
+                    // Implementar ações específicas para cada tipo de notificação
+                    if (note.message.includes('Licença') && note.message.includes('expira')) {
+                        currentTab.value = 'customers';
+                    } else if (note.message.includes('venda')) {
+                        currentTab.value = 'sales';
+                    }
+                };
+
+                const getLastAccess = (customer) => {
+                    const accesses = customer.items.map(i => i.last_access).filter(a => a);
+                    if (accesses.length === 0) return 'Nunca';
+                    const latest = new Date(Math.max(...accesses.map(d => new Date(d))));
+                    return formatTimeAgo(latest);
+                };
+
+                const getInitials = (name) => {
+                    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                };
+
+                const getCategoryClass = (category) => {
+                    const classes = {
+                        'venda': 'bg-blue-900/30 text-blue-400',
+                        'assinatura': 'bg-green-900/30 text-green-400',
+                        'manutencao': 'bg-amber-900/30 text-amber-400',
+                        'taxa': 'bg-purple-900/30 text-purple-400',
+                        'infra': 'bg-cyan-900/30 text-cyan-400',
+                        'salario': 'bg-red-900/30 text-red-400',
+                        'marketing': 'bg-pink-900/30 text-pink-400',
+                        'outros': 'bg-slate-900/30 text-slate-400'
+                    };
+                    return classes[category] || classes['outros'];
+                };
+
+                // Helper functions
+                const formatMoney = (v) => {
+                    if (!v) return '0,00';
+                    return parseFloat(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                };
+
+                const formatDate = (s) => {
+                    if (!s) return '-';
+                    return new Date(s).toLocaleDateString('pt-BR');
+                };
+
+                const formatTime = (s) => {
+                    if (!s) return '';
+                    return new Date(s).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                };
+
+                const formatTimeAgo = (date) => {
+                    if (!date) return '';
+                    const now = new Date();
+                    const diff = now - new Date(date);
+                    const minutes = Math.floor(diff / 60000);
+                    const hours = Math.floor(diff / 3600000);
+                    const days = Math.floor(diff / 86400000);
+
+                    if (minutes < 1) return 'agora mesmo';
+                    if (minutes < 60) return `${minutes} min atrás`;
+                    if (hours < 24) return `${hours} h atrás`;
+                    if (days === 1) return 'ontem';
+                    if (days < 7) return `${days} dias atrás`;
+                    return formatDate(date);
+                };
+
+                const getWhatsappLink = (l) => {
+                    const phone = (l.phone || '').replace(/\D/g, '');
+                    if (!phone) return '#';
+                    const message = `Olá ${l.name}, vi que você se interessou pelos nossos sistemas. Podemos conversar?`;
+                    return `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+                };
+
+                const isConverted = (email) => {
+                    return licenses.value.some(l => (l.client || '').toLowerCase() === (email || '').toLowerCase());
+                };
+
+                const copyToClipboard = (text) => {
+                    navigator.clipboard.writeText(text).then(() => {
+                        addNotification('success', 'Copiado para a área de transferência', 'fa-solid fa-copy');
+                    });
+                };
+
+                const renderSalesChart = (data) => {
+                    const ctx = document.getElementById('salesChart');
+                    if (!ctx) return;
+
+                    if (salesChart) salesChart.destroy();
+
+                    const labels = data.labels || ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                    const chartData = data.data || [1200, 1900, 3000, 5000, 2000, 3000, 4500, 3800, 4200, 5100, 4800, 5500];
+
+                    salesChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Vendas',
+                                data: chartData,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    callbacks: {
+                                        label: (context) => `R$ ${formatMoney(context.raw)}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: { color: '#94a3b8' }
+                                },
+                                y: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        callback: (value) => `R$ ${formatMoney(value)}`
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+
+                const renderFinanceChart = (data) => {
+                    const ctx = document.getElementById('financeChart');
+                    if (!ctx) return;
+
+                    if (financeChart) financeChart.destroy();
+
+                    const labels = data.labels || ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+                    const incomes = data.incomes || [12000, 15000, 18000, 14000, 22000, 25000];
+                    const expenses = data.expenses || [8000, 9000, 11000, 8500, 12000, 13000];
+
+                    financeChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Entradas',
+                                    data: incomes,
+                                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                                    borderColor: '#22c55e',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Saídas',
+                                    data: expenses,
+                                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                                    borderColor: '#ef4444',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => `R$ ${formatMoney(context.raw)}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: { color: '#94a3b8' }
+                                },
+                                y: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        callback: (value) => `R$ ${formatMoney(value)}`
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+
+                // Auto-refresh data every 5 minutes
+                let refreshInterval;
+
+                onMounted(() => {
+                    // Update current time every second
+                    setInterval(() => {
+                        currentTime.value = new Date().toLocaleTimeString('pt-BR');
+                    }, 1000);
+
+                    // Update memory usage
+                    setInterval(() => {
+                        if (performance.memory) {
+                            const usedMB = Math.round(performance.memory.usedJSHeapSize / 1048576);
+                            const totalMB = Math.round(performance.memory.totalJSHeapSize / 1048576);
+                            memoryUsage.value = `${usedMB} MB / ${totalMB} MB`;
+                        }
+                    }, 5000);
+
+                    // Auto-refresh data
+                    refreshInterval = setInterval(() => {
+                        if (auth.isLoggedIn && document.visibilityState === 'visible') {
+                            refreshData();
+                        }
+                    }, 300000); // 5 minutes
+
+                    // Close dropdowns when clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.relative')) {
+                            showNotifications.value = false;
+                            showUserMenu.value = false;
+                        }
+                    });
+                });
+
+                onUnmounted(() => {
+                    if (refreshInterval) {
+                        clearInterval(refreshInterval);
+                    }
+                });
+
+                // Auto-login if password is saved
+                if (loginPass.value) {
+                    login();
+                }
+
+                return {
+                    // State
+                    auth, loginPass, loading, loadingData, currentTab, showSidebar,
+                    stats, licenses, sales, leads, logs, health, finance, products, team, reports, notifications,
+                    showCreateModal, showLeadModal, showNewProductModal, showNewTransactionModal, showSalesReport,
+                    showNotifications, showUserMenu, form, leadForm, productForm, transactionForm, newMember,
+                    searchTerm, filterStatus, filterDateFrom, filterDateTo, licenseSearch, licenseProductFilter,
+                    licenseStatusFilter, productSearch, productCategoryFilter, productStatusFilter, logLevel,
+                    salesReportPeriod, salesReportFormat, financeReportType, financeReportFrom, financeReportTo,
+                    clientsReportMetric, clientsReportGroup, testEmailAddr, emailStatus, selectedLicense,
+                    editingLead, editingProduct, chartPeriod, backupType, lastBackup, currentTime, memoryUsage,
+                    tabs, allProducts, users, currentUser,
+
+                    // Computed
+                    currentTabInfo, hasActiveFilters, customersGrouped, filteredCustomers, filteredSales,
+                    filteredLeads, filteredProducts, filteredLogs, conversionRate, convertedLeadsCount,
+                    unreadLeads, unreadNotifications, recentSales, recentLeads,
+
+                    // Methods
+                    login, logout, refreshData, createLicense, actionLicense, resendEmail, runEmailTest,
+                    showLicenseDetails, editLead, saveLead, markAsContacted, closeLeadModal, editProduct,
+                    saveProduct, toggleProductStatus, closeProductModal, saveTransaction, addTeamMember,
+                    editTeamMember, deleteTeamMember, generateSalesReport, generateFinanceReport,
+                    generateClientsReport, downloadReport, deleteReport, createBackup, clearLogs,
+                    exportSalesCSV, exportLeadsCSV, exportLicensesCSV, exportFinanceCSV, clearFilters,
+                    switchUser, toggleSidebar, markAllAsRead, handleNotificationClick,
+                    getLastAccess, getInitials, getCategoryClass, formatMoney, formatDate, formatTime,
+                    formatTimeAgo, getWhatsappLink, isConverted, copyToClipboard
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
