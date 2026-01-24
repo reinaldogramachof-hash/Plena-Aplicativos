@@ -113,7 +113,7 @@ function processApprovedPayment($payment) {
         $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
         
         // 3. Prepare Data
-        $app_link = $payment['metadata']['app_link'] ?? 'apps.plus/plena_alugueis.html';
+        $app_link = $payment['metadata']['app_link'] ?? 'apps.plus/plena_alugueis/index.html';
         $full_link = (strpos($app_link, 'http') === 0) ? $app_link : "https://www.plenaaplicativos.com.br/" . ltrim($app_link, '/');
         
         // 3.1 Metadata logging for debug

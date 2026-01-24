@@ -613,7 +613,7 @@ if ($action === 'create') {
         "expires_at" => date('Y-m-d H:i:s', strtotime("+$duration days")),
         "payment_id" => $is_manual ? "MANUAL_" . date('YmdHis') : "API_" . uniqid(),
         "is_manual" => $is_manual,
-        "app_link" => "https://www.plenaaplicativos.com.br/apps/" . strtolower(str_replace(' ', '_', $product)) . ".html"
+        "app_link" => "https://www.plenaaplicativos.com.br/apps.plus/" . strtolower(str_replace([' ', 'é', 'ê', 'á', 'ã', 'ç', 'í', 'ó', 'ô', 'ú'], ['_', 'e', 'e', 'a', 'a', 'c', 'i', 'o', 'o', 'u'], $product)) . "/index.html"
     ];
     
     // 1. Salva Licença
@@ -699,34 +699,40 @@ if ($action === 'backup_system') {
 if ($action === 'list_apps') {
     if (!checkAuth($data, $_GET, $server)) jsonResponse(['error' => 'Acesso Negado'], 403);
     
-    // 1. Scan filesystem
-    $apps_dir = __DIR__ . '/apps';
+    // 1. Scan filesystem (APPS.PLUS - Flat Structure)
+    $apps_dir = __DIR__ . '/apps.plus';
     $found_apps = [];
 
     if (is_dir($apps_dir)) {
-        // Iterate categories
-        $categories = scandir($apps_dir);
-        foreach ($categories as $cat) {
-            if ($cat === '.' || $cat === '..') continue;
-            $cat_path = $apps_dir . '/' . $cat;
-            if (is_dir($cat_path)) {
-                // Iterate apps
-                $apps = scandir($cat_path);
-                foreach ($apps as $app) {
-                    if ($app === '.' || $app === '..') continue;
-                    $app_path = $cat_path . '/' . $app;
-                    // Verify uniqueness by slug (folder name)
-                    // Check for index.html existence
-                    if (is_dir($app_path) && file_exists($app_path . '/index.html')) {
-                        $found_apps[$app] = [ // Key by slug
-                            'slug' => $app,
-                            'name' => str_replace('_', ' ', ucfirst($app)), // Default Name
-                            'category' => $cat,
-                            'path' => "apps/$cat/$app/index.html",
-                            'price' => 97.00
-                        ];
-                    }
-                }
+        $apps = scandir($apps_dir);
+        foreach ($apps as $app) {
+            if ($app === '.' || $app === '..') continue;
+            $app_path = $apps_dir . '/' . $app;
+            
+            // Check for index.html existence
+            if (is_dir($app_path) && file_exists($app_path . '/index.html')) {
+                 // Try to guess category from catalog
+                 global $CATALOG_MASTER;
+                 $category = 'plus';
+                 $price = 97.00;
+                 
+                 // Try to find in catalog by matching slug
+                 foreach($CATALOG_MASTER as $name => $details) {
+                     $slug = strtolower(str_replace([' ', 'é', 'ê', 'á', 'ã', 'ç', 'í', 'ó', 'ô', 'ú'], ['_', 'e', 'e', 'a', 'a', 'c', 'i', 'o', 'o', 'u'], $name));
+                     if ($slug === $app) {
+                         $category = $details['category'] ?? 'plus';
+                         $price = $details['price'] ?? 97.00;
+                         break;
+                     }
+                 }
+
+                 $found_apps[$app] = [
+                    'slug' => $app,
+                    'name' => str_replace('_', ' ', ucfirst($app)),
+                    'category' => $category,
+                    'path' => "apps.plus/$app/index.html", 
+                    'price' => $price
+                ];
             }
         }
     }

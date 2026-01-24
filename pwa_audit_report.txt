@@ -1,0 +1,7 @@
+PWA READINESS AUDIT REPORT
+==========================
+
+--------------------------
+Total Apps: 29
+Ready: 29
+With Issues: 0

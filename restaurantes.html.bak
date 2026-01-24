@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO -->
+    <title>Sistema para Restaurantes Sem Mensalidade | Kit Gastronomia Pro</title>
+    <meta name="description"
+        content="Automatize seu bar, restaurante ou delivery sem pagar mensalidades. Comanda Digital, Cardápio QR Code, KDS e Fluxo de Caixa em um só pacote vitalício.">
+    <meta name="keywords"
+        content="sistema para restaurante gratis, comanda digital, cardapio qr code, sistema delivery sem mensalidade, fluxo de caixa restaurante">
+
+    <!-- Stack -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-heading {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="app">
+
+        <!-- NAVBAR -->
+        <nav class="bg-white py-4 shadow-sm fixed w-full z-50 transition-all duration-300"
+            :class="{'py-2 shadow-md': scrolled}">
+            <div class="container mx-auto px-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="bg-orange-600 text-white p-2 rounded-lg"><i class="fa-solid fa-utensils"></i></div>
+                    <span class="font-heading font-bold text-xl uppercase tracking-wide">Plena<span
+                            class="text-orange-600">Gastro</span></span>
+                </div>
+                <a href="#pricing"
+                    class="hidden md:block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition transform hover:scale-105 shadow-lg shadow-green-500/30">
+                    GARANTIR OFERTA
+                </a>
+            </div>
+        </nav>
+
+        <!-- HERO SECTION -->
+        <header class="hero-bg min-h-screen flex items-center justify-center text-white pt-20 px-4">
+            <div class="max-w-4xl mx-auto text-center space-y-6">
+                <div
+                    class="inline-block bg-orange-600 text-white text-sm font-bold px-4 py-1 rounded-full uppercase tracking-wider mb-4 animate-bounce">
+                    🔥 Oferta por Tempo Limitado
+                </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight uppercase">
+                    Automatize seu Restaurante <br><span class="text-orange-500">Sem Pagar Mensalidade</span>
+                </h1>
+                <p class="text-lg md:text-2xl text-slate-200 max-w-2xl mx-auto font-light">
+                    O sistema completo para seu negócio rodar liso: Do pedido na mesa até a tela da cozinha e o
+                    fechamento do caixa.
+                </p>
+
+                <div class="flex flex-col md:flex-row gap-4 justify-center pt-8">
+                    <a href="#offer"
+                        class="bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-5 px-10 rounded-xl shadow-2xl shadow-green-600/50 transition transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                        QUERO VENDER MAIS <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="#demo"
+                        class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xl font-bold py-5 px-10 rounded-xl transition flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-play"></i> Ver Demonstração
+                    </a>
+                </div>
+
+                <p class="text-sm text-slate-400 mt-4 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-green-500"></i> Garantia de 7 dias ou seu dinheiro de volta
+                </p>
+            </div>
+        </header>
+
+        <!-- A DOR (THE PAIN) -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-12 uppercase">
+                    Você ainda perde dinheiro com <span class="text-red-600 decoration-wavy underline">papel e
+                        planilhas?</span>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <!-- Dor 1 -->
+                    <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100 hover:shadow-xl transition">
+                        <div
+                            class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Mensalidades Caras</h3>
+                        <p class="text-slate-600">Sistemas como iFood e Totvs cobram R$ 200, R$ 400 todo mês, pesando no
+                            seu lucro.</p>
+                    </div>
+
+                    <!-- Dor 2 -->
+                    <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100 hover:shadow-xl transition">
+                        <div
+                            class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Dependência de Internet</h3>
+                        <p class="text-slate-600">Se o Wi-Fi cai, seu restaurante para? Nossos apps rodam localmente no
+                            seu dispositivo.</p>
+                    </div>
+
+                    <!-- Dor 3 -->
+                    <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100 hover:shadow-xl transition">
+                        <div
+                            class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Pedidos Errados</h3>
+                        <p class="text-slate-600">Garçom anota errado, cozinha não entende a letra... e você paga a
+                            conta do prato devolvido.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- A SOLUÇÃO (THE KIT) -->
+        <section id="demo" class="py-20 bg-slate-900 text-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <span class="text-orange-500 font-bold uppercase tracking-widest text-sm">A Solução Completa</span>
+                    <h2 class="text-3xl md:text-5xl font-heading font-bold mt-2">Conheça o <span
+                            class="text-orange-500">Kit Gastronomia Pro</span></h2>
+                    <p class="text-slate-400 mt-4 max-w-2xl mx-auto">3 Ferramentas essenciais integradas para
+                        profissionalizar sua operação hoje mesmo.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+                    <!-- App 1 -->
+                    <div
+                        class="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-orange-500 transition group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="bg-orange-600/20 text-orange-400 p-3 rounded-xl text-2xl group-hover:bg-orange-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <span
+                                class="bg-blue-600 text-white font-bold text-[10px] px-2 py-1 rounded">PERSONALIZADO</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Cardápio Digital Premium</h3>
+                        <p class="text-slate-400 text-sm mb-6">Seu cardápio com sua marca. Design premium, fotos em alta
+                            e QR Code exclusivo para mesas.</p>
+                        <a href="apps.personalizados/cardápio.html" target="_blank"
+                            class="block w-full text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700 hover:text-white transition text-sm">
+                            <i class="fa-solid fa-eye"></i> Ver Demo Personalizada
+                        </a>
+                    </div>
+
+                    <!-- App 2 -->
+                    <div
+                        class="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-orange-500 transition group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="bg-yellow-600/20 text-yellow-400 p-3 rounded-xl text-2xl group-hover:bg-yellow-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <span
+                                class="bg-blue-600 text-white font-bold text-[10px] px-2 py-1 rounded">PERSONALIZADO</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Plena Delivery Pro</h3>
+                        <p class="text-slate-400 text-sm mb-6">Gestão completa de entregas com a sua identidade visual.
+                            Painel administrativo e app do cliente.</p>
+                        <a href="apps.personalizados/delivery.html" target="_blank"
+                            class="block w-full text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700 hover:text-white transition text-sm">
+                            <i class="fa-solid fa-eye"></i> Ver Demo Personalizada
+                        </a>
+                    </div>
+
+                    <!-- App 3 -->
+                    <div
+                        class="bg-slate-800 rounded-2xl p-6 border border-slate-700 hover:border-orange-500 transition group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="bg-green-600/20 text-green-400 p-3 rounded-xl text-2xl group-hover:bg-green-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-cash-register"></i>
+                            </div>
+                            <span class="bg-amber-600 text-white font-bold text-[10px] px-2 py-1 rounded">PLUS</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Gestão Gastro Plus</h3>
+                        <p class="text-slate-400 text-sm mb-6">Controle total de estoque, fluxo de caixa e relatórios
+                            analíticos para seu restaurante.</p>
+                        <a href="apps.plus/plena_controle.html" target="_blank"
+                            class="block w-full text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700 hover:text-white transition text-sm">
+                            <i class="fa-solid fa-eye"></i> Ver Demo Plus
+                        </a>
+                    </div>
+
+
+                    <!-- Bonus -->
+                    <div
+                        class="bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl p-6 border border-orange-500 relative overflow-hidden">
+                        <div
+                            class="absolute -right-4 -top-4 bg-yellow-400 text-yellow-900 font-bold text-xs py-1 px-8 rotate-45 shadow-sm">
+                            BÔNUS</div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="bg-white/20 text-white p-3 rounded-xl text-2xl">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Suporte WhatsApp</h3>
+                        <p class="text-orange-100 text-sm mb-6">Acesso direto ao nosso time para dúvidas de configuração
+                            e uso.</p>
+                        <div class="block w-full text-center py-2 rounded-lg bg-white/20 text-white font-bold text-sm">
+                            Incluso Grátis
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING & OFFER -->
+        <section id="offer" class="py-20 bg-slate-50 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                <i class="fa-solid fa-burger absolute top-10 left-10 text-9xl"></i>
+                <i class="fa-solid fa-pizza-slice absolute bottom-10 right-10 text-9xl"></i>
+            </div>
+
+            <div class="container mx-auto px-4 max-w-4xl relative z-10">
+
+                <div
+                    class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col md:flex-row">
+                    <!-- Left: Offer Details -->
+                    <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6 uppercase">O que você leva:</h3>
+                        <ul class="check-list space-y-4 text-slate-600">
+                            <li><strong>Acesso Vitalício</strong> aos 3 Apps</li>
+                            <li>Sem mensalidades (Pague 1x)</li>
+                            <li>Código Fonte Aberto (Se quiser editar)</li>
+                            <li>Funciona Offline (PWA)</li>
+                            <li>Funciona em Celular, Tablet e PC</li>
+                            <li class="font-bold text-slate-800">Atualizações Futuras Grátis</li>
+                        </ul>
+                    </div>
+
+                    <!-- Right: Pricing -->
+                    <div
+                        class="bg-slate-900 p-8 md:p-12 md:w-1/2 text-center text-white flex flex-col justify-center relative">
+                        <div
+                            class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-bold text-xs py-1 px-4 rounded-b-lg shadow-lg uppercase tracking-wider">
+                            Desconto de 80% Hoje
+                        </div>
+                        <div class="text-center">
+                            <span class="text-slate-400 text-lg line-through">De R$ 551,00</span>
+                            <div class="text-5xl font-bold text-white mb-2">R$ 299,90 <span
+                                    class="text-lg text-slate-400 font-normal">/único</span></div>
+                            <p class="text-orange-400 text-sm mb-8 font-semibold">Oferta de Lançamento - Personalização
+                                Inclusa</p>
+
+                            <a href="https://wa.me/5512992191018?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20Kit%20Gastronomia%20Personalizado%20(R$%20299,90)."
+                                target="_blank"
+                                class="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg shadow-orange-900/20 transition transform hover:-translate-y-1">
+                                <i class="fa-brands fa-whatsapp mr-2"></i> Comprar Kit Personalizado
+                            </a>
+                            <p class="text-slate-500 text-xs mt-4">Pagamento único. Sem mensalidades. Entrega em até
+                                24h.</p>
+                        </div>
+
+                        <div class="mt-4 flex justify-center gap-2 text-slate-500 text-xs">
+                            <span><i class="fa-brands fa-pix"></i> Pix</span>
+                            <span><i class="fa-regular fa-credit-card"></i> Cartão</span>
+                            <span><i class="fa-solid fa-lock"></i> Compra Segura</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guarantee -->
+                <div class="mt-12 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/9361/9361131.png" alt="Garantia"
+                        class="w-20 mx-auto mb-4 opacity-80 filter grayscale hover:grayscale-0 transition">
+                    <h4 class="font-bold text-xl text-slate-800">Risco Zero: 7 Dias de Garantia</h4>
+                    <p class="text-slate-600 max-w-lg mx-auto">Se você achar que os apps não ajudaram seu negócio, nós
+                        devolvemos 100% do seu dinheiro. Sem perguntas.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-500 py-8 border-t border-slate-800">
+            <div class="container mx-auto px-4 text-center">
+                <p>&copy; 2024 Plena Aplicativos. Todos os direitos reservados.</p>
+                <p class="text-xs mt-2">Dúvidas? <a href="#" class="text-orange-500 hover:underline">Fale conosco</a>
+                </p>
+            </div>
+        </footer>
+
+        <!-- Floating CTA Mobile Only -->
+        <div class="fixed bottom-4 left-4 right-4 md:hidden z-40" v-show="scrolled">
+            <a href="#offer"
+                class="block w-full bg-green-600 text-white font-bold py-4 rounded-xl text-center shadow-2xl border-2 border-green-400">
+                COMPRAR KIT POR R$ 97
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const scrolled = ref(false);
+
+                onMounted(() => {
+                    window.addEventListener('scroll', () => {
+                        scrolled.value = window.scrollY > 300;
+                    });
+                });
+
+                return { scrolled };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

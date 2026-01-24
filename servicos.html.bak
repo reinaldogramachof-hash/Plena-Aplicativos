@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema para Oficinas e Assistências | Kit Serviços Pro</title>
+    <meta name="description"
+        content="Emita Ordens de Serviço, Orçamentos e Laudos Técnicos pelo celular. Sistema completo para oficinas mecânicas e assistências técnicas sem mensalidade.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Teko:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-tech {
+            font-family: 'Teko', sans-serif;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+
+    <div id="app">
+        <!-- HEADER -->
+        <header class="bg-slate-900 text-white py-4 fixed w-full z-50 shadow-lg">
+            <div class="container mx-auto px-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-screwdriver-wrench text-blue-500 text-2xl"></i>
+                    <span class="font-tech text-2xl font-bold uppercase tracking-wide">Plena<span
+                            class="text-blue-500">Serviços</span></span>
+                </div>
+                <a href="#buy"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold uppercase text-sm tracking-wider transition">Garantir
+                    Licença</a>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero-bg min-h-screen flex items-center pt-20">
+            <div class="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-white space-y-6">
+                    <span
+                        class="bg-blue-600/20 border border-blue-500 text-blue-400 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">Para
+                        Oficinas e Técnicos</span>
+                    <h1 class="text-5xl md:text-7xl font-bold leading-none uppercase">
+                        Sua Oficina <br><span class="text-blue-500">Profissional</span> <br>No Celular
+                    </h1>
+                    <p class="text-slate-300 text-lg md:text-xl font-light border-l-4 border-blue-500 pl-4">
+                        Chega de papel de pão. Entregue Ordens de Serviço, Laudos e Orçamentos em PDF direto no WhatsApp
+                        do cliente.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <a href="#apps"
+                            class="bg-blue-600 hover:bg-blue-500 text-white py-4 px-8 rounded text-lg font-bold uppercase tracking-wide text-center shadow-lg shadow-blue-900/50 transition transform hover:-translate-y-1">
+                            Ver o Kit Completo
+                        </a>
+                        <a href="#demo"
+                            class="border border-slate-600 hover:bg-slate-800 text-slate-300 py-4 px-8 rounded text-lg font-bold uppercase tracking-wide text-center transition">
+                            <i class="fa-brands fa-whatsapp"></i> Falar com Consultor
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mockup/Image or Feature List -->
+                <div class="hidden md:block">
+                    <div class="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl">
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-green-500/20 text-green-400 p-3 rounded-lg"><i
+                                        class="fa-solid fa-check text-xl"></i></div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Sem Mensalidades</h3>
+                                    <p class="text-slate-400 text-sm">Pague uma vez e use para sempre.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="bg-blue-500/20 text-blue-400 p-3 rounded-lg"><i
+                                        class="fa-solid fa-print text-xl"></i></div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Ordens de Serviço em PDF</h3>
+                                    <p class="text-slate-400 text-sm">Gera documentos automáticos prontos para imprimir
+                                        ou enviar.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="bg-yellow-500/20 text-yellow-400 p-3 rounded-lg"><i
+                                        class="fa-solid fa-shield-halved text-xl"></i></div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Segurança Jurídica</h3>
+                                    <p class="text-slate-400 text-sm">Formalize orçamentos e garantias com sua marca.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- APPS GRID -->
+        <section id="apps" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16 max-w-3xl mx-auto">
+                    <h2 class="text-4xl text-slate-900 font-bold uppercase mb-4">Ferramentas inclusas no <span
+                            class="text-blue-600">Kit Serviços</span></h2>
+                    <p class="text-slate-600 text-lg">Tudo que você precisa para gerenciar sua assistência técnica,
+                        oficina mecânica ou prestação de serviços.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <!-- App 1: OS Plus -->
+                    <div class="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:shadow-xl transition group">
+                        <i
+                            class="fa-solid fa-clipboard-list text-4xl text-blue-600 mb-6 group-hover:scale-110 transition duration-300 block"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Plena Assistência Plus</h3>
+                        <p class="text-slate-600 mb-6">Gestão completa de ordens de serviço, técnicos, peças e garantia
+                            com dashboard profissional.</p>
+                        <a href="apps.plus/plena_assistencia.html" target="_blank"
+                            class="text-blue-600 font-bold uppercase tracking-wider text-sm hover:underline">Ver
+                            Demo Plus &rarr;</a>
+                    </div>
+
+                    <!-- App 2: Orçamentos Plus -->
+                    <div class="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:shadow-xl transition group">
+                        <i
+                            class="fa-solid fa-file-invoice-dollar text-4xl text-green-600 mb-6 group-hover:scale-110 transition duration-300 block"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Plena Orçamentos Plus</h3>
+                        <p class="text-slate-600 mb-6">Crie propostas comerciais e contratos profissionais e envie para
+                            o cliente pelo WhatsApp.</p>
+                        <a href="apps.plus/plena_orcamentos.html" target="_blank"
+                            class="text-blue-600 font-bold uppercase tracking-wider text-sm hover:underline">Ver
+                            Demo Plus &rarr;</a>
+                    </div>
+
+                    <!-- App 3: Gestão de Obras Plus -->
+                    <div class="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:shadow-xl transition group">
+                        <i
+                            class="fa-solid fa-list-check text-4xl text-orange-500 mb-6 group-hover:scale-110 transition duration-300 block"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Plena Obras Plus</h3>
+                        <p class="text-slate-600 mb-6">Gestão avançada de canteiro de obras, materiais, diárias e
+                            cronograma físico-financeiro.</p>
+                        <a href="apps.plus/plena_obras.html" target="_blank"
+                            class="text-blue-600 font-bold uppercase tracking-wider text-sm hover:underline">Ver
+                            Demo Plus &rarr;</a>
+                    </div>
+
+                    <!-- App 4: Controle de Estoque Plus -->
+                    <div class="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:shadow-xl transition group">
+                        <i
+                            class="fa-solid fa-boxes-stacked text-4xl text-purple-600 mb-6 group-hover:scale-110 transition duration-300 block"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Plena Estoque Plus</h3>
+                        <p class="text-slate-600 mb-6">Controle de inventário avançado com curvas ABC, entradas e saídas
+                            e alertas inteligentes.</p>
+                        <a href="apps.plus/plena_estoque.html" target="_blank"
+                            class="text-blue-600 font-bold uppercase tracking-wider text-sm hover:underline">Ver
+                            Demo Plus &rarr;</a>
+                    </div>
+
+                    <!-- App 5: Frente de Caixa Plus -->
+                    <div class="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:shadow-xl transition group">
+                        <i
+                            class="fa-solid fa-cash-register text-4xl text-yellow-500 mb-6 group-hover:scale-110 transition duration-300 block"></i>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Plena PDV Plus</h3>
+                        <p class="text-slate-600 mb-6">Frente de caixa profissional com controle de vendas, estoque e
+                            relatórios detalhados.</p>
+                        <a href="apps.plus/plena_pdv.html" target="_blank"
+                            class="text-blue-600 font-bold uppercase tracking-wider text-sm hover:underline">Ver
+                            Demo Plus &rarr;</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA / OFFER -->
+        <section id="buy" class="py-20 bg-slate-900 text-white relative">
+            <div class="container mx-auto px-4 max-w-5xl">
+                <div class="bg-blue-600 rounded-3xl p-10 md:p-16 shadow-2xl text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-black opacity-10 rounded-full -ml-24 -mb-24">
+                    </div>
+
+                    <h2 class="font-tech text-4xl md:text-6xl font-bold uppercase mb-4">Adote o Padrão Profissional</h2>
+                    <p class="text-blue-100 text-xl mb-8 max-w-2xl mx-auto">Deixe de ser "o cara que conserta" e vire
+                        uma empresa organizada. O cliente percebe o valor e paga mais.</p>
+
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-6 mb-8">
+                        <div class="text-right hidden md:block opacity-70">
+                            <span class="block text-sm line-through">Valor Individual</span>
+                            <span class="block text-2xl font-bold">R$ 497,00</span>
+                        </div>
+                        <div class="bg-white text-slate-900 py-6 px-12 rounded-2xl shadow-xl transform scale-110">
+                            <span class="block text-sm text-slate-500 uppercase font-bold tracking-widest">Oferta
+                                Única</span>
+                            <span class="block text-6xl font-tech font-bold text-blue-600">R$ 97</span>
+                            <span class="block text-xs text-slate-400">Pagamento Único • Acesso Vitalício</span>
+                        </div>
+                    </div>
+
+                    <a href="https://wa.me/5567993333999?text=Quero%20o%20Kit%20Servicos%20por%2097"
+                        class="inline-block bg-green-500 hover:bg-green-400 text-white text-xl font-bold uppercase tracking-wide py-4 px-12 rounded shadow-lg transition transform hover:scale-105">
+                        <i class="fa-brands fa-whatsapp mr-2"></i> Quero Comprar Agora
+                    </a>
+                    <p class="mt-6 text-sm opacity-60">Garantia de 7 dias. Se não gostar, devolvemos seu dinheiro.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-950 text-slate-600 py-10 border-t border-slate-900">
+            <div class="container mx-auto px-4 text-center">
+                <p class="font-bold text-slate-500 uppercase tracking-widest text-sm mb-4">Plena Aplicativos</p>
+                <div class="flex justify-center gap-6 text-2xl mb-8">
+                    <a href="#" class="hover:text-blue-500"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-blue-500"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-green-500"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+                <p class="text-xs">&copy; 2024. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+
+</html>
