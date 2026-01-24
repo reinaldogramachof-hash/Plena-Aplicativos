@@ -12,8 +12,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Plena Aluguéis">
 
-
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -389,6 +387,7 @@
         }
     </style>
     <link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="text-gray-800 antialiased">
@@ -458,7 +457,6 @@
                 Sobre a Plena
             </button>
 
-
         </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
@@ -483,7 +481,6 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
-
 
                 <div class="relative group">
                     <div
@@ -2678,7 +2675,6 @@
             </div>
         </section>
 
-
         </div>
     </main>
 
@@ -2907,7 +2903,6 @@
         </div>
     </div>
 
-
     </a>
     </div>
     </div>
@@ -3010,11 +3005,8 @@
         </div>
     </div>
 
-
-
     <!-- JavaScript -->
     <script>
-
 
         // ESTADO GLOBAL
         const DB_KEY = 'plena_alugueis_pro_v4';
@@ -3291,8 +3283,6 @@
                         };
                     }
                 }
-
-
 
                 // Configurar datas padrão
                 const today = new Date().toISOString().split('T')[0];
@@ -3614,8 +3604,6 @@
                 </div>
             `).join('');
         }
-
-
 
         // --- VALIDATORS ---
         function validateCPF(cpf) {
@@ -4562,7 +4550,6 @@
 
         // RELATÓRIOS
 
-
         function generateReport() {
             const start = document.getElementById('rep-start').value;
             const end = document.getElementById('rep-end').value;
@@ -4833,7 +4820,6 @@
         // EXPORTAÇÃO E BACKUP
         // Funções de exportação removidas
 
-
         function downloadBackup() {
             const backupData = {
                 ...db,
@@ -4878,8 +4864,6 @@
             };
             reader.readAsText(file);
         }
-
-
 
         function clearAllTransactions() {
             showCustomConfirm('Limpar Tudo', 'Tem certeza que deseja limpar TODAS as transações? Esta ação é irreversível!', () => {
@@ -5003,78 +4987,67 @@
     </script>
     <script src="../../assets/js/plena-lock.js"></script>
 
-    <!-- PWA INSTALLATION TOAST -->
-    <div id="pwa-install-toast"
-        style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
-        <div
-            style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <img src="../../assets/img/icons/icon-192.png" alt="App Icon"
-                style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
-        </div>
-        <div style="flex: 1;">
-            <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
-            <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
-        </div>
-        <button onclick="installPWA()"
-            style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-            Instalar
-        </button>
-        <button onclick="dismissInstall()"
-            style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-x">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-            </svg>
-        </button>
+    
+        
+
+    
+
+    
+
+<!-- PWA INSTALLATION TOAST (Standardized) -->
+<div id="pwa-install-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
+    <div style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <img src="./icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
     </div>
+    <div style="flex: 1;">
+        <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
+        <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+    </div>
+    <button onclick="installPWA()" style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+        Instalar
+    </button>
+    <button onclick="dismissInstall()" style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+</div>
 
-    <script>
-        let deferredPrompt;
+<script>
+    let deferredPrompt;
+    
+    // Check if installed
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
-        // Check if installed
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e;
-
-            // Show the toast if not already dismissed and not in standalone mode
-            if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
-                const toast = document.getElementById('pwa-install-toast');
-                if (toast) toast.style.display = 'flex';
-            }
-        });
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    } else {
-                        console.log('User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                    dismissInstall();
-                });
-            }
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Show the toast if not already dismissed and not in standalone mode
+        if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
+             const toast = document.getElementById('pwa-install-toast');
+             if (toast) toast.style.display = 'flex';
         }
+    });
 
-        function dismissInstall() {
-            const toast = document.getElementById('pwa-install-toast');
-            if (toast) toast.style.display = 'none';
-            localStorage.setItem('pwa_dismissed', 'true');
+    function installPWA() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                dismissInstall();
+            });
         }
+    }
 
-        // Optional: Reset dismissal for testing (call via console if needed)
-        // localStorage.removeItem('pwa_dismissed');
-    </script>
-
-    <script src="debug_pwa.js"></script>
+    function dismissInstall() {
+        const toast = document.getElementById('pwa-install-toast');
+        if (toast) toast.style.display = 'none';
+        localStorage.setItem('pwa_dismissed', 'true');
+    }
+</script>
 </body>
 
 </html>

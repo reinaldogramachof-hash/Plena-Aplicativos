@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de gestão completo para pizzarias - Plena Aplicativos">
-    
+
     <!-- Manifest PWA -->
     <link rel="manifest" href="manifest.json">
 
@@ -82,6 +82,7 @@
                 opacity: 0;
                 transform: translateY(5px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -93,6 +94,7 @@
                 transform: translateX(-10px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -104,12 +106,15 @@
                 transform: scale(0.3);
                 opacity: 0;
             }
+
             50% {
                 transform: scale(1.05);
             }
+
             70% {
                 transform: scale(0.9);
             }
+
             100% {
                 transform: scale(1);
                 opacity: 1;
@@ -358,20 +363,46 @@
             padding: 4px 8px;
             border-radius: 12px;
             z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* Pizza Sizes */
-        .size-small { background-color: #FEF3C7; color: #92400E; }
-        .size-medium { background-color: #FED7AA; color: #9A3412; }
-        .size-large { background-color: #FDBA74; color: #7C2D12; }
-        .size-family { background-color: #FB923C; color: #7C2D12; }
+        .size-small {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .size-medium {
+            background-color: #FED7AA;
+            color: #9A3412;
+        }
+
+        .size-large {
+            background-color: #FDBA74;
+            color: #7C2D12;
+        }
+
+        .size-family {
+            background-color: #FB923C;
+            color: #7C2D12;
+        }
 
         /* Pizza Dough Types */
-        .dough-thin { background-color: #FEF3C7; }
-        .dough-thick { background-color: #FDE68A; }
-        .dough-wholewheat { background-color: #D9F99D; }
-        .dough-glutenfree { background-color: #BBF7D0; }
+        .dough-thin {
+            background-color: #FEF3C7;
+        }
+
+        .dough-thick {
+            background-color: #FDE68A;
+        }
+
+        .dough-wholewheat {
+            background-color: #D9F99D;
+        }
+
+        .dough-glutenfree {
+            background-color: #BBF7D0;
+        }
 
         /* Step Number */
         .step-number {
@@ -388,6 +419,7 @@
     </style>
     <script src="../../../assets/js/plena-lock.js"></script>
     <script src="../../assets/js/plena-toolbar.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="text-slate-800 antialiased">
@@ -513,7 +545,8 @@
                 <!-- Notification Bell -->
                 <button onclick="showNotifications()" class="relative p-2 hover:bg-slate-100 rounded-lg">
                     <i data-lucide="bell" class="w-6 h-6 text-slate-600"></i>
-                    <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                    <span id="notification-count"
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </button>
             </div>
         </header>
@@ -528,7 +561,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pedidos Hoje</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pedidos Hoje
+                                </p>
                                 <h3 id="dash-orders-today" class="text-3xl font-bold text-slate-900">0</h3>
                                 <p class="text-xs text-slate-500 mt-1">Total do dia</p>
                             </div>
@@ -540,7 +574,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Faturamento</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Faturamento
+                                </p>
                                 <h3 id="dash-revenue-today" class="text-3xl font-bold text-green-600">R$ 0,00</h3>
                                 <p class="text-xs text-slate-500 mt-1">Total do dia</p>
                             </div>
@@ -642,7 +677,8 @@
                     <div class="flex items-center gap-3">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="search-orders" onkeyup="filterOrders()" placeholder="Buscar pedidos..."
+                            <input type="text" id="search-orders" onkeyup="filterOrders()"
+                                placeholder="Buscar pedidos..."
                                 class="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-plena-red outline-none text-sm">
                         </div>
                         <button onclick="openOrderModal()"
@@ -708,7 +744,8 @@
                     <div class="flex items-center gap-3">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="search-menu" onkeyup="filterMenu()" placeholder="Buscar no cardápio..."
+                            <input type="text" id="search-menu" onkeyup="filterMenu()"
+                                placeholder="Buscar no cardápio..."
                                 class="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-plena-red outline-none text-sm">
                         </div>
                         <button onclick="openProductModal()"
@@ -810,7 +847,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="font-bold text-slate-800 mb-4 flex items-center">
                             <i data-lucide="clock" class="mr-2 w-5 h-5 text-orange-600"></i>
-                            Pendentes <span id="pending-count" class="ml-2 bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full">0</span>
+                            Pendentes <span id="pending-count"
+                                class="ml-2 bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full">0</span>
                         </h3>
                         <div id="kitchen-pending" class="space-y-4">
                             <!-- Dynamic content -->
@@ -821,7 +859,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="font-bold text-slate-800 mb-4 flex items-center">
                             <i data-lucide="flame" class="mr-2 w-5 h-5 text-red-600"></i>
-                            Assando <span id="preparing-count" class="ml-2 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">0</span>
+                            Assando <span id="preparing-count"
+                                class="ml-2 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">0</span>
                         </h3>
                         <div id="kitchen-preparing" class="space-y-4">
                             <!-- Dynamic content -->
@@ -832,7 +871,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="font-bold text-slate-800 mb-4 flex items-center">
                             <i data-lucide="check-circle" class="mr-2 w-5 h-5 text-green-600"></i>
-                            Prontos <span id="ready-count" class="ml-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">0</span>
+                            Prontos <span id="ready-count"
+                                class="ml-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">0</span>
                         </h3>
                         <div id="kitchen-ready" class="space-y-4">
                             <!-- Dynamic content -->
@@ -943,28 +983,32 @@
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-green-50 p-6 rounded-xl text-center border border-green-100">
-                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Faturamento</p>
                             <p id="rep-revenue" class="text-2xl font-bold text-green-700 mt-2">R$ 0,00</p>
                         </div>
                         <div class="bg-blue-50 p-6 rounded-xl text-center border border-blue-100">
-                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="receipt" class="w-6 h-6 text-blue-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Pedidos</p>
                             <p id="rep-orders" class="text-2xl font-bold text-blue-700 mt-2">0</p>
                         </div>
                         <div class="bg-purple-50 p-6 rounded-xl text-center border border-purple-100">
-                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="package" class="w-6 h-6 text-purple-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Itens Vendidos</p>
                             <p id="rep-items" class="text-2xl font-bold text-purple-700 mt-2">0</p>
                         </div>
                         <div class="bg-orange-50 p-6 rounded-xl text-center border border-orange-100">
-                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="users" class="w-6 h-6 text-orange-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Ticket Médio</p>
@@ -1026,7 +1070,8 @@
                                     placeholder="00.000.000/0000-00">
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Horário de Funcionamento</label>
+                                <label class="text-xs font-bold text-slate-500 uppercase">Horário de
+                                    Funcionamento</label>
                                 <input type="text" id="biz-hours" class="w-full border p-2 rounded-lg text-sm"
                                     placeholder="Ex: 18:00 às 23:00">
                             </div>
@@ -1055,13 +1100,16 @@
                                     </label>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Taxa de Entrega Padrão</label>
-                                    <input type="number" id="delivery-fee" step="0.01" class="w-full border p-2 rounded-lg text-sm mt-1"
-                                        placeholder="R$ 0,00">
+                                    <label class="text-xs font-bold text-slate-500 uppercase">Taxa de Entrega
+                                        Padrão</label>
+                                    <input type="number" id="delivery-fee" step="0.01"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1" placeholder="R$ 0,00">
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Tempo Médio de Forno (min)</label>
-                                    <input type="number" id="oven-time" value="15" class="w-full border p-2 rounded-lg text-sm mt-1">
+                                    <label class="text-xs font-bold text-slate-500 uppercase">Tempo Médio de Forno
+                                        (min)</label>
+                                    <input type="number" id="oven-time" value="15"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1">
                                 </div>
                                 <button onclick="saveSystemSettings()"
                                     class="w-full bg-slate-800 text-white py-2.5 rounded-lg text-sm font-bold hover:bg-black">
@@ -1115,11 +1163,15 @@
                                 aria-label="Ícone de Pizza - Manual de Uso"></i>
                         </div>
                         <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso - Pizzaria</h1>
-                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e gestores de pizzarias</p>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia passo a passo para proprietários e
+                            gestores de pizzarias</p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para Iniciantes</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🍕 Especial Pizza</span>
-                            <span class="px-3 py-1 bg-red-100 text-plena-red rounded-full text-xs font-bold">🔥 Forno Inteligente</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para
+                                Iniciantes</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">🍕 Especial
+                                Pizza</span>
+                            <span class="px-3 py-1 bg-red-100 text-plena-red rounded-full text-xs font-bold">🔥 Forno
+                                Inteligente</span>
                         </div>
                     </div>
 
@@ -1175,7 +1227,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">1</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">1
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Instalação do Sistema</h3>
                             </div>
                             <button onclick="markSectionComplete('instalacao')"
@@ -1189,11 +1242,13 @@
                                 <i data-lucide="download" class="w-5 h-5 mr-2 text-red-400"></i>
                                 Torne o App Disponível OFFLINE
                             </h4>
-                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app normal:</p>
+                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app
+                                normal:</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center mr-2">
                                             <i data-lucide="smartphone" class="w-4 h-4"></i>
                                         </div>
                                         Android (Chrome)
@@ -1221,7 +1276,8 @@
                                 </div>
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-red-800 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-red-800 flex items-center justify-center mr-2">
                                             <i data-lucide="monitor" class="w-4 h-4"></i>
                                         </div>
                                         Windows (Chrome)
@@ -1250,7 +1306,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">2</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">2
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Configuração Inicial (15 Minutos)</h3>
                             </div>
                             <button onclick="markSectionComplete('configuracao')"
@@ -1268,7 +1325,8 @@
                                     </h4>
                                     <ol class="space-y-3 text-sm">
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
                                                 A</div>
                                             <div>
                                                 <strong>Clique em "Configurações"</strong>
@@ -1276,7 +1334,8 @@
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
                                                 B</div>
                                             <div>
                                                 <strong>Nome da Pizzaria</strong>
@@ -1284,7 +1343,8 @@
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center mr-2 text-xs font-bold">
                                                 C</div>
                                             <div>
                                                 <strong>Horário de Funcionamento</strong>
@@ -1321,7 +1381,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">3</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">3
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Cadastro do Cardápio de Pizzas</h3>
                             </div>
                             <button onclick="markSectionComplete('cardapio')"
@@ -1331,7 +1392,8 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-gradient-to-br from-red-50 to-white p-5 rounded-xl border border-red-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-red-50 to-white p-5 rounded-xl border border-red-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mb-3">
                                     <i data-lucide="pizza" class="w-5 h-5 text-red-600"></i>
                                 </div>
@@ -1339,7 +1401,8 @@
                                 <p class="text-xs text-gray-600">Calabresa, Margherita, Portuguesa, etc.</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-orange-50 to-white p-5 rounded-xl border border-orange-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-orange-50 to-white p-5 rounded-xl border border-orange-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center mb-3">
                                     <i data-lucide="ice-cream" class="w-5 h-5 text-orange-600"></i>
                                 </div>
@@ -1347,7 +1410,8 @@
                                 <p class="text-xs text-gray-600">Chocolate, Banana, Romeu e Julieta</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
                                     <i data-lucide="glass-water" class="w-5 h-5 text-blue-600"></i>
                                 </div>
@@ -1358,7 +1422,8 @@
 
                         <div class="bg-yellow-50 p-5 rounded-xl border border-yellow-100 mt-6">
                             <h5 class="font-bold text-yellow-700 mb-3">Dica Profissional</h5>
-                            <p class="text-sm text-gray-700">Cadastre tamanhos (P, M, G, Família) e preços para cada pizza. O sistema calcula automaticamente!</p>
+                            <p class="text-sm text-gray-700">Cadastre tamanhos (P, M, G, Família) e preços para cada
+                                pizza. O sistema calcula automaticamente!</p>
                         </div>
                     </div>
 
@@ -1367,7 +1432,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">4</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">4
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Gestão de Pedidos</h3>
                             </div>
                             <button onclick="markSectionComplete('pedidos')"
@@ -1376,42 +1442,48 @@
                             </button>
                         </div>
 
-                        <div class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 mb-6">
+                        <div
+                            class="bg-gradient-to-r from-red-50 to-orange-50 p-5 rounded-xl border border-red-200 mb-6">
                             <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                                 <i data-lucide="receipt" class="w-5 h-5 mr-2 text-plena-red"></i>
                                 Fluxo do Pedido de Pizza
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-red-700">1</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Recebido</p>
                                     <p class="text-gray-600">Cliente pediu</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-orange-700">2</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Preparação</p>
                                     <p class="text-gray-600">Montando pizza</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-yellow-700">3</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Forno</p>
                                     <p class="text-gray-600">Assando</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-green-700">4</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Pronto</p>
                                     <p class="text-gray-600">Aguardando entrega</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-blue-700">✓</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Entregue</p>
@@ -1422,11 +1494,11 @@
                     </div>
 
                     <!-- Seção 5: Forno -->
-                    <div id="forno"
-                        class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
+                    <div id="forno" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">5</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">5
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Controle do Forno</h3>
                             </div>
                             <button onclick="markSectionComplete('forno')"
@@ -1485,7 +1557,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">6</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">6
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Controle de Estoque</h3>
                             </div>
                             <button onclick="markSectionComplete('estoque')"
@@ -1501,7 +1574,8 @@
                             </h4>
                             <div class="text-sm text-red-800 space-y-2">
                                 <p>🍅 <strong>O estoque é atualizado automaticamente</strong> a cada pizza vendida!</p>
-                                <p>🔔 <strong>Alertas são gerados</strong> quando massa, molho ou ingredientes estão no mínimo.</p>
+                                <p>🔔 <strong>Alertas são gerados</strong> quando massa, molho ou ingredientes estão no
+                                    mínimo.</p>
                                 <p>📊 <strong>Relatórios de consumo</strong> ajudam no reabastecimento semanal.</p>
                             </div>
                         </div>
@@ -1512,7 +1586,8 @@
                         class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8 scroll-mt-24">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center">
-                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">7</div>
+                                <div class="step-number bg-gradient-to-r from-plena-red to-plena-dark text-white">7
+                                </div>
                                 <h3 class="text-xl font-bold text-gray-800">Relatórios e Análise</h3>
                             </div>
                             <button onclick="markSectionComplete('relatorios')"
@@ -1522,7 +1597,8 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
                                     <i data-lucide="dollar-sign" class="w-5 h-5 text-green-600"></i>
                                 </div>
@@ -1530,7 +1606,8 @@
                                 <p class="text-xs text-gray-600">Vendas diárias, semanais e mensais</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
                                     <i data-lucide="trending-up" class="w-5 h-5 text-blue-600"></i>
                                 </div>
@@ -1538,7 +1615,8 @@
                                 <p class="text-xs text-gray-600">Sabores preferidos, tamanhos populares</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
                                     <i data-lucide="pie-chart" class="w-5 h-5 text-purple-600"></i>
                                 </div>
@@ -1591,8 +1669,10 @@
                                 Termos de Uso - Pizzaria
                             </h3>
                             <p class="text-sm text-slate-600 leading-relaxed text-justify">
-                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong> para uso em sua pizzaria. O software é
-                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong> para uso
+                                em sua pizzaria. O software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda,
+                                cópia,
                                 distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
                                 previstas na Lei de Propriedade Intelectual (9.610/98).
                             </p>
@@ -1608,8 +1688,10 @@
                             </h3>
                             <p class="text-sm text-slate-600 leading-relaxed text-justify">
                                 Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
-                                de vendas, clientes e pedidos ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
-                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                de vendas, clientes e pedidos ficam salvos <strong>exclusivamente no seu
+                                    dispositivo</strong>.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no
+                                sistema.
                                 Sua privacidade é absoluta.
                             </p>
                         </div>
@@ -1629,13 +1711,17 @@
                                 <p>
                                     <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
                                     <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
-                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade
+                                    única e
                                     exclusiva do usuário.
                                 </p>
                                 <p>
-                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
-                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
-                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre os
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de
+                                    qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no
+                                    dispositivo
+                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre
+                                    os
                                     preços, ingredientes e estoques.
                                 </p>
                             </div>
@@ -1643,7 +1729,8 @@
                     </div>
 
                     <!-- 4. Suporte e SLA -->
-                    <div class="bg-gradient-to-br from-slate-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                    <div
+                        class="bg-gradient-to-br from-slate-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
                         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="flex-1">
                                 <h3 class="font-bold text-xl mb-2 flex items-center">
@@ -1651,7 +1738,9 @@
                                     Suporte Premium Especializado em Pizzarias
                                 </h3>
                                 <p class="text-slate-300 text-sm mb-6 leading-relaxed">
-                                    Precisa de ajuda com configuração de tamanhos, controle de forno ou encontrou alguma inconsistência? Nossa equipe técnica especializada em gestão de pizzarias está pronta para atender você com prioridade.
+                                    Precisa de ajuda com configuração de tamanhos, controle de forno ou encontrou alguma
+                                    inconsistência? Nossa equipe técnica especializada em gestão de pizzarias está
+                                    pronta para atender você com prioridade.
                                 </p>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1660,7 +1749,8 @@
                                         <p class="font-bold text-white">E-mail</p>
                                     </div>
                                     <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                                        <p class="text-xs text-slate-400 uppercase font-bold">Tempo de Resposta (SLA)</p>
+                                        <p class="text-xs text-slate-400 uppercase font-bold">Tempo de Resposta (SLA)
+                                        </p>
                                         <p class="font-bold text-plena-red">Até 24h Úteis</p>
                                     </div>
                                 </div>
@@ -1672,7 +1762,8 @@
                                     <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                     Falar com Suporte
                                 </a>
-                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
+                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenaaplicativos.com.br
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1682,7 +1773,8 @@
                         <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
                             id="terms-box">
                             <i data-lucide="check-circle-2" class="w-12 h-12 text-slate-300 mb-3" id="terms-icon"></i>
-                            <h3 class="font-bold text-slate-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2" id="terms-title">Confirmação de Leitura
+                            </h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-lg" id="terms-desc">
                                 Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
                                 Política de Privacidade e sua responsabilidade sobre os backups.
@@ -1710,7 +1802,8 @@
                     <!-- 6. Rodapé Legal -->
                     <div class="text-center border-t border-slate-200 pt-8">
                         <p class="text-sm font-bold text-slate-800">Plena Soluções Digitais LTDA</p>
-                        <p class="text-xs text-slate-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-xs text-slate-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados
+                        </p>
                         <p class="text-[10px] text-slate-400 mt-4">
                             Versão 1.0 Pro - Pizzaria • Build 2026.01.18
                         </p>
@@ -1733,7 +1826,7 @@
             <div class="p-6 flex-1 overflow-y-auto">
                 <form onsubmit="submitOrder(event)" id="orderForm" class="space-y-6">
                     <input type="hidden" id="order-id">
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Cliente e Mesa -->
                         <div class="space-y-4">
@@ -1745,13 +1838,15 @@
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-slate-500 uppercase">Mesa</label>
-                                <select id="order-table" class="w-full border p-2 rounded-lg text-sm bg-white outline-none">
+                                <select id="order-table"
+                                    class="w-full border p-2 rounded-lg text-sm bg-white outline-none">
                                     <option value="">Selecionar mesa...</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-slate-500 uppercase">Tipo de Pedido</label>
-                                <select id="order-type" class="w-full border p-2 rounded-lg text-sm bg-white outline-none">
+                                <select id="order-type"
+                                    class="w-full border p-2 rounded-lg text-sm bg-white outline-none">
                                     <option value="dine-in">No local</option>
                                     <option value="takeaway">Retirada</option>
                                     <option value="delivery">Delivery</option>
@@ -1762,8 +1857,7 @@
                         <!-- Observações -->
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Observações</label>
-                            <textarea id="order-notes" rows="4"
-                                class="w-full border p-2 rounded-lg text-sm"
+                            <textarea id="order-notes" rows="4" class="w-full border p-2 rounded-lg text-sm"
                                 placeholder="Observações do pedido (borda recheada, sem cebola, etc.)..."></textarea>
                         </div>
                     </div>
@@ -1772,7 +1866,8 @@
                     <div>
                         <div class="flex justify-between items-center mb-4">
                             <label class="text-xs font-bold text-slate-500 uppercase">Itens do Pedido</label>
-                            <button type="button" onclick="addOrderItem()" class="text-sm text-plena-red hover:text-plena-dark flex items-center gap-1">
+                            <button type="button" onclick="addOrderItem()"
+                                class="text-sm text-plena-red hover:text-plena-dark flex items-center gap-1">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Pizza
                             </button>
                         </div>
@@ -1849,7 +1944,7 @@
                     <option value="desserts">Sobremesas</option>
                     <option value="combos">Combos</option>
                 </select>
-                
+
                 <!-- Preços por tamanho (para pizzas) -->
                 <div id="pizza-sizes" class="grid grid-cols-2 gap-3">
                     <div>
@@ -1873,18 +1968,20 @@
                             class="w-full border p-2 rounded-lg" min="0">
                     </div>
                 </div>
-                
+
                 <!-- Para não-pizzas, preço único -->
                 <div id="regular-price" class="hide">
                     <input type="number" step="0.01" id="prod-price" placeholder="Preço R$"
                         class="w-full border p-2 rounded-lg" min="0">
                 </div>
-                
+
                 <textarea id="prod-description" rows="3" placeholder="Ingredientes/Descrição..."
                     class="w-full border p-2 rounded-lg"></textarea>
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="prod-prep-time" placeholder="Tempo forno (min)" class="border p-2 rounded-lg">
-                    <input type="number" id="prod-cost" step="0.01" placeholder="Custo R$" class="border p-2 rounded-lg">
+                    <input type="number" id="prod-prep-time" placeholder="Tempo forno (min)"
+                        class="border p-2 rounded-lg">
+                    <input type="number" id="prod-cost" step="0.01" placeholder="Custo R$"
+                        class="border p-2 rounded-lg">
                 </div>
                 <button type="submit" class="w-full bg-plena-red text-white py-3 rounded-lg font-bold">
                     Salvar Produto
@@ -1946,8 +2043,10 @@
                     <option value="other">Outros</option>
                 </select>
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="inv-quantity" required placeholder="Quantidade" class="border p-2 rounded-lg" min="0">
-                    <input type="number" id="inv-minimum" required placeholder="Mínimo" class="border p-2 rounded-lg" min="0">
+                    <input type="number" id="inv-quantity" required placeholder="Quantidade"
+                        class="border p-2 rounded-lg" min="0">
+                    <input type="number" id="inv-minimum" required placeholder="Mínimo" class="border p-2 rounded-lg"
+                        min="0">
                 </div>
                 <select id="inv-unit" class="w-full border p-2 rounded-lg">
                     <option value="un">Unidade</option>
@@ -1969,7 +2068,8 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 kitchen-ticket">
             <div class="text-center mb-6">
                 <h3 class="text-xl font-bold text-slate-800">COMANDA #<span id="ticket-number">0000</span></h3>
-                <p class="text-sm text-slate-500">Mesa: <span id="ticket-table">-</span> • Hora: <span id="ticket-time">--:--</span></p>
+                <p class="text-sm text-slate-500">Mesa: <span id="ticket-table">-</span> • Hora: <span
+                        id="ticket-time">--:--</span></p>
             </div>
             <div id="ticket-items" class="space-y-2 mb-4">
                 <!-- Itens da comanda -->
@@ -2220,9 +2320,9 @@
 
             // Configurar periodicidade para salvar
             setInterval(save, 30000);
-            
+
             // Configurar toggle de preços de pizza
-            document.getElementById('prod-category').addEventListener('change', function() {
+            document.getElementById('prod-category').addEventListener('change', function () {
                 const isPizza = this.value === 'pizzas';
                 document.getElementById('pizza-sizes').classList.toggle('hide', !isPizza);
                 document.getElementById('regular-price').classList.toggle('hide', isPizza);
@@ -2232,7 +2332,7 @@
         function populateTableSelect() {
             const select = document.getElementById('order-table');
             if (!select) return;
-            
+
             select.innerHTML = '<option value="">Selecionar mesa...</option>';
             db.tables
                 .filter(table => table.status === 'available')
@@ -2247,7 +2347,7 @@
         function populateProductSelect() {
             const select = document.getElementById('quick-product');
             if (!select) return;
-            
+
             select.innerHTML = '<option value="">Selecione um produto...</option>';
             db.menu.forEach(product => {
                 const option = document.createElement('option');
@@ -2455,7 +2555,7 @@
             if (!container) return;
 
             const lowStockItems = db.inventory.filter(item => item.quantity <= item.minimum);
-            
+
             if (lowStockItems.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-3">
@@ -2482,14 +2582,14 @@
         function openOrderModal(order = null) {
             const modal = document.getElementById('orderModal');
             const form = document.getElementById('orderForm');
-            
+
             if (order) {
                 document.getElementById('order-id').value = order.id;
                 document.getElementById('order-client').value = order.client || '';
                 document.getElementById('order-table').value = order.tableId || '';
                 document.getElementById('order-type').value = order.type || 'dine-in';
                 document.getElementById('order-notes').value = order.notes || '';
-                
+
                 // Preencher itens
                 const itemsContainer = document.getElementById('order-items-container');
                 itemsContainer.innerHTML = '';
@@ -2500,7 +2600,7 @@
                 } else {
                     addOrderItem();
                 }
-                
+
                 updateOrderTotal();
             } else {
                 form.reset();
@@ -2510,21 +2610,21 @@
                 addOrderItem();
                 updateOrderTotal();
             }
-            
+
             modal.classList.remove('hidden');
         }
 
         function addOrderItem(productId = '', quantity = 1, size = 'medium', notes = '', index = null) {
             const container = document.getElementById('order-items-container');
             const itemId = index !== null ? index : container.children.length;
-            
+
             const sizeOptions = `
                 <option value="small" ${size === 'small' ? 'selected' : ''}>Pequena</option>
                 <option value="medium" ${size === 'medium' ? 'selected' : ''}>Média</option>
                 <option value="large" ${size === 'large' ? 'selected' : ''}>Grande</option>
                 <option value="family" ${size === 'family' ? 'selected' : ''}>Família</option>
             `;
-            
+
             const itemHTML = `
                 <div class="grid grid-cols-12 gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div class="col-span-4">
@@ -2556,7 +2656,7 @@
                     </div>
                 </div>
             `;
-            
+
             if (index !== null) {
                 const existingItem = container.children[index];
                 if (existingItem) {
@@ -2567,7 +2667,7 @@
             } else {
                 container.insertAdjacentHTML('beforeend', itemHTML);
             }
-            
+
             lucide.createIcons();
         }
 
@@ -2582,59 +2682,59 @@
         function updateOrderTotal() {
             let total = 0;
             const items = document.querySelectorAll('#order-items-container .grid');
-            
+
             items.forEach(item => {
                 const productSelect = item.querySelector('.order-product');
                 const sizeSelect = item.querySelector('.order-size');
                 const quantityInput = item.querySelector('.order-quantity');
-                
+
                 if (productSelect.value && quantityInput.value) {
                     const product = db.menu.find(p => p.id === productSelect.value);
                     if (product) {
                         const quantity = parseInt(quantityInput.value);
                         let price = 0;
-                        
+
                         if (product.category === 'pizzas' && product.prices) {
                             const size = sizeSelect ? sizeSelect.value : 'medium';
                             price = product.prices[size] || product.prices.medium;
                         } else {
                             price = product.price || 0;
                         }
-                        
+
                         total += price * quantity;
                     }
                 }
             });
-            
+
             // Adicionar taxa de entrega se for delivery
             const orderType = document.getElementById('order-type').value;
             if (orderType === 'delivery') {
                 total += parseFloat(db.settings.deliveryFee) || 0;
             }
-            
+
             document.getElementById('order-total').textContent = fmtMoney(total);
         }
 
         function submitOrder(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('order-id').value;
             const client = document.getElementById('order-client').value.trim();
             const tableId = document.getElementById('order-table').value;
             const orderType = document.getElementById('order-type').value;
             const notes = document.getElementById('order-notes').value.trim();
-            
+
             // Coletar itens
             const itemElements = document.querySelectorAll('#order-items-container .grid');
             const items = [];
             let total = 0;
-            
+
             itemElements.forEach(item => {
                 const productSelect = item.querySelector('.order-product');
                 const sizeSelect = item.querySelector('.order-size');
                 const quantityInput = item.querySelector('.order-quantity');
                 const itemNotes = item.querySelector('.order-item-notes').value.trim();
-                
+
                 if (productSelect.value && quantityInput.value) {
                     const product = db.menu.find(p => p.id === productSelect.value);
                     if (product) {
@@ -2642,7 +2742,7 @@
                         const size = sizeSelect ? sizeSelect.value : 'medium';
                         let price = 0;
                         let itemTotal = 0;
-                        
+
                         if (product.category === 'pizzas' && product.prices) {
                             price = product.prices[size] || product.prices.medium;
                             itemTotal = price * quantity;
@@ -2650,9 +2750,9 @@
                             price = product.price || 0;
                             itemTotal = price * quantity;
                         }
-                        
+
                         total += itemTotal;
-                        
+
                         items.push({
                             productId: product.id,
                             productName: product.name,
@@ -2667,19 +2767,19 @@
                     }
                 }
             });
-            
+
             if (items.length === 0) {
                 alert('Por favor, adicione pelo menos um item ao pedido.');
                 return;
             }
-            
+
             // Adicionar taxa de entrega
             if (orderType === 'delivery') {
                 total += parseFloat(db.settings.deliveryFee) || 0;
             }
-            
+
             const table = tableId ? db.tables.find(t => t.id === tableId) : null;
-            
+
             const order = {
                 id: id || getID(),
                 orderNumber: id ? db.orders.find(o => o.id === id)?.orderNumber : generateOrderNumber(),
@@ -2696,12 +2796,12 @@
                 deliveredAt: null,
                 paidAt: null
             };
-            
+
             // Atualizar estoque
             if (!id) {
                 updateInventoryForOrder(items);
             }
-            
+
             if (id) {
                 // Atualizar pedido existente
                 const index = db.orders.findIndex(o => o.id === id);
@@ -2712,26 +2812,26 @@
                 // Adicionar novo pedido
                 db.orders.push(order);
             }
-            
+
             save();
             closeModal('orderModal');
-            
+
             if (document.getElementById('view-orders').classList.contains('hide') === false) {
                 renderOrders();
             }
-            
+
             updateDashboardStats();
             renderRecentOrders();
             renderKitchen();
-            
+
             showNotification('Pedido salvo com sucesso!', 'success');
         }
 
         function generateOrderNumber() {
             const today = new Date();
-            const dateStr = today.getFullYear().toString().substr(-2) + 
-                          (today.getMonth() + 1).toString().padStart(2, '0') + 
-                          today.getDate().toString().padStart(2, '0');
+            const dateStr = today.getFullYear().toString().substr(-2) +
+                (today.getMonth() + 1).toString().padStart(2, '0') +
+                today.getDate().toString().padStart(2, '0');
             const todayOrders = db.orders.filter(o => o.createdAt?.split('T')[0] === today.toISOString().split('T')[0]);
             const orderNum = (todayOrders.length + 1).toString().padStart(3, '0');
             return dateStr + orderNum;
@@ -2747,38 +2847,38 @@
         function renderOrders() {
             const container = document.getElementById('orders-list');
             if (!container) return;
-            
+
             const searchTerm = document.getElementById('search-orders')?.value.toLowerCase() || '';
             const filter = document.querySelector('#view-orders .bg-plena-red')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all';
             const dateFilter = document.getElementById('filter-date')?.value || 'today';
-            
+
             let filtered = db.orders.filter(order => {
-                const matchesSearch = 
+                const matchesSearch =
                     (order.orderNumber && order.orderNumber.toLowerCase().includes(searchTerm)) ||
                     (order.client && order.client.toLowerCase().includes(searchTerm)) ||
                     (order.tableNumber && order.tableNumber.toLowerCase().includes(searchTerm));
-                
+
                 const matchesFilter = filter === 'all' ? true : order.status === filter;
-                
+
                 // Filtro de data
                 const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
                 const today = new Date().toISOString().split('T')[0];
                 const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
                 const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
                 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
-                
-                const matchesDate = 
+
+                const matchesDate =
                     dateFilter === 'today' ? orderDate === today :
-                    dateFilter === 'yesterday' ? orderDate === yesterday :
-                    dateFilter === 'week' ? orderDate >= weekAgo :
-                    dateFilter === 'month' ? orderDate >= monthAgo : true;
-                
+                        dateFilter === 'yesterday' ? orderDate === yesterday :
+                            dateFilter === 'week' ? orderDate >= weekAgo :
+                                dateFilter === 'month' ? orderDate >= monthAgo : true;
+
                 return matchesSearch && matchesFilter && matchesDate;
             });
-            
+
             // Ordenar por data (mais recente primeiro)
             filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <tr>
@@ -2790,7 +2890,7 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = filtered.map(order => {
                 const statusColors = {
                     'pending': 'bg-yellow-100 text-yellow-700',
@@ -2799,7 +2899,7 @@
                     'delivered': 'bg-purple-100 text-purple-700',
                     'canceled': 'bg-red-100 text-red-700'
                 };
-                
+
                 const statusTexts = {
                     'pending': 'Pendente',
                     'preparing': 'Assando',
@@ -2807,7 +2907,7 @@
                     'delivered': 'Entregue',
                     'canceled': 'Cancelado'
                 };
-                
+
                 return `
                     <tr class="hover:bg-slate-50">
                         <td class="px-6 py-4 font-bold text-slate-900">#${order.orderNumber}</td>
@@ -2839,7 +2939,7 @@
                     </tr>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
@@ -2858,7 +2958,7 @@
                     }
                 }
             });
-            
+
             renderOrders();
         }
 
@@ -2874,23 +2974,23 @@
             if (index !== -1) {
                 db.orders[index].status = newStatus;
                 db.orders[index].updatedAt = new Date().toISOString();
-                
+
                 if (newStatus === 'delivered') {
                     db.orders[index].deliveredAt = new Date().toISOString();
                 }
-                
+
                 save();
-                
+
                 if (document.getElementById('view-orders').classList.contains('hide') === false) {
                     renderOrders();
                 }
-                
+
                 if (document.getElementById('view-kitchen').classList.contains('hide') === false) {
                     renderKitchen();
                 }
-                
+
                 updateDashboardStats();
-                
+
                 showNotification(`Pedido #${db.orders[index].orderNumber} atualizado para: ${newStatus}`, 'success');
             }
         }
@@ -2899,20 +2999,20 @@
         function renderMenu() {
             const container = document.getElementById('menu-grid');
             if (!container) return;
-            
+
             const searchTerm = document.getElementById('search-menu')?.value.toLowerCase() || '';
             const filter = document.querySelector('#view-menu .bg-plena-red')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all';
-            
+
             let filtered = db.menu.filter(product => {
-                const matchesSearch = 
+                const matchesSearch =
                     product.name.toLowerCase().includes(searchTerm) ||
                     product.description?.toLowerCase().includes(searchTerm);
-                
+
                 const matchesFilter = filter === 'all' ? true : product.category === filter;
-                
+
                 return matchesSearch && matchesFilter;
             });
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-full text-center py-12">
@@ -2928,7 +3028,7 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = filtered.map(product => {
                 const categoryColors = {
                     'pizzas': 'category-pizzas',
@@ -2937,7 +3037,7 @@
                     'desserts': 'category-desserts',
                     'combos': 'category-combos'
                 };
-                
+
                 const categoryIcons = {
                     'pizzas': 'pizza',
                     'accompaniments': 'french-fries',
@@ -2945,7 +3045,7 @@
                     'desserts': 'ice-cream',
                     'combos': 'package'
                 };
-                
+
                 // Exibir preço conforme categoria
                 let priceDisplay = '';
                 if (product.category === 'pizzas' && product.prices) {
@@ -2953,7 +3053,7 @@
                 } else {
                     priceDisplay = fmtMoney(product.price || 0);
                 }
-                
+
                 return `
                     <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm card-hover hover:shadow-md transition-shadow ${categoryColors[product.category]} relative">
                         ${product.popular ? '<div class="popular-badge">🔥 POPULAR</div>' : ''}
@@ -2985,7 +3085,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
@@ -3019,7 +3119,7 @@
                     }
                 }
             });
-            
+
             renderMenu();
         }
 
@@ -3034,7 +3134,7 @@
         function openProductModal(product = null) {
             const modal = document.getElementById('productModal');
             const form = document.getElementById('productModal').querySelector('form');
-            
+
             if (product) {
                 document.getElementById('prod-id').value = product.id;
                 document.getElementById('prod-name').value = product.name;
@@ -3042,7 +3142,7 @@
                 document.getElementById('prod-description').value = product.description || '';
                 document.getElementById('prod-prep-time').value = product.prepTime || '';
                 document.getElementById('prod-cost').value = product.cost || '';
-                
+
                 if (product.category === 'pizzas' && product.prices) {
                     document.getElementById('prod-price-small').value = product.prices.small || '';
                     document.getElementById('prod-price-medium').value = product.prices.medium || '';
@@ -3051,7 +3151,7 @@
                 } else {
                     document.getElementById('prod-price').value = product.price || '';
                 }
-                
+
                 // Atualizar visibilidade dos campos de preço
                 const isPizza = product.category === 'pizzas';
                 document.getElementById('pizza-sizes').classList.toggle('hide', !isPizza);
@@ -3062,7 +3162,7 @@
                 document.getElementById('pizza-sizes').classList.remove('hide');
                 document.getElementById('regular-price').classList.add('hide');
             }
-            
+
             modal.classList.remove('hidden');
         }
 
@@ -3075,19 +3175,19 @@
 
         function submitProduct(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('prod-id').value;
             const name = document.getElementById('prod-name').value.trim();
             const category = document.getElementById('prod-category').value;
             const description = document.getElementById('prod-description').value.trim();
             const prepTime = parseInt(document.getElementById('prod-prep-time').value) || null;
             const cost = parseFloat(document.getElementById('prod-cost').value) || null;
-            
+
             if (!name) {
                 alert('Por favor, preencha o nome do produto.');
                 return;
             }
-            
+
             const product = {
                 id: id || getID(),
                 name,
@@ -3097,19 +3197,19 @@
                 cost,
                 popular: false
             };
-            
+
             // Adicionar preços conforme categoria
             if (category === 'pizzas') {
                 const smallPrice = parseFloat(document.getElementById('prod-price-small').value);
                 const mediumPrice = parseFloat(document.getElementById('prod-price-medium').value);
                 const largePrice = parseFloat(document.getElementById('prod-price-large').value);
                 const familyPrice = parseFloat(document.getElementById('prod-price-family').value);
-                
+
                 if (isNaN(smallPrice) || isNaN(mediumPrice) || isNaN(largePrice) || isNaN(familyPrice)) {
                     alert('Por favor, preencha todos os preços para a pizza.');
                     return;
                 }
-                
+
                 product.prices = {
                     small: smallPrice,
                     medium: mediumPrice,
@@ -3124,7 +3224,7 @@
                 }
                 product.price = price;
             }
-            
+
             if (id) {
                 // Atualizar produto existente
                 const index = db.menu.findIndex(p => p.id === id);
@@ -3135,16 +3235,16 @@
                 // Adicionar novo produto
                 db.menu.push(product);
             }
-            
+
             save();
             closeModal('productModal');
-            
+
             if (document.getElementById('view-menu').classList.contains('hide') === false) {
                 renderMenu();
             }
-            
+
             populateProductSelect();
-            
+
             showNotification('Produto salvo com sucesso!', 'success');
         }
 
@@ -3152,7 +3252,7 @@
         function renderTables() {
             const container = document.getElementById('tables-grid');
             if (!container) return;
-            
+
             container.innerHTML = db.tables.map(table => {
                 const statusColors = {
                     'available': 'table-available',
@@ -3160,21 +3260,21 @@
                     'reserved': 'table-reserved',
                     'maintenance': 'table-maintenance'
                 };
-                
+
                 const statusIcons = {
                     'available': 'circle',
                     'occupied': 'user',
                     'reserved': 'calendar',
                     'maintenance': 'wrench'
                 };
-                
+
                 const statusTexts = {
                     'available': 'Disponível',
                     'occupied': 'Ocupada',
                     'reserved': 'Reservada',
                     'maintenance': 'Manutenção'
                 };
-                
+
                 return `
                     <div class="${statusColors[table.status]} p-6 rounded-xl border text-center">
                         <div class="flex flex-col items-center">
@@ -3200,14 +3300,14 @@
                     </div>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
         function openTableModal(table = null) {
             const modal = document.getElementById('tableModal');
             const form = document.getElementById('tableModal').querySelector('form');
-            
+
             if (table) {
                 document.getElementById('table-id').value = table.id;
                 document.getElementById('table-number').value = table.number;
@@ -3217,7 +3317,7 @@
                 form.reset();
                 document.getElementById('table-id').value = '';
             }
-            
+
             modal.classList.remove('hidden');
         }
 
@@ -3245,24 +3345,24 @@
 
         function submitTable(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('table-id').value;
             const number = document.getElementById('table-number').value.trim();
             const capacity = parseInt(document.getElementById('table-capacity').value);
             const status = document.getElementById('table-status').value;
-            
+
             if (!number || isNaN(capacity)) {
                 alert('Por favor, preencha todos os campos corretamente.');
                 return;
             }
-            
+
             const table = {
                 id: id || getID(),
                 number,
                 capacity,
                 status
             };
-            
+
             if (id) {
                 // Atualizar mesa existente
                 const index = db.tables.findIndex(t => t.id === id);
@@ -3273,17 +3373,17 @@
                 // Adicionar nova mesa
                 db.tables.push(table);
             }
-            
+
             save();
             closeModal('tableModal');
-            
+
             if (document.getElementById('view-tables').classList.contains('hide') === false) {
                 renderTables();
             }
-            
+
             populateTableSelect();
             updateDashboardStats();
-            
+
             showNotification('Mesa salva com sucesso!', 'success');
         }
 
@@ -3292,11 +3392,11 @@
             const pendingOrders = db.orders.filter(o => o.status === 'pending');
             const preparingOrders = db.orders.filter(o => o.status === 'preparing');
             const readyOrders = db.orders.filter(o => o.status === 'ready');
-            
+
             document.getElementById('pending-count').textContent = pendingOrders.length;
             document.getElementById('preparing-count').textContent = preparingOrders.length;
             document.getElementById('ready-count').textContent = readyOrders.length;
-            
+
             renderKitchenSection('kitchen-pending', pendingOrders);
             renderKitchenSection('kitchen-preparing', preparingOrders);
             renderKitchenSection('kitchen-ready', readyOrders);
@@ -3305,7 +3405,7 @@
         function renderKitchenSection(sectionId, orders) {
             const container = document.getElementById(sectionId);
             if (!container) return;
-            
+
             if (orders.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-4">
@@ -3314,10 +3414,10 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = orders.map(order => {
                 const timeAgo = getTimeAgo(order.createdAt);
-                
+
                 return `
                     <div class="bg-white p-4 rounded-lg border border-slate-200">
                         <div class="flex justify-between items-start mb-2">
@@ -3370,7 +3470,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
@@ -3379,11 +3479,11 @@
             const date = new Date(dateString);
             const diffMs = now - date;
             const diffMins = Math.floor(diffMs / 60000);
-            
+
             if (diffMins < 1) return 'Agora mesmo';
             if (diffMins === 1) return '1 min atrás';
             if (diffMins < 60) return `${diffMins} mins atrás`;
-            
+
             const diffHours = Math.floor(diffMins / 60);
             if (diffHours === 1) return '1 hora atrás';
             return `${diffHours} horas atrás`;
@@ -3392,12 +3492,12 @@
         function printKitchenTicketForOrder(orderId) {
             const order = db.orders.find(o => o.id === orderId);
             if (!order) return;
-            
+
             document.getElementById('ticket-number').textContent = order.orderNumber;
             document.getElementById('ticket-table').textContent = order.tableNumber || '--';
             document.getElementById('ticket-time').textContent = fmtTime(order.createdAt);
             document.getElementById('ticket-notes').textContent = order.notes || 'Nenhuma';
-            
+
             const itemsContainer = document.getElementById('ticket-items');
             itemsContainer.innerHTML = order.items?.map(item => `
                 <div class="flex justify-between border-b border-dashed border-slate-200 pb-1">
@@ -3407,7 +3507,7 @@
                     </div>
                 </div>
             `).join('');
-            
+
             document.getElementById('kitchenTicketModal').classList.remove('hidden');
         }
 
@@ -3419,15 +3519,15 @@
         function renderInventory() {
             const container = document.getElementById('inventory-list');
             if (!container) return;
-            
+
             const inStock = db.inventory.filter(item => item.quantity > item.minimum).length;
             const lowStock = db.inventory.filter(item => item.quantity <= item.minimum && item.quantity > 0).length;
             const outStock = db.inventory.filter(item => item.quantity === 0).length;
-            
+
             document.getElementById('inv-in-stock').textContent = inStock;
             document.getElementById('inv-low-stock').textContent = lowStock;
             document.getElementById('inv-out-stock').textContent = outStock;
-            
+
             if (db.inventory.length === 0) {
                 container.innerHTML = `
                     <tr>
@@ -3439,12 +3539,12 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = db.inventory.map(item => {
                 let status = 'success';
                 let statusText = 'Normal';
                 let statusColor = 'text-green-600';
-                
+
                 if (item.quantity === 0) {
                     status = 'danger';
                     statusText = 'Esgotado';
@@ -3454,7 +3554,7 @@
                     statusText = 'Baixo';
                     statusColor = 'text-yellow-600';
                 }
-                
+
                 const categoryIcons = {
                     'dough': 'circle',
                     'sauce': 'droplets',
@@ -3466,7 +3566,7 @@
                     'packaging': 'package',
                     'other': 'package'
                 };
-                
+
                 return `
                     <tr class="hover:bg-slate-50">
                         <td class="px-6 py-4">
@@ -3503,14 +3603,14 @@
                     </tr>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
         function openInventoryModal(item = null) {
             const modal = document.getElementById('inventoryModal');
             const form = document.getElementById('inventoryModal').querySelector('form');
-            
+
             if (item) {
                 document.getElementById('inv-id').value = item.id;
                 document.getElementById('inv-name').value = item.name;
@@ -3522,7 +3622,7 @@
                 form.reset();
                 document.getElementById('inv-id').value = '';
             }
-            
+
             modal.classList.remove('hidden');
         }
 
@@ -3559,19 +3659,19 @@
 
         function submitInventoryItem(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('inv-id').value;
             const name = document.getElementById('inv-name').value.trim();
             const category = document.getElementById('inv-category').value;
             const quantity = parseFloat(document.getElementById('inv-quantity').value);
             const minimum = parseFloat(document.getElementById('inv-minimum').value);
             const unit = document.getElementById('inv-unit').value;
-            
+
             if (!name || isNaN(quantity) || isNaN(minimum)) {
                 alert('Por favor, preencha todos os campos corretamente.');
                 return;
             }
-            
+
             const item = {
                 id: id || getID(),
                 name,
@@ -3580,7 +3680,7 @@
                 minimum,
                 unit
             };
-            
+
             if (id) {
                 // Atualizar item existente
                 const index = db.inventory.findIndex(i => i.id === id);
@@ -3591,16 +3691,16 @@
                 // Adicionar novo item
                 db.inventory.push(item);
             }
-            
+
             save();
             closeModal('inventoryModal');
-            
+
             if (document.getElementById('view-inventory').classList.contains('hide') === false) {
                 renderInventory();
             }
-            
+
             renderInventoryAlerts();
-            
+
             showNotification('Item do estoque salvo com sucesso!', 'success');
         }
 
@@ -3613,15 +3713,15 @@
             const productId = document.getElementById('quick-product').value;
             const size = document.getElementById('quick-size').value;
             const quantity = parseInt(document.getElementById('quick-quantity').value) || 1;
-            
+
             if (!productId) {
                 alert('Por favor, selecione um produto.');
                 return;
             }
-            
+
             const product = db.menu.find(p => p.id === productId);
             if (!product) return;
-            
+
             // Criar pedido rápido
             const order = {
                 id: getID(),
@@ -3644,15 +3744,15 @@
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            
+
             db.orders.push(order);
             save();
             closeModal('quickOrderModal');
-            
+
             updateDashboardStats();
             renderRecentOrders();
             renderKitchen();
-            
+
             showNotification(`Pedido rápido criado: ${quantity}x ${product.name} (${getSizeName(size)})`, 'success');
         }
 
@@ -3689,7 +3789,7 @@
         function restoreBackup(input) {
             const file = input.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
@@ -3718,7 +3818,7 @@
 
             const startDate = new Date(start);
             const endDate = new Date(end);
-            
+
             const filteredOrders = db.orders.filter(order => {
                 const orderDate = new Date(order.createdAt);
                 return orderDate >= startDate && orderDate <= endDate;
@@ -3728,7 +3828,7 @@
             const itemsSold = filteredOrders.reduce((sum, order) => {
                 return sum + (order.items?.reduce((itemSum, item) => itemSum + item.quantity, 0) || 0);
             }, 0);
-            
+
             const avgTicket = filteredOrders.length > 0 ? revenue / filteredOrders.length : 0;
 
             document.getElementById('rep-revenue').textContent = fmtMoney(revenue);
@@ -3747,7 +3847,7 @@
             if (!container) return;
 
             const productSales = {};
-            
+
             orders.forEach(order => {
                 order.items?.forEach(item => {
                     const key = `${item.productName}${item.sizeName ? ' (' + item.sizeName + ')' : ''}`;
@@ -3903,13 +4003,8 @@
         // Inicializar Aplicativo
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', () => {
-             if (typeof init === 'function') init();
-             // Register SW for PWA
-             if ('serviceWorker' in navigator) {
-                 navigator.serviceWorker.register('./sw.js')
-                     .then(() => console.log('SW Registered'))
-                     .catch(err => console.error('SW Error:', err));
-             }
+            if (typeof init === 'function') init();
+
         });
         document.addEventListener('DOMContentLoaded', updateTutorialProgress);
     </script>
@@ -3929,67 +4024,73 @@
     </script>
 
 
-<!-- PWA INSTALLATION TOAST -->
-<div id="pwa-install-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
-    <div style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <img src="../../assets/img/icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+
+
+
+    <!-- PWA INSTALLATION TOAST (Standardized) -->
+    <div id="pwa-install-toast"
+        style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
+        <div
+            style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <img src="./icons/icon-192.png" alt="App Icon"
+                style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
         </div>
-    <div style="flex: 1;">
-        <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
-        <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+        <div style="flex: 1;">
+            <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
+            <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+        </div>
+        <button onclick="installPWA()"
+            style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+            Instalar
+        </button>
+        <button onclick="dismissInstall()"
+            style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-x">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
     </div>
-    <button onclick="installPWA()" style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-        Instalar
-    </button>
-    <button onclick="dismissInstall()" style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-</div>
 
-<script>
-    let deferredPrompt;
+    <script>
+        let deferredPrompt;
 
-    // Check if installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+        // Check if installed
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        
-        // Show the toast if not already dismissed and not in standalone mode
-        if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
-             const toast = document.getElementById('pwa-install-toast');
-             if (toast) toast.style.display = 'flex';
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show the toast if not already dismissed and not in standalone mode
+            if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
+                const toast = document.getElementById('pwa-install-toast');
+                if (toast) toast.style.display = 'flex';
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    dismissInstall();
+                });
+            }
         }
-    });
 
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-                dismissInstall();
-            });
+        function dismissInstall() {
+            const toast = document.getElementById('pwa-install-toast');
+            if (toast) toast.style.display = 'none';
+            localStorage.setItem('pwa_dismissed', 'true');
         }
-    }
-
-    function dismissInstall() {
-        const toast = document.getElementById('pwa-install-toast');
-        if (toast) toast.style.display = 'none';
-        localStorage.setItem('pwa_dismissed', 'true');
-    }
-
-    // Optional: Reset dismissal for testing (call via console if needed)
-    // localStorage.removeItem('pwa_dismissed');
-</script>
-
+    </script>
 </body>
 
 </html>

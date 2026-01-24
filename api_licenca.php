@@ -73,6 +73,7 @@ $TEAM_FILE = $DATA_DIR . 'team_members.json';
 $REPORTS_FILE = $DATA_DIR . 'reports_history.json';
 $LOGS_FILE = $DATA_DIR . 'system_logs.json';
 $APPS_CONFIG_FILE = $DATA_DIR . 'apps_config.json';
+$NOTIFICATIONS_FILE = $DATA_DIR . 'notifications_system.json'; // New File
 $DEBUG_LOG = $DATA_DIR . 'debug_log.txt';
 
 // Garante que os arquivos existam com estrutura inicial
@@ -85,7 +86,8 @@ $init_files = [
     $TEAM_FILE => [],
     $REPORTS_FILE => [],
     $LOGS_FILE => [],
-    $APPS_CONFIG_FILE => []
+    $APPS_CONFIG_FILE => [],
+    $NOTIFICATIONS_FILE => [] // New Init
 ];
 
 foreach ($init_files as $file => $default) {
@@ -937,6 +939,131 @@ if ($action === 'read_logs') {
         jsonResponse(['logs' => []]);
     }
 }
+
+// ==================================================================
+// 11. SISTEMA DE NOTIFICAÇÕES (BROADCAST)
+// ==================================================================
+
+// SEND NOTIFICATION
+if ($action === 'send_notification') {
+    if (!checkAuth($data, $_GET, $server)) jsonResponse(['error' => 'Acesso Negado'], 403);
+    
+    $title = $data['title'] ?? '';
+    $message = $data['message'] ?? '';
+    $type = $data['type'] ?? 'info'; // info, warning, error, success
+    $target = $data['target'] ?? 'all'; // all, app_specific
+    $expires_at = $data['expires_at'] ?? null; // YYYY-MM-DD
+    
+    if (empty($title) || empty($message)) jsonResponse(['error' => 'Título e mensagem obrigatórios'], 400);
+
+    $notif_db = json_decode(@file_get_contents($NOTIFICATIONS_FILE), true) ?? [];
+    
+    // CORREÇÃO: Captura explícita do booleano
+    $requireRead = $data['requireRead'] ?? false; 
+
+    $new_notif = [
+        'id' => generateId('notif_'),
+        'date' => date('Y-m-d H:i:s'),
+        'title' => $title,
+        'message' => $message,
+        'type' => $type,
+        'target' => $target,
+        'requireRead' => $requireRead, // <--- ADICIONAR ESTA LINHA
+        'expires_at' => $expires_at,
+        'created_by' => 'admin'
+    ];
+    
+    // Adiciona no início
+    array_unshift($notif_db, $new_notif);
+    
+    // Limita tamanho (opcional, ex: manter últimas 50)
+    if (count($notif_db) > 50) {
+        $notif_db = array_slice($notif_db, 0, 50);
+    }
+    
+    @file_put_contents($NOTIFICATIONS_FILE, json_encode($notif_db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    jsonResponse(['success' => true, 'notification' => $new_notif]);
+}
+
+// GET NOTIFICATIONS (FOR CLIENT APPS)
+// Essa action pode ser pública, pois os apps clientes precisam consultar
+// Mas idealmente validaríamos se a licença é válida. Por simplicidade, deixaremos público para "all".
+// ==================================================================
+// [UPDATED] GET NOTIFICATIONS (SECURE & SEGMENTED)
+// ==================================================================
+if ($action === 'get_notifications') {
+    // 1. Mudança para POST e Leitura do Input Seguro
+    if ($method !== 'POST') {
+        jsonResponse(['error' => 'Method Not Allowed. Use POST.'], 405);
+    }
+    
+    // Recupera a chave do corpo da requisição (JSON)
+    $input_key = $data['license_key'] ?? '';
+    
+    // 2. Validação da Licença (Security Gate)
+    // Se não enviar chave, retorna vazio (Silent Fail para modo Demo)
+    if (empty($input_key)) {
+        jsonResponse(['notifications' => []]);
+    }
+
+    $db_content = @file_get_contents($DB_FILE);
+    $db = $db_content ? json_decode($db_content, true) : [];
+    
+    // Busca Case Insensitive
+    $license_data = null;
+    if (isset($db[$input_key])) {
+        $license_data = $db[$input_key];
+    } else {
+        foreach($db as $k => $v) {
+            if(strtoupper($k) === strtoupper($input_key)) {
+                $license_data = $v;
+                break;
+            }
+        }
+    }
+
+    // Se licença não existe ou não está ativa, retorna vazio
+    if (!$license_data || ($license_data['status'] ?? '') !== 'active') {
+        jsonResponse(['notifications' => []]);
+    }
+
+    // 3. Definição da Linha do Tempo (Time-Travel Logic)
+    // O usuário só vê mensagens criadas DEPOIS que ele ativou a licença
+    $start_date = $license_data['activated_at'] ?? $license_data['created_at'] ?? date('Y-m-d H:i:s');
+    $product_name = $license_data['product'] ?? '';
+
+    // 4. Filtragem das Notificações
+    $notif_db = json_decode(@file_get_contents($NOTIFICATIONS_FILE), true) ?? [];
+    $valid_notifs = [];
+    $now = date('Y-m-d H:i:s');
+    
+    foreach($notif_db as $n) {
+        // Filtro A: Expiração (Data de validade da mensagem)
+        if (!empty($n['expires_at'])) {
+           $exp_time = strlen($n['expires_at']) === 10 ? $n['expires_at'] . ' 23:59:59' : $n['expires_at'];
+           if ($exp_time < $now) continue;
+        }
+
+        // Filtro B: Target (Alvo da mensagem)
+        // Aceita se for 'all' OU se corresponder ao produto da licença
+        $target = $n['target'] ?? 'all';
+        if ($target !== 'all' && $target !== $product_name) {
+            continue;
+        }
+
+        // Filtro C: Linha do Tempo (Data de criação da mensagem)
+        // Mensagem deve ser mais recente que a ativação da licença
+        $msg_date = $n['date'] ?? '1970-01-01';
+        if ($msg_date < $start_date) {
+            continue;
+        }
+
+        $valid_notifs[] = $n;
+    }
+    
+    jsonResponse(['notifications' => $valid_notifs]);
+}
+
 
 // DEFAULT
 jsonResponse([

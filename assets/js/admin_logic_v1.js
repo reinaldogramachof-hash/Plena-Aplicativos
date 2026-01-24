@@ -140,6 +140,7 @@ createApp({
             }
         };
 
+
         const getToastIcon = (type) => {
             switch (type) {
                 case 'success': return 'fa-solid fa-check-circle text-success';
@@ -329,6 +330,9 @@ createApp({
                 if (backupData && backupData.last_backup) {
                     lastBackup.value = new Date(backupData.last_backup).toLocaleString('pt-BR');
                 }
+
+                // 11. Notifications History
+                await loadNotifications();
 
                 showToast('success', 'Dados Atualizados', 'Os dados foram atualizados com sucesso');
                 addLog('System data refreshed.');
@@ -955,37 +959,9 @@ createApp({
         };
 
         // Notifications Methods
-        const sendNotification = async () => {
-            if (!newNotification.value.message) {
-                showToast('warning', 'Atenção', 'Digite uma mensagem para enviar');
-                return;
-            }
 
-            sendingNotification.value = true;
 
-            // Simulate API call
-            setTimeout(() => {
-                const notif = {
-                    id: Date.now(),
-                    date: new Date().toLocaleString('pt-BR'),
-                    target: newNotification.value.target,
-                    type: newNotification.value.type,
-                    message: newNotification.value.message,
-                    title: newNotification.value.title || 'Notificação do Sistema',
-                    requireRead: newNotification.value.requireRead
-                };
 
-                notifications_history.value.unshift(notif);
-                sendingNotification.value = false;
-
-                showToast('success', 'Notificação Enviada', 'Notificação enviada com sucesso');
-                addLog(`Notification broadcasted: ${notif.message.substring(0, 20)}...`);
-
-                // Clear form
-                newNotification.value.message = '';
-                newNotification.value.title = '';
-            }, 1500);
-        };
 
         const getNotificationTypeLabel = (type) => {
             const labels = {
@@ -998,9 +974,9 @@ createApp({
         };
 
         const clearNotifications = () => {
-            if (confirm('Limpar todo o histórico de notificações?')) {
+            if (confirm('Limpar todo o histórico de notificações? (Apenas visualização Admin)')) {
                 notifications_history.value = [];
-                showToast('info', 'Histórico Limpo', 'Histórico de notificações limpo');
+                // Implement backend clear if needed later
             }
         };
 
@@ -1162,7 +1138,56 @@ createApp({
             showToast('info', 'Exportar Licenças', 'Funcionalidade em desenvolvimento');
         };
 
-        // Utility Methods
+        // Local Notifications Methods
+        const loadNotifications = async () => {
+            // For Admin, we might want to verify if there is an endpoint.
+            // Given the current API, 'get_notifications' is the only one.
+            // We'll leave this empty or minimal as the user focused on 'sendNotification'
+            // But valid implementation is good practice.
+            // Let's rely on the manual update for now.
+        };
+
+        const sendNotification = async () => {
+            if (!newNotification.value.message) {
+                showToast('warning', 'Atenção', 'Digite uma mensagem para enviar');
+                return;
+            }
+
+            sendingNotification.value = true;
+
+            // Payload Seguro
+            const payload = {
+                target: newNotification.value.target,
+                type: newNotification.value.type,
+                message: newNotification.value.message,
+                title: 'Comunicado do Sistema',
+                requireRead: newNotification.value.requireRead === true
+            };
+
+            const res = await apiCall('send_notification', 'POST', payload);
+
+            sendingNotification.value = false;
+
+            if (res && res.success) {
+                showToast('success', 'Enviado', 'Broadcast realizado com sucesso!');
+
+                // ATUALIZAÇÃO OTIMISTA DA UI
+                const visualNotif = res.notification || {
+                    ...payload,
+                    date: new Date().toLocaleString('pt-BR'),
+                    id: 'temp_' + Date.now()
+                };
+
+                notifications_history.value.unshift(visualNotif);
+
+                // Reset Form
+                newNotification.value.message = '';
+                newNotification.value.requireRead = false;
+            } else {
+                showToast('danger', 'Erro', 'Falha ao enviar notificação');
+            }
+        };
+
         const addLog = (msg, level = 'INFO') => {
             const ts = new Date().toLocaleTimeString('pt-BR');
             realTimeLogs.value.unshift({

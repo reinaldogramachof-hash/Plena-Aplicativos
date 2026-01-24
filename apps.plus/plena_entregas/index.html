@@ -318,6 +318,7 @@
     <script src="../../../assets/js/plena-lock.js"></script>
     <script src="../../assets/js/plena-toolbar.js"></script>
     <link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="text-gray-800 antialiased">
@@ -1487,8 +1488,10 @@
                                 Termos de Uso
                             </h3>
                             <p class="text-sm text-gray-600 leading-relaxed text-justify">
-                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
-                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O
+                                software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda,
+                                cópia,
                                 distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
                                 previstas na Lei de Propriedade Intelectual (9.610/98).
                             </p>
@@ -1504,8 +1507,10 @@
                             </h3>
                             <p class="text-sm text-gray-600 leading-relaxed text-justify">
                                 Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
-                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
-                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu
+                                    dispositivo</strong>.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no
+                                sistema.
                                 Sua privacidade é absoluta.
                             </p>
                         </div>
@@ -1525,13 +1530,17 @@
                                 <p>
                                     <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
                                     <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
-                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade
+                                    única e
                                     exclusiva do usuário.
                                 </p>
                                 <p>
-                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
-                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
-                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre as
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de
+                                    qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no
+                                    dispositivo
+                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre
+                                    as
                                     taxas configuradas.
                                 </p>
                             </div>
@@ -1539,7 +1548,8 @@
                     </div>
 
                     <!-- 4. Suporte e SLA -->
-                    <div class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                    <div
+                        class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
                         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="flex-1">
                                 <h3 class="font-bold text-xl mb-2 flex items-center">
@@ -1547,8 +1557,10 @@
                                     Suporte Premium Especializado
                                 </h3>
                                 <p class="text-gray-300 text-sm mb-6 leading-relaxed">
-                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
-                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está
+                                    pronta
+                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa
+                                    marca.
                                 </p>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1579,7 +1591,8 @@
                         <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
                             id="terms-box">
                             <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-300 mb-3" id="terms-icon"></i>
-                            <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura
+                            </h3>
                             <p class="text-sm text-gray-500 mb-6 max-w-lg" id="terms-desc">
                                 Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
                                 Política de Privacidade e sua responsabilidade sobre os backups.
@@ -1607,7 +1620,8 @@
                     <!-- 6. Rodapé Legal -->
                     <div class="text-center border-t border-gray-200 pt-8">
                         <p class="text-sm font-bold text-gray-800">Plena Soluções Digitais LTDA</p>
-                        <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados
+                        </p>
                         <p class="text-[10px] text-gray-400 mt-4">
                             Versão 4.1 Pro • Build 2026.01.07
                         </p>
@@ -3769,28 +3783,7 @@
             }, 3000);
         }
 
-        // PWA INSTALL PROMPT
-        let deferredPrompt;
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-
-            // Mostrar botão de instalação
-            const installButton = document.createElement('button');
-            installButton.className = 'fixed bottom-4 right-4 bg-plena-green text-white px-4 py-2 rounded-lg shadow-lg z-40';
-            installButton.innerHTML = '<i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Instalar App';
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                    installButton.remove();
-                });
-            };
-
-            document.body.appendChild(installButton);
-            lucide.createIcons();
-        });
 
         // OFFLINE SUPPORT
         window.addEventListener('online', () => {
@@ -3881,13 +3874,13 @@
         // INICIALIZAR APLICATIVO
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', () => {
-             if (typeof init === 'function') init();
-             // Register SW for PWA
-             if ('serviceWorker' in navigator) {
-                 navigator.serviceWorker.register('./sw.js')
-                     .then(() => console.log('SW Registered'))
-                     .catch(err => console.error('SW Error:', err));
-             }
+            if (typeof init === 'function') init();
+            // Register SW for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('SW Registered'))
+                    .catch(err => console.error('SW Error:', err));
+            }
         });
     </script>
     <script>
@@ -3912,67 +3905,73 @@
     </script>
 
 
-<!-- PWA INSTALLATION TOAST -->
-<div id="pwa-install-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
-    <div style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <img src="../../assets/img/icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+
+
+
+    <!-- PWA INSTALLATION TOAST (Standardized) -->
+    <div id="pwa-install-toast"
+        style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
+        <div
+            style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <img src="./icons/icon-192.png" alt="App Icon"
+                style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
         </div>
-    <div style="flex: 1;">
-        <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
-        <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+        <div style="flex: 1;">
+            <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
+            <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+        </div>
+        <button onclick="installPWA()"
+            style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+            Instalar
+        </button>
+        <button onclick="dismissInstall()"
+            style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-x">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
     </div>
-    <button onclick="installPWA()" style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-        Instalar
-    </button>
-    <button onclick="dismissInstall()" style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-</div>
 
-<script>
-    let deferredPrompt;
+    <script>
+        let deferredPrompt;
 
-    // Check if installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+        // Check if installed
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        
-        // Show the toast if not already dismissed and not in standalone mode
-        if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
-             const toast = document.getElementById('pwa-install-toast');
-             if (toast) toast.style.display = 'flex';
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show the toast if not already dismissed and not in standalone mode
+            if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
+                const toast = document.getElementById('pwa-install-toast');
+                if (toast) toast.style.display = 'flex';
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    dismissInstall();
+                });
+            }
         }
-    });
 
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-                dismissInstall();
-            });
+        function dismissInstall() {
+            const toast = document.getElementById('pwa-install-toast');
+            if (toast) toast.style.display = 'none';
+            localStorage.setItem('pwa_dismissed', 'true');
         }
-    }
-
-    function dismissInstall() {
-        const toast = document.getElementById('pwa-install-toast');
-        if (toast) toast.style.display = 'none';
-        localStorage.setItem('pwa_dismissed', 'true');
-    }
-
-    // Optional: Reset dismissal for testing (call via console if needed)
-    // localStorage.removeItem('pwa_dismissed');
-</script>
-
+    </script>
 </body>
 
 </html>

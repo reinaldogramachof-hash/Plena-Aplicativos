@@ -242,6 +242,7 @@
     <script src="../../../assets/js/plena-lock.js"></script>
     <script src="../../assets/js/plena-toolbar.js"></script>
     <link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="text-gray-800 antialiased">
@@ -930,7 +931,8 @@
                             <i data-lucide="book-open" class="w-8 h-8 text-plena-blue"></i>
                         </div>
                         <h2 class="text-3xl font-bold text-gray-800 mb-3">Manual de Uso</h2>
-                        <p class="text-gray-600 max-w-lg mx-auto">Guia completo para você dominar todas as funcionalidades do seu sistema de Gestão de Obras e Reformas.</p>
+                        <p class="text-gray-600 max-w-lg mx-auto">Guia completo para você dominar todas as
+                            funcionalidades do seu sistema de Gestão de Obras e Reformas.</p>
                     </div>
 
                     <!-- Progress Bar -->
@@ -942,12 +944,14 @@
                         <div class="progress-bar mb-2">
                             <div id="tutorial-progress" class="progress-fill" style="width: 0%"></div>
                         </div>
-                        <p class="text-xs text-gray-500">Complete a leitura de todos os tópicos para dominar o sistema.</p>
+                        <p class="text-xs text-gray-500">Complete a leitura de todos os tópicos para dominar o sistema.
+                        </p>
                     </div>
 
                     <!-- Manual Navigation Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                        <div onclick="scrollToSection('instalacao')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('instalacao')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                                     <i data-lucide="smartphone" class="w-5 h-5 text-blue-600"></i>
@@ -957,7 +961,8 @@
                             <p class="text-sm text-gray-500">Como instalar no seu celular.</p>
                         </div>
 
-                        <div onclick="scrollToSection('config')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('config')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
                                     <i data-lucide="settings" class="w-5 h-5 text-orange-600"></i>
@@ -967,7 +972,8 @@
                             <p class="text-sm text-gray-500">Configurações da empresa.</p>
                         </div>
 
-                        <div onclick="scrollToSection('cadastros')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('cadastros')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
                                     <i data-lucide="hard-hat" class="w-5 h-5 text-green-600"></i>
@@ -977,7 +983,8 @@
                             <p class="text-sm text-gray-500">Obras e fornecedores.</p>
                         </div>
 
-                        <div onclick="scrollToSection('operacao')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('operacao')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
                                     <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
@@ -987,7 +994,8 @@
                             <p class="text-sm text-gray-500">Lançamento de custos e pagamentos.</p>
                         </div>
 
-                        <div onclick="scrollToSection('relatorios')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('relatorios')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
                                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-yellow-600"></i>
@@ -997,7 +1005,8 @@
                             <p class="text-sm text-gray-500">Lucratividade e relatórios.</p>
                         </div>
 
-                        <div onclick="scrollToSection('seguranca')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('seguranca')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
                                     <i data-lucide="shield" class="w-5 h-5 text-red-600"></i>
@@ -1007,7 +1016,8 @@
                             <p class="text-sm text-gray-500">Backup e proteção de dados.</p>
                         </div>
 
-                        <div onclick="scrollToSection('suporte')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('suporte')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
                                     <i data-lucide="help-circle" class="w-5 h-5 text-gray-600"></i>
@@ -1017,7 +1027,8 @@
                             <p class="text-sm text-gray-500">FAQ e ajuda rápida.</p>
                         </div>
 
-                        <div onclick="scrollToSection('checklist')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
+                        <div onclick="scrollToSection('checklist')"
+                            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-plena-blue cursor-pointer transition-all group">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 rounded-full bg-plena-blue/10 flex items-center justify-center">
                                     <i data-lucide="check-square" class="w-5 h-5 text-plena-blue"></i>
@@ -1032,16 +1043,20 @@
                     <div class="space-y-8">
                         <!-- 1. Instalação -->
                         <div id="instalacao" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-blue-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xl">1</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xl">
+                                        1</div>
                                     <h3 class="text-xl font-bold text-gray-800">Instalação do Aplicativo</h3>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="bg-gray-50 p-5 rounded-xl">
                                         <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> Android (Chrome)
+                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> Android
+                                            (Chrome)
                                         </h4>
                                         <ul class="text-sm text-gray-600 space-y-2 list-disc pl-4">
                                             <li>Abra o link no <strong>Chrome</strong>.</li>
@@ -1051,7 +1066,8 @@
                                     </div>
                                     <div class="bg-gray-50 p-5 rounded-xl">
                                         <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> iPhone (Safari)
+                                            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> iPhone
+                                            (Safari)
                                         </h4>
                                         <ul class="text-sm text-gray-600 space-y-2 list-disc pl-4">
                                             <li>Abra o link no <strong>Safari</strong>.</li>
@@ -1060,7 +1076,8 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <button onclick="markSectionComplete('instalacao')" class="w-full mt-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors">
+                                <button onclick="markSectionComplete('instalacao')"
+                                    class="w-full mt-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1068,13 +1085,17 @@
 
                         <!-- 2. Configurações -->
                         <div id="config" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-orange-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xl">2</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xl">
+                                        2</div>
                                     <h3 class="text-xl font-bold text-gray-800">Ajustes Iniciais</h3>
                                 </div>
-                                <p class="text-gray-600 mb-4">Personalize o sistema com os dados da sua empresa ou profissional:</p>
+                                <p class="text-gray-600 mb-4">Personalize o sistema com os dados da sua empresa ou
+                                    profissional:</p>
                                 <ul class="space-y-3 text-sm text-gray-600 mb-6">
                                     <li class="flex items-center gap-3">
                                         <i data-lucide="check-circle" class="w-4 h-4 text-orange-500"></i>
@@ -1089,7 +1110,8 @@
                                         Defina o <strong>Símbolo da Moeda</strong> (ex: R$).
                                     </li>
                                 </ul>
-                                <button onclick="markSectionComplete('config')" class="w-full py-3 bg-orange-50 text-orange-600 font-bold rounded-lg hover:bg-orange-100 transition-colors">
+                                <button onclick="markSectionComplete('config')"
+                                    class="w-full py-3 bg-orange-50 text-orange-600 font-bold rounded-lg hover:bg-orange-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1097,23 +1119,29 @@
 
                         <!-- 3. Cadastros -->
                         <div id="cadastros" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-green-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 font-bold text-xl">3</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 font-bold text-xl">
+                                        3</div>
                                     <h3 class="text-xl font-bold text-gray-800">Obras e Fornecedores</h3>
                                 </div>
                                 <div class="space-y-4 text-sm text-gray-600 mb-6">
                                     <div class="p-4 bg-green-50 rounded-xl">
                                         <h4 class="font-bold text-green-800 mb-2">Criando uma Obra</h4>
-                                        <p>Informe o nome da obra, cliente, orçamento previsto e prazo de entrega. Isso permitirá o acompanhamento da lucratividade.</p>
+                                        <p>Informe o nome da obra, cliente, orçamento previsto e prazo de entrega. Isso
+                                            permitirá o acompanhamento da lucratividade.</p>
                                     </div>
                                     <div class="p-4 bg-green-50 rounded-xl">
                                         <h4 class="font-bold text-green-800 mb-2">Base de Fornecedores</h4>
-                                        <p>Cadastre fornecedores frequentes para agilizar o lançamento de despesas com materiais e serviços.</p>
+                                        <p>Cadastre fornecedores frequentes para agilizar o lançamento de despesas com
+                                            materiais e serviços.</p>
                                     </div>
                                 </div>
-                                <button onclick="markSectionComplete('cadastros')" class="w-full py-3 bg-green-50 text-green-600 font-bold rounded-lg hover:bg-green-100 transition-colors">
+                                <button onclick="markSectionComplete('cadastros')"
+                                    class="w-full py-3 bg-green-50 text-green-600 font-bold rounded-lg hover:bg-green-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1121,10 +1149,13 @@
 
                         <!-- 4. Operação -->
                         <div id="operacao" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-purple-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xl">4</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xl">
+                                        4</div>
                                     <h3 class="text-xl font-bold text-gray-800">Gestão de Custos Diários</h3>
                                 </div>
                                 <div class="space-y-4 text-sm text-gray-600 mb-6">
@@ -1133,10 +1164,12 @@
                                         <li>Selecione a obra no dashboard.</li>
                                         <li>Lance cada nota fiscal ou recibo de <strong>Material</strong>.</li>
                                         <li>Registre pagamentos de <strong>Mão de Obra</strong>.</li>
-                                        <li>Lançar adiantamentos recebidos do cliente para atualizar o saldo da obra.</li>
+                                        <li>Lançar adiantamentos recebidos do cliente para atualizar o saldo da obra.
+                                        </li>
                                     </ol>
                                 </div>
-                                <button onclick="markSectionComplete('operacao')" class="w-full py-3 bg-purple-50 text-purple-600 font-bold rounded-lg hover:bg-purple-100 transition-colors">
+                                <button onclick="markSectionComplete('operacao')"
+                                    class="w-full py-3 bg-purple-50 text-purple-600 font-bold rounded-lg hover:bg-purple-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1144,23 +1177,29 @@
 
                         <!-- 5. Gestão -->
                         <div id="relatorios" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-yellow-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600 font-bold text-xl">5</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600 font-bold text-xl">
+                                        5</div>
                                     <h3 class="text-xl font-bold text-gray-800">Gestão e Lucratividade</h3>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-6">
                                     <div class="p-4 border border-yellow-100 rounded-xl">
                                         <h4 class="font-bold text-yellow-800 mb-2">Dashboard de Obras</h4>
-                                        <p>Visualize rapidamente quais obras estão dentro do orçamento e quais estão próximas do limite planejado.</p>
+                                        <p>Visualize rapidamente quais obras estão dentro do orçamento e quais estão
+                                            próximas do limite planejado.</p>
                                     </div>
                                     <div class="p-4 border border-yellow-100 rounded-xl">
                                         <h4 class="font-bold text-yellow-800 mb-2">Relatórios Financeiros</h4>
-                                        <p>Extraia relatórios detalhados por obra ou por período para prestar contas ao cliente.</p>
+                                        <p>Extraia relatórios detalhados por obra ou por período para prestar contas ao
+                                            cliente.</p>
                                     </div>
                                 </div>
-                                <button onclick="markSectionComplete('relatorios')" class="w-full py-3 bg-yellow-50 text-yellow-600 font-bold rounded-lg hover:bg-yellow-100 transition-colors">
+                                <button onclick="markSectionComplete('relatorios')"
+                                    class="w-full py-3 bg-yellow-50 text-yellow-600 font-bold rounded-lg hover:bg-yellow-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1168,24 +1207,31 @@
 
                         <!-- 6. Segurança -->
                         <div id="seguranca" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 font-bold text-xl">6</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 font-bold text-xl">
+                                        6</div>
                                     <h3 class="text-xl font-bold text-gray-800">Segurança de Dados</h3>
                                 </div>
                                 <div class="bg-red-50 p-4 rounded-xl border border-red-100 mb-6">
                                     <p class="text-sm text-red-800 flex items-start gap-2">
                                         <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i>
-                                        <strong>IMPORTANTE:</strong> Seus dados são salvos apenas neste dispositivo. Se você trocar de celular ou limpar o histórico do navegador, poderá perder as informações.
+                                        <strong>IMPORTANTE:</strong> Seus dados são salvos apenas neste dispositivo. Se
+                                        você trocar de celular ou limpar o histórico do navegador, poderá perder as
+                                        informações.
                                     </p>
                                 </div>
                                 <p class="text-sm text-gray-600 mb-4">Recomendamos fazer o backup semanalmente:</p>
-                                <button onclick="downloadBackup()" class="w-full mb-3 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
+                                <button onclick="downloadBackup()"
+                                    class="w-full mb-3 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
                                     <i data-lucide="download" class="w-4 h-4"></i>
                                     Fazer Backup Agora
                                 </button>
-                                <button onclick="markSectionComplete('seguranca')" class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors">
+                                <button onclick="markSectionComplete('seguranca')"
+                                    class="w-full py-3 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1193,29 +1239,40 @@
 
                         <!-- 7. Suporte -->
                         <div id="suporte" class="scroll-mt-24">
-                            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div
+                                class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 w-2 h-full bg-gray-500"></div>
                                 <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 font-bold text-xl">7</div>
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 font-bold text-xl">
+                                        7</div>
                                     <h3 class="text-xl font-bold text-gray-800">Suporte e FAQ</h3>
                                 </div>
                                 <div class="space-y-3 mb-6">
                                     <details class="group bg-gray-50 rounded-xl p-4">
-                                        <summary class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
+                                        <summary
+                                            class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
                                             Como funciona o controle de saldo?
-                                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
+                                            <i data-lucide="chevron-down"
+                                                class="w-4 h-4 transition-transform group-open:rotate-180"></i>
                                         </summary>
-                                        <p class="text-sm text-gray-600 mt-2">O saldo da obra é o total recebido do cliente menos todas as despesas lançadas (materiais, mão de obra, etc).</p>
+                                        <p class="text-sm text-gray-600 mt-2">O saldo da obra é o total recebido do
+                                            cliente menos todas as despesas lançadas (materiais, mão de obra, etc).</p>
                                     </details>
                                     <details class="group bg-gray-50 rounded-xl p-4">
-                                        <summary class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
+                                        <summary
+                                            class="font-bold text-gray-700 cursor-pointer flex justify-between items-center list-none">
                                             Posso usar offline no canteiro?
-                                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
+                                            <i data-lucide="chevron-down"
+                                                class="w-4 h-4 transition-transform group-open:rotate-180"></i>
                                         </summary>
-                                        <p class="text-sm text-gray-600 mt-2">Sim! O Plena Obras funciona sem internet após o primeiro carregamento, permitindo lançar gastos diretamente do canteiro de obras.</p>
+                                        <p class="text-sm text-gray-600 mt-2">Sim! O Plena Obras funciona sem internet
+                                            após o primeiro carregamento, permitindo lançar gastos diretamente do
+                                            canteiro de obras.</p>
                                     </details>
                                 </div>
-                                <button onclick="markSectionComplete('suporte')" class="w-full py-3 bg-gray-50 text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition-colors">
+                                <button onclick="markSectionComplete('suporte')"
+                                    class="w-full py-3 bg-gray-50 text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition-colors">
                                     Concluir Etapa
                                 </button>
                             </div>
@@ -1226,12 +1283,14 @@
                             <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                                 <div class="flex items-center justify-between mb-6">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-xl bg-plena-blue text-white flex items-center justify-center">
+                                        <div
+                                            class="w-12 h-12 rounded-xl bg-plena-blue text-white flex items-center justify-center">
                                             <i data-lucide="check-square" class="w-6 h-6"></i>
                                         </div>
                                         <h3 class="text-xl font-bold text-gray-800">Checklist Diário</h3>
                                     </div>
-                                    <button onclick="resetChecklist()" class="text-sm text-plena-blue hover:text-plena-dark font-medium">Reiniciar</button>
+                                    <button onclick="resetChecklist()"
+                                        class="text-sm text-plena-blue hover:text-plena-dark font-medium">Reiniciar</button>
                                 </div>
                                 <div id="checklist-items" class="space-y-3">
                                     <!-- Gerado via JS -->
@@ -1267,8 +1326,10 @@
                                 Termos de Uso
                             </h3>
                             <p class="text-sm text-gray-600 leading-relaxed text-justify">
-                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
-                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O
+                                software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda,
+                                cópia,
                                 distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
                                 previstas na Lei de Propriedade Intelectual (9.610/98).
                             </p>
@@ -1284,8 +1345,10 @@
                             </h3>
                             <p class="text-sm text-gray-600 leading-relaxed text-justify">
                                 Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
-                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
-                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                financeiros e de clientes ficam salvos <strong>exclusivamente no seu
+                                    dispositivo</strong>.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no
+                                sistema.
                                 Sua privacidade é absoluta.
                             </p>
                         </div>
@@ -1305,13 +1368,17 @@
                                 <p>
                                     <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
                                     <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
-                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade
+                                    única e
                                     exclusiva do usuário.
                                 </p>
                                 <p>
-                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
-                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
-                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre as
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de
+                                    qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no
+                                    dispositivo
+                                    do usuário, ou uso incorreto dos cálculos financeiros do sistema. Verifique sempre
+                                    as
                                     taxas configuradas.
                                 </p>
                             </div>
@@ -1319,7 +1386,8 @@
                     </div>
 
                     <!-- 4. Suporte e SLA -->
-                    <div class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                    <div
+                        class="bg-gradient-to-br from-gray-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
                         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="flex-1">
                                 <h3 class="font-bold text-xl mb-2 flex items-center">
@@ -1327,8 +1395,10 @@
                                     Suporte Premium Especializado
                                 </h3>
                                 <p class="text-gray-300 text-sm mb-6 leading-relaxed">
-                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
-                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está
+                                    pronta
+                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa
+                                    marca.
                                 </p>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1359,7 +1429,8 @@
                         <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
                             id="terms-box">
                             <i data-lucide="check-circle-2" class="w-12 h-12 text-gray-300 mb-3" id="terms-icon"></i>
-                            <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <h3 class="font-bold text-gray-800 text-lg mb-2" id="terms-title">Confirmação de Leitura
+                            </h3>
                             <p class="text-sm text-gray-500 mb-6 max-w-lg" id="terms-desc">
                                 Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
                                 Política de Privacidade e sua responsabilidade sobre os backups.
@@ -1387,7 +1458,8 @@
                     <!-- 6. Rodapé Legal -->
                     <div class="text-center border-t border-gray-200 pt-8">
                         <p class="text-sm font-bold text-gray-800">Plena Soluções Digitais LTDA</p>
-                        <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-xs text-gray-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados
+                        </p>
                         <p class="text-[10px] text-gray-400 mt-4">
                             Versão 4.1 Pro • Build 2026.01.07
                         </p>
@@ -1672,10 +1744,10 @@
             const totalSteps = 7;
             const completed = db.tutorial.completedSteps.length;
             const progress = (completed / totalSteps) * 100;
-            
+
             const pb = document.getElementById('tutorial-progress');
             const pt = document.getElementById('tutorial-percent');
-            
+
             if (pb) pb.style.width = `${progress}%`;
             if (pt) pt.textContent = `${Math.round(progress)}%`;
 
@@ -3280,86 +3352,17 @@
             }
         }
 
-        // PWA INSTALL PROMPT
-        let deferredPrompt;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-
-            // Mostrar botão de instalação
-            const installButton = document.createElement('button');
-            installButton.className = 'fixed bottom-4 right-4 bg-plena-orange text-white px-4 py-2 rounded-lg shadow-lg z-40';
-            installButton.innerHTML = '<i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Instalar App';
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                    installButton.remove();
-                });
-            };
-
-            document.body.appendChild(installButton);
-            lucide.createIcons();
-        });
-
-        // OFFLINE SUPPORT
-        window.addEventListener('online', () => {
-            showNotification('Conexão restaurada!', 'success');
-        });
-
-        window.addEventListener('offline', () => {
-            showNotification('Modo offline ativado. Seus dados estão seguros localmente.', 'warning');
-        });
-
-        // SECURITY LOCK
-        setInterval(() => {
-            const footer = document.querySelector('.sidebar .border-t');
-            if (footer && !footer.innerText.includes('Plena')) {
-                document.body.innerHTML = '<div style="background:#111;color:red;height:100vh;display:flex;align-items:center;justify-content:center;"><h1>VIOLAÇÃO DE SEGURANÇA</h1></div>';
-                throw new Error("Piracy");
-            }
-        }, 8000);
-
-        // INICIALIZAR APLICATIVO
-        // INICIALIZAR APLICATIVO
-        document.addEventListener('DOMContentLoaded', () => {
-             if (typeof init === 'function') init();
-             // Register SW for PWA
-             if ('serviceWorker' in navigator) {
-                 navigator.serviceWorker.register('./sw.js')
-                     .then(() => console.log('SW Registered'))
-                     .catch(err => console.error('SW Error:', err));
-             }
-        });
-    </script>
-    <script>
-        // CONTEXT AWARENESS FOR IFRAMES
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-    </script>
 
 
-<!-- PWA INSTALLATION TOAST -->
+
+
+
+
+<!-- PWA INSTALLATION TOAST (Standardized) -->
 <div id="pwa-install-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
     <div style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <img src="../../assets/img/icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
-        </div>
+        <img src="./icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+    </div>
     <div style="flex: 1;">
         <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
         <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
@@ -3374,14 +3377,13 @@
 
 <script>
     let deferredPrompt;
-
+    
     // Check if installed
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
         e.preventDefault();
-        // Stash the event so it can be triggered later.
         deferredPrompt = e;
         
         // Show the toast if not already dismissed and not in standalone mode
@@ -3397,8 +3399,6 @@
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
                 }
                 deferredPrompt = null;
                 dismissInstall();
@@ -3411,11 +3411,7 @@
         if (toast) toast.style.display = 'none';
         localStorage.setItem('pwa_dismissed', 'true');
     }
-
-    // Optional: Reset dismissal for testing (call via console if needed)
-    // localStorage.removeItem('pwa_dismissed');
-</script>
-
+    </script>
 </body>
 
 </html>

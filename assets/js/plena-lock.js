@@ -178,8 +178,8 @@
     }
 
     async function init() {
-        return; // 🔓 DESBLOQUEIO TEMPORÁRIO (Solicitado para avaliação visual)
-        
+
+
         if (isDemoMode) {
             enableDemoMode();
             return;
