@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA DRIVER DESKTOP PRO
+    1. HTML: Estrutura SFC Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: TailwindCSS + Estilos Customizados para Breakpoint 1024px
+    3. JS: Vanilla ES6+ com LocalStorage (DB: plena_driver_pro_v2)
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Plena Driver - Gestão Profissional</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#F59E0B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            orange: '#F59E0B',
+                            dark: '#B45309',
+                            black: '#0f172a',
+                            gray: '#334155',
+                            soft: '#F3F4F6'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- ESTILOS GLOBAIS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- SIDEBAR HÍBRIDA (PRO) --- */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            background: #0f172a;
+            color: white;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            border-right: 1px solid #1e293b;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+
+            .hamburger-btn {
+                display: none !important;
+            }
+        }
+
+        /* Mobile (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 25px -5px rgba(0, 0, 0, 0.5);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* --- UTILITÁRIOS --- */
+        .hide {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Nav Items */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-right: 3px solid #F59E0B;
+        }
+
+        /* Cards */
+        .card-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Charts */
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            gap: 4px;
+        }
+
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .bar {
+            width: 40%;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+            min-height: 2px;
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+    <!-- Overlay Mobile -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar flex flex-col">
+        <!-- Brand -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div
+                class="bg-gradient-to-br from-plena-orange to-yellow-600 p-2 rounded-lg mr-3 shadow-lg shadow-orange-900/40">
+                <i data-lucide="car-taxi-front" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA DRIVER</h1>
+                <p
+                    class="text-[10px] text-slate-400 font-medium tracking-wide border px-1 rounded border-slate-700 inline-block mt-1">
+                    PRO DESKTOP</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Principal</p>
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </button>
+            <button onclick="router('transactions')" id="nav-transactions" class="nav-item w-full">
+                <i data-lucide="list" class="w-5 h-5 mr-3"></i> Corridas & Gastos
+            </button>
+
+            <div class="pt-4 pb-2">
+                <div class="border-t border-slate-800"></div>
+            </div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gestão</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full">
+                <i data-lucide="settings" class="w-5 h-5 mr-3"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Manual
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3"></i> Sistema
+                <span id="sidebar-badge" class="absolute right-4 flex h-2.5 w-2.5">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 bg-slate-900 border-t border-slate-800">
+            <button onclick="router('about')"
+                class="flex items-center gap-3 w-full hover:bg-slate-800 p-2 rounded-lg transition-colors">
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center font-bold text-xs text-white">
+                    DR</div>
+                <div class="text-left">
+                    <p class="text-sm font-medium text-white">Motorista Pro</p>
+                    <p class="text-xs text-slate-500">Versão 5.3.2</p>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="main-content bg-slate-50">
+        <!-- Header Sticky -->
+        <header
+            class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()"
+                    class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão
+                        de Corridas</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openClosingModal()"
+                    class="hidden md:flex items-center px-4 py-2.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 mr-2 text-green-600"></i> Fechar Dia
+                </button>
+                <button onclick="openTransactionModal()"
+                    class="flex items-center px-4 py-2.5 bg-plena-orange text-white rounded-lg text-sm font-bold hover:bg-yellow-600 transition-all shadow-md shadow-orange-200">
+                    <i data-lucide="plus" class="w-5 h-5 md:mr-2"></i> <span class="hidden md:inline">Lançar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Viewport -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- Month Filter -->
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex items-center">
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-50 text-slate-500"><i
+                                data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <input type="month" id="month-selector" onchange="renderDashboard()"
+                            class="border-0 text-sm font-bold text-slate-700 focus:ring-0 cursor-pointer bg-transparent">
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-50 text-slate-500"><i
+                                data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <!-- 4-Col Grid KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <!-- KPI 1: Lucro -->
+                    <div
+                        class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                        <div class="absolute right-0 top-0 p-4 opacity-5"><i data-lucide="wallet"
+                                class="w-16 h-16 text-slate-800"></i></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lucro Líquido</p>
+                        <h3 id="dash-balance" class="text-2xl md:text-3xl font-bold text-slate-800 mt-2">R$ 0,00</h3>
+                        <p class="text-xs text-slate-500 mt-1">Já descontado gastos</p>
+                    </div>
+                    <!-- KPI 2: Entradas -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Faturamento</p>
+                                <h3 id="dash-income" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">R$ 0,00
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Total Brutal</p>
+                            </div>
+                            <div class="p-2 bg-green-50 rounded text-green-600"><i data-lucide="arrow-up-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- KPI 3: Gastos -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Despesas</p>
+                                <h3 id="dash-expense" class="text-2xl md:text-3xl font-bold text-red-600 mt-2">R$ 0,00
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Combustível e Manut.</p>
+                            </div>
+                            <div class="p-2 bg-red-50 rounded text-red-600"><i data-lucide="arrow-down-right"></i></div>
+                        </div>
+                    </div>
+                    <!-- KPI 4: KM Rodado/Eficiência -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rodagem</p>
+                                <h3 id="dash-km" class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">0 km</h3>
+                                <p id="dash-profit-km" class="text-xs text-blue-500 font-bold mt-1">R$ 0,00 /km</p>
+                            </div>
+                            <div class="p-2 bg-blue-50 rounded text-blue-600"><i data-lucide="map"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-slate-800">Fluxo de Caixa (7 dias)</h3>
+                            <div class="flex gap-4">
+                                <div class="flex items-center gap-1 text-xs text-slate-500"><span
+                                        class="w-2 h-2 rounded-full bg-green-500"></span> Entradas</div>
+                                <div class="flex items-center gap-1 text-xs text-slate-500"><span
+                                        class="w-2 h-2 rounded-full bg-red-500"></span> Saídas</div>
+                            </div>
+                        </div>
+                        <div id="chart-area"
+                            class="h-48 md:h-64 flex justify-between items-end gap-2 text-xs text-slate-400">
+                            <!-- Chart injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Side Stats -->
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Top Gastos</h3>
+                            <div id="top-expenses" class="space-y-4">
+                                <!-- Injected -->
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Combustível</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-slate-500 text-sm">Média</span>
+                                <span id="fuel-avg" class="font-bold text-orange-500">0.0 km/L</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500 text-sm">Total Litros</span>
+                                <span id="fuel-total" class="font-bold text-slate-800">0 L</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="mt-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">Últimos Lançamentos</h3>
+                        <button onclick="router('transactions')"
+                            class="text-xs font-bold text-plena-orange hover:underline">Ver Todos</button>
+                    </div>
+                    <div id="recent-list" class="divide-y divide-slate-50"></div>
+                </div>
+            </section>
+
+            <!-- VIEW: TRANSACTIONS -->
+            <section id="view-transactions" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-slate-800">Histórico Completo</h2>
+                    <div class="flex gap-2">
+                        <button onclick="exportCSV()"
+                            class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div
+                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="filter-search" onkeyup="renderTransactions()" placeholder="Buscar..."
+                            class="w-full pl-9 border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                    <input type="date" id="filter-start" onchange="renderTransactions()"
+                        class="border border-slate-300 rounded-lg p-2 text-sm bg-white">
+                    <select id="filter-type" onchange="renderTransactions()"
+                        class="border border-slate-300 rounded-lg p-2 text-sm bg-white">
+                        <option value="all">Todos</option>
+                        <option value="income">Entradas</option>
+                        <option value="expense">Saídas</option>
+                    </select>
+                    <button onclick="clearFilters()" class="text-slate-500 hover:text-red-500 text-sm font-bold">Limpar
+                        Filtros</button>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead
+                                class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3">Data</th>
+                                    <th class="px-6 py-3">Descrição</th>
+                                    <th class="px-6 py-3">Categoria</th>
+                                    <th class="px-6 py-3">Detalhes</th>
+                                    <th class="px-6 py-3 text-right">Valor</th>
+                                    <th class="px-6 py-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trans-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="empty-msg" class="hidden p-8 text-center text-slate-400">Nenhum registro encontrado.</div>
+                </div>
+            </section>
+
+            <!-- VIEW: REPORTS -->
+            <section id="view-reports" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Relatórios</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6 max-w-3xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Inicio</label><input type="date"
+                                id="rep-start" class="w-full border p-2 rounded-lg mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Fim</label><input type="date"
+                                id="rep-end" class="w-full border p-2 rounded-lg mt-1"></div>
+                    </div>
+                    <button onclick="generateReport()"
+                        class="w-full mt-4 bg-plena-orange text-white py-3 rounded-lg font-bold shadow-md hover:bg-yellow-600">Gerar
+                        Relatório</button>
+                </div>
+
+                <div id="rep-result" class="hidden animate-fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-200 text-center">
+                            <span class="text-xs font-bold text-green-700 uppercase">Entradas</span>
+                            <h4 id="rep-inc" class="text-xl font-bold text-green-700">R$ 0,00</h4>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-200 text-center">
+                            <span class="text-xs font-bold text-red-700 uppercase">Saídas</span>
+                            <h4 id="rep-exp" class="text-xl font-bold text-red-700">R$ 0,00</h4>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center">
+                            <span class="text-xs font-bold text-blue-700 uppercase">Lucro</span>
+                            <h4 id="rep-bal" class="text-xl font-bold text-blue-700">R$ 0,00</h4>
+                        </div>
+                    </div>
+                    <button onclick="shareReport()"
+                        class="bg-[#25D366] text-white px-6 py-2 rounded-lg font-bold flex items-center mx-auto"><i
+                            class="fa-brands fa-whatsapp mr-2"></i> Compartilhar no Zap</button>
+                </div>
+            </section>
+
+            <!-- VIEW: SETTINGS, INSTRUCTIONS, SYSTEM (Placeholders for brevity, full logic preserved below) -->
+            <section id="view-settings" class="view-section hide">
+                <div class="p-6 bg-white rounded-xl border shadow-sm">
+                    <h3 class="font-bold mb-4">Gerenciar Categorias</h3>
+                    <div id="cat-list" class="space-y-2"></div>
+                    <div class="mt-4"><input id="new-cat" placeholder="Nova Categoria"
+                            class="border p-2 rounded mr-2"><button onclick="addCat()"
+                            class="bg-slate-800 text-white px-4 py-2 rounded font-bold">Adicionar</button></div>
+                </div>
+                <div class="mt-6 p-6 bg-white rounded-xl border border-red-200 shadow-sm">
+                    <h3 class="font-bold text-red-600 mb-4">Zona de Perigo</h3><button onclick="factoryReset()"
+                        class="bg-red-100 text-red-700 px-4 py-2 rounded font-bold hover:bg-red-200">Resetar
+                        Fábrica</button>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide">
+                <div class="p-8 text-center text-slate-500 bg-white rounded-xl border shadow-sm">Manual do Motorista em
+                    Construção.</div>
+            </section>
+            <section id="view-system" class="view-section hide">
+                <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <i data-lucide="cpu" class="w-16 h-16 text-slate-300 mx-auto mb-4"></i>
+                    <h2 class="text-2xl font-bold text-slate-800">Plena System v5.3</h2>
+                    <p class="text-slate-500 mb-6">Build 2026.01.25 • Driver Edition</p>
+                    <div class="bg-slate-50 p-4 rounded-lg mb-4 text-left text-sm">
+                        <p><strong>Status:</strong> <span class="text-green-600 font-bold">Online</span></p>
+                        <p><strong>DB Local:</strong> <span id="db-size">Calculando...</span></p>
+                    </div>
+                    <button onclick="alert('Sistema atualizado!')"
+                        class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Buscar Atualizações</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="overlay flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-[fadeIn_0.3s]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Lançamento</h3>
+                <button onclick="closeModal('transactionModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitTransaction(event)" class="space-y-4">
+                <input type="hidden" id="t-id">
+                <div class="flex bg-slate-100 p-1 rounded-lg">
+                    <button type="button" onclick="setType('expense')" id="btn-expense"
+                        class="flex-1 py-2 rounded-md text-sm font-bold bg-white text-red-600 shadow-sm transition-all">Despesa</button>
+                    <button type="button" onclick="setType('income')" id="btn-income"
+                        class="flex-1 py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition-all">Ganho</button>
+                </div>
+                <input type="hidden" id="t-type" value="expense">
+
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Valor</label><input type="number"
+                        step="0.01" id="t-amount" required
+                        class="w-full border-2 border-slate-200 p-3 rounded-xl text-xl font-bold focus:border-plena-orange outline-none"
+                        placeholder="0,00"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Descrição</label><input type="text"
+                        id="t-desc" required class="w-full border p-2 rounded-lg" placeholder="Ex: Gasolina, Uber...">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Categoria</label><select id="t-cat"
+                            class="w-full border p-2 rounded-lg bg-white"></select></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date"
+                            id="t-date" required class="w-full border p-2 rounded-lg bg-white"></div>
+                </div>
+
+                <!-- Campos Extras -->
+                <div class="grid grid-cols-2 gap-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div><label class="text-xs font-bold text-slate-400">KM</label><input type="number" id="t-km"
+                            placeholder="0" class="w-full bg-white border p-1 rounded"></div>
+                    <div><label class="text-xs font-bold text-slate-400">Litros (Se Comb.)</label><input type="number"
+                            step="0.1" id="t-liters" placeholder="0" class="w-full bg-white border p-1 rounded"></div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-black transition-all">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Closing Modal -->
+    <div id="closingModal" class="overlay flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-[fadeIn_0.3s]">
+            <div class="bg-slate-900 p-6 text-center text-white">
+                <h3 class="font-bold text-lg">Fechamento do Dia</h3>
+                <p id="close-date" class="text-sm opacity-80 mt-1">Hoje</p>
+            </div>
+            <div class="p-6 space-y-3">
+                <div class="flex justify-between p-2 rounded bg-green-50 text-green-700 font-bold">
+                    <span>Ganhos</span><span id="close-inc">0</span></div>
+                <div class="flex justify-between p-2 rounded bg-red-50 text-red-700 font-bold"><span>Gastos</span><span
+                        id="close-exp">0</span></div>
+                <div class="flex justify-between p-2 rounded bg-blue-50 text-blue-700 font-bold"><span>KM</span><span
+                        id="close-km">0</span></div>
+                <div class="border-t pt-3 flex justify-between text-xl font-bold text-slate-800"><span>Saldo</span><span
+                        id="close-bal">0</span></div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="shareClosing()"
+                        class="bg-[#25D366] text-white py-2 rounded font-bold text-sm">WhatsApp</button>
+                    <button onclick="closeModal('closingModal')"
+                        class="bg-slate-200 text-slate-700 py-2 rounded font-bold text-sm">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        // CONFIG
+        const DB_KEY = 'plena_driver_pro_v2';
+        const defaultDB = {
+            transactions: [],
+            categories: [
+                { id: '1', name: 'Uber', type: 'income' }, { id: '2', name: '99', type: 'income' }, { id: '3', name: 'Particular', type: 'income' },
+                { id: '4', name: 'Gasolina', type: 'expense' }, { id: '5', name: 'Etanol', type: 'expense' }, { id: '6', name: 'GNV', type: 'expense' },
+                { id: '7', name: 'Manutenção', type: 'expense' }, { id: '8', name: 'Alimentação', type: 'expense' }
+            ],
+            settings: {}
+        };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+
+        // INIT
+        function init() {
+            lucide.createIcons();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('month-selector').value = today.slice(0, 7);
+            document.getElementById('t-date').value = today;
+            renderDashboard();
+            setInterval(() => localStorage.setItem(DB_KEY, JSON.stringify(db)), 10000);
+            updateDBSize();
+        }
+
+        // NAVIGATION
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('overlay');
+            sb.classList.toggle('open');
+            ov.classList.toggle('active');
+        }
+
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.getElementById('view-' + view).classList.remove('hide');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const nav = document.getElementById('nav-' + view);
+            if (nav) nav.classList.add('active');
+
+            if (window.innerWidth < 1024) {
+                const sb = document.getElementById('sidebar');
+                if (sb.classList.contains('open')) toggleSidebar();
+            }
+
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'transactions') renderTransactions();
+            if (view === 'settings') renderSettings();
+        }
+
+        // DASHBOARD LOGIC
+        function renderDashboard() {
+            const month = document.getElementById('month-selector').value;
+            const txs = db.transactions.filter(t => t.date.startsWith(month));
+
+            const inc = txs.filter(t => t.type === 'income').reduce((a, b) => a + b.val, 0);
+            const exp = txs.filter(t => t.type === 'expense').reduce((a, b) => a + b.val, 0);
+            const km = txs.reduce((a, b) => a + (b.km || 0), 0);
+            const lit = txs.reduce((a, b) => a + (b.lit || 0), 0);
+            const bal = inc - exp;
+
+            document.getElementById('dash-balance').innerText = fmtMoney(bal);
+            document.getElementById('dash-income').innerText = fmtMoney(inc);
+            document.getElementById('dash-expense').innerText = fmtMoney(exp);
+            document.getElementById('dash-km').innerText = km.toFixed(1) + ' km';
+            document.getElementById('dash-profit-km').innerText = km > 0 ? fmtMoney(bal / km) + '/km' : 'R$ 0,00/km';
+
+            renderChart(txs, month);
+            renderTopExp(txs);
+            renderRecent(db.transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5));
+
+            document.getElementById('fuel-avg').innerText = km > 0 && lit > 0 ? (km / lit).toFixed(1) + ' km/L' : '--';
+            document.getElementById('fuel-total').innerText = lit.toFixed(1) + ' L';
+        }
+
+        function changeMonth(offset) {
+            const input = document.getElementById('month-selector');
+            const d = new Date(input.value + '-01');
+            d.setMonth(d.getMonth() + offset);
+            input.value = d.toISOString().slice(0, 7);
+            renderDashboard();
+        }
+
+        function renderChart(txs, monthStr) {
+            // Simple bar chart logic 7 days
+            const area = document.getElementById('chart-area');
+            const days = [];
+            // Last 7 days relative to today or end of month? Let's do last 7 days from now if current month, or end of month if past.
+            // Simplification: Last 7 days with data or just 1..7, 8..14 chunks? 
+            // Let's do a simple bar for the selected month aggregated by week maybe? 
+            // Desktop Pro Standard says 7 days.
+            const today = new Date();
+            let html = '';
+            let max = 100;
+            // Calculate max
+            txs.forEach(t => { if (t.val > max) max = t.val; });
+
+            // Show only last 7 days of activity in that month to fit chart
+            const daily = {};
+            txs.forEach(t => {
+                if (!daily[t.date]) daily[t.date] = { inc: 0, exp: 0 };
+                if (t.type === 'income') daily[t.date].inc += t.val;
+                else daily[t.date].exp += t.val;
+            });
+
+            const sortedDays = Object.keys(daily).sort().slice(-7); // Last 7 active days
+
+            if (sortedDays.length === 0) { area.innerHTML = '<p class="w-full text-center py-10">Sem dados</p>'; return; }
+
+            const absMax = Math.max(...sortedDays.map(d => Math.max(daily[d].inc, daily[d].exp))) || 100;
+
+            html = sortedDays.map(d => {
+                const data = daily[d];
+                const hInc = (data.inc / absMax) * 100;
+                const hExp = (data.exp / absMax) * 100;
+                const dayLabel = d.split('-')[2];
+                return `
+                    <div class="bar-group">
+                        <div class="bar-container">
+                             <div class="bar bg-green-500" style="height: ${hInc}%"></div>
+                             <div class="bar bg-red-500" style="height: ${hExp}%"></div>
+                        </div>
+                        <span class="text-[10px]">${dayLabel}</span>
+                    </div>
+                 `;
+            }).join('');
+            area.innerHTML = html;
+        }
+
+        function renderTopExp(txs) {
+            const cats = {};
+            txs.filter(t => t.type === 'expense').forEach(t => {
+                const n = db.categories.find(c => c.id === t.cat)?.name || 'Outros';
+                cats[n] = (cats[n] || 0) + t.val;
+            });
+            const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const max = sorted[0]?.[1] || 1;
+            document.getElementById('top-expenses').innerHTML = sorted.map(([k, v]) => `
+                <div class="text-xs">
+                    <div class="flex justify-between mb-1"><span>${k}</span><span class="font-bold text-red-500">${fmtMoney(v)}</span></div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full"><div class="bg-red-400 h-1.5 rounded-full" style="width:${(v / max) * 100}%"></div></div>
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400">Sem gastos</p>';
+        }
+
+        function renderRecent(list) {
+            const div = document.getElementById('recent-list');
+            div.innerHTML = list.map(t => `
+                <div class="p-4 flex justify-between items-center hover:bg-slate-50">
+                    <div>
+                        <p class="font-bold text-sm text-slate-800">${t.desc}</p>
+                        <p class="text-xs text-slate-500">${new Date(t.date).toLocaleDateString('pt-BR')} • ${getCatName(t.cat)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-sm ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? '+' : '-'} ${fmtMoney(t.val)}</p>
+                        ${t.km ? `<p class="text-[10px] text-slate-400">${t.km} km</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // TRANSACTIONS
+        function renderTransactions() {
+            const filter = document.getElementById('filter-type').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const start = document.getElementById('filter-start').value;
+
+            const list = db.transactions.filter(t => {
+                let ok = true;
+                if (filter !== 'all' && t.type !== filter) ok = false;
+                if (search && !t.desc.toLowerCase().includes(search)) ok = false;
+                if (start && t.date < start) ok = false;
+                return ok;
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const tbody = document.getElementById('trans-table-body');
+            tbody.innerHTML = list.map(t => `
+                <tr class="hover:bg-slate-50 border-b border-slate-50">
+                    <td class="px-6 py-4 text-slate-500">${new Date(t.date).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 font-bold text-slate-700">${t.desc}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 bg-slate-100 rounded text-xs">${getCatName(t.cat)}</span></td>
+                    <td class="px-6 py-4 text-xs text-slate-400">${t.km ? t.km + 'km' : ''} ${t.lit ? t.lit + 'L' : ''}</td>
+                    <td class="px-6 py-4 text-right font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${fmtMoney(t.val)}</td>
+                    <td class="px-6 py-4 text-center"><button onclick="delTrans('${t.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('empty-msg').className = list.length ? 'hidden' : 'p-8 text-center text-slate-400';
+            lucide.createIcons();
+        }
+
+        // MODAL LOGIC
+        function openTransactionModal() {
+            document.getElementById('transactionModal').classList.add('active');
+            setType('expense');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).classList.add('hidden'); setTimeout(() => document.getElementById(id).classList.remove('hidden'), 100); } // Hack for simple toggling if needed or just remove active
+
+        function setType(type) {
+            document.getElementById('t-type').value = type;
+            const btnExp = document.getElementById('btn-expense');
+            const btnInc = document.getElementById('btn-income');
+            if (type === 'expense') {
+                btnExp.className = 'flex-1 py-2 rounded-md text-sm font-bold bg-white text-red-600 shadow-sm transition-all';
+                btnInc.className = 'flex-1 py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition-all';
+            } else {
+                btnInc.className = 'flex-1 py-2 rounded-md text-sm font-bold bg-white text-green-600 shadow-sm transition-all';
+                btnExp.className = 'flex-1 py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition-all';
+            }
+            renderCatSelect(type);
+        }
+
+        function renderCatSelect(type) {
+            const sel = document.getElementById('t-cat');
+            sel.innerHTML = db.categories.filter(c => c.type === type).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        function submitTransaction(e) {
+            e.preventDefault();
+            const t = {
+                id: Date.now().toString(36),
+                type: document.getElementById('t-type').value,
+                val: parseFloat(document.getElementById('t-amount').value),
+                desc: document.getElementById('t-desc').value,
+                cat: document.getElementById('t-cat').value,
+                date: document.getElementById('t-date').value,
+                km: parseFloat(document.getElementById('t-km').value) || 0,
+                lit: parseFloat(document.getElementById('t-liters').value) || 0
+            };
+            db.transactions.push(t);
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            closeModal('transactionModal');
+            e.target.reset();
+            renderDashboard();
+            renderTransactions();
+        }
+
+        function delTrans(id) {
+            if (confirm('Apagar?')) {
+                db.transactions = db.transactions.filter(t => t.id !== id);
+                localStorage.setItem(DB_KEY, JSON.stringify(db));
+                renderTransactions();
+                renderDashboard();
+            }
+        }
+
+        // CLOSING
+        function openClosingModal() {
+            const today = new Date().toISOString().split('T')[0];
+            const txs = db.transactions.filter(t => t.date === today);
+            const inc = txs.filter(t => t.type === 'income').reduce((a, b) => a + b.val, 0);
+            const exp = txs.filter(t => t.type === 'expense').reduce((a, b) => a + b.val, 0);
+            const km = txs.reduce((a, b) => a + (b.km || 0), 0);
+
+            document.getElementById('close-inc').innerText = fmtMoney(inc);
+            document.getElementById('close-exp').innerText = fmtMoney(exp);
+            document.getElementById('close-km').innerText = km + ' km';
+            document.getElementById('close-bal').innerText = fmtMoney(inc - exp);
+            document.getElementById('closingModal').classList.add('active');
+        }
+
+        function shareClosing() {
+            const bal = document.getElementById('close-bal').innerText;
+            const inc = document.getElementById('close-inc').innerText;
+            const msg = `Fechamento Driver: ${bal} de Lucro (Ganhos: ${inc})`;
+            window.open('https://wa.me/?text=' + encodeURIComponent(msg));
+        }
+
+        // SETTINGS & SYSTEM
+        function renderSettings() {
+            document.getElementById('cat-list').innerHTML = db.categories.map(c => `<div class="flex justify-between p-2 bg-slate-50 border rounded text-xs mb-1"><span>${c.name}</span><span class="${c.type === 'income' ? 'text-green-500' : 'text-red-500'}">${c.type}</span></div>`).join('');
+        }
+        function addCat() {
+            const name = document.getElementById('new-cat').value;
+            if (name) {
+                db.categories.push({ id: Date.now().toString(), name: name, type: 'expense' }); // Default to expense for quick add
+                localStorage.setItem(DB_KEY, JSON.stringify(db));
+                renderSettings();
+            }
+        }
+        function factoryReset() {
+            if (confirm('Zerar tudo?')) { localStorage.removeItem(DB_KEY); location.reload(); }
+        }
+        function updateDBSize() {
+            const size = new Blob([localStorage.getItem(DB_KEY)]).size;
+            document.getElementById('db-size').innerText = (size / 1024).toFixed(2) + ' KB';
+        }
+
+        // HELPERS
+        function fmtMoney(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function getCatName(id) { return db.categories.find(c => c.id === id)?.name || 'Geral'; }
+
+        // Start
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA DISTRIBUIDORA HÍBRIDO PRO
+    1. HTML: Estrutura Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: Estilos refinados com Breakpoints (lg: 1024px) e Paleta Purple
+    3. JS: Lógica de PDV, Estoque, Fornecedores e Financeiro
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Distribuidora - Gestão de Bebidas</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            purple: '#7C3AED',
+                            dark: '#5B21B6',
+                            black: '#0f172a',
+                            green: '#10B981',
+                            red: '#EF4444',
+                            yellow: '#F59E0B',
+                            blue: '#3B82F6',
+                            soft: '#F5F3FF'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- LÓGICA HÍBRIDA (SIDEBAR) --- */
+        .sidebar-container {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            background: #0f172a;
+            color: white;
+            z-index: 50;
+            border-right: 1px solid #1e293b;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-container { margin-left: 280px; }
+            .hamburger-btn { display: none !important; }
+        }
+
+        /* Mobile/Tablet (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar-container { transform: translateX(-100%); box-shadow: 10px 0 25px -5px rgba(0,0,0,0.5); }
+            .sidebar-container.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #F8FAFC;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Utilitários */
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Navegação */
+        .nav-item {
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-item.active-nav {
+            background: rgba(124, 58, 237, 0.15); /* Purple tint */
+            color: #A78BFA; /* Purple light */
+            border-right: 3px solid #7C3AED;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.1); }
+
+        /* Chart CSS */
+        .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; gap: 2%; }
+        .bar-group { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; position: relative; }
+        .bar-wrapper { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 100%; width: 100%; }
+        .bar { width: 60%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; min-height: 2px; position: relative; }
+        .x-label { font-size: 10px; color: #64748b; text-align: center; margin-top: 8px; font-weight: 600; }
+
+        /* Impressão */
+        @media print {
+            .sidebar-container, .hamburger-btn, header, .no-print { display: none !important; }
+            .main-container { margin-left: 0; width: 100%; }
+            body { background: white; }
+            .view-section { display: none; }
+            #view-reports { display: block !important; }
+            .print-color-exact { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50">
+
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-container flex flex-col shadow-2xl">
+        <!-- Logo -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div class="bg-gradient-to-br from-plena-purple to-plena-dark p-2 rounded-lg mr-3 shadow-lg shadow-purple-900/50">
+                <i data-lucide="package" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA DISTRIB.</h1>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">DESKTOP PRO</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Operacional</p>
+            
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Dashboard
+            </button>
+            <button onclick="router('cashier')" id="nav-cashier" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="shopping-cart" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Frente de Caixa
+            </button>
+            <button onclick="router('inventory')" id="nav-inventory" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="boxes" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Estoque
+            </button>
+            <button onclick="router('sales')" id="nav-sales" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="receipt" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Vendas
+            </button>
+            <button onclick="router('suppliers')" id="nav-suppliers" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="truck" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Fornecedores
+            </button>
+            <button onclick="router('clients')" id="nav-clients" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="users" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Clientes
+            </button>
+
+            <div class="pt-4 pb-2"><div class="border-t border-slate-800"></div></div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ferramentas</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Manual
+            </button>
+            <button onclick="router('about')" id="nav-about" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sobre
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sistema
+                <span id="sidebar-badge" class="hidden absolute right-4 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-plena-purple to-indigo-500 flex items-center justify-center font-bold text-xs">CX</div>
+                <div>
+                    <p class="text-sm font-medium text-white">Caixa</p>
+                    <p class="text-xs text-slate-500">Operador</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão de Bebidas</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="router('system')" class="relative p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-2.5 w-2.5 hidden">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </button>
+
+                <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+
+                <button onclick="openProductModal()" class="flex items-center px-3 md:px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4 md:mr-2 text-green-600"></i>
+                    <span class="hidden md:inline">Produto</span>
+                </button>
+
+                <button onclick="router('cashier')" class="flex items-center px-3 md:px-5 py-2.5 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-all shadow-md shadow-purple-200">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 md:mr-2"></i>
+                    <span class="hidden md:inline">Nova Venda</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- Controle de Dia -->
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                    <h3 class="text-lg font-bold text-slate-700 w-full sm:w-auto">Visão Geral do Dia</h3>
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="calendar" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="date" id="date-selector" onchange="renderDashboard()"
+                            class="w-full sm:w-auto pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-plena-purple outline-none cursor-pointer hover:bg-white">
+                    </div>
+                </div>
+
+                <!-- Alert -->
+                <div id="stock-alert" class="hidden mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center shadow-sm">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 mr-3"></i>
+                    <div>
+                        <p class="font-bold text-sm">Atenção: Estoque Baixo!</p>
+                        <p class="text-xs">Verifique os produtos marcados para reposição.</p>
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vendas Hoje</p>
+                                <h3 id="dash-sales-value" class="text-2xl md:text-3xl font-bold text-slate-900 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1" id="dash-sales-count">0 pedidos</p>
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-lg text-plena-purple"><i data-lucide="dollar-sign" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Valor Estoque</p>
+                                <h3 id="dash-stock-value" class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1" id="dash-products-count">0 itens</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-lg text-blue-600"><i data-lucide="package" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vendas (Mês)</p>
+                                <h3 id="dash-month-sales" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Acumulado</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded-lg text-green-600"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Baixo Estoque</p>
+                                <h3 id="dash-low-stock" class="text-2xl md:text-3xl font-bold text-red-600 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Produtos críticos</p>
+                            </div>
+                            <div class="p-3 bg-red-50 rounded-lg text-red-600"><i data-lucide="alert-circle" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <!-- Chart Area -->
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                                <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Vendas (7 Dias)
+                            </h3>
+                        </div>
+                        <div class="p-6 h-64 w-full">
+                            <div id="chart-area" class="chart-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="star" class="w-4 h-4 mr-2 text-plena-purple"></i>
+                                Mais Vendidos
+                            </h3>
+                            <div id="top-products-list" class="space-y-3"></div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4">Ações Rápidas</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="router('cashier')" class="bg-purple-50 p-3 rounded-lg text-center hover:bg-purple-100 transition-colors">
+                                    <i data-lucide="shopping-cart" class="w-5 h-5 text-plena-purple mx-auto mb-1"></i>
+                                    <span class="text-xs font-medium">PDV</span>
+                                </button>
+                                <button onclick="openProductModal()" class="bg-blue-50 p-3 rounded-lg text-center hover:bg-blue-100 transition-colors">
+                                    <i data-lucide="package-plus" class="w-5 h-5 text-blue-600 mx-auto mb-1"></i>
+                                    <span class="text-xs font-medium">Produto</span>
+                                </button>
+                                <button onclick="openStockEntryModal()" class="bg-green-50 p-3 rounded-lg text-center hover:bg-green-100 transition-colors">
+                                    <i data-lucide="arrow-down-circle" class="w-5 h-5 text-green-600 mx-auto mb-1"></i>
+                                    <span class="text-xs font-medium">Entrada</span>
+                                </button>
+                                <button onclick="openSupplierModal()" class="bg-yellow-50 p-3 rounded-lg text-center hover:bg-yellow-100 transition-colors">
+                                    <i data-lucide="truck" class="w-5 h-5 text-yellow-600 mx-auto mb-1"></i>
+                                    <span class="text-xs font-medium">Fornecedor</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Sales -->
+                <div class="mt-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">Vendas Recentes</h3>
+                        <button onclick="router('sales')" class="text-xs font-bold text-plena-purple hover:underline">Ver Todas</button>
+                    </div>
+                    <div id="recent-sales-list" class="divide-y divide-slate-50"></div>
+                </div>
+            </section>
+
+            <!-- VIEW: CASHIER (PDV) -->
+            <section id="view-cashier" class="view-section hide fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+                    <!-- Left: Product Selection -->
+                    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 flex gap-3 bg-slate-50">
+                            <div class="relative flex-1">
+                                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                                <input type="text" id="pos-search" onkeyup="renderPosProducts()" placeholder="Buscar produto..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-plena-purple outline-none">
+                            </div>
+                            <select id="pos-category" onchange="renderPosProducts()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                                <option value="all">Todas</option>
+                                <option value="cerveja">Cerveja</option><option value="refri">Refrigerante</option><option value="agua">Água</option><option value="suco">Suco</option><option value="destilado">Destilado</option>
+                            </select>
+                        </div>
+                        <div id="pos-grid" class="p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto content-start">
+                            <!-- Products injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Cart & Checkout -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+                        <div class="p-4 border-b border-slate-100 bg-purple-50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800 flex items-center"><i data-lucide="shopping-cart" class="w-4 h-4 mr-2"></i> Carrinho</h3>
+                        </div>
+                        <div id="pos-cart" class="flex-1 overflow-y-auto p-4 space-y-2">
+                            <p class="text-center text-slate-400 text-sm py-8">Carrinho vazio</p>
+                        </div>
+                        <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl space-y-3">
+                            <div class="flex justify-between text-sm"><span>Subtotal</span><span id="pos-subtotal">R$ 0,00</span></div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm">Desconto</span>
+                                <input type="number" id="pos-discount" class="w-20 border rounded p-1 text-right text-sm" placeholder="0.00" onchange="updatePosTotals()">
+                            </div>
+                            <div class="flex justify-between text-xl font-bold text-slate-800 pt-2 border-t border-slate-200"><span>Total</span><span id="pos-total">R$ 0,00</span></div>
+                            
+                            <select id="pos-payment" class="w-full border p-2 rounded-lg text-sm bg-white font-medium mb-2">
+                                <option value="dinheiro">Dinheiro</option><option value="pix">Pix</option><option value="debito">Débito</option><option value="credito">Crédito</option>
+                            </select>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="clearPosCart()" class="py-3 border border-red-200 text-red-600 rounded-lg font-bold hover:bg-red-50 transition-colors">Limpar</button>
+                                <button onclick="finishSale()" class="py-3 bg-plena-purple text-white rounded-lg font-bold hover:bg-plena-dark transition-colors shadow-lg shadow-purple-200">Finalizar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: INVENTORY -->
+            <section id="view-inventory" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-slate-800">Estoque</h2>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="openStockEntryModal()" class="flex-1 md:flex-none bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-900 shadow-md flex justify-center items-center"><i data-lucide="arrow-down-circle" class="w-4 h-4 mr-2"></i> Entrada</button>
+                        <button onclick="openProductModal()" class="flex-1 md:flex-none bg-plena-purple text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark shadow-md flex justify-center items-center"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Produto</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-4 bg-slate-50">
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="inv-search" onkeyup="renderInventory()" placeholder="Buscar produto..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-plena-purple outline-none">
+                        </div>
+                        <select id="inv-filter" onchange="renderInventory()" class="w-full md:w-auto border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                            <option value="all">Todos</option><option value="low">Baixo Estoque</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[800px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3">Código</th><th class="px-6 py-3">Produto</th><th class="px-6 py-3">Cat.</th><th class="px-6 py-3 text-center">Estoque</th><th class="px-6 py-3 text-right">Custo</th><th class="px-6 py-3 text-right">Venda</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: SALES (History) -->
+            <section id="view-sales" class="view-section hide fade-in">
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800">Histórico de Vendas</h2>
+                    <button onclick="exportSalesCSV()" class="text-sm font-bold text-plena-purple hover:underline flex items-center"><i data-lucide="download" class="w-4 h-4 mr-1"></i> CSV</button>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[600px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr><th class="px-6 py-3">Data</th><th class="px-6 py-3">ID</th><th class="px-6 py-3">Pagamento</th><th class="px-6 py-3 text-right">Itens</th><th class="px-6 py-3 text-right">Total</th><th class="px-6 py-3 text-center">Ações</th></tr>
+                            </thead>
+                            <tbody id="sales-history-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Other Views (Suppliers, Clients, Reports, Settings...) -->
+            <section id="view-suppliers" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Fornecedores</h2>
+                    <button onclick="openSupplierModal()" class="bg-plena-purple text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-plena-dark">Novo</button>
+                </div>
+                <div id="suppliers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="view-clients" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Clientes</h2>
+                    <button onclick="openClientModal()" class="bg-plena-purple text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-plena-dark">Novo</button>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-left text-sm"><thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b"><tr><th class="px-6 py-3">Nome</th><th class="px-6 py-3">Contato</th><th class="px-6 py-3">Ações</th></tr></thead><tbody id="clients-list" class="divide-y divide-slate-100"></tbody></table>
+                </div>
+            </section>
+
+            <section id="view-reports" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Relatórios</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <button onclick="generateSalesReport()" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:border-plena-purple text-left"><h3 class="font-bold">Relatório de Vendas</h3><p class="text-xs text-slate-500">Resumo por período</p></button>
+                    <button onclick="generateInventoryReport()" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:border-plena-purple text-left"><h3 class="font-bold">Valor de Estoque</h3><p class="text-xs text-slate-500">Custo x Venda</p></button>
+                </div>
+                <div id="report-result" class="mt-6 hide bg-white p-6 rounded-xl border border-slate-200 shadow-sm overflow-x-auto"><div id="report-content"></div></div>
+            </section>
+
+            <section id="view-settings" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Configurações</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold mb-4">Dados da Empresa</h3>
+                        <input type="text" id="conf-name" placeholder="Nome" class="w-full border p-2 rounded mb-2 text-sm">
+                        <input type="text" id="conf-cnpj" placeholder="CNPJ" class="w-full border p-2 rounded mb-2 text-sm">
+                        <button onclick="saveSettings()" class="bg-slate-800 text-white px-4 py-2 rounded text-sm font-bold">Salvar</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold mb-4">Dados</h3>
+                        <div class="flex gap-2">
+                            <button onclick="downloadBackup()" class="flex-1 border py-2 rounded text-sm hover:bg-slate-50">Backup</button>
+                            <label class="flex-1 bg-slate-800 text-white py-2 rounded text-sm text-center cursor-pointer hover:bg-slate-900">Restaurar <input type="file" onchange="restoreBackup(this)" class="hidden"></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-slate-900 text-white rounded-xl shadow-lg p-6 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="package" class="w-32 h-32"></i></div>
+                        <p class="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Versão Instalada</p>
+                        <h2 class="text-4xl font-bold mb-1">v4.4</h2>
+                        <p class="text-slate-300 text-sm">Build Híbrido Pro</p>
+                    </div>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500">Manual em desenvolvimento.</div></section>
+            <section id="view-about" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500">Plena Soluções Digitais - v4.4</div></section>
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    <!-- Product Modal -->
+    <div id="productModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <h3 class="text-lg font-bold mb-4">Produto</h3>
+            <form onsubmit="submitProduct(event)" class="space-y-3">
+                <input type="hidden" id="pd-id">
+                <div class="grid grid-cols-3 gap-3">
+                    <input type="text" id="pd-code" placeholder="Código" class="border p-2 rounded text-sm col-span-1">
+                    <input type="text" id="pd-name" required placeholder="Nome do Produto" class="border p-2 rounded text-sm col-span-2">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="pd-cat" class="border p-2 rounded text-sm bg-white">
+                        <option value="cerveja">Cerveja</option><option value="refri">Refrigerante</option><option value="agua">Água</option><option value="suco">Suco</option><option value="destilado">Destilado</option><option value="outros">Outros</option>
+                    </select>
+                    <input type="text" id="pd-unit" placeholder="Unidade (Un, Cx)" class="border p-2 rounded text-sm">
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <input type="number" id="pd-stock" placeholder="Estoque" class="border p-2 rounded text-sm">
+                    <input type="number" id="pd-min" placeholder="Mínimo" class="border p-2 rounded text-sm">
+                    <input type="number" step="0.01" id="pd-cost" placeholder="Custo" class="border p-2 rounded text-sm">
+                </div>
+                <input type="number" step="0.01" id="pd-price" required placeholder="Preço Venda" class="border p-2 rounded text-sm font-bold text-green-600">
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeModal('productModal')" class="flex-1 border py-2 rounded text-sm">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-plena-purple text-white py-2 rounded text-sm font-bold">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Entry Modal -->
+    <div id="stockEntryModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-4">Entrada de Estoque</h3>
+            <form onsubmit="submitStockEntry(event)" class="space-y-3">
+                <select id="se-product" required class="w-full border p-2 rounded text-sm bg-white"></select>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="se-qty" required placeholder="Quantidade" class="border p-2 rounded text-sm">
+                    <input type="number" step="0.01" id="se-cost" placeholder="Novo Custo (Opc)" class="border p-2 rounded text-sm">
+                </div>
+                <input type="text" id="se-invoice" placeholder="Nota Fiscal (Opc)" class="w-full border p-2 rounded text-sm">
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-bold text-sm">Registrar Entrada</button>
+                <button type="button" onclick="closeModal('stockEntryModal')" class="w-full text-slate-400 text-xs mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client & Supplier Modals (Simplificados) -->
+    <div id="clientModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-4">Cliente</h3>
+            <form onsubmit="submitClient(event)" class="space-y-3">
+                <input type="hidden" id="cli-id"><input type="text" id="cli-name" required placeholder="Nome" class="w-full border p-2 rounded text-sm">
+                <input type="text" id="cli-phone" placeholder="Telefone" class="w-full border p-2 rounded text-sm">
+                <button type="submit" class="w-full bg-plena-purple text-white py-2 rounded font-bold">Salvar</button>
+                <button type="button" onclick="closeModal('clientModal')" class="w-full text-slate-400 text-xs mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <div id="supplierModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-4">Fornecedor</h3>
+            <form onsubmit="submitSupplier(event)" class="space-y-3">
+                <input type="hidden" id="sup-id"><input type="text" id="sup-name" required placeholder="Nome" class="w-full border p-2 rounded text-sm">
+                <input type="text" id="sup-contact" placeholder="Contato" class="w-full border p-2 rounded text-sm">
+                <button type="submit" class="w-full bg-plena-purple text-white py-2 rounded font-bold">Salvar</button>
+                <button type="button" onclick="closeModal('supplierModal')" class="w-full text-slate-400 text-xs mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // CONFIG
+        const DB_KEY = 'plena_distrib_pro_v4';
+        const defaultDB = {
+            products: [], sales: [], clients: [], suppliers: [], stockEntries: [],
+            settings: { companyName: '', cnpj: '' }
+        };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+        let posCart = [];
+
+        // UTILS
+        const save = () => localStorage.setItem(DB_KEY, JSON.stringify(db));
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const fmtDate = (d) => new Date(d).toLocaleDateString('pt-BR');
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        const sanitizeHTML = (str) => String(str || '').replace(/[&<>"']/g, '');
+
+        // INIT
+        function init() {
+            if(window.lucide) lucide.createIcons();
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('date-selector');
+            if (dateInput) dateInput.value = today;
+            
+            if(db.settings.companyName) document.getElementById('conf-name').value = db.settings.companyName;
+            if(db.settings.cnpj) document.getElementById('conf-cnpj').value = db.settings.cnpj;
+
+            renderDashboard(); setInterval(save, 30000); router('dashboard');
+        }
+
+        // ROUTER
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open'); overlay.classList.toggle('active');
+        }
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('active-nav', 'bg-white/10', 'text-white'); el.classList.add('text-slate-400'); });
+            const target = document.getElementById('view-' + view);
+            if(target) { target.classList.remove('hide'); target.classList.add('fade-in'); }
+            const nav = document.getElementById('nav-' + view);
+            if(nav) { nav.classList.add('active-nav', 'bg-white/10', 'text-white'); nav.classList.remove('text-slate-400'); }
+            document.getElementById('page-title').innerText = { dashboard:'Dashboard', cashier:'Frente de Caixa', inventory:'Estoque', products:'Produtos', sales:'Vendas', clients:'Clientes', suppliers:'Fornecedores', reports:'Relatórios', settings:'Configurações' }[view] || 'Plena Distribuidora';
+            if(window.innerWidth < 1024) { const sb = document.getElementById('sidebar'); if(sb.classList.contains('open')) toggleSidebar(); }
+
+            if(view === 'dashboard') renderDashboard();
+            else if(view === 'cashier') { posCart = []; renderPosProducts(); renderPosCart(); }
+            else if(view === 'inventory') renderInventory();
+            else if(view === 'sales') renderSalesHistory();
+            else if(view === 'clients') renderClients();
+            else if(view === 'suppliers') renderSuppliers();
+        }
+
+        // DASHBOARD
+        function renderDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const salesToday = db.sales.filter(s => s.date.startsWith(today));
+            const salesVal = salesToday.reduce((s,x) => s + x.total, 0);
+            const stockVal = db.products.reduce((s,p) => s + (p.stock * p.cost), 0);
+            const lowStock = db.products.filter(p => p.stock <= p.minStock).length;
+            
+            const month = today.slice(0, 7);
+            const salesMonth = db.sales.filter(s => s.date.startsWith(month)).reduce((s,x) => s + x.total, 0);
+
+            document.getElementById('dash-sales-value').innerText = fmtMoney(salesVal);
+            document.getElementById('dash-sales-count').innerText = `${salesToday.length} pedidos`;
+            document.getElementById('dash-stock-value').innerText = fmtMoney(stockVal);
+            document.getElementById('dash-products-count').innerText = `${db.products.length} itens`;
+            document.getElementById('dash-month-sales').innerText = fmtMoney(salesMonth);
+            document.getElementById('dash-low-stock').innerText = lowStock;
+
+            if(lowStock > 0) document.getElementById('stock-alert').classList.remove('hidden'); 
+            else document.getElementById('stock-alert').classList.add('hidden');
+
+            renderChart();
+            renderTopProducts();
+            renderRecentSales();
+            lucide.createIcons();
+        }
+
+        function renderChart() {
+            const area = document.getElementById('chart-area');
+            const today = new Date();
+            const days = [];
+            for(let i=6; i>=0; i--) {
+                const d = new Date(); d.setDate(today.getDate()-i);
+                const ds = d.toISOString().split('T')[0];
+                const val = db.sales.filter(s => s.date.startsWith(ds)).reduce((acc,s)=>acc+s.total,0);
+                days.push({label: d.getDate(), val});
+            }
+            const max = Math.max(...days.map(d=>d.val), 100);
+            area.innerHTML = days.map(d => `
+                <div class="bar-group"><div class="bar-wrapper"><div class="bar bg-green-500" style="height:${(d.val/max)*100}%" title="${fmtMoney(d.val)}"></div></div><div class="x-label">${d.label}</div></div>
+            `).join('');
+        }
+
+        function renderTopProducts() {
+            const map = {};
+            db.sales.forEach(s => s.items.forEach(i => { map[i.name] = (map[i.name]||0) + i.qty; }));
+            const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            document.getElementById('top-products-list').innerHTML = sorted.map(([n,q]) => `
+                <div class="flex justify-between text-sm p-2 bg-slate-50 rounded"><span>${n}</span><span class="font-bold text-plena-purple">${q} un</span></div>
+            `).join('') || '<p class="text-slate-400 text-sm">Sem vendas</p>';
+        }
+
+        function renderRecentSales() {
+            const list = db.sales.slice(0, 5);
+            document.getElementById('recent-sales-list').innerHTML = list.map(s => `
+                <div class="flex justify-between items-center p-4 hover:bg-slate-50">
+                    <div><p class="font-bold text-slate-800 text-sm">#${s.id.slice(0,4)}</p><p class="text-xs text-slate-500">${fmtDate(s.date)}</p></div>
+                    <div class="text-right"><span class="font-bold text-green-600">${fmtMoney(s.total)}</span><p class="text-xs text-slate-400">${s.payment}</p></div>
+                </div>`).join('') || '<p class="text-center py-4 text-slate-400">Nenhuma venda</p>';
+        }
+
+        // CASHIER (PDV)
+        function renderPosProducts() {
+            const term = document.getElementById('pos-search').value.toLowerCase();
+            const cat = document.getElementById('pos-category').value;
+            const list = db.products.filter(p => {
+                const mTerm = p.name.toLowerCase().includes(term) || p.code.toLowerCase().includes(term);
+                const mCat = cat === 'all' || p.category === cat;
+                return mTerm && mCat;
+            });
+            document.getElementById('pos-grid').innerHTML = list.map(p => `
+                <div class="bg-white border rounded-lg p-3 cursor-pointer hover:border-plena-purple shadow-sm flex flex-col justify-between h-32" onclick="addToPos('${p.id}')">
+                    <div><span class="text-xs font-bold text-slate-400 block">${p.code}</span><span class="font-bold text-slate-800 text-sm leading-tight block">${p.name}</span></div>
+                    <div class="flex justify-between items-end mt-2">
+                        <span class="text-xs ${p.stock<=p.minStock?'text-red-500':'text-green-500'} font-bold">${p.stock} un</span>
+                        <span class="font-bold text-plena-purple">${fmtMoney(p.price)}</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        function addToPos(id) {
+            const p = db.products.find(x => x.id === id);
+            if(!p || p.stock <= 0) { alert('Produto sem estoque!'); return; }
+            const item = posCart.find(x => x.id === id);
+            if(item) {
+                if(item.qty < p.stock) item.qty++; else alert('Estoque insuficiente');
+            } else {
+                posCart.push({ id: p.id, name: p.name, price: p.price, qty: 1, max: p.stock });
+            }
+            renderPosCart();
+        }
+
+        function renderPosCart() {
+            const container = document.getElementById('pos-cart');
+            if(posCart.length===0) { container.innerHTML='<p class="text-center text-slate-400 text-sm py-8">Carrinho vazio</p>'; updatePosTotals(); return; }
+            container.innerHTML = posCart.map((i,idx) => `
+                <div class="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+                    <div class="flex-1"><p class="text-sm font-bold text-slate-800">${i.name}</p><p class="text-xs text-slate-500">${fmtMoney(i.price)} un</p></div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updatePosQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded flex items-center justify-center text-xs hover:bg-slate-100">-</button>
+                        <span class="text-sm font-bold w-4 text-center">${i.qty}</span>
+                        <button onclick="updatePosQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded flex items-center justify-center text-xs hover:bg-slate-100">+</button>
+                        <button onclick="removeFromPos(${idx})" class="text-red-500 ml-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </div>`).join('');
+            lucide.createIcons();
+            updatePosTotals();
+        }
+
+        function updatePosQty(idx, delta) {
+            const item = posCart[idx];
+            const newVal = item.qty + delta;
+            if(newVal > 0 && newVal <= item.max) item.qty = newVal;
+            renderPosCart();
+        }
+
+        function removeFromPos(idx) { posCart.splice(idx, 1); renderPosCart(); }
+        function clearPosCart() { posCart = []; renderPosCart(); }
+
+        function updatePosTotals() {
+            const sub = posCart.reduce((s,i) => s + (i.price * i.qty), 0);
+            const disc = parseFloat(document.getElementById('pos-discount').value) || 0;
+            const total = Math.max(0, sub - disc);
+            document.getElementById('pos-subtotal').innerText = fmtMoney(sub);
+            document.getElementById('pos-total').innerText = fmtMoney(total);
+        }
+
+        function finishSale() {
+            if(posCart.length === 0) return;
+            const sub = posCart.reduce((s,i) => s + (i.price * i.qty), 0);
+            const disc = parseFloat(document.getElementById('pos-discount').value) || 0;
+            const total = Math.max(0, sub - disc);
+            const payment = document.getElementById('pos-payment').value;
+            
+            // Deduct stock
+            posCart.forEach(item => {
+                const p = db.products.find(x => x.id === item.id);
+                if(p) p.stock -= item.qty;
+            });
+
+            const sale = { id: getID(), items: posCart, subtotal: sub, discount: disc, total, payment, date: new Date().toISOString() };
+            db.sales.unshift(sale);
+            save(); posCart = []; renderPosCart(); renderDashboard(); alert('Venda finalizada!');
+        }
+
+        // INVENTORY
+        function renderInventory() {
+            const term = document.getElementById('inv-search').value.toLowerCase();
+            const filter = document.getElementById('inv-filter').value;
+            const list = db.products.filter(p => {
+                const mt = p.name.toLowerCase().includes(term) || p.code.toLowerCase().includes(term);
+                if(filter === 'low') return mt && p.stock <= p.minStock;
+                return mt;
+            });
+            document.getElementById('inventory-list').innerHTML = list.map(p => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100 ${p.stock<=p.minStock?'bg-red-50':''}">
+                    <td class="px-6 py-3 font-mono text-xs text-slate-500">${p.code}</td>
+                    <td class="px-6 py-3 font-bold text-slate-800">${p.name}</td>
+                    <td class="px-6 py-3 text-xs">${p.category}</td>
+                    <td class="px-6 py-3 text-center font-bold ${p.stock<=p.minStock?'text-red-600':'text-slate-700'}">${p.stock}</td>
+                    <td class="px-6 py-3 text-right text-slate-500">${fmtMoney(p.cost)}</td>
+                    <td class="px-6 py-3 text-right font-bold text-green-600">${fmtMoney(p.price)}</td>
+                    <td class="px-6 py-3 text-center"><span class="text-xs font-bold ${p.stock<=p.minStock?'text-red-600':'text-green-600'}">${p.stock<=p.minStock?'BAIXO':'OK'}</span></td>
+                    <td class="px-6 py-3 text-center"><button onclick="editProduct('${p.id}')" class="text-blue-600"><i data-lucide="edit" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+
+        // MODALS & FORMS
+        function openProductModal(p=null) {
+            document.querySelector('#productModal form').reset();
+            if(p) {
+                document.getElementById('product-modal-title').innerText = 'Editar Produto';
+                document.getElementById('pd-id').value = p.id;
+                document.getElementById('pd-code').value = p.code;
+                document.getElementById('pd-name').value = p.name;
+                document.getElementById('pd-cat').value = p.category;
+                document.getElementById('pd-unit').value = p.unit;
+                document.getElementById('pd-stock').value = p.stock;
+                document.getElementById('pd-min').value = p.minStock;
+                document.getElementById('pd-cost').value = p.cost;
+                document.getElementById('pd-price').value = p.price;
+            } else {
+                document.getElementById('product-modal-title').innerText = 'Novo Produto';
+                document.getElementById('pd-id').value = '';
+                document.getElementById('pd-code').value = getID();
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+        function submitProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('pd-id').value;
+            const p = {
+                id: id || getID(),
+                code: document.getElementById('pd-code').value,
+                name: document.getElementById('pd-name').value,
+                category: document.getElementById('pd-cat').value,
+                unit: document.getElementById('pd-unit').value,
+                stock: parseInt(document.getElementById('pd-stock').value),
+                minStock: parseInt(document.getElementById('pd-min').value),
+                cost: parseFloat(document.getElementById('pd-cost').value),
+                price: parseFloat(document.getElementById('pd-price').value)
+            };
+            if(id) { const idx = db.products.findIndex(x=>x.id===id); db.products[idx] = p; } 
+            else db.products.push(p);
+            save(); closeModal('productModal'); renderInventory(); renderDashboard();
+        }
+        function editProduct(id) { openProductModal(db.products.find(x=>x.id===id)); }
+
+        function openStockEntryModal() {
+            document.querySelector('#stockEntryModal form').reset();
+            const sel = document.getElementById('se-product');
+            sel.innerHTML = '<option value="">Selecione...</option>' + db.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('stockEntryModal').classList.remove('hidden');
+        }
+        function submitStockEntry(e) {
+            e.preventDefault();
+            const pid = document.getElementById('se-product').value;
+            const qty = parseInt(document.getElementById('se-qty').value);
+            const cost = parseFloat(document.getElementById('se-cost').value);
+            const p = db.products.find(x=>x.id===pid);
+            if(p) {
+                p.stock += qty;
+                if(cost) p.cost = cost; // Update cost
+                db.stockEntries.push({ id: getID(), productId: pid, qty, cost, invoice: document.getElementById('se-invoice').value, date: new Date().toISOString() });
+                save(); closeModal('stockEntryModal'); renderInventory(); renderDashboard();
+            }
+        }
+
+        // SALES HISTORY
+        function renderSalesHistory() {
+            const list = db.sales.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            document.getElementById('sales-history-list').innerHTML = list.map(s => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="px-6 py-3 text-slate-500 text-xs">${fmtDate(s.date)}</td>
+                    <td class="px-6 py-3 font-mono text-xs">#${s.id.slice(0,4)}</td>
+                    <td class="px-6 py-3 text-sm">${s.payment}</td>
+                    <td class="px-6 py-3 text-right text-sm">${s.items.length}</td>
+                    <td class="px-6 py-3 text-right font-bold text-green-600">${fmtMoney(s.total)}</td>
+                    <td class="px-6 py-3 text-center"><button onclick="alert('Detalhes indisponíveis no momento')" class="text-blue-600 hover:underline text-xs">Ver</button></td>
+                </tr>`).join('');
+        }
+        function exportSalesCSV() {
+            const rows = [['Data','ID','Total','Pagamento']];
+            db.sales.forEach(s => rows.push([s.date, s.id, s.total, s.payment]));
+            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "vendas.csv"); document.body.appendChild(link); link.click();
+        }
+
+        // CLIENTS & SUPPLIERS
+        function renderClients() {
+            document.getElementById('clients-list').innerHTML = db.clients.map(c => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="px-6 py-3 font-bold text-slate-800">${c.name}</td><td class="px-6 py-3 text-slate-500">${c.phone||'-'}</td><td class="px-6 py-3"><button class="text-blue-600"><i data-lucide="edit" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+        function openClientModal() { document.querySelector('#clientModal form').reset(); document.getElementById('clientModal').classList.remove('hidden'); }
+        function submitClient(e) { e.preventDefault(); db.clients.push({id:getID(), name:document.getElementById('cli-name').value, phone:document.getElementById('cli-phone').value}); save(); closeModal('clientModal'); renderClients(); }
+
+        function renderSuppliers() {
+            document.getElementById('suppliers-grid').innerHTML = db.suppliers.map(s => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800">${s.name}</h3>
+                    <p class="text-xs text-slate-500 mb-2">${s.contact||'-'}</p>
+                    <button class="text-xs text-blue-600 font-bold border border-blue-200 px-2 py-1 rounded">Editar</button>
+                </div>`).join('');
+        }
+        function openSupplierModal() { document.querySelector('#supplierModal form').reset(); document.getElementById('supplierModal').classList.remove('hidden'); }
+        function submitSupplier(e) { e.preventDefault(); db.suppliers.push({id:getID(), name:document.getElementById('sup-name').value, contact:document.getElementById('sup-contact').value}); save(); closeModal('supplierModal'); renderSuppliers(); }
+
+        // SETTINGS & REPORTS
+        function saveSettings() {
+            db.settings.companyName = document.getElementById('conf-name').value;
+            db.settings.cnpj = document.getElementById('conf-cnpj').value;
+            save(); alert('Salvo!');
+        }
+        function generateSalesReport() {
+            const total = db.sales.reduce((s,x)=>s+x.total,0);
+            document.getElementById('report-content').innerHTML = `
+                <h3 class="font-bold text-lg mb-2">Resumo de Vendas</h3>
+                <p>Total Geral: <span class="font-bold text-green-600">${fmtMoney(total)}</span></p>
+                <p>Total Pedidos: ${db.sales.length}</p>
+            `;
+            document.getElementById('report-result').classList.remove('hide');
+        }
+        function generateInventoryReport() {
+            const val = db.products.reduce((s,p)=>s+(p.stock*p.cost),0);
+            const saleVal = db.products.reduce((s,p)=>s+(p.stock*p.price),0);
+            document.getElementById('report-content').innerHTML = `
+                <h3 class="font-bold text-lg mb-2">Valor de Estoque</h3>
+                <p>Custo Total: <span class="font-bold text-orange-600">${fmtMoney(val)}</span></p>
+                <p>Valor de Venda: <span class="font-bold text-green-600">${fmtMoney(saleVal)}</span></p>
+                <p>Lucro Projetado: ${fmtMoney(saleVal-val)}</p>
+            `;
+            document.getElementById('report-result').classList.remove('hide');
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function downloadBackup() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const node = document.createElement('a'); node.href = data; node.download = "backup_plena_distribuidora.json"; document.body.appendChild(node); node.click(); node.remove(); }
+        function restoreBackup(input) { const file = input.files[0]; if(!file) return; const r = new FileReader(); r.onload = e => { try { db = JSON.parse(e.target.result); save(); location.reload(); } catch(err) { alert('Erro'); } }; r.readAsText(file); }
+        function factoryReset() { if(confirm('Resetar?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+        function checkForUpdates() { alert('Sistema atualizado: v4.4'); }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

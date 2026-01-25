@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA BELEZA HÍBRIDO PRO
+    1. HTML: Estrutura Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: Estilos refinados com Breakpoints (lg: 1024px) e Paleta Rose
+    3. JS: Lógica de Agenda, Comissões e Gestão de Salão
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Beleza - Gestão de Salão</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#E11D48">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            rose: '#E11D48',
+                            dark: '#9F1239',
+                            black: '#0f172a',
+                            pink: '#FDA4AF',
+                            fuchsia: '#DB2777',
+                            soft: '#FFF1F2'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF1F2; /* Fundo levemente rosado */
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- LÓGICA HÍBRIDA (SIDEBAR) --- */
+        .sidebar-container {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            background: #0f172a;
+            color: white;
+            z-index: 50;
+            border-right: 1px solid #1e293b;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-container { margin-left: 280px; }
+            .hamburger-btn { display: none !important; }
+        }
+
+        /* Mobile/Tablet (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar-container { transform: translateX(-100%); box-shadow: 10px 0 25px -5px rgba(0,0,0,0.5); }
+            .sidebar-container.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #FFF1F2;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Utilitários */
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Navegação */
+        .nav-item {
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-item.active-nav {
+            background: rgba(225, 29, 72, 0.15); /* Rose tint */
+            color: #FB7185; /* Rose light */
+            border-right: 3px solid #E11D48;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #FFF1F2; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.1); }
+
+        /* Badges */
+        .badge-pending { background-color: #FEF3C7; color: #92400E; }
+        .badge-done { background-color: #DCFCE7; color: #166534; }
+        .badge-canceled { background-color: #FEE2E2; color: #991B1B; }
+
+        /* Impressão */
+        @media print {
+            .sidebar-container, .hamburger-btn, header, .no-print { display: none !important; }
+            .main-container { margin-left: 0; width: 100%; }
+            body { background: white; }
+            .view-section { display: none; }
+            #view-reports { display: block !important; }
+            .print-color-exact { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50">
+
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-container flex flex-col shadow-2xl">
+        <!-- Logo -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div class="bg-gradient-to-br from-plena-rose to-plena-dark p-2 rounded-lg mr-3 shadow-lg shadow-rose-900/50">
+                <i data-lucide="scissors" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA BELEZA</h1>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">DESKTOP PRO</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Operacional</p>
+            
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="calendar" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-rose"></i> Agenda
+            </button>
+            <button onclick="router('team')" id="nav-team" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="users" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-rose"></i> Profissionais
+            </button>
+            <button onclick="router('services')" id="nav-services" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="sparkles" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-rose"></i> Serviços
+            </button>
+            <button onclick="router('finance')" id="nav-finance" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="wallet" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-rose"></i> Financeiro
+            </button>
+            <button onclick="router('clients')" id="nav-clients" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="user" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-rose"></i> Clientes
+            </button>
+
+            <div class="pt-4 pb-2"><div class="border-t border-slate-800"></div></div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ferramentas</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Manual
+            </button>
+            <button onclick="router('about')" id="nav-about" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sobre
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sistema
+                <span id="sidebar-badge" class="hidden absolute right-4 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-plena-rose to-pink-400 flex items-center justify-center font-bold text-xs">AD</div>
+                <div>
+                    <p class="text-sm font-medium text-white">Administrador</p>
+                    <p class="text-xs text-slate-500">Online</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Agenda</h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão de Salão</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="router('system')" class="relative p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-2.5 w-2.5 hidden">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </button>
+
+                <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+
+                <button onclick="openClosingModal()" class="flex items-center px-3 md:px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all shadow-sm">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 md:mr-2 text-green-600"></i>
+                    <span class="hidden md:inline">Fechar Caixa</span>
+                </button>
+
+                <button onclick="openApptModal()" class="flex items-center px-3 md:px-5 py-2.5 bg-plena-rose text-white rounded-lg text-sm font-semibold hover:bg-plena-dark transition-all shadow-md shadow-rose-200">
+                    <i data-lucide="plus" class="w-5 h-5 md:mr-2"></i>
+                    <span class="hidden md:inline">Agendar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Agendados (Hoje)</p>
+                                <h3 id="dash-appt-today" class="text-2xl md:text-3xl font-bold text-slate-900 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Clientes na agenda</p>
+                            </div>
+                            <div class="p-3 bg-rose-50 rounded-lg text-plena-rose"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Faturamento (Hoje)</p>
+                                <h3 id="dash-rev-today" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">R$ 0,00</h3>
+                                <div class="flex items-center mt-1 text-xs font-medium text-green-600"><span id="rev-growth">+0%</span><span class="text-slate-400 ml-1">vs ontem</span></div>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded-lg text-green-600"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Comissões (Pendente)</p>
+                                <h3 id="dash-comm-pending" class="text-2xl md:text-3xl font-bold text-plena-rose mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">A pagar</p>
+                            </div>
+                            <div class="p-3 bg-fuchsia-50 rounded-lg text-fuchsia-600"><i data-lucide="users" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ticket Médio</p>
+                                <h3 class="text-2xl md:text-3xl font-bold text-slate-700 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Por atendimento</p>
+                            </div>
+                            <div class="p-3 bg-orange-50 rounded-lg text-orange-600"><i data-lucide="bar-chart-2" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Principal -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                                <i data-lucide="list-todo" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Cronograma do Dia
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <input type="date" id="agenda-date" onchange="renderDashboard()" 
+                                    class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-plena-rose outline-none cursor-pointer">
+                            </div>
+                        </div>
+                        <div id="agenda-list" class="p-6 space-y-3 min-h-[300px]"></div>
+                    </div>
+
+                    <!-- Próximos -->
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-slate-800">Próximos (Geral)</h3>
+                                <button onclick="router('dashboard')" class="text-xs text-plena-rose font-bold hover:underline">Ver Todos</button>
+                            </div>
+                            <div id="upcoming-appts" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: FINANCEIRO -->
+            <section id="view-finance" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Financeiro</h2>
+                    <button onclick="openExpenseModal()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-900 shadow-md flex items-center">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Lançar
+                    </button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col lg:flex-row gap-4 items-end">
+                    <div class="w-full lg:flex-1 relative">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Buscar</label>
+                        <i data-lucide="search" class="absolute left-3 top-8 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="search-term" onkeyup="renderFinance()" placeholder="Descrição ou profissional..."
+                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-plena-rose outline-none">
+                    </div>
+                    <div class="flex gap-2 w-full lg:w-auto">
+                        <div class="flex-1"><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Início</label><input type="date" id="filter-start" onchange="renderFinance()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+                        <div class="flex-1"><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fim</label><input type="date" id="filter-end" onchange="renderFinance()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></div>
+                    </div>
+                    <div class="w-full lg:w-auto">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tipo</label>
+                        <select id="filter-type" onchange="renderFinance()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                            <option value="all">Todos</option><option value="income">Entradas</option><option value="expense">Saídas</option>
+                        </select>
+                    </div>
+                    <button onclick="clearFinanceFilters()" class="p-2 border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-500" title="Limpar">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Resumo -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs font-bold text-green-700 uppercase">Receita (Mês)</p><p id="fin-income" class="text-xl font-bold text-green-800">R$ 0,00</p></div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs font-bold text-red-700 uppercase">Despesas (Mês)</p><p id="fin-expense" class="text-xl font-bold text-red-800">R$ 0,00</p></div>
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="text-xs font-bold text-blue-700 uppercase">Comissões (Mês)</p><p id="fin-commission" class="text-xl font-bold text-blue-800">R$ 0,00</p></div>
+                </div>
+
+                <!-- Tabela -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[800px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3">Data</th>
+                                    <th class="px-6 py-3">Descrição</th>
+                                    <th class="px-6 py-3">Profissional</th>
+                                    <th class="px-6 py-3">Tipo</th>
+                                    <th class="px-6 py-3 text-right">Valor</th>
+                                    <th class="px-6 py-3 text-right">Comissão</th>
+                                    <th class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trans-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="empty-msg" class="hidden p-12 text-center text-slate-400">Nenhuma transação encontrada.</div>
+                </div>
+            </section>
+
+            <!-- VIEW: PROFISSIONAIS -->
+            <section id="view-team" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Equipe</h2>
+                    <button onclick="openTeamModal()" class="bg-plena-rose text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Novo Profissional
+                    </button>
+                </div>
+                <div id="team-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: SERVIÇOS -->
+            <section id="view-services" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Serviços</h2>
+                    <button onclick="openServiceModal()" class="bg-plena-rose text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Novo Serviço
+                    </button>
+                </div>
+                <div id="services-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: CLIENTES -->
+            <section id="view-clients" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Clientes</h2>
+                    <button onclick="openClientModal()" class="bg-plena-rose text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Novo Cliente
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[600px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr><th class="px-6 py-3">Nome</th><th class="px-6 py-3">Telefone</th><th class="px-6 py-3">Última Visita</th><th class="px-6 py-3">Total Gasto</th><th class="px-6 py-3 text-center">Ações</th></tr>
+                            </thead>
+                            <tbody id="clients-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: RELATÓRIOS -->
+            <section id="view-reports" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Relatórios</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6 max-w-3xl">
+                    <h3 class="font-bold text-slate-800 mb-4">Configurar Período</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Início</label><input type="date" id="rep-start" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Fim</label><input type="date" id="rep-end" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div class="flex gap-2">
+                            <button onclick="generateReport()" class="flex-1 bg-plena-rose text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-plena-dark">Gerar</button>
+                            <button onclick="generateMonthReport()" class="bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-200"><i data-lucide="calendar" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="report-result" class="hide">
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-200 text-center"><p class="text-xs font-bold text-green-700 uppercase">Faturamento</p><p id="rep-inc" class="text-2xl font-bold text-green-800">R$ 0,00</p></div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-200 text-center"><p class="text-xs font-bold text-red-700 uppercase">Despesas</p><p id="rep-exp" class="text-2xl font-bold text-red-800">R$ 0,00</p></div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center"><p class="text-xs font-bold text-blue-700 uppercase">Comissões</p><p id="rep-com" class="text-2xl font-bold text-blue-800">R$ 0,00</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Serviços Mais Vendidos</h3>
+                        <div id="top-services" class="space-y-4"></div>
+                    </div>
+                    <div class="flex justify-end gap-4 no-print">
+                        <button onclick="shareReport()" class="bg-[#25D366] text-white px-6 py-2.5 rounded-lg font-bold flex items-center"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>
+                        <button onclick="printReport()" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold flex items-center"><i data-lucide="printer" class="w-4 h-4 mr-2"></i> Imprimir</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIGURAÇÕES -->
+            <section id="view-settings" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Configurações</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Informações do Salão</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Nome</label><input type="text" id="biz-name" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Horário</label><input type="text" id="biz-hours" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                            <button onclick="saveBusinessInfo()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-bold mt-2">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="shield-alert" class="w-5 h-5 mr-2 text-plena-rose"></i> Segurança de Dados</h3>
+                            <div class="p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800 mb-4"><p class="font-bold">⚠️ Importante</p><p>Seus dados ficam salvos 100% no navegador. Faça backup regularmente!</p></div>
+                            <div class="space-y-3">
+                                <button onclick="downloadBackup()" class="w-full border border-slate-300 py-3 rounded-lg text-sm font-medium hover:bg-slate-50 flex justify-center items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Baixar Backup</button>
+                                <div class="relative">
+                                    <button class="w-full bg-slate-800 text-white py-3 rounded-lg text-sm font-medium flex justify-center items-center gap-2"><i data-lucide="upload" class="w-4 h-4"></i> Restaurar</button>
+                                    <input type="file" onchange="restoreBackup(this)" accept=".json" class="absolute inset-0 opacity-0 cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="font-bold text-red-600 mb-4 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> Zona de Perigo</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="clearAllData()" class="py-2.5 border border-red-300 text-red-600 rounded-lg text-sm">Limpar Dados</button>
+                                <button onclick="factoryReset()" class="py-2.5 bg-red-600 text-white rounded-lg text-sm">Resetar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: SYSTEM, INSTRUCTIONS, ABOUT -->
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-end mb-8">
+                        <h2 class="text-2xl font-bold text-slate-800">Painel do Sistema</h2>
+                        <button onclick="checkForUpdates()" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center"><i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Verificar</button>
+                    </div>
+                    <div class="bg-slate-900 text-white rounded-xl shadow-lg p-6 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="zap" class="w-32 h-32"></i></div>
+                        <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">Versão Instalada</p>
+                        <h2 id="display-installed-version" class="text-4xl font-bold mb-1">v5.3.1</h2>
+                        <p class="text-slate-300 text-sm">Build Híbrido Pro</p>
+                        <div class="mt-8 grid grid-cols-2 gap-4">
+                            <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm"><p class="text-xs text-slate-400 mb-1">Status</p><p id="conn-status" class="font-bold text-green-400">Online</p></div>
+                            <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm"><p class="text-xs text-slate-400 mb-1">Armazenamento</p><p id="storage-usage" class="font-bold text-blue-400">Calculando...</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Changelog</h3>
+                        <div id="changelog-feed"></div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Manual Interativo em desenvolvimento.</div></section>
+            <section id="view-about" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Plena Soluções Digitais - v5.3.1</div></section>
+
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    
+    <!-- Appointment Modal -->
+    <div id="apptModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Novo Agendamento</h3>
+                <button onclick="closeModal('apptModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitAppt(event)" class="space-y-4">
+                <input type="hidden" id="ap-id">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Cliente</label><input type="text" id="ap-client" required class="w-full border p-2 rounded-lg text-sm" placeholder="Nome do cliente"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date" id="ap-date" required class="w-full border p-2 rounded-lg text-sm bg-white"></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Horário</label><input type="time" id="ap-time" required class="w-full border p-2 rounded-lg text-sm bg-white"></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Serviço</label><select id="ap-service" required class="w-full border p-2 rounded-lg text-sm bg-white" onchange="updateApptValue()"></select></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Profissional</label><select id="ap-pro" required class="w-full border p-2 rounded-lg text-sm bg-white"></select></div>
+                <div class="bg-slate-50 p-4 rounded-lg flex justify-between items-center font-bold"><span class="text-slate-500">Valor Total:</span><span id="ap-display-val" class="text-xl text-slate-800">R$ 0,00</span></div>
+                <button type="submit" class="w-full bg-plena-rose text-white py-3 rounded-xl font-bold mt-2">Confirmar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Lançamento</h3>
+                <button onclick="closeModal('expenseModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitExpense(event)" class="space-y-4">
+                <input type="hidden" id="exp-id">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Tipo</label><select id="exp-type" class="w-full border p-2 rounded-lg mt-1 font-bold"><option value="expense">🔴 Saída</option><option value="income">🟢 Entrada</option></select></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Descrição</label><input type="text" id="exp-desc" required class="w-full border p-2 rounded-lg mt-1"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label><input type="number" id="exp-amount" required step="0.01" class="w-full border p-2 rounded-lg mt-1 text-lg font-bold"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date" id="exp-date" required class="w-full border p-2 rounded-lg mt-1"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Categoria</label><select id="exp-category" class="w-full border p-2 rounded-lg mt-1"><option value="servico">Serviço</option><option value="produtos">Produtos</option><option value="outros">Outros</option></select></div>
+                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Team/Service/Client Modals -->
+    <div id="teamModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Profissional</h3>
+            <form onsubmit="submitTeam(event)" class="space-y-4">
+                <input type="hidden" id="tm-id"><input type="text" id="tm-name" required placeholder="Nome" class="w-full border p-2 rounded-lg"><input type="number" id="tm-comm" required placeholder="Comissão %" class="w-full border p-2 rounded-lg">
+                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+    <div id="serviceModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Serviço</h3>
+            <form onsubmit="submitService(event)" class="space-y-4">
+                <input type="hidden" id="svc-id"><input type="text" id="svc-name" required placeholder="Nome" class="w-full border p-2 rounded-lg"><input type="number" step="0.01" id="svc-price" required placeholder="Preço" class="w-full border p-2 rounded-lg">
+                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+    <div id="clientModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Cliente</h3>
+            <form onsubmit="submitClient(event)" class="space-y-4">
+                <input type="hidden" id="cli-id"><input type="text" id="cli-name" required placeholder="Nome" class="w-full border p-2 rounded-lg"><input type="tel" id="cli-phone" placeholder="Telefone" class="w-full border p-2 rounded-lg">
+                <button type="submit" class="w-full bg-plena-rose text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Closing & Commission Modals -->
+    <div id="closingModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-plena-rose to-plena-dark p-6 text-center text-white"><h3 class="font-bold text-lg">Fechamento do Dia</h3><p id="close-date" class="text-sm mt-1">Hoje</p></div>
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between p-3 bg-green-50 rounded-lg"><span class="text-sm">Faturamento</span><span id="close-inc" class="font-bold text-green-700">R$ 0,00</span></div>
+                <div class="flex justify-between p-3 bg-red-50 rounded-lg"><span class="text-sm">Despesas</span><span id="close-exp" class="font-bold text-red-700">R$ 0,00</span></div>
+                <div class="flex justify-between p-3 bg-blue-50 rounded-lg"><span class="text-sm">Comissões</span><span id="close-com" class="font-bold text-blue-700">R$ 0,00</span></div>
+                <div class="flex justify-between pt-4 border-t"><span class="font-bold">Saldo Final</span><span id="close-bal" class="font-bold text-xl">R$ 0,00</span></div>
+                <button onclick="closeModal('closingModal')" class="w-full bg-slate-100 py-3 rounded-lg font-bold text-sm mt-4">Fechar</button>
+            </div>
+        </div>
+    </div>
+    <div id="commissionModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-plena-rose to-plena-dark p-6 text-center text-white"><h3 class="font-bold text-lg">Pagar Comissão</h3></div>
+            <div class="p-6 text-center">
+                <h3 id="comm-pro-name" class="font-bold text-xl mb-2">--</h3>
+                <div class="bg-green-50 text-green-700 font-bold text-2xl py-3 rounded-xl mb-4"><span id="comm-value">R$ 0,00</span></div>
+                <button onclick="confirmCommissionPayment()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold mb-2">Confirmar Pagamento</button>
+                <button onclick="closeModal('commissionModal')" class="w-full text-slate-500 text-xs font-bold">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // --- 1. CONFIGURAÇÃO ---
+        const DB_KEY = 'plena_beauty_pro_v5';
+        const defaultDB = {
+            appointments: [], team: [{id:'adm', name:'Admin', commission:0}], services: [{id:'s1', name:'Corte Feminino', price:50}], clients: [], transactions: [],
+            settings: { businessName: '', businessOwner: '', businessDoc: '', businessHours: '' },
+            changelog: [{ version: 'v5.3.1', date: '24/01/2026', changes: ['Layout Híbrido Pro', 'Melhoria Mobile'] }]
+        };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+        let currentCommissionData = null;
+
+        // --- 2. UTILITÁRIOS ---
+        const save = () => localStorage.setItem(DB_KEY, JSON.stringify(db));
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const fmtDate = (d) => { if(!d) return '--'; const date = new Date(d); return date.toLocaleDateString('pt-BR'); };
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        const sanitizeHTML = (str) => String(str || '').replace(/[&<>"']/g, '');
+        const calculatePercentage = (curr, prev) => { if(prev===0) return curr>0 ? 100 : 0; return ((curr-prev)/prev*100).toFixed(1); };
+
+        // --- 3. INICIALIZAÇÃO ---
+        function init() {
+            lucide.createIcons();
+            const today = new Date().toISOString().split('T')[0];
+            const first = new Date(); first.setDate(1);
+            ['ap-date', 'agenda-date', 'exp-date', 'filter-end', 'rep-end'].forEach(id => { const el = document.getElementById(id); if(el) el.value = today; });
+            ['filter-start', 'rep-start'].forEach(id => { const el = document.getElementById(id); if(el) el.value = first.toISOString().split('T')[0]; });
+            
+            if(db.settings.businessName) document.getElementById('biz-name').value = db.settings.businessName;
+            if(db.settings.businessHours) document.getElementById('biz-hours').value = db.settings.businessHours;
+
+            renderDashboard(); renderSystemTab(); setInterval(save, 30000);
+        }
+
+        // --- 4. ROTEAMENTO ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10', 'text-white'));
+            
+            const target = document.getElementById('view-' + view);
+            if(target) { target.classList.remove('hide'); target.classList.add('fade-in'); }
+            
+            const nav = document.getElementById('nav-' + view);
+            if(nav) { nav.classList.add('active-nav', 'bg-white/10', 'text-white'); nav.classList.remove('text-slate-400'); }
+            
+            const titles = { dashboard: 'Agenda', team: 'Profissionais', services: 'Serviços', finance: 'Financeiro', clients: 'Clientes', reports: 'Relatórios', settings: 'Configurações', instructions: 'Manual', about: 'Sobre', system: 'Sistema' };
+            document.getElementById('page-title').innerText = titles[view] || 'Plena Beleza';
+
+            if(window.innerWidth < 1024) { 
+                const sb = document.getElementById('sidebar'); 
+                if(sb.classList.contains('open')) toggleSidebar(); 
+            }
+
+            if(view === 'dashboard') renderDashboard();
+            else if(view === 'team') renderTeam();
+            else if(view === 'services') renderServices();
+            else if(view === 'finance') renderFinance();
+            else if(view === 'clients') renderClients();
+            else if(view === 'system') renderSystemTab();
+        }
+
+        // --- 5. LOGIC: DASHBOARD ---
+        function renderDashboard() {
+            const date = document.getElementById('agenda-date').value;
+            const todayAppts = db.appointments.filter(a => a.date === date).sort((a,b) => a.time.localeCompare(b.time));
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayTrans = db.transactions.filter(t => t.date === todayStr);
+            const inc = todayTrans.filter(t => t.type === 'income').reduce((s,t) => s+t.amount, 0);
+            const comm = db.transactions.filter(t => t.type === 'income' && !t.commissionPaid).reduce((s,t) => s+(t.commission||0), 0);
+            
+            // Growth
+            const yestStr = new Date(Date.now()-86400000).toISOString().split('T')[0];
+            const yestInc = db.transactions.filter(t => t.date === yestStr && t.type === 'income').reduce((s,t)=>s+t.amount,0);
+            document.getElementById('rev-growth').innerText = `${calculatePercentage(inc, yestInc)}%`;
+
+            document.getElementById('dash-appt-today').innerText = db.appointments.filter(a => a.date === todayStr && a.status === 'pending').length;
+            document.getElementById('dash-rev-today').innerText = fmtMoney(inc);
+            document.getElementById('dash-comm-pending').innerText = fmtMoney(comm);
+
+            const list = document.getElementById('agenda-list');
+            if(todayAppts.length === 0) list.innerHTML = '<div class="text-center py-8 text-slate-400">Nenhum agendamento</div>';
+            else {
+                list.innerHTML = todayAppts.map(a => `
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center ${a.status === 'canceled' ? 'opacity-60' : ''}">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-pink-50 px-3 py-2 rounded-lg border border-pink-100 text-center font-bold text-lg text-slate-800">${a.time}</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">${sanitizeHTML(a.client)}</h4>
+                                <p class="text-xs text-slate-500">${sanitizeHTML(a.serviceName)} • ${sanitizeHTML(a.proName)}</p>
+                                <span class="text-xs px-2 py-0.5 rounded-full ${a.status==='pending'?'bg-yellow-100 text-yellow-800':a.status==='done'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${a.status}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            ${a.status === 'pending' ? `<button onclick="cancelAppt('${a.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-5 h-5"></i></button><button onclick="finishAppt('${a.id}')" class="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"><i data-lucide="check" class="w-5 h-5"></i></button>` : ''}
+                        </div>
+                    </div>`).join('');
+            }
+            // Upcoming
+            const up = db.appointments.filter(a => a.status === 'pending' && a.date >= todayStr).slice(0, 3);
+            document.getElementById('upcoming-appts').innerHTML = up.length ? up.map(a => `<div class="flex justify-between p-3 border-b border-slate-100 text-sm"><span>${sanitizeHTML(a.client)}</span><span class="text-slate-500">${fmtDate(a.date)} ${a.time}</span></div>`).join('') : '<p class="text-center text-slate-400 py-2">Nada agendado</p>';
+            lucide.createIcons();
+        }
+
+        // TEAM & SERVICES & CLIENTS
+        function renderTeam() {
+            const container = document.getElementById('team-list');
+            if(db.team.length === 0) { container.innerHTML = '<p class="col-span-3 text-center text-slate-400">Sem profissionais</p>'; return; }
+            container.innerHTML = db.team.map(p => {
+                const pend = db.transactions.filter(t => t.proId === p.id && t.type === 'income' && !t.commissionPaid).reduce((s,t)=>s+(t.commission||0),0);
+                return `
+                <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm card-hover">
+                    <div class="flex justify-between mb-4"><div class="bg-pink-50 p-2 rounded text-plena-rose"><i data-lucide="user"></i></div><span class="text-xs bg-slate-100 px-2 py-1 rounded font-bold">${p.commission}%</span></div>
+                    <h3 class="font-bold text-lg">${sanitizeHTML(p.name)}</h3>
+                    <div class="mt-4 pt-4 border-t flex justify-between items-center"><span class="text-sm text-slate-500">Pendente: <b class="text-plena-rose">${fmtMoney(pend)}</b></span><button onclick="payCommission('${p.id}')" ${pend===0?'disabled class="opacity-50"':''} class="text-sm font-bold text-plena-rose">Pagar</button></div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderServices() {
+            const list = document.getElementById('services-list');
+            list.innerHTML = db.services.map(s => `<div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center card-hover"><span class="font-bold">${sanitizeHTML(s.name)}</span><span class="font-bold text-plena-rose">${fmtMoney(s.price)}</span></div>`).join('');
+        }
+
+        function renderClients() {
+            const list = document.getElementById('clients-list');
+            list.innerHTML = db.clients.map(c => `
+                <tr class="hover:bg-slate-50"><td class="px-6 py-4 font-medium">${sanitizeHTML(c.name)}</td><td class="px-6 py-4 text-slate-500">${c.phone||'-'}</td><td class="px-6 py-4 text-slate-500">--</td><td class="px-6 py-4 font-bold text-plena-rose">R$ 0,00</td><td class="px-6 py-4 text-center"><button class="text-slate-400"><i data-lucide="edit" class="w-4 h-4"></i></button></td></tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // FINANCE
+        function renderFinance() {
+            const term = document.getElementById('search-term').value.toLowerCase();
+            const filter = document.getElementById('filter-type').value;
+            const start = document.getElementById('filter-start').value;
+            const end = document.getElementById('filter-end').value;
+            
+            const list = db.transactions.filter(t => {
+                const mt = t.description.toLowerCase().includes(term);
+                const mtype = filter === 'all' || t.type === filter;
+                const mdate = (!start || t.date >= start) && (!end || t.date <= end);
+                return mt && mtype && mdate;
+            }).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            // Stats Month
+            const today = new Date();
+            const mTrans = db.transactions.filter(t => new Date(t.date).getMonth() === today.getMonth());
+            document.getElementById('fin-income').textContent = fmtMoney(mTrans.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+            document.getElementById('fin-expense').textContent = fmtMoney(mTrans.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+            document.getElementById('fin-commission').textContent = fmtMoney(mTrans.filter(t=>t.type==='income').reduce((s,t)=>s+(t.commission||0),0));
+
+            const tbody = document.getElementById('trans-list');
+            if(list.length === 0) { tbody.innerHTML = ''; document.getElementById('empty-msg').classList.remove('hidden'); return; }
+            document.getElementById('empty-msg').classList.add('hidden');
+            tbody.innerHTML = list.map(t => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="px-6 py-4 text-slate-500">${fmtDate(t.date)}</td>
+                    <td class="px-6 py-4 font-medium">${sanitizeHTML(t.description)}</td>
+                    <td class="px-6 py-4">${t.proName || '-'}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${t.type==='income'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${t.type==='income'?'Entrada':'Saída'}</span></td>
+                    <td class="px-6 py-4 text-right font-bold ${t.type==='income'?'text-green-600':'text-red-600'}">${t.type==='income'?'+':'-'} ${fmtMoney(t.amount)}</td>
+                    <td class="px-6 py-4 text-right text-slate-500">${t.commission ? fmtMoney(t.commission) : '-'}</td>
+                    <td class="px-6 py-4 text-right"><button class="text-slate-400"><i data-lucide="edit-2" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+
+        function clearFinanceFilters() {
+            document.getElementById('search-term').value = '';
+            document.getElementById('filter-type').value = 'all';
+            renderFinance();
+        }
+
+        // CRUD
+        function openApptModal() {
+            const sSel = document.getElementById('ap-service'); sSel.innerHTML = '<option>Serviço...</option>';
+            db.services.forEach(s => { const o = document.createElement('option'); o.value=s.id; o.text=`${s.name} - ${fmtMoney(s.price)}`; o.dataset.price=s.price; sSel.add(o); });
+            const pSel = document.getElementById('ap-pro'); pSel.innerHTML = '<option>Profissional...</option>';
+            db.team.forEach(p => { const o = document.createElement('option'); o.value=p.id; o.text=p.name; pSel.add(o); });
+            document.getElementById('apptModal').classList.remove('hidden');
+        }
+        function submitAppt(e) {
+            e.preventDefault();
+            const sId = document.getElementById('ap-service').value;
+            const pId = document.getElementById('ap-pro').value;
+            const service = db.services.find(s=>s.id===sId);
+            const pro = db.team.find(p=>p.id===pId);
+            if(!service || !pro) return;
+            const appt = {
+                id: getID(), client: document.getElementById('ap-client').value, date: document.getElementById('ap-date').value,
+                time: document.getElementById('ap-time').value, serviceId: sId, serviceName: service.name,
+                proId: pId, proName: pro.name, price: service.price, status: 'pending', commissionPct: pro.commission,
+                commissionVal: service.price * (pro.commission/100)
+            };
+            db.appointments.push(appt); save(); closeModal('apptModal'); renderDashboard();
+        }
+        function finishAppt(id) {
+            if(!confirm('Finalizar?')) return;
+            const a = db.appointments.find(x => x.id === id);
+            a.status = 'done';
+            db.transactions.push({ id: getID(), type: 'income', description: `Serviço: ${a.serviceName} - ${a.client}`, amount: a.price, date: a.date, proId: a.proId, proName: a.proName, commission: a.commissionVal });
+            save(); renderDashboard();
+        }
+        function cancelAppt(id) { if(confirm('Cancelar?')) { const a = db.appointments.find(x => x.id === id); a.status = 'canceled'; save(); renderDashboard(); } }
+
+        function openTeamModal() { document.querySelector('#teamModal form').reset(); document.getElementById('tm-id').value = ''; document.getElementById('teamModal').classList.remove('hidden'); }
+        function submitTeam(e) { e.preventDefault(); db.team.push({id: getID(), name: document.getElementById('tm-name').value, commission: parseFloat(document.getElementById('tm-comm').value)}); save(); closeModal('teamModal'); renderTeam(); }
+        
+        function openServiceModal() { document.querySelector('#serviceModal form').reset(); document.getElementById('svc-id').value = ''; document.getElementById('serviceModal').classList.remove('hidden'); }
+        function submitService(e) { e.preventDefault(); db.services.push({id: getID(), name: document.getElementById('svc-name').value, price: parseFloat(document.getElementById('svc-price').value)}); save(); closeModal('serviceModal'); renderServices(); }
+
+        function openClientModal() { document.querySelector('#clientModal form').reset(); document.getElementById('cli-id').value = ''; document.getElementById('clientModal').classList.remove('hidden'); }
+        function submitClient(e) { e.preventDefault(); db.clients.push({id: getID(), name: document.getElementById('cli-name').value, phone: document.getElementById('cli-phone').value}); save(); closeModal('clientModal'); renderClients(); }
+
+        function openExpenseModal() { document.querySelector('#expenseModal form').reset(); document.getElementById('exp-id').value=''; document.getElementById('expenseModal').classList.remove('hidden'); }
+        function submitExpense(e) { e.preventDefault(); db.transactions.push({id: getID(), type: document.getElementById('exp-type').value, description: document.getElementById('exp-desc').value, amount: parseFloat(document.getElementById('exp-amount').value), date: document.getElementById('exp-date').value, category: document.getElementById('exp-category').value}); save(); closeModal('expenseModal'); if(!document.getElementById('view-finance').classList.contains('hide')) renderFinance(); }
+
+        // COMMISSIONS & PAYMENTS
+        function payCommission(proId) {
+            const pend = db.transactions.filter(t => t.proId === proId && t.type === 'income' && !t.commissionPaid);
+            const total = pend.reduce((s,t) => s+(t.commission||0),0);
+            const pro = db.team.find(p => p.id === proId);
+            currentCommissionData = { proId, amount: total, proName: pro.name };
+            document.getElementById('comm-pro-name').innerText = pro.name;
+            document.getElementById('comm-value').innerText = fmtMoney(total);
+            document.getElementById('commissionModal').classList.remove('hidden');
+        }
+        function confirmCommissionPayment() {
+            if(!currentCommissionData) return;
+            db.transactions.push({ id: getID(), type: 'expense', description: `Comissão: ${currentCommissionData.proName}`, amount: currentCommissionData.amount, date: new Date().toISOString().split('T')[0], category: 'comissao' });
+            db.transactions.forEach(t => { if(t.proId === currentCommissionData.proId && t.type === 'income' && !t.commissionPaid) t.commissionPaid = true; });
+            save(); renderTeam(); renderFinance(); closeModal('commissionModal');
+        }
+
+        // REPORTS
+        function generateReport() {
+            const start = document.getElementById('rep-start').value;
+            const end = document.getElementById('rep-end').value;
+            const list = db.transactions.filter(t => t.date >= start && t.date <= end);
+            const inc = list.filter(t => t.type === 'income').reduce((s,t) => s+t.amount, 0);
+            const exp = list.filter(t => t.type === 'expense').reduce((s,t) => s+t.amount, 0);
+            const com = list.filter(t => t.type === 'income').reduce((s,t) => s+(t.commission||0), 0);
+            document.getElementById('rep-inc').textContent = fmtMoney(inc);
+            document.getElementById('rep-exp').textContent = fmtMoney(exp);
+            document.getElementById('rep-com').textContent = fmtMoney(com);
+            
+            // Top Services
+            const smap = {};
+            list.filter(t => t.type === 'income' && t.description.startsWith('Serviço')).forEach(t => {
+                const svc = t.description.split(': ')[1]?.split(' -')[0] || 'Outros';
+                if(!smap[svc]) smap[svc] = 0; smap[svc]++;
+            });
+            document.getElementById('top-services').innerHTML = Object.entries(smap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,c]) => `<div class="flex justify-between p-2 bg-slate-50 rounded"><span>${n}</span><span class="font-bold">${c} un</span></div>`).join('');
+            document.getElementById('report-result').classList.remove('hide');
+        }
+        function generateMonthReport() {
+            const now = new Date();
+            document.getElementById('rep-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('rep-end').value = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split('T')[0];
+            generateReport();
+        }
+
+        // SETTINGS & SYSTEM
+        function saveBusinessInfo() {
+            db.settings.businessName = document.getElementById('biz-name').value;
+            db.settings.businessHours = document.getElementById('biz-hours').value;
+            save(); alert('Salvo!');
+        }
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const node = document.createElement('a');
+            node.setAttribute("href", dataStr);
+            node.setAttribute("download", "backup_plena_beleza.json");
+            document.body.appendChild(node); node.click(); node.remove();
+        }
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { try { db = JSON.parse(e.target.result); save(); alert('Restaurado!'); location.reload(); } catch(err) { alert('Erro ao ler'); } };
+            reader.readAsText(file);
+        }
+        function clearAllData() { if(confirm('Apagar tudo?')) { db.appointments=[]; db.transactions=[]; save(); location.reload(); } }
+        function factoryReset() { if(confirm('Resetar fábrica?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+        function renderSystemTab() {
+            const feed = document.getElementById('changelog-feed');
+            if (feed) feed.innerHTML = db.changelog.map(log => `<div class="mb-2"><span class="font-bold text-slate-700">${log.version}</span> - ${log.date} <ul class="list-disc pl-5 text-sm text-slate-600">${log.changes.map(c => `<li>${c}</li>`).join('')}</ul></div>`).join('');
+            if('storage' in navigator && 'estimate' in navigator.storage) navigator.storage.estimate().then(est => document.getElementById('storage-usage').textContent = `${(est.usage/1024/1024).toFixed(2)} MB Usado`);
+        }
+        function checkForUpdates() { alert('Sistema atualizado: v5.3.1'); }
+        function shareReport() { alert('Compartilhar via WhatsApp'); }
+        function printReport() { window.print(); }
+        function openClosingModal() {
+            const today = new Date().toISOString().split('T')[0];
+            const trans = db.transactions.filter(t => t.date === today);
+            const inc = trans.filter(t => t.type === 'income').reduce((s,t) => s+t.amount, 0);
+            const exp = trans.filter(t => t.type === 'expense').reduce((s,t) => s+t.amount, 0);
+            const com = trans.filter(t => t.type === 'income').reduce((s,t) => s+(t.commission||0), 0);
+            document.getElementById('close-inc').textContent = fmtMoney(inc);
+            document.getElementById('close-exp').textContent = fmtMoney(exp);
+            document.getElementById('close-com').textContent = fmtMoney(com);
+            document.getElementById('close-bal').textContent = fmtMoney(inc - exp - com);
+            document.getElementById('close-date').textContent = fmtDate(today);
+            document.getElementById('closingModal').classList.remove('hidden');
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

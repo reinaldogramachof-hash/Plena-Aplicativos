@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA DELIVERY HÍBRIDO PRO
+    1. HTML: Estrutura Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: Estilos refinados com Breakpoints (lg: 1024px) e Paleta Purple
+    3. JS: Lógica de Pedidos, Cardápio e Entregas
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Delivery - Gestão de Pedidos</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            purple: '#7C3AED',
+                            dark: '#4C1D95',
+                            black: '#0f172a',
+                            green: '#10B981',
+                            red: '#EF4444',
+                            yellow: '#F59E0B',
+                            blue: '#3B82F6',
+                            soft: '#F5F3FF'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- LÓGICA HÍBRIDA (SIDEBAR) --- */
+        .sidebar-container {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            background: #0f172a;
+            color: white;
+            z-index: 50;
+            border-right: 1px solid #1e293b;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-container { margin-left: 280px; }
+            .hamburger-btn { display: none !important; }
+        }
+
+        /* Mobile/Tablet (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar-container { transform: translateX(-100%); box-shadow: 10px 0 25px -5px rgba(0,0,0,0.5); }
+            .sidebar-container.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #F8FAFC;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Utilitários */
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Navegação */
+        .nav-item {
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-item.active-nav {
+            background: rgba(124, 58, 237, 0.15); /* Purple tint */
+            color: #A78BFA; /* Purple light */
+            border-right: 3px solid #7C3AED;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.1); }
+
+        /* Status Dots */
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-pending { background-color: #F59E0B; }
+        .status-preparing { background-color: #3B82F6; }
+        .status-delivery { background-color: #7C3AED; }
+        .status-done { background-color: #10B981; }
+
+        /* Impressão */
+        @media print {
+            .sidebar-container, .hamburger-btn, header, .no-print { display: none !important; }
+            .main-container { margin-left: 0; width: 100%; }
+            body { background: white; }
+            .view-section { display: none; }
+            #view-orders { display: block !important; }
+            .print-color-exact { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50">
+
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-container flex flex-col shadow-2xl">
+        <!-- Logo -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div class="bg-gradient-to-br from-plena-purple to-plena-dark p-2 rounded-lg mr-3 shadow-lg shadow-purple-900/50">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA DELIVERY</h1>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">DESKTOP PRO</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Operacional</p>
+            
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Dashboard
+            </button>
+            <button onclick="router('orders')" id="nav-orders" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="clipboard-list" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Pedidos
+            </button>
+            <button onclick="router('menu')" id="nav-menu" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="utensils" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Cardápio
+            </button>
+            <button onclick="router('delivery')" id="nav-delivery" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bike" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-purple"></i> Entregas
+            </button>
+
+            <div class="pt-4 pb-2"><div class="border-t border-slate-800"></div></div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ferramentas</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Manual
+            </button>
+            <button onclick="router('about')" id="nav-about" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sobre
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sistema
+                <span id="sidebar-badge" class="hidden absolute right-4 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-plena-purple to-indigo-500 flex items-center justify-center font-bold text-xs">CX</div>
+                <div>
+                    <p class="text-sm font-medium text-white">Caixa</p>
+                    <p class="text-xs text-slate-500">Aberto</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão de Pedidos</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="router('system')" class="relative p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-2.5 w-2.5 hidden">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </button>
+
+                <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+
+                <button onclick="openProductModal()" class="flex items-center px-3 md:px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4 md:mr-2 text-green-600"></i>
+                    <span class="hidden md:inline">Produto</span>
+                </button>
+
+                <button onclick="openOrderModal()" class="flex items-center px-3 md:px-5 py-2.5 bg-plena-purple text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-all shadow-md shadow-purple-200">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 md:mr-2"></i>
+                    <span class="hidden md:inline">Novo Pedido</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- Controle de Dia -->
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                    <h3 class="text-lg font-bold text-slate-700 w-full sm:w-auto">Visão Geral do Dia</h3>
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="calendar" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="date" id="date-selector" onchange="renderDashboard()"
+                            class="w-full sm:w-auto pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-plena-purple outline-none cursor-pointer hover:bg-white">
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pedidos Hoje</p>
+                                <h3 id="dash-orders-count" class="text-2xl md:text-3xl font-bold text-slate-900 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Total do dia</p>
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-lg text-plena-purple"><i data-lucide="shopping-bag" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Faturamento</p>
+                                <h3 id="dash-revenue" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Vendas confirmadas</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded-lg text-green-600"><i data-lucide="dollar-sign" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Em Preparo</p>
+                                <h3 id="dash-preparing" class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Cozinha</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-lg text-blue-600"><i data-lucide="chef-hat" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Em Entrega</p>
+                                <h3 id="dash-delivering" class="text-2xl md:text-3xl font-bold text-yellow-600 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Motoboy</p>
+                            </div>
+                            <div class="p-3 bg-yellow-50 rounded-lg text-yellow-600"><i data-lucide="bike" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <!-- Lista de Pedidos Ativos -->
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                                <i data-lucide="list-video" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Pedidos em Andamento
+                            </h3>
+                            <div class="flex gap-2">
+                                <span class="flex items-center text-xs font-bold text-slate-500"><div class="status-dot status-pending"></div> Pendente</span>
+                                <span class="flex items-center text-xs font-bold text-slate-500"><div class="status-dot status-preparing"></div> Preparo</span>
+                            </div>
+                        </div>
+                        <div id="active-orders-list" class="p-4 space-y-3 min-h-[300px]"></div>
+                    </div>
+
+                    <!-- Actions & Recent -->
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="zap" class="w-4 h-4 mr-2 text-plena-purple"></i>
+                                Ações Rápidas
+                            </h3>
+                            <div class="space-y-3">
+                                <button onclick="openOrderModal()" class="w-full bg-plena-purple text-white py-2.5 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Novo Pedido</button>
+                                <button onclick="router('menu')" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-200 flex items-center justify-center gap-2"><i data-lucide="utensils" class="w-4 h-4"></i> Ver Cardápio</button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4">Entregas Recentes</h3>
+                            <div id="recent-deliveries" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: ORDERS (Historico) -->
+            <section id="view-orders" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Todos os Pedidos</h2>
+                        <p class="text-sm text-slate-500 hidden sm:block">Histórico completo</p>
+                    </div>
+                    <div class="relative w-full md:w-64">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="search-orders" onkeyup="renderOrders()" placeholder="Cliente ou ID..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-plena-purple outline-none">
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[800px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-3">ID</th>
+                                    <th class="px-6 py-3">Cliente</th>
+                                    <th class="px-6 py-3">Itens</th>
+                                    <th class="px-6 py-3">Total</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: MENU -->
+            <section id="view-menu" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Cardápio</h2>
+                    <button onclick="openProductModal()" class="bg-plena-purple text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Novo Produto
+                    </button>
+                </div>
+                <!-- Categories Filter -->
+                <div class="flex gap-2 overflow-x-auto pb-4 mb-2" id="menu-categories"></div>
+                <!-- Products Grid -->
+                <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            </section>
+
+            <!-- VIEW: DELIVERY -->
+            <section id="view-delivery" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Gestão de Entregas</h2>
+                    <button onclick="openStaffModal()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-900 shadow-md flex items-center">
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Novo Entregador
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Entregadores</h3>
+                        <div id="delivery-staff-list" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Estatísticas (Hoje)</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span class="text-sm">Entregas Realizadas</span><span class="font-bold text-slate-800" id="stats-deliveries">0</span></div>
+                            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg"><span class="text-sm">Taxa Média</span><span class="font-bold text-green-600" id="stats-avg-fee">R$ 0,00</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: SETTINGS, REPORTS, SYSTEM -->
+            <section id="view-settings" class="view-section hide fade-in">
+                <div class="max-w-2xl bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 mb-4">Configurações do Restaurante</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="set-name" class="w-full border p-2 rounded-lg text-sm" placeholder="Nome do Estabelecimento">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="number" id="set-fee" step="0.01" class="w-full border p-2 rounded-lg text-sm" placeholder="Taxa Entrega Padrão (R$)">
+                            <input type="number" id="set-time" class="w-full border p-2 rounded-lg text-sm" placeholder="Tempo Médio (min)">
+                        </div>
+                        <button onclick="saveSettings()" class="w-full bg-plena-purple text-white py-2 rounded-lg font-bold">Salvar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-reports" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500">Relatórios em breve.</div></section>
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-slate-900 text-white rounded-xl shadow-lg p-6 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="shopping-bag" class="w-32 h-32"></i></div>
+                        <p class="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Versão Instalada</p>
+                        <h2 id="display-installed-version" class="text-4xl font-bold mb-1">v2.1</h2>
+                        <p class="text-slate-300 text-sm">Build Híbrido Pro</p>
+                    </div>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500">Manual Interativo em desenvolvimento.</div></section>
+            <section id="view-about" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500">Plena Soluções Digitais - v2.1</div></section>
+
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    
+    <!-- New Order Modal -->
+    <div id="orderModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800">Novo Pedido</h3>
+                <button onclick="closeModal('orderModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Esquerda: Cliente e Itens -->
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Cliente</label>
+                        <input type="text" id="ord-client" class="w-full border p-2 rounded-lg text-sm mt-1" placeholder="Nome">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Endereço / Obs</label>
+                        <textarea id="ord-address" class="w-full border p-2 rounded-lg text-sm mt-1" rows="2"></textarea>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-slate-700 text-sm">Carrinho</h4>
+                            <button onclick="openProductSelector()" class="text-xs bg-plena-purple text-white px-2 py-1 rounded hover:bg-plena-dark">+ Item</button>
+                        </div>
+                        <div id="order-cart" class="space-y-2 min-h-[100px]">
+                            <p class="text-center text-xs text-slate-400 py-4">Carrinho vazio</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Direita: Totais e Pagamento -->
+                <div class="space-y-6 flex flex-col justify-between">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Tipo</label>
+                        <select id="ord-type" class="w-full border p-2 rounded-lg text-sm mt-1 bg-white" onchange="updateOrderTotal()">
+                            <option value="delivery">Entrega</option><option value="pickup">Retirada</option><option value="table">Mesa</option>
+                        </select>
+                        
+                        <label class="text-xs font-bold text-slate-500 uppercase mt-4 block">Pagamento</label>
+                        <select id="ord-payment" class="w-full border p-2 rounded-lg text-sm mt-1 bg-white">
+                            <option value="cash">Dinheiro</option><option value="card">Cartão</option><option value="pix">Pix</option>
+                        </select>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                        <div class="flex justify-between text-sm mb-2"><span>Subtotal</span><span id="ord-subtotal">R$ 0,00</span></div>
+                        <div class="flex justify-between text-sm mb-2"><span>Taxa</span><span id="ord-fee">R$ 0,00</span></div>
+                        <div class="flex justify-between text-xl font-bold text-plena-purple border-t border-purple-200 pt-2"><span>Total</span><span id="ord-total">R$ 0,00</span></div>
+                        <button onclick="submitOrder()" class="w-full bg-plena-purple text-white py-3 rounded-lg font-bold mt-4 hover:bg-plena-dark shadow-lg shadow-purple-200">Finalizar Pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Selector Modal (Nested) -->
+    <div id="productSelectorModal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold">Adicionar Item</h3><button onclick="closeModal('productSelectorModal')"><i data-lucide="x"></i></button></div>
+            <input type="text" id="prod-search" onkeyup="renderProductSelector()" placeholder="Buscar..." class="w-full border p-2 rounded-lg text-sm mb-4">
+            <div id="selector-list" class="flex-1 overflow-y-auto space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Product Mgmt Modal -->
+    <div id="productModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Produto</h3>
+            <form onsubmit="submitProduct(event)" class="space-y-4">
+                <input type="hidden" id="pd-id">
+                <input type="text" id="pd-name" required placeholder="Nome" class="w-full border p-2 rounded-lg">
+                <select id="pd-cat" class="w-full border p-2 rounded-lg bg-white"></select>
+                <input type="number" step="0.01" id="pd-price" required placeholder="Preço" class="w-full border p-2 rounded-lg font-bold">
+                <button type="submit" class="w-full bg-plena-purple text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Staff Modal -->
+    <div id="staffModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Entregador</h3>
+            <form onsubmit="submitStaff(event)" class="space-y-4">
+                <input type="hidden" id="st-id">
+                <input type="text" id="st-name" required placeholder="Nome" class="w-full border p-2 rounded-lg">
+                <input type="tel" id="st-phone" placeholder="Telefone" class="w-full border p-2 rounded-lg">
+                <button type="submit" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // CONFIG
+        const DB_KEY = 'plena_delivery_pro_v1';
+        const defaultDB = {
+            orders: [], products: [], categories: [{id:'c1', name:'Pizzas'}, {id:'c2', name:'Bebidas'}, {id:'c3', name:'Sobremesas'}], deliveryStaff: [],
+            settings: { establishmentName: 'Meu Delivery', deliveryFee: 5.00, deliveryTime: 40 }
+        };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+        let cart = [];
+
+        // UTILS
+        const save = () => localStorage.setItem(DB_KEY, JSON.stringify(db));
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const fmtDate = (d) => { const date = new Date(d); return `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}`; };
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        const sanitizeHTML = (str) => String(str || '').replace(/[&<>"']/g, '');
+
+        // INIT
+        function init() {
+            if(window.lucide) lucide.createIcons();
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('date-selector');
+            if (dateInput) dateInput.value = today;
+
+            // Settings
+            if(db.settings.establishmentName) document.getElementById('set-name').value = db.settings.establishmentName;
+            document.getElementById('set-fee').value = db.settings.deliveryFee;
+            document.getElementById('set-time').value = db.settings.deliveryTime;
+
+            renderDashboard();
+            setInterval(save, 30000);
+            router('dashboard');
+        }
+
+        // ROUTER
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open'); overlay.classList.toggle('active');
+        }
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('active-nav', 'bg-white/10', 'text-white'); el.classList.add('text-slate-400'); });
+            const target = document.getElementById('view-' + view);
+            if(target) { target.classList.remove('hide'); target.classList.add('fade-in'); }
+            const nav = document.getElementById('nav-' + view);
+            if(nav) { nav.classList.add('active-nav', 'bg-white/10', 'text-white'); nav.classList.remove('text-slate-400'); }
+            document.getElementById('page-title').innerText = { dashboard:'Dashboard', orders:'Pedidos', menu:'Cardápio', delivery:'Entregas', reports:'Relatórios', settings:'Configurações' }[view] || 'Plena Delivery';
+            if(window.innerWidth < 1024) { const sb = document.getElementById('sidebar'); if(sb.classList.contains('open')) toggleSidebar(); }
+            
+            if(view === 'dashboard') renderDashboard();
+            else if(view === 'orders') renderOrders();
+            else if(view === 'menu') renderMenu();
+            else if(view === 'delivery') renderDelivery();
+        }
+
+        // DASHBOARD
+        function renderDashboard() {
+            const date = document.getElementById('date-selector').value;
+            const orders = db.orders.filter(o => o.date.startsWith(date));
+            const rev = orders.filter(o => o.status !== 'cancelled').reduce((s,o)=>s+o.total,0);
+            const prep = orders.filter(o => o.status === 'preparing').length;
+            const deliv = orders.filter(o => o.status === 'delivering').length;
+
+            document.getElementById('dash-orders-count').innerText = orders.length;
+            document.getElementById('dash-revenue').innerText = fmtMoney(rev);
+            document.getElementById('dash-preparing').innerText = prep;
+            document.getElementById('dash-delivering').innerText = deliv;
+
+            renderActiveOrders(orders);
+            lucide.createIcons();
+        }
+
+        function renderActiveOrders(orders) {
+            const active = orders.filter(o => ['pending', 'preparing', 'delivering'].includes(o.status));
+            const list = document.getElementById('active-orders-list');
+            if(active.length === 0) { list.innerHTML = '<p class="text-center text-slate-400 py-8">Sem pedidos ativos</p>'; return; }
+            
+            list.innerHTML = active.map(o => `
+                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-slate-800">#${o.id.substring(0,4).toUpperCase()}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full ${o.status==='pending'?'bg-yellow-100 text-yellow-800':o.status==='preparing'?'bg-blue-100 text-blue-800':'bg-purple-100 text-purple-800'}">${getStatusLabel(o.status)}</span>
+                        </div>
+                        <p class="text-sm text-slate-600">${sanitizeHTML(o.client)} • ${o.items.length} itens</p>
+                    </div>
+                    <div class="flex gap-2">
+                        ${getNextActionBtn(o)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusLabel(s) { const l = {pending:'Pendente', preparing:'Preparo', delivering:'Entrega', done:'Concluído', cancelled:'Cancelado'}; return l[s]||s; }
+        function getNextActionBtn(o) {
+            if(o.status === 'pending') return `<button onclick="updateStatus('${o.id}', 'preparing')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm font-bold">Aceitar</button>`;
+            if(o.status === 'preparing') return `<button onclick="updateStatus('${o.id}', 'delivering')" class="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm font-bold">Enviar</button>`;
+            if(o.status === 'delivering') return `<button onclick="updateStatus('${o.id}', 'done')" class="px-3 py-1 bg-green-100 text-green-700 rounded text-sm font-bold">Concluir</button>`;
+            return '';
+        }
+        function updateStatus(id, status) { const o = db.orders.find(x=>x.id===id); if(o) { o.status=status; save(); renderDashboard(); renderOrders(); } }
+
+        // ORDERS
+        function renderOrders() {
+            const term = document.getElementById('search-orders').value.toLowerCase();
+            const list = db.orders.filter(o => o.client.toLowerCase().includes(term) || o.id.includes(term)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+            const tbody = document.getElementById('orders-list');
+            tbody.innerHTML = list.map(o => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="px-6 py-4 font-mono text-slate-500">#${o.id.substring(0,4)}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800">${sanitizeHTML(o.client)}</td>
+                    <td class="px-6 py-4 text-sm">${o.items.map(i=>i.qty+'x '+i.name).join(', ')}</td>
+                    <td class="px-6 py-4 font-bold text-green-600">${fmtMoney(o.total)}</td>
+                    <td class="px-6 py-4 text-xs font-bold uppercase">${getStatusLabel(o.status)}</td>
+                    <td class="px-6 py-4 text-center"><button onclick="printOrder('${o.id}')" class="text-slate-400 hover:text-blue-500"><i data-lucide="printer" class="w-4 h-4"></i></button></td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // NEW ORDER LOGIC
+        function openOrderModal() {
+            cart = [];
+            document.getElementById('ord-client').value = '';
+            document.getElementById('ord-address').value = '';
+            renderCart();
+            openModal('orderModal');
+        }
+        function openProductSelector() {
+            renderProductSelector();
+            openModal('productSelectorModal');
+        }
+        function renderProductSelector() {
+            const term = document.getElementById('prod-search').value.toLowerCase();
+            const list = document.getElementById('selector-list');
+            list.innerHTML = db.products.filter(p=>p.name.toLowerCase().includes(term)).map(p => `
+                <div class="flex justify-between items-center p-3 border rounded-lg hover:bg-slate-50 cursor-pointer" onclick="addToCart('${p.id}')">
+                    <span class="font-bold">${sanitizeHTML(p.name)}</span>
+                    <span class="text-green-600 font-bold">${fmtMoney(p.price)}</span>
+                </div>
+            `).join('');
+        }
+        function addToCart(pid) {
+            const p = db.products.find(x=>x.id===pid);
+            const item = cart.find(x=>x.id===pid);
+            if(item) item.qty++; else cart.push({...p, qty:1});
+            renderCart(); closeModal('productSelectorModal');
+        }
+        function renderCart() {
+            const container = document.getElementById('order-cart');
+            if(cart.length===0) { container.innerHTML='<p class="text-center text-xs text-slate-400 py-4">Carrinho vazio</p>'; updateOrderTotal(); return; }
+            container.innerHTML = cart.map((i,idx) => `
+                <div class="flex justify-between items-center text-sm p-2 bg-white border rounded">
+                    <span>${i.qty}x ${i.name}</span>
+                    <div class="flex items-center gap-2">
+                        <span>${fmtMoney(i.price*i.qty)}</span>
+                        <button onclick="cart.splice(${idx},1); renderCart()" class="text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+            updateOrderTotal();
+        }
+        function updateOrderTotal() {
+            const sub = cart.reduce((s,i)=>s+(i.price*i.qty),0);
+            const type = document.getElementById('ord-type').value;
+            const fee = type === 'delivery' ? (parseFloat(db.settings.deliveryFee)||0) : 0;
+            document.getElementById('ord-subtotal').innerText = fmtMoney(sub);
+            document.getElementById('ord-fee').innerText = fmtMoney(fee);
+            document.getElementById('ord-total').innerText = fmtMoney(sub+fee);
+        }
+        function submitOrder() {
+            const client = document.getElementById('ord-client').value;
+            if(!client || cart.length===0) { alert('Preencha os dados'); return; }
+            const type = document.getElementById('ord-type').value;
+            const fee = type === 'delivery' ? (parseFloat(db.settings.deliveryFee)||0) : 0;
+            const sub = cart.reduce((s,i)=>s+(i.price*i.qty),0);
+            const order = {
+                id: getID(), client, address: document.getElementById('ord-address').value,
+                type, payment: document.getElementById('ord-payment').value,
+                items: cart, subtotal: sub, fee, total: sub+fee,
+                status: 'pending', date: new Date().toISOString()
+            };
+            db.orders.unshift(order);
+            save(); closeModal('orderModal'); renderDashboard();
+        }
+
+        // MENU & PRODUCTS
+        function renderMenu() {
+            // Categories
+            document.getElementById('menu-categories').innerHTML = '<button class="px-4 py-1 bg-plena-purple text-white rounded-full text-xs font-bold">Todos</button>' + 
+                db.categories.map(c => `<button class="px-4 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold whitespace-nowrap">${c.name}</button>`).join('');
+            
+            // Grid
+            document.getElementById('menu-grid').innerHTML = db.products.map(p => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md card-hover cursor-pointer" onclick="editProduct('${p.id}')">
+                    <h3 class="font-bold text-slate-800">${sanitizeHTML(p.name)}</h3>
+                    <p class="text-xs text-slate-500 mb-2">${db.categories.find(c=>c.id===p.cat)?.name||'Geral'}</p>
+                    <p class="font-bold text-plena-purple text-lg">${fmtMoney(p.price)}</p>
+                </div>
+            `).join('');
+        }
+        function openProductModal(p=null) {
+            document.querySelector('#productModal form').reset();
+            const sel = document.getElementById('pd-cat');
+            sel.innerHTML = db.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            if(p) {
+                document.getElementById('pd-id').value = p.id;
+                document.getElementById('pd-name').value = p.name;
+                document.getElementById('pd-price').value = p.price;
+                document.getElementById('pd-cat').value = p.cat;
+            } else document.getElementById('pd-id').value = '';
+            openModal('productModal');
+        }
+        function submitProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('pd-id').value;
+            const p = { id: id||getID(), name: document.getElementById('pd-name').value, price: parseFloat(document.getElementById('pd-price').value), cat: document.getElementById('pd-cat').value };
+            if(id) { const idx = db.products.findIndex(x=>x.id===id); db.products[idx]=p; } else db.products.push(p);
+            save(); closeModal('productModal'); renderMenu();
+        }
+        function editProduct(id) { openProductModal(db.products.find(x=>x.id===id)); }
+
+        // DELIVERY STAFF
+        function renderDelivery() {
+            document.getElementById('delivery-staff-list').innerHTML = db.deliveryStaff.map(s => `
+                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                    <div><p class="font-bold text-slate-800 text-sm">${s.name}</p><p class="text-xs text-slate-500">${s.phone||'-'}</p></div>
+                    <button onclick="removeStaff('${s.id}')" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `).join('') || '<p class="text-slate-400 text-sm text-center">Nenhum entregador</p>';
+            
+            // Stats
+            const today = new Date().toISOString().split('T')[0];
+            const dels = db.orders.filter(o => o.type==='delivery' && o.status==='done' && o.date.startsWith(today));
+            document.getElementById('stats-deliveries').innerText = dels.length;
+            const avg = dels.length ? dels.reduce((s,o)=>s+o.fee,0)/dels.length : 0;
+            document.getElementById('stats-avg-fee').innerText = fmtMoney(avg);
+            lucide.createIcons();
+        }
+        function openStaffModal() { document.querySelector('#staffModal form').reset(); openModal('staffModal'); }
+        function submitStaff(e) { e.preventDefault(); db.deliveryStaff.push({id:getID(), name:document.getElementById('st-name').value, phone:document.getElementById('st-phone').value}); save(); closeModal('staffModal'); renderDelivery(); }
+        function removeStaff(id) { if(confirm('Remover?')) { db.deliveryStaff = db.deliveryStaff.filter(x=>x.id!==id); save(); renderDelivery(); } }
+
+        // SETTINGS & MODALS
+        function saveSettings() {
+            db.settings.establishmentName = document.getElementById('set-name').value;
+            db.settings.deliveryFee = parseFloat(document.getElementById('set-fee').value);
+            db.settings.deliveryTime = parseInt(document.getElementById('set-time').value);
+            save(); alert('Salvo!');
+        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function printOrder(id) { alert('Imprimindo pedido ' + id); }
+        function checkForUpdates() { alert('Sistema atualizado: v2.1'); }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

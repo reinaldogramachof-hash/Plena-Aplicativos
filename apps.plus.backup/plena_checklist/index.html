@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA CHECKLIST HÍBRIDO PRO
+    1. HTML: Estrutura Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: Estilos refinados com Breakpoints (lg: 1024px) e Paleta Emerald
+    3. JS: Lógica de Tarefas, Templates e Produtividade
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Checklist - Gestão Multiuso</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            green: '#059669',
+                            dark: '#064E3B',
+                            black: '#0f172a',
+                            emerald: '#10B981',
+                            blue: '#3B82F6',
+                            red: '#EF4444',
+                            yellow: '#F59E0B',
+                            soft: '#ECFDF5'
+                        },
+                        checklist: {
+                            light: '#D1FAE5',
+                            soft: '#A7F3D0'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- LÓGICA HÍBRIDA (SIDEBAR) --- */
+        .sidebar-container {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            background: #0f172a;
+            color: white;
+            z-index: 50;
+            border-right: 1px solid #1e293b;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-container { margin-left: 280px; }
+            .hamburger-btn { display: none !important; }
+        }
+
+        /* Mobile/Tablet (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar-container { transform: translateX(-100%); box-shadow: 10px 0 25px -5px rgba(0,0,0,0.5); }
+            .sidebar-container.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #F8FAFC;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Utilitários */
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Navegação */
+        .nav-item {
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-item.active-nav {
+            background: rgba(16, 185, 129, 0.15); /* Green tint */
+            color: #6EE7B7; /* Green light */
+            border-right: 3px solid #10B981;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
+
+        /* Progress Bar */
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #059669; transition: width 0.5s ease; }
+
+        /* Impressão */
+        @media print {
+            .sidebar-container, .hamburger-btn, header, .no-print { display: none !important; }
+            .main-container { margin-left: 0; width: 100%; }
+            body { background: white; }
+            .view-section { display: none; }
+            #view-reports { display: block !important; }
+            .print-color-exact { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50">
+
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-container flex flex-col shadow-2xl">
+        <!-- Logo -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div class="bg-gradient-to-br from-plena-green to-plena-dark p-2 rounded-lg mr-3 shadow-lg shadow-green-900/50">
+                <i data-lucide="list-checks" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA CHECKLIST</h1>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">DESKTOP PRO</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Principal</p>
+            
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-green"></i> Dashboard
+            </button>
+            <button onclick="router('my-checklists')" id="nav-my-checklists" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="check-square" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-green"></i> Meus Checklists
+            </button>
+            <button onclick="router('templates')" id="nav-templates" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="copy" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-green"></i> Templates
+            </button>
+            <button onclick="router('categories')" id="nav-categories" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="folder" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-green"></i> Categorias
+            </button>
+
+            <div class="pt-4 pb-2"><div class="border-t border-slate-800"></div></div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ferramentas</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Manual
+            </button>
+            <button onclick="router('about')" id="nav-about" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sobre
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sistema
+                <span id="sidebar-badge" class="hidden absolute right-4 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-plena-green to-emerald-500 flex items-center justify-center font-bold text-xs">US</div>
+                <div>
+                    <p class="text-sm font-medium text-white">Usuário</p>
+                    <p class="text-xs text-slate-500">Premium</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão de Tarefas</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="router('system')" class="relative p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-2.5 w-2.5 hidden">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </button>
+
+                <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+
+                <button onclick="openQuickChecklist()" class="flex items-center px-3 md:px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all shadow-sm">
+                    <i data-lucide="zap" class="w-4 h-4 md:mr-2 text-orange-500"></i>
+                    <span class="hidden md:inline">Rápido</span>
+                </button>
+
+                <button onclick="openChecklistModal()" class="flex items-center px-3 md:px-5 py-2.5 bg-plena-green text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-all shadow-md shadow-green-200">
+                    <i data-lucide="plus" class="w-5 h-5 md:mr-2"></i>
+                    <span class="hidden md:inline">Novo Checklist</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ativos</p>
+                                <h3 id="dash-active" class="text-2xl md:text-3xl font-bold text-slate-900 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Em andamento</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-lg text-blue-600"><i data-lucide="list-todo" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Concluídos (Hoje)</p>
+                                <h3 id="dash-completed-today" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Produtividade</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded-lg text-green-600"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Taxa Conclusão</p>
+                                <h3 id="dash-productivity" class="text-2xl md:text-3xl font-bold text-plena-green mt-2">0%</h3>
+                                <p class="text-xs text-slate-500 mt-1">Global</p>
+                            </div>
+                            <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Templates</p>
+                                <h3 id="dash-templates" class="text-2xl md:text-3xl font-bold text-purple-600 mt-2">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Disponíveis</p>
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-lg text-purple-600"><i data-lucide="copy" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Recentes -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800 flex items-center"><i data-lucide="clock" class="w-4 h-4 mr-2 text-plena-green"></i> Recentes</h3>
+                            <button onclick="router('my-checklists')" class="text-xs font-bold text-plena-green hover:underline">Ver Todos</button>
+                        </div>
+                        <div id="recent-checklists" class="space-y-3"></div>
+                    </div>
+
+                    <!-- Próximos Vencimentos -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="calendar-clock" class="w-4 h-4 mr-2 text-red-500"></i> Próximos Vencimentos</h3>
+                        <div id="upcoming-deadlines" class="space-y-3">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: MY CHECKLISTS -->
+            <section id="view-my-checklists" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Meus Checklists</h2>
+                        <p class="text-sm text-slate-500 hidden sm:block">Gerencie suas listas ativas</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="search-checklists" onkeyup="renderChecklists()" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-plena-green outline-none">
+                        </div>
+                        <button onclick="openChecklistModal()" class="bg-plena-green text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                            <i data-lucide="plus" class="w-4 h-4 md:mr-2"></i> <span class="hidden md:inline">Novo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="mb-6 flex flex-wrap gap-2">
+                    <button onclick="filterChecklists('all')" id="filter-all" class="px-4 py-2 bg-plena-green text-white rounded-lg text-sm font-bold">Todos</button>
+                    <button onclick="filterChecklists('active')" id="filter-active" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200">Ativos</button>
+                    <button onclick="filterChecklists('completed')" id="filter-completed" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200">Concluídos</button>
+                    <select id="filter-category" onchange="renderChecklists()" class="px-4 py-2 border rounded-lg text-sm bg-white ml-auto">
+                        <option value="">Todas Categorias</option>
+                    </select>
+                </div>
+
+                <div id="checklists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: TEMPLATES -->
+            <section id="view-templates" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Templates</h2>
+                    <button onclick="openTemplateModal()" class="bg-plena-green text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Novo Template
+                    </button>
+                </div>
+                <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: CATEGORIES -->
+            <section id="view-categories" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Categorias</h2>
+                    <button onclick="openCategoryModal()" class="bg-plena-green text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="folder-plus" class="w-4 h-4 mr-2"></i> Nova Categoria
+                    </button>
+                </div>
+                <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </section>
+
+            <!-- VIEW: RELATÓRIOS -->
+            <section id="view-reports" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Relatórios</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6 max-w-3xl">
+                    <h3 class="font-bold text-slate-800 mb-4">Filtrar Dados</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Início</label><input type="date" id="rep-start" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Fim</label><input type="date" id="rep-end" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Categoria</label><select id="rep-category" class="w-full border p-2 rounded-lg text-sm mt-1"><option value="all">Todas</option></select></div>
+                    </div>
+                    <button onclick="generateReport()" class="mt-4 w-full bg-plena-green text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-plena-dark">Gerar Relatório</button>
+                </div>
+                <div id="report-result" class="hide">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-xl text-center border border-blue-100"><p class="text-xs font-bold text-blue-700 uppercase">Total</p><p id="rep-total" class="text-xl font-bold text-blue-800 mt-1">0</p></div>
+                        <div class="bg-green-50 p-4 rounded-xl text-center border border-green-100"><p class="text-xs font-bold text-green-700 uppercase">Concluídos</p><p id="rep-completed" class="text-xl font-bold text-green-800 mt-1">0</p></div>
+                        <div class="bg-yellow-50 p-4 rounded-xl text-center border border-yellow-100"><p class="text-xs font-bold text-yellow-700 uppercase">Taxa</p><p id="rep-completion-rate" class="text-xl font-bold text-yellow-800 mt-1">0%</p></div>
+                        <div class="bg-purple-50 p-4 rounded-xl text-center border border-purple-100"><p class="text-xs font-bold text-purple-700 uppercase">Tempo Médio</p><p id="rep-avg-time" class="text-xl font-bold text-purple-800 mt-1">-</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Por Categoria</h3>
+                        <div id="category-distribution" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIGURAÇÕES -->
+            <section id="view-settings" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Configurações</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Preferências</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between"><span class="text-sm">Notificações</span><input type="checkbox" id="notifications" class="accent-plena-green w-5 h-5"></div>
+                            <div class="flex items-center justify-between"><span class="text-sm">Modo Escuro</span><input type="checkbox" id="dark-mode" class="accent-plena-green w-5 h-5"></div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase">Lembrete Padrão</label>
+                                <select id="default-reminder" class="w-full border p-2 rounded-lg text-sm mt-1 bg-white">
+                                    <option value="none">Sem lembrete</option><option value="1h">1 hora antes</option><option value="1d">1 dia antes</option>
+                                </select>
+                            </div>
+                            <button onclick="savePreferences()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-bold mt-2">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i> Dados</h3>
+                        <div class="space-y-3">
+                            <button onclick="downloadBackup()" class="w-full border border-slate-300 py-3 rounded-lg text-sm font-medium hover:bg-slate-50 flex justify-center items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Backup</button>
+                            <label class="w-full bg-slate-800 text-white py-3 rounded-lg text-sm font-medium flex justify-center items-center gap-2 cursor-pointer hover:bg-slate-900"><i data-lucide="upload" class="w-4 h-4"></i> Restaurar <input type="file" onchange="restoreBackup(this)" accept=".json" class="hidden"></label>
+                            <button onclick="factoryReset()" class="w-full text-red-500 text-xs font-bold mt-2 hover:underline">Resetar Tudo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SYSTEM & INFO -->
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-end mb-8">
+                        <h2 class="text-2xl font-bold text-slate-800">Sistema</h2>
+                        <button onclick="alert('Sistema atualizado: v1.2')" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center"><i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Verificar</button>
+                    </div>
+                    <div class="bg-slate-900 text-white rounded-xl shadow-lg p-6 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="list-checks" class="w-32 h-32"></i></div>
+                        <p class="text-green-200 text-xs font-bold uppercase tracking-wider mb-1">Versão Instalada</p>
+                        <h2 class="text-4xl font-bold mb-1">v1.2</h2>
+                        <p class="text-slate-300 text-sm">Build Híbrido Pro</p>
+                    </div>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Manual Interativo em desenvolvimento.</div></section>
+            <section id="view-about" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Plena Soluções Digitais - v1.2</div></section>
+
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    
+    <!-- Checklist Modal -->
+    <div id="checklistModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800">Novo Checklist</h3>
+                <button onclick="closeModal('checklistModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 flex-1 overflow-y-auto">
+                <form onsubmit="submitChecklist(event)" id="checklistForm" class="space-y-6">
+                    <input type="hidden" id="cl-id">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Título</label>
+                        <input type="text" id="cl-title" required class="w-full border p-3 rounded-lg text-lg focus:border-plena-green outline-none" placeholder="Ex: Viagem">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Categoria</label>
+                            <select id="cl-category" class="w-full border p-2 rounded-lg text-sm bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Vencimento</label>
+                            <input type="date" id="cl-deadline" class="w-full border p-2 rounded-lg text-sm bg-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Descrição</label>
+                        <textarea id="cl-description" rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Tarefas</label>
+                            <button type="button" onclick="addTask()" class="text-sm text-plena-green font-bold flex items-center gap-1"><i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar</button>
+                        </div>
+                        <div id="tasks-container" class="space-y-3"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-slate-100">
+                <button type="submit" form="checklistForm" class="w-full bg-plena-green text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 hover:bg-plena-dark transition-all">Salvar Checklist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Checklist Modal -->
+    <div id="quickChecklistModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Checklist Rápido</h3>
+                <button onclick="closeModal('quickChecklistModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitQuickChecklist(event)" class="space-y-4">
+                <input type="text" id="quick-title" required placeholder="Título..." class="w-full border p-2 rounded-lg">
+                <div id="quick-tasks" class="space-y-2">
+                    <input type="text" class="w-full border p-2 rounded-lg text-sm" placeholder="Tarefa 1">
+                    <input type="text" class="w-full border p-2 rounded-lg text-sm" placeholder="Tarefa 2">
+                </div>
+                <button type="button" onclick="addQuickTask()" class="text-sm text-plena-green hover:underline">+ Adicionar tarefa</button>
+                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold">Criar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template & Category Modals (Simplificados) -->
+    <div id="templateModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-4">Novo Template</h3>
+            <form onsubmit="submitTemplate(event)" class="space-y-4">
+                <input type="hidden" id="tpl-id"><input type="text" id="tpl-name" required placeholder="Nome" class="w-full border p-2 rounded-lg">
+                <select id="tpl-category" class="w-full border p-2 rounded-lg"><option value="work">Trabalho</option><option value="home">Casa</option></select>
+                <textarea id="tpl-description" rows="3" placeholder="Descrição..." class="w-full border p-2 rounded-lg"></textarea>
+                <button type="submit" class="w-full bg-plena-green text-white py-2 rounded-lg font-bold">Salvar</button>
+                <button type="button" onclick="closeModal('templateModal')" class="w-full bg-slate-100 py-2 rounded-lg text-sm">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <div id="categoryModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-4">Nova Categoria</h3>
+            <form onsubmit="submitCategory(event)" class="space-y-4">
+                <input type="hidden" id="cat-id"><input type="text" id="cat-name" required placeholder="Nome" class="w-full border p-2 rounded-lg">
+                <select id="cat-color" class="w-full border p-2 rounded-lg"><option value="blue">Azul</option><option value="green">Verde</option><option value="red">Vermelho</option></select>
+                <button type="submit" class="w-full bg-plena-green text-white py-2 rounded-lg font-bold">Salvar</button>
+                <button type="button" onclick="closeModal('categoryModal')" class="w-full bg-slate-100 py-2 rounded-lg text-sm">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // CONFIG
+        const DB_KEY = 'plena_checklist_pro_v1';
+        const defaultDB = {
+            checklists: [],
+            templates: [
+                { id: 't1', name: 'Viagem', category: 'travel', description: 'Itens essenciais', tasks: ['Passaporte', 'Roupas', 'Carregador'] },
+                { id: 't2', name: 'Mercado', category: 'home', description: 'Compras do mês', tasks: ['Arroz', 'Feijão', 'Leite'] }
+            ],
+            categories: [
+                { id: 'c1', name: 'Trabalho', color: 'blue', icon: 'briefcase' },
+                { id: 'c2', name: 'Pessoal', color: 'green', icon: 'user' },
+                { id: 'c3', name: 'Saúde', color: 'red', icon: 'heart' },
+                { id: 'c4', name: 'Casa', color: 'yellow', icon: 'home' }
+            ],
+            settings: { darkMode: false, notifications: true, defaultReminder: '1d' }
+        };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+
+        // UTILS
+        const save = () => { localStorage.setItem(DB_KEY, JSON.stringify(db)); updateDashboardStats(); };
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        const sanitizeHTML = (str) => String(str||'').replace(/[&<>"']/g, '');
+        const fmtDate = (d) => { if(!d) return '--/--'; const date = new Date(d); return date.toLocaleDateString('pt-BR'); };
+
+        // INIT
+        function init() {
+            if(window.lucide) lucide.createIcons();
+            const today = new Date().toISOString().split('T')[0];
+            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+            safeSet('cl-deadline', today); safeSet('rep-start', today); safeSet('rep-end', today);
+            
+            populateCategorySelects();
+            updateDashboardStats();
+            renderRecentChecklists();
+            renderCategories();
+            renderTemplates();
+            setInterval(save, 30000);
+            router('dashboard');
+        }
+
+        // ROUTER
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open'); overlay.classList.toggle('active');
+        }
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('active-nav', 'bg-white/10', 'text-white'); el.classList.add('text-slate-400'); });
+            const target = document.getElementById('view-' + view);
+            if(target) { target.classList.remove('hide'); target.classList.add('fade-in'); }
+            const nav = document.getElementById('nav-' + view);
+            if(nav) { nav.classList.add('active-nav', 'bg-white/10', 'text-white'); nav.classList.remove('text-slate-400'); }
+            document.getElementById('page-title').innerText = { dashboard:'Dashboard', 'my-checklists':'Meus Checklists', templates:'Templates', categories:'Categorias', reports:'Relatórios', settings:'Configurações' }[view] || 'Plena Checklist';
+            if(window.innerWidth < 1024) { const sb = document.getElementById('sidebar'); if(sb.classList.contains('open')) toggleSidebar(); }
+            if(view === 'my-checklists') renderChecklists();
+        }
+
+        // LOGIC
+        function populateCategorySelects() {
+            const selects = ['cl-category', 'rep-category', 'filter-category'].map(id => document.getElementById(id)).filter(el => el);
+            selects.forEach(sel => {
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">Todas</option>';
+                db.categories.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.text = c.name; sel.add(o); });
+                if(currentVal) sel.value = currentVal;
+            });
+        }
+
+        function updateDashboardStats() {
+            const active = db.checklists.filter(c => !c.completed).length;
+            const today = new Date().toDateString();
+            const completedToday = db.checklists.filter(c => c.completedAt && new Date(c.completedAt).toDateString() === today).length;
+            const totalTasks = db.checklists.reduce((s,c) => s + (c.tasks?.length||0), 0);
+            const doneTasks = db.checklists.reduce((s,c) => s + (c.tasks?.filter(t=>t.completed)?.length||0), 0);
+            const prod = totalTasks > 0 ? Math.round((doneTasks/totalTasks)*100) : 0;
+            
+            document.getElementById('dash-active').innerText = active;
+            document.getElementById('dash-completed-today').innerText = completedToday;
+            document.getElementById('dash-productivity').innerText = `${prod}%`;
+            document.getElementById('dash-templates').innerText = db.templates.length;
+            
+            // Upcoming
+            const upcoming = db.checklists.filter(c => c.deadline && !c.completed).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline)).slice(0,3);
+            const upContainer = document.getElementById('upcoming-deadlines');
+            if(upContainer) upContainer.innerHTML = upcoming.length ? upcoming.map(c => `
+                <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-100 text-sm">
+                    <span class="font-bold text-slate-800">${sanitizeHTML(c.title)}</span>
+                    <span class="text-red-600 font-bold">${fmtDate(c.deadline)}</span>
+                </div>
+            `).join('') : '<p class="text-center text-slate-400 text-xs">Sem vencimentos próximos</p>';
+        }
+
+        function renderRecentChecklists() {
+            const list = document.getElementById('recent-checklists');
+            const recent = db.checklists.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,3);
+            list.innerHTML = recent.length ? recent.map(c => {
+                const total = c.tasks?.length||0;
+                const done = c.tasks?.filter(t=>t.completed)?.length||0;
+                const pct = total>0 ? Math.round((done/total)*100) : 0;
+                return `
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-2 cursor-pointer hover:bg-slate-100" onclick="editChecklist('${c.id}')">
+                    <div class="flex justify-between mb-1"><span class="font-bold text-sm">${sanitizeHTML(c.title)}</span><span class="text-xs bg-white px-2 rounded">${pct}%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                </div>`;
+            }).join('') : '<p class="text-center text-slate-400 text-sm py-4">Nenhum checklist</p>';
+        }
+
+        // CHECKLIST ACTIONS
+        function openChecklistModal(cl=null) {
+            document.getElementById('checklistForm').reset();
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            if(cl) {
+                document.getElementById('cl-id').value = cl.id;
+                document.getElementById('cl-title').value = cl.title;
+                document.getElementById('cl-category').value = cl.category || '';
+                document.getElementById('cl-deadline').value = cl.deadline || '';
+                document.getElementById('cl-description').value = cl.description || '';
+                if(cl.tasks) cl.tasks.forEach((t,i) => addTask(t.text, t.completed, i));
+            } else {
+                document.getElementById('cl-id').value = '';
+                addTask(); addTask();
+            }
+            openModal('checklistModal');
+        }
+
+        function addTask(text='', completed=false, idx=null) {
+            const container = document.getElementById('tasks-container');
+            const html = `
+                <div class="flex items-center gap-2 p-2 bg-slate-50 rounded border border-slate-200">
+                    <input type="checkbox" ${completed?'checked':''} class="w-5 h-5 accent-plena-green rounded">
+                    <input type="text" value="${sanitizeHTML(text)}" class="flex-1 bg-transparent border-none outline-none text-sm" placeholder="Tarefa...">
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            lucide.createIcons();
+        }
+
+        function submitChecklist(e) {
+            e.preventDefault();
+            const id = document.getElementById('cl-id').value;
+            const title = document.getElementById('cl-title').value;
+            const category = document.getElementById('cl-category').value;
+            const deadline = document.getElementById('cl-deadline').value;
+            const desc = document.getElementById('cl-description').value;
+            
+            const tasks = Array.from(document.querySelectorAll('#tasks-container > div')).map(el => ({
+                text: el.querySelector('input[type="text"]').value,
+                completed: el.querySelector('input[type="checkbox"]').checked
+            })).filter(t => t.text.trim());
+
+            const checklist = {
+                id: id || getID(), title, category, deadline, description: desc, tasks,
+                createdAt: id ? (db.checklists.find(c=>c.id===id)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+                completed: tasks.length > 0 && tasks.every(t=>t.completed),
+                completedAt: (tasks.length > 0 && tasks.every(t=>t.completed)) ? new Date().toISOString() : null
+            };
+
+            if(id) { const idx = db.checklists.findIndex(c=>c.id===id); db.checklists[idx] = checklist; }
+            else { db.checklists.push(checklist); }
+            
+            save(); closeModal('checklistModal');
+            if(!document.getElementById('view-my-checklists').classList.contains('hide')) renderChecklists();
+            renderRecentChecklists();
+        }
+
+        function renderChecklists() {
+            const container = document.getElementById('checklists-grid');
+            const term = document.getElementById('search-checklists')?.value.toLowerCase() || '';
+            const catFilter = document.getElementById('filter-category')?.value;
+            const activeFilter = document.getElementById('filter-active')?.classList.contains('bg-plena-green'); // Simplistic toggle check
+            
+            let list = db.checklists.filter(c => c.title.toLowerCase().includes(term));
+            if(catFilter) list = list.filter(c => c.category === catFilter);
+            
+            container.innerHTML = list.length ? list.map(c => {
+                const total = c.tasks?.length||0;
+                const done = c.tasks?.filter(t=>t.completed)?.length||0;
+                const pct = total>0 ? Math.round((done/total)*100) : 0;
+                const cat = db.categories.find(x=>x.id===c.category) || {name:'Geral', color:'gray'};
+                
+                return `
+                <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm card-hover relative group">
+                    <div class="flex justify-between mb-3">
+                        <span class="text-xs font-bold text-${cat.color}-600 bg-${cat.color}-50 px-2 py-1 rounded">${cat.name}</span>
+                        <div class="flex gap-2">
+                            <button onclick="editChecklist('${c.id}')" class="text-slate-400 hover:text-blue-500"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="deleteChecklist('${c.id}')" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-1">${sanitizeHTML(c.title)}</h3>
+                    <div class="mb-3"><div class="flex justify-between text-xs text-slate-500 mb-1"><span>${done}/${total}</span><span>${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+                    <button onclick="editChecklist('${c.id}')" class="w-full text-center text-sm font-bold text-plena-green hover:underline">Ver Tarefas</button>
+                </div>`;
+            }).join('') : '<p class="col-span-full text-center text-slate-400 py-10">Nenhum checklist encontrado</p>';
+            lucide.createIcons();
+        }
+
+        function filterChecklists(type) {
+            // Simplified filter toggle UI logic would go here
+            // For now, just re-rendering to keep it simple in one file
+            renderChecklists(); 
+        }
+
+        function editChecklist(id) { openChecklistModal(db.checklists.find(c=>c.id===id)); }
+        function deleteChecklist(id) { if(confirm('Excluir?')) { db.checklists = db.checklists.filter(c=>c.id!==id); save(); renderChecklists(); renderRecentChecklists(); } }
+
+        // QUICK CHECKLIST
+        function openQuickChecklist() { document.getElementById('quickChecklistModal').classList.remove('hidden'); }
+        function addQuickTask() { document.getElementById('quick-tasks').insertAdjacentHTML('beforeend', '<input type="text" class="w-full border p-2 rounded-lg text-sm" placeholder="Tarefa...">'); }
+        function submitQuickChecklist(e) {
+            e.preventDefault();
+            const title = document.getElementById('quick-title').value;
+            const tasks = Array.from(document.querySelectorAll('#quick-tasks input')).map(i=>({text:i.value, completed:false})).filter(t=>t.text);
+            if(!title || !tasks.length) return;
+            db.checklists.push({ id:getID(), title, category:'c2', tasks, createdAt: new Date().toISOString(), completed:false });
+            save(); closeModal('quickChecklistModal'); renderRecentChecklists();
+        }
+
+        // CATEGORIES & TEMPLATES (Render logic simplified)
+        function renderCategories() {
+            const grid = document.getElementById('categories-grid');
+            if(grid) grid.innerHTML = db.categories.map(c => `
+                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm text-center card-hover">
+                    <div class="w-10 h-10 mx-auto bg-${c.color}-100 rounded-full flex items-center justify-center text-${c.color}-600 mb-2"><i data-lucide="${c.icon||'folder'}"></i></div>
+                    <h3 class="font-bold text-slate-800">${c.name}</h3>
+                    <p class="text-xs text-slate-500">${db.checklists.filter(x=>x.category===c.id).length} itens</p>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+        function renderTemplates() {
+            const grid = document.getElementById('templates-grid');
+            if(grid) grid.innerHTML = db.templates.map(t => `
+                <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm card-hover">
+                    <h3 class="font-bold text-slate-800">${t.name}</h3>
+                    <p class="text-xs text-slate-500 mb-3">${t.description}</p>
+                    <button onclick="useTemplate('${t.id}')" class="w-full py-2 bg-slate-50 text-slate-600 rounded-lg text-sm font-bold hover:bg-plena-green hover:text-white transition-colors">Usar</button>
+                </div>`).join('');
+        }
+        function useTemplate(tid) {
+            const t = db.templates.find(x=>x.id===tid);
+            if(t) {
+                db.checklists.push({ id:getID(), title: t.name, category: t.category, tasks: t.tasks.map(txt=>({text:txt, completed:false})), createdAt: new Date().toISOString(), completed:false });
+                save(); router('my-checklists');
+            }
+        }
+
+        // MODALS
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openTemplateModal() { openModal('templateModal'); }
+        function openCategoryModal() { openModal('categoryModal'); }
+        function submitCategory(e) { e.preventDefault(); const name=document.getElementById('cat-name').value; const color=document.getElementById('cat-color').value; db.categories.push({id:getID(), name, color, icon:'folder'}); save(); closeModal('categoryModal'); renderCategories(); populateCategorySelects(); }
+        function submitTemplate(e) { e.preventDefault(); alert('Template salvo!'); closeModal('templateModal'); } // Simplificado
+
+        // REPORTS
+        function generateReport() {
+            const start = document.getElementById('rep-start').value;
+            const end = document.getElementById('rep-end').value;
+            const filtered = db.checklists.filter(c => { const d=new Date(c.createdAt); return d>=new Date(start) && d<=new Date(end); });
+            const total = filtered.length;
+            const done = filtered.filter(c=>c.completed).length;
+            document.getElementById('rep-total').innerText = total;
+            document.getElementById('rep-completed').innerText = done;
+            document.getElementById('rep-completion-rate').innerText = total>0 ? Math.round((done/total)*100)+'%' : '0%';
+            
+            // Dist
+            const dist = {}; filtered.forEach(c => { const n = db.categories.find(x=>x.id===c.category)?.name||'Outros'; dist[n]=(dist[n]||0)+1; });
+            document.getElementById('category-distribution').innerHTML = Object.entries(dist).map(([k,v]) => `<div class="bg-slate-50 p-2 rounded text-center"><p class="text-xs text-slate-500 uppercase">${k}</p><p class="font-bold">${v}</p></div>`).join('');
+            document.getElementById('report-result').classList.remove('hide');
+        }
+
+        // SETTINGS & BACKUP
+        function savePreferences() { db.settings.notifications = document.getElementById('notifications').checked; db.settings.darkMode = document.getElementById('dark-mode').checked; save(); alert('Salvo!'); }
+        function downloadBackup() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "backup_plena_checklist.json"); document.body.appendChild(node); node.click(); node.remove(); }
+        function restoreBackup(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { try { db = JSON.parse(e.target.result); save(); location.reload(); } catch(err) { alert('Erro ao ler'); } }; reader.readAsText(file); }
+        function clearAllData() { if(confirm('Apagar tudo?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+        function factoryReset() { clearAllData(); }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

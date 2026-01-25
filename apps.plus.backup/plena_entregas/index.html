@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA ENTREGAS DESKTOP PRO
+    1. HTML: Estrutura SFC Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: TailwindCSS + Estilos Customizados para Breakpoint 1024px
+    3. JS: Vanilla ES6+ com LocalStorage (DB: plena_delivery_v1)
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Plena Entregas - Gestão Profissional</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            green: '#10B981',
+                            dark: '#064E3B',
+                            black: '#0f172a',
+                            gray: '#334155',
+                            soft: '#F3F4F6',
+                            blue: '#3B82F6'
+                        }
+                    },
+                    screens: { 'lg': '1024px' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* SIDEBAR PRO */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            background: #0f172a;
+            color: white;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            border-right: 1px solid #1e293b;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+
+            .hamburger-btn {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 25px -5px rgba(0, 0, 0, 0.5);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-right: 3px solid #10B981;
+        }
+
+        .card-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-collecting {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .status-delivering {
+            background-color: #FCE7F3;
+            color: #9D174D;
+        }
+
+        .status-delivered {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-cancelled {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50 text-slate-800">
+
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar flex flex-col">
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div
+                class="bg-gradient-to-br from-plena-green to-emerald-600 p-2 rounded-lg mr-3 shadow-lg shadow-emerald-900/40">
+                <i data-lucide="package" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA ENTREGAS</h1>
+                <p
+                    class="text-[10px] text-slate-400 font-medium tracking-wide border px-1 rounded border-slate-700 inline-block mt-1">
+                    PRO DESKTOP</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Entregas</p>
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full"><i
+                    data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard</button>
+            <button onclick="router('deliveries')" id="nav-deliveries" class="nav-item w-full"><i data-lucide="list"
+                    class="w-5 h-5 mr-3"></i> Minhas Entregas</button>
+            <button onclick="router('clients')" id="nav-clients" class="nav-item w-full"><i data-lucide="users"
+                    class="w-5 h-5 mr-3"></i> Clientes</button>
+
+            <div class="pt-4 pb-2">
+                <div class="border-t border-slate-800"></div>
+            </div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gestão</p>
+
+            <button onclick="router('finance')" id="nav-finance" class="nav-item w-full"><i data-lucide="wallet"
+                    class="w-5 h-5 mr-3"></i> Financeiro</button>
+            <button onclick="router('vehicle')" id="nav-vehicle" class="nav-item w-full"><i data-lucide="wrench"
+                    class="w-5 h-5 mr-3"></i> Veículo</button>
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full"><i data-lucide="bar-chart-3"
+                    class="w-5 h-5 mr-3"></i> Relatórios</button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full"><i data-lucide="settings"
+                    class="w-5 h-5 mr-3"></i> Configurações</button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full"><i
+                    data-lucide="book-open" class="w-5 h-5 mr-3"></i> Manual</button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3"></i> Sistema
+                <span id="sidebar-badge" class="absolute right-4 flex h-2.5 w-2.5">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-4 bg-slate-900 border-t border-slate-800">
+            <button onclick="router('settings')"
+                class="flex items-center gap-3 w-full hover:bg-slate-800 p-2 rounded-lg transition-colors">
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-xs text-white">
+                    DR</div>
+                <div class="text-left">
+                    <p class="text-sm font-medium text-white" id="sidebar-rider-name">Motoboy</p>
+                    <p class="text-xs text-green-400" id="sidebar-status">Online</p>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content bg-slate-50">
+        <header
+            class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()"
+                    class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"><i data-lucide="menu"
+                        class="w-6 h-6"></i></button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Gestão
+                        de Entregas</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openQuickDelivery()"
+                    class="flex items-center px-4 py-2.5 bg-plena-green text-white rounded-lg text-sm font-bold hover:bg-emerald-600 transition-all shadow-md shadow-emerald-200">
+                    <i data-lucide="plus" class="w-5 h-5 md:mr-2"></i> <span class="hidden md:inline">Nova
+                        Entrega</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            <!-- SECTIONS PLACEHOLDER -->
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- KPI Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div
+                        class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                        <div class="absolute right-0 top-0 p-4 opacity-5"><i data-lucide="package"
+                                class="w-16 h-16 text-slate-800"></i></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Entregas Hoje</p>
+                        <h3 id="today-deliveries" class="text-2xl md:text-3xl font-bold text-slate-800 mt-2">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">Concluídas</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Em Andamento</p>
+                                <h3 id="active-deliveries" class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">0
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Fila ativa</p>
+                            </div>
+                            <div class="p-2 bg-blue-50 rounded text-blue-600"><i data-lucide="clock"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ganhos Hoje</p>
+                                <h3 id="today-earnings" class="text-2xl md:text-3xl font-bold text-green-600 mt-2">R$
+                                    0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Média: <span id="avg-delivery">R$ 0,00</span></p>
+                            </div>
+                            <div class="p-2 bg-green-50 rounded text-green-600"><i data-lucide="wallet"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">KM Estimado</p>
+                                <h3 id="today-distance" class="text-2xl md:text-3xl font-bold text-slate-800 mt-2">0 km
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Baseado em rotas</p>
+                            </div>
+                            <div class="p-2 bg-slate-100 rounded text-slate-600"><i data-lucide="map-pin"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active List & Goals -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Entregas de Hoje</h3>
+                        <div id="today-deliveries-list" class="divide-y divide-slate-100"></div>
+                        <div id="no-deliveries-today" class="hidden text-center py-8 text-slate-400">Nenhuma entrega
+                            hoje.</div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Meta Diária</h3>
+                            <div class="flex justify-between text-xs mb-1"><span
+                                    class="text-slate-500">Progresso</span><span id="goal-progress"
+                                    class="font-bold text-green-600">R$ 0/200</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div id="goal-bar" class="bg-green-500 h-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Combustível</h3>
+                            <div class="flex items-center gap-4">
+                                <div class="relative w-16 h-16">
+                                    <svg class="w-full h-full transform -rotate-90">
+                                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="8"
+                                            fill="transparent" class="text-slate-100" />
+                                        <circle id="fuel-display-circle" cx="32" cy="32" r="28" stroke="currentColor"
+                                            stroke-width="8" fill="transparent" stroke-dasharray="175"
+                                            stroke-dashoffset="44" class="text-yellow-500" />
+                                    </svg>
+                                    <span id="fuel-display"
+                                        class="absolute inset-0 flex items-center justify-center font-bold text-slate-700 text-sm">--%</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500">Nível do Tanque</p>
+                                    <button onclick="updateFuel()"
+                                        class="text-xs font-bold text-blue-600 hover:underline">Atualizar</button>
+                                </div>
+                            </div>
+                            <div id="fuel-status"
+                                class="hidden mt-3 text-xs bg-red-50 text-red-600 p-2 rounded border border-red-100 font-bold">
+                                <i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i> Nível Baixo!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: DELIVERIES -->
+            <section id="view-deliveries" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-slate-800">Histórico de Entregas</h2>
+                    <button onclick="exportDeliveriesCSV()"
+                        class="bg-white border hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-sm"><i
+                            data-lucide="download" class="w-4 h-4 mr-2"></i> Exportar CSV</button>
+                </div>
+
+                <div
+                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="md:col-span-2 relative">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="delivery-search" onkeyup="renderDeliveries()"
+                            placeholder="Buscar cliente ou endereço..."
+                            class="w-full pl-9 border p-2 rounded-lg text-sm">
+                    </div>
+                    <select id="delivery-status" onchange="renderDeliveries()"
+                        class="border p-2 rounded-lg text-sm bg-white">
+                        <option value="all">Todos Status</option>
+                        <option value="pending">Pendente</option>
+                        <option value="delivered">Entregue</option>
+                    </select>
+                    <select id="delivery-payment" onchange="renderDeliveries()"
+                        class="border p-2 rounded-lg text-sm bg-white">
+                        <option value="all">Todos Pagamentos</option>
+                        <option value="paid">Pago</option>
+                        <option value="pending">A Receber</option>
+                    </select>
+                    <input type="date" id="delivery-start" onchange="renderDeliveries()"
+                        class="border p-2 rounded-lg text-sm">
+                    <button onclick="clearDeliveryFilters()"
+                        class="md:col-span-5 text-center text-xs text-slate-400 hover:text-plena-green font-bold">Limpar
+                        Filtros</button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead
+                                class="bg-slate-50 text-slate-500 font-bold uppercase text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3">Data/Hora</th>
+                                    <th class="px-6 py-3">Cliente</th>
+                                    <th class="px-6 py-3">Endereço</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3 text-right">Valor</th>
+                                    <th class="px-6 py-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deliveries-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="deliveries-empty-msg" class="hidden p-8 text-center text-slate-400">Nenhuma entrega
+                        encontrada.</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Total Entregas</p>
+                        <p id="total-deliveries" class="text-lg font-bold text-blue-700">0</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Valor Total</p>
+                        <p id="total-delivery-value" class="text-lg font-bold text-green-700">R$ 0,00</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">A Receber</p>
+                        <p id="pending-payments" class="text-lg font-bold text-yellow-700">R$ 0,00</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Sucesso</p>
+                        <p id="success-rate" class="text-lg font-bold text-purple-700">0%</p>
+                    </div>
+                </div>
+            </section>
+            <!-- VIEW: CLIENTS -->
+            <section id="view-clients" class="view-section hide fade-in">
+                <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Clientes</h2>
+                        <p class="text-sm text-slate-600">Carteira de clientes</p>
+                    </div>
+                    <button onclick="openClientModal()"
+                        class="flex items-center gap-2 px-4 py-2 bg-plena-green text-white rounded-lg text-sm font-bold hover:bg-plena-dark"><i
+                            data-lucide="user-plus" class="w-4 h-4"></i> Novo Cliente</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="clients-grid"></div>
+                <div id="no-clients-msg"
+                    class="hidden bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-slate-300"></i>
+                    <h3 class="font-bold text-slate-800 mb-2">Nenhum cliente cadastrado</h3>
+                    <button onclick="openClientModal()"
+                        class="bg-plena-green text-white px-6 py-2 rounded-lg font-bold hover:bg-plena-dark py-2">+
+                        Adicionar Cliente</button>
+                </div>
+            </section>
+
+            <!-- VIEW: FINANCE -->
+            <section id="view-finance" class="view-section hide fade-in">
+                <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h2 class="text-xl font-bold text-slate-800">Financeiro</h2>
+                    <div class="flex items-center gap-3">
+                        <button onclick="openIncomeModal()"
+                            class="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200"><i
+                                data-lucide="plus" class="w-4 h-4"></i> Receita</button>
+                        <button onclick="openExpenseModal()"
+                            class="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200"><i
+                                data-lucide="minus" class="w-4 h-4"></i> Despesa</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Saldo Atual
+                                </p>
+                                <h3 id="current-balance" class="text-3xl font-bold text-slate-900">R$ 0,00</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center"><i
+                                    data-lucide="wallet" class="w-6 h-6 text-green-600"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Receitas (Mês)
+                                </p>
+                                <h3 id="month-income" class="text-2xl font-bold text-green-600">R$ 0,00</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><i
+                                    data-lucide="trending-up" class="w-6 h-6 text-blue-600"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Despesas (Mês)
+                                </p>
+                                <h3 id="month-expenses" class="text-2xl font-bold text-red-600">R$ 0,00</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center"><i
+                                    data-lucide="trending-down" class="w-6 h-6 text-red-600"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-800">Últimas Movimentações</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+                                <tr>
+                                    <th class="px-6 py-3">Data</th>
+                                    <th class="px-6 py-3">Descrição</th>
+                                    <th class="px-6 py-3">Categoria</th>
+                                    <th class="px-6 py-3 text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: VEHICLE -->
+            <section id="view-vehicle" class="view-section hide fade-in">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Gestão do Veículo</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-6">Informações da Moto</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Modelo</label><input
+                                        type="text" id="vehicle-model"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Placa</label><input
+                                        type="text" id="vehicle-plate"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Ano</label><input
+                                        type="number" id="vehicle-year"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Cor</label><input
+                                        type="text" id="vehicle-color"
+                                        class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                            </div>
+                            <button onclick="saveVehicleInfo()"
+                                class="mt-6 w-full bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-900">Salvar
+                                Informações</button>
+                        </div>
+                        <div class="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-slate-800">Histórico de Manutenção</h3>
+                                <button onclick="openMaintenanceModal()"
+                                    class="flex items-center gap-2 px-3 py-1.5 bg-plena-green text-white text-sm rounded-lg hover:bg-plena-dark"><i
+                                        data-lucide="plus" class="w-4 h-4"></i> Nova</button>
+                            </div>
+                            <div id="maintenance-list" class="space-y-4"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4">Combustível</h3>
+                            <div class="text-center mb-4">
+                                <div class="fuel-gauge bg-slate-200 rounded mx-auto relative overflow-hidden"
+                                    style="width: 120px; height: 60px;">
+                                    <div id="detail-fuel-fill"
+                                        class="bg-yellow-500 absolute bottom-0 w-full transition-all duration-500"
+                                        style="height: 0%"></div>
+                                    <div id="detail-fuel-percent"
+                                        class="absolute inset-0 flex items-center justify-center font-bold z-10">0%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4"><button onclick="refuelVehicle()"
+                                    class="bg-green-100 text-green-700 py-2 rounded-lg font-bold hover:bg-green-200">Abastecer</button><button
+                                    onclick="updateFuel()"
+                                    class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold hover:bg-blue-200">Ajustar</button>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4">Despesas (Mês)</h3>
+                            <div id="vehicle-expenses" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- VIEW: REPORTS -->
+            <section id="view-reports" class="view-section hide fade-in">
+                 <div class="mb-6"><h2 class="text-xl font-bold text-slate-800">Relatórios</h2></div>
+                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6">
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                         <div><label class="text-xs font-bold text-slate-500 uppercase">Início</label><input type="date" id="report-start" class="w-full border p-2 rounded-lg text-sm"></div>
+                         <div><label class="text-xs font-bold text-slate-500 uppercase">Fim</label><input type="date" id="report-end" class="w-full border p-2 rounded-lg text-sm"></div>
+                         <button onclick="generateReport()" class="bg-slate-800 text-white py-2 rounded-lg font-bold hover:bg-slate-900">Gerar Relatório</button>
+                     </div>
+                 </div>
+                 <div id="report-results" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="text-xs text-slate-500 uppercase font-bold">Entregas</p><p id="report-deliveries" class="text-xl font-bold text-blue-700">0</p></div>
+                     <div class="bg-green-50 p-4 rounded-xl border border-green-100"><p class="text-xs text-slate-500 uppercase font-bold">Receitas</p><p id="report-income" class="text-xl font-bold text-green-700">R$ 0,00</p></div>
+                     <div class="bg-red-50 p-4 rounded-xl border border-red-100"><p class="text-xs text-slate-500 uppercase font-bold">Despesas</p><p id="report-expenses" class="text-xl font-bold text-red-700">R$ 0,00</p></div>
+                     <div class="bg-slate-100 p-4 rounded-xl border border-slate-200"><p class="text-xs text-slate-500 uppercase font-bold">Lucro Líquido</p><p id="report-profit" class="text-xl font-bold text-slate-800">R$ 0,00</p></div>
+                 </div>
+            </section>
+
+            <!-- VIEW: SETTINGS -->
+            <section id="view-settings" class="view-section hide fade-in">
+                 <div class="mb-6"><h2 class="text-xl font-bold text-slate-800">Configurações</h2></div>
+                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl">
+                     <h3 class="font-bold text-slate-700 mb-4">Perfil do Entregador</h3>
+                     <div class="grid grid-cols-1 gap-4 mb-6">
+                         <div><label class="text-xs font-bold text-slate-500 uppercase">Nome</label><input type="text" id="rider-name-input" class="w-full border p-2 rounded-lg text-sm"></div>
+                         <div><label class="text-xs font-bold text-slate-500 uppercase">Taxa Padrão (R$)</label><input type="number" id="default-fee" class="w-full border p-2 rounded-lg text-sm"></div>
+                     </div>
+                     <button onclick="saveProfile()" class="bg-plena-green text-white px-6 py-2 rounded-lg font-bold hover:bg-plena-dark">Salvar Perfil</button>
+                     
+                     <div class="border-t border-slate-100 my-6 pt-6">
+                         <h3 class="font-bold text-slate-700 mb-4">Backup e Dados</h3>
+                         <div class="flex gap-4">
+                             <button onclick="downloadBackup()" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200"><i data-lucide="download" class="w-4 h-4 inline mr-2"></i> Baixar Backup</button>
+                             <label class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 cursor-pointer">
+                                 <i data-lucide="upload" class="w-4 h-4 inline mr-2"></i> Restaurar
+                                 <input type="file" class="hidden" onchange="restoreBackup(this)" accept=".json">
+                             </label>
+                         </div>
+                     </div>
+                 </div>
+            </section>
+            
+            <section id="view-instructions" class="view-section hide fade-in">
+                <div class="bg-white p-8 rounded-xl shadow-sm text-center">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Manual de Uso</h2>
+                    <p class="text-slate-500">Em desenvolvimento. Consulte o suporte.</p>
+                </div>
+            </section>
+            <section id="view-system" class="view-section hide fade-in"></section>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <!-- ... (Modals preserved) ... -->
+
+    <!-- SCRIPTS -->
+    <script>
+        // ... (Previous JS preserved) ...
+
+        // Fix for Edit Functions and Reports Logic
+        function openDeliveryModal(d=null) {
+            document.getElementById('deliveryModal').classList.remove('hidden');
+            const sel = document.getElementById('existing-client');
+            sel.innerHTML = '<option value="">Cliente Existente</option>' + db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            
+            if(d) { 
+                document.getElementById('d-id').value = d.id;
+                document.getElementById('d-value').value = d.value;
+                document.getElementById('d-type').value = d.type;
+                document.getElementById('d-payment').value = d.payment;
+                document.getElementById('d-notes').value = d.notes || '';
+                document.getElementById('d-date').value = d.date;
+                document.getElementById('d-time').value = d.time;
+                
+                // Fill Client
+                document.getElementById('d-client-name').value = d.clientName;
+                document.getElementById('d-client-phone').value = d.clientPhone;
+                document.getElementById('d-client-address').value = d.address;
+                document.getElementById('client-form-section').classList.remove('hidden');
+                document.getElementById('quick-client-section').classList.add('hidden');
+            } else { 
+                document.getElementById('d-id').value = ''; 
+                document.querySelector('#deliveryModal form').reset();
+                document.getElementById('d-value').value = db.settings.defaultFee;
+                document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('client-form-section').classList.add('hidden');
+                document.getElementById('quick-client-section').classList.remove('hidden');
+            }
+        }
+
+        function editDelivery(id) { const d = db.deliveries.find(x=>x.id===id); if(d) openDeliveryModal(d); }
+
+        function editClient(id) { 
+            const c = db.clients.find(x=>x.id===id); if(!c) return;
+            openClientModal(); 
+            document.getElementById('c-id').value = c.id; 
+            document.getElementById('c-name').value = c.name;
+            document.getElementById('c-phone').value = c.phone || '';
+            document.getElementById('c-whatsapp').value = c.whatsapp || 'yes';
+            document.getElementById('c-address').value = c.address || '';
+            document.getElementById('c-reference').value = c.reference || '';
+            document.getElementById('c-notes').value = c.notes || '';
+        }
+
+        function saveProfile() {
+            db.settings.riderName = document.getElementById('rider-name-input').value;
+            db.settings.defaultFee = parseFloat(document.getElementById('default-fee').value);
+            save(); loadSettings(); showNotification('Perfil salvo!');
+        }
+        
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "plena_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+        
+        function restoreBackup(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    db = JSON.parse(e.target.result);
+                    save(); location.reload();
+                } catch(e) { alert('Erro no backup'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function generateReport() {
+            const start = document.getElementById('report-start').value;
+            const end = document.getElementById('report-end').value;
+            if(!start || !end) return alert('Selecione as datas');
+            
+            const dels = db.deliveries.filter(d => d.date >= start && d.date <= end);
+            const incs = db.finances.incomes.filter(i => i.date >= start && i.date <= end);
+            const exps = db.finances.expenses.filter(e => e.date >= start && e.date <= end);
+            
+            const totalInc = incs.reduce((a,b)=>a+b.amount,0);
+            const totalExp = exps.reduce((a,b)=>a+b.amount,0);
+            
+            document.getElementById('report-deliveries').textContent = dels.length;
+            document.getElementById('report-income').textContent = fmtMoney(totalInc);
+            document.getElementById('report-expenses').textContent = fmtMoney(totalExp);
+            document.getElementById('report-profit').textContent = fmtMoney(totalInc - totalExp);
+            document.getElementById('report-results').classList.remove('hidden');
+        }
+
+        // --- START APP ---
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Delivery Modal -->
+    <div id="deliveryModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800" id="delivery-modal-title">Nova Entrega</h3><button
+                    onclick="closeModal('deliveryModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitDelivery(event)" class="space-y-4">
+                <input type="hidden" id="d-id">
+                <div id="quick-client-section">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Cliente</label>
+                    <div class="flex gap-2 mb-2"><button type="button" onclick="showClientForm()"
+                            class="flex-1 border border-slate-300 py-2 rounded-lg text-sm hover:bg-slate-50">Novo
+                            Cliente</button><select id="existing-client"
+                            class="flex-1 border p-2 rounded-lg text-sm bg-white" onchange="fillClientInfo(this.value)">
+                            <option value="">Cliente Existente</option>
+                        </select></div>
+                </div>
+                <div id="client-form-section" class="hidden space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Nome</label><input type="text"
+                                id="d-client-name" class="w-full border p-2 rounded-lg text-sm"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Telefone</label><input type="tel"
+                                id="d-client-phone" class="w-full border p-2 rounded-lg text-sm"></div>
+                    </div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Endereço</label><input type="text"
+                            id="d-client-address" class="w-full border p-2 rounded-lg text-sm"></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label><input type="number"
+                        id="d-value" step="0.01" min="0.01" required
+                        class="w-full border-2 border-slate-200 p-3 rounded-xl text-lg font-bold focus:border-plena-green outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Tipo</label><select id="d-type"
+                            class="w-full border p-2 rounded-lg text-sm bg-white">
+                            <option value="food">Comida</option>
+                            <option value="document">Documento</option>
+                            <option value="product">Produto</option>
+                            <option value="other">Outro</option>
+                        </select></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Pagamento</label><select
+                            id="d-payment" class="w-full border p-2 rounded-lg text-sm bg-white">
+                            <option value="cash">Dinheiro</option>
+                            <option value="pix">Pix</option>
+                            <option value="card">Cartão</option>
+                            <option value="pending">A Receber</option>
+                        </select></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Observações</label><textarea id="d-notes"
+                        rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date"
+                            id="d-date" required class="w-full border p-2 rounded-lg text-sm bg-white"></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Hora</label><input type="time"
+                            id="d-time" required class="w-full border p-2 rounded-lg text-sm bg-white"></div>
+                </div>
+                <div class="flex gap-3"><button type="submit"
+                        class="flex-1 bg-plena-green text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 hover:bg-10B981 hover:brightness-110">Salvar
+                        Entrega</button><button type="button" onclick="saveAndStartDelivery()"
+                        class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">Iniciar
+                        Agora</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div id="clientModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Novo Cliente</h3><button
+                    onclick="closeModal('clientModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitClient(event)" class="space-y-4">
+                <input type="hidden" id="c-id">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Nome</label><input type="text"
+                        id="c-name" required class="w-full border p-2 rounded-lg text-sm"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Telefone</label><input type="tel"
+                            id="c-phone" class="w-full border p-2 rounded-lg text-sm"></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">WhatsApp</label><select
+                            id="c-whatsapp" class="w-full border p-2 rounded-lg text-sm">
+                            <option value="yes">Sim</option>
+                            <option value="no">Não</option>
+                        </select></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Endereço</label><textarea id="c-address"
+                        rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Referência</label><input type="text"
+                        id="c-reference" class="w-full border p-2 rounded-lg text-sm"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Observações</label><textarea id="c-notes"
+                        rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea></div>
+                <button type="submit"
+                    class="w-full bg-plena-green text-white py-3 rounded-lg font-bold hover:bg-plena-dark">Salvar
+                    Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Income/Expense Modals -->
+    <div id="incomeModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Nova Receita</h3><button
+                    onclick="closeModal('incomeModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitIncome(event)" class="space-y-4">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Descrição</label><input type="text"
+                        id="i-desc" required class="w-full border p-2 rounded-lg text-sm"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label><input type="number"
+                        id="i-amount" step="0.01" min="0.01" required
+                        class="w-full border p-2 rounded-lg text-lg font-bold"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Categoria</label><select
+                            id="i-category" class="w-full border p-2 rounded-lg text-sm">
+                            <option value="delivery">Entrega</option>
+                            <option value="extra">Extra</option>
+                            <option value="tip">Gorjeta</option>
+                            <option value="other">Outro</option>
+                        </select></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date"
+                            id="i-date" required class="w-full border p-2 rounded-lg text-sm"></div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700">Salvar
+                    Receita</button>
+            </form>
+        </div>
+    </div>
+    <div id="expenseModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Nova Despesa</h3><button
+                    onclick="closeModal('expenseModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitExpense(event)" class="space-y-4">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Descrição</label><input type="text"
+                        id="e-desc" required class="w-full border p-2 rounded-lg text-sm"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label><input type="number"
+                        id="e-amount" step="0.01" min="0.01" required
+                        class="w-full border p-2 rounded-lg text-lg font-bold"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Categoria</label><select
+                            id="e-category" class="w-full border p-2 rounded-lg text-sm">
+                            <option value="fuel">Combustível</option>
+                            <option value="maintenance">Manutenção</option>
+                            <option value="food">Alimentação</option>
+                            <option value="other">Outro</option>
+                        </select></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date"
+                            id="e-date" required class="w-full border p-2 rounded-lg text-sm"></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Observações</label><input type="text"
+                        id="e-notes" class="w-full border p-2 rounded-lg text-sm"></div>
+                <button type="submit"
+                    class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700">Salvar
+                    Despesa</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Modal -->
+    <div id="maintenanceModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Nova Manutenção</h3><button
+                    onclick="closeModal('maintenanceModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitMaintenance(event)" class="space-y-4">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Serviço</label><input type="text"
+                        id="m-service" required class="w-full border p-2 rounded-lg text-sm"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Valor (R$)</label><input
+                            type="number" id="m-cost" step="0.01" min="0" required
+                            class="w-full border p-2 rounded-lg text-sm"></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Data</label><input type="date"
+                            id="m-date" required class="w-full border p-2 rounded-lg text-sm"></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Oficina</label><input type="text"
+                        id="m-workshop" class="w-full border p-2 rounded-lg text-sm"></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Observações</label><textarea id="m-notes"
+                        rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea></div>
+                <button type="submit"
+                    class="w-full bg-yellow-600 text-white py-3 rounded-lg font-bold hover:bg-yellow-700">Salvar
+                    Manutenção</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delivery Detail Modal -->
+    <div id="deliveryDetailModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Detalhes da Entrega</h3><button
+                    onclick="closeModal('deliveryDetailModal')" class="text-slate-400 hover:text-slate-600"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div id="delivery-detail-content"></div>
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="updateDeliveryStatus()" id="status-action-btn"
+                        class="bg-plena-green text-white py-3 rounded-lg font-bold hover:bg-plena-dark">Atualizar
+                        Status</button>
+                    <button onclick="navigateToDelivery()"
+                        class="bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700"><i
+                            data-lucide="navigation" class="w-4 h-4 inline mr-2"></i> Navegar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Delivery Modal -->
+    <div id="quickDeliveryModal" class="overlay flex items-center justify-center p-4 hidden z-[60]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Entrega Rápida</h3>
+            <div class="space-y-4">
+                <button onclick="startQuickDelivery('food')"
+                    class="w-full bg-red-50 border border-red-200 p-4 rounded-xl text-red-700 font-bold hover:bg-red-100 flex items-center justify-center gap-3"><i
+                        data-lucide="pizza" class="w-5 h-5"></i> Comida</button>
+                <button onclick="startQuickDelivery('document')"
+                    class="w-full bg-blue-50 border border-blue-200 p-4 rounded-xl text-blue-700 font-bold hover:bg-blue-100 flex items-center justify-center gap-3"><i
+                        data-lucide="file-text" class="w-5 h-5"></i> Documento</button>
+                <button onclick="startQuickDelivery('product')"
+                    class="w-full bg-green-50 border border-green-200 p-4 rounded-xl text-green-700 font-bold hover:bg-green-100 flex items-center justify-center gap-3"><i
+                        data-lucide="package" class="w-5 h-5"></i> Produto</button>
+                <button onclick="openDeliveryModal()"
+                    class="w-full border border-slate-300 p-4 rounded-xl text-slate-700 font-bold hover:bg-slate-50 flex items-center justify-center gap-3"><i
+                        data-lucide="more-horizontal" class="w-5 h-5"></i> Personalizado</button>
+            </div>
+            <button onclick="closeModal('quickDeliveryModal')"
+                class="w-full mt-6 text-slate-500 hover:text-slate-700 text-sm">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- ESTADO GLOBAL ---
+        const DB_KEY = 'plena_delivery_v1';
+        const defaultDB = {
+            deliveries: [],
+            clients: [],
+            finances: { incomes: [], expenses: [] },
+            vehicle: { model: '', plate: '', year: '', color: '', fuel: 75, odometer: 0, maintenance: [] },
+            settings: { riderName: 'Motoboy', riderPhone: '', riderEmail: '', defaultFee: 15.00, notifications: true, darkMode: false, online: false },
+            goals: { dailyEarnings: 200, dailyDeliveries: 8 }
+        };
+
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+        let currentDeliveryId = null;
+
+        // --- UTILITÁRIOS ---
+        const save = () => { localStorage.setItem(DB_KEY, JSON.stringify(db)); };
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const fmtDate = (d) => { const date = new Date(d); return date.toLocaleDateString('pt-BR'); };
+        const fmtDateTime = (d, t) => `${fmtDate(d)} ${t}`;
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+        // --- INICIALIZAÇÃO ---
+        function init() {
+            lucide.createIcons();
+
+            // Configurar datas padrão
+            const today = new Date().toISOString().split('T')[0];
+            ['d-date', 'i-date', 'e-date', 'm-date', 'delivery-start', 'delivery-end'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = today;
+            });
+
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            const dTime = document.getElementById('d-time');
+            if (dTime) dTime.value = timeStr;
+
+            loadSettings();
+            renderDashboard();
+            updateFuelDisplay();
+
+            // Inicializar view padrão
+            router('dashboard');
+
+            // Auto-save loop
+            setInterval(save, 30000);
+        }
+
+        function loadSettings() {
+            if (document.getElementById('sidebar-rider-name')) document.getElementById('sidebar-rider-name').textContent = db.settings.riderName;
+            // Carregar forms
+            if (document.getElementById('rider-name-input')) document.getElementById('rider-name-input').value = db.settings.riderName;
+            if (document.getElementById('vehicle-model')) document.getElementById('vehicle-model').value = db.vehicle.model;
+            // etc... Simplified for now
+        }
+
+        // --- ROUTER & SIDEBAR ---
+        function router(view) {
+            // Close sidebar mobile
+            if (window.innerWidth < 1024) toggleSidebar(false);
+
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+
+            // Show selected
+            const target = document.getElementById(`view-${view}`);
+            if (target) target.classList.remove('hide');
+
+            // Update Nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-slate-800', 'text-white'));
+            const nav = document.getElementById(`nav-${view}`);
+            if (nav) nav.classList.add('active');
+
+            // Update Title
+            const titles = { dashboard: 'Dashboard', deliveries: 'Entregas', clients: 'Clientes', finance: 'Financeiro', vehicle: 'Veículo', reports: 'Relatórios', settings: 'Configurações', instructions: 'Manual', system: 'Sistema' };
+            document.getElementById('page-title').innerText = titles[view] || 'Plena Entregas';
+
+            // Calls renderers
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'deliveries') renderDeliveries();
+            if (view === 'clients') renderClients();
+            if (view === 'finance') renderFinance();
+            if (view === 'vehicle') renderVehicle();
+        }
+
+        function toggleSidebar(force) {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('overlay');
+            if (force === false) { sb.classList.remove('open'); ov.classList.remove('active'); }
+            else { sb.classList.toggle('open'); ov.classList.toggle('active'); }
+        }
+
+        // --- RENDER DASHBOARD ---
+        function renderDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayDeliveries = db.deliveries.filter(d => d.date === today);
+            const active = todayDeliveries.filter(d => ['pending', 'collecting', 'delivering'].includes(d.status));
+            const delivered = todayDeliveries.filter(d => d.status === 'delivered');
+
+            const earnings = delivered.reduce((acc, d) => acc + d.value, 0);
+            const avg = delivered.length ? earnings / delivered.length : 0;
+            const distance = delivered.length * 5; // Simulação 5km/entrega
+
+            document.getElementById('today-deliveries').textContent = delivered.length;
+            document.getElementById('active-deliveries').textContent = active.length;
+            document.getElementById('today-earnings').textContent = fmtMoney(earnings);
+            document.getElementById('avg-delivery').textContent = fmtMoney(avg);
+            document.getElementById('today-distance').textContent = distance + ' km';
+
+            // Lista Hoje
+            const listEl = document.getElementById('today-deliveries-list');
+            const emptyEl = document.getElementById('no-deliveries-today');
+
+            if (todayDeliveries.length === 0) {
+                listEl.innerHTML = ''; emptyEl.classList.remove('hidden');
+            } else {
+                emptyEl.classList.add('hidden');
+                listEl.innerHTML = todayDeliveries.slice(0, 5).map(d => `
+                    <div class="py-3 flex justify-between items-center cursor-pointer hover:bg-slate-50 p-2 rounded" onclick="viewDeliveryDetail('${d.id}')">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="status-badge status-${d.status}">${d.status}</span>
+                                <span class="text-xs text-slate-400">${d.time}</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">${d.clientName}</p>
+                            <p class="text-xs text-slate-500 truncate w-32 md:w-48">${d.address}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="font-bold text-plena-green">${fmtMoney(d.value)}</p>
+                             <p class="text-[10px] text-slate-400">${d.payment === 'pending' ? 'A receber' : 'Pago'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Metas
+            const goalPct = Math.min((earnings / db.goals.dailyEarnings) * 100, 100);
+            document.getElementById('goal-progress').textContent = `${fmtMoney(earnings)} / ${fmtMoney(db.goals.dailyEarnings)}`;
+            document.getElementById('goal-bar').style.width = `${goalPct}%`;
+        }
+
+        // --- CRUD & ACTIONS ---
+        function submitDelivery(e) {
+            e.preventDefault();
+            const id = document.getElementById('d-id').value;
+            const clientName = document.getElementById('d-client-name').value.trim();
+            const value = parseFloat(document.getElementById('d-value').value);
+            // ... (Simplified logic for brevity but preserving function)
+
+            if (!clientName || !value) return alert('Preencha campos obrigatórios');
+
+            // Client Logic
+            const existingClient = db.clients.find(c => c.name === clientName); // Simple match
+            let clientId = existingClient ? existingClient.id : getID();
+            if (!existingClient) {
+                db.clients.push({ id: clientId, name: clientName, phone: document.getElementById('d-client-phone').value, address: document.getElementById('d-client-address').value });
+            }
+
+            const delivery = {
+                id: id || getID(),
+                clientId, clientName,
+                clientPhone: document.getElementById('d-client-phone').value,
+                address: document.getElementById('d-client-address').value,
+                value,
+                type: document.getElementById('d-type').value,
+                payment: document.getElementById('d-payment').value,
+                notes: document.getElementById('d-notes').value,
+                date: document.getElementById('d-date').value,
+                time: document.getElementById('d-time').value,
+                status: 'pending'
+            };
+
+            if (id) { const idx = db.deliveries.findIndex(d => d.id === id); if (idx !== -1) db.deliveries[idx] = delivery; }
+            else { db.deliveries.push(delivery); }
+
+            save(); closeModal('deliveryModal'); showNotification('Entrega salva!');
+            renderDashboard(); renderDeliveries(); renderFinance();
+        }
+
+        function submitClient(e) {
+            e.preventDefault();
+            const id = document.getElementById('c-id').value;
+            const client = {
+                id: id || getID(),
+                name: document.getElementById('c-name').value,
+                phone: document.getElementById('c-phone').value,
+                whatsapp: document.getElementById('c-whatsapp').value,
+                address: document.getElementById('c-address').value,
+                reference: document.getElementById('c-reference').value,
+                notes: document.getElementById('c-notes').value,
+            };
+            if (id) { const idx = db.clients.findIndex(c => c.id === id); if (idx !== -1) db.clients[idx] = client; }
+            else db.clients.push(client);
+
+            save(); closeModal('clientModal'); showNotification('Cliente salvo!');
+            renderClients();
+        }
+
+        function submitIncome(e) { e.preventDefault(); db.finances.incomes.push({ id: getID(), description: document.getElementById('i-desc').value, amount: parseFloat(document.getElementById('i-amount').value), category: document.getElementById('i-category').value, date: document.getElementById('i-date').value }); save(); closeModal('incomeModal'); renderFinance(); }
+        function submitExpense(e) { e.preventDefault(); db.finances.expenses.push({ id: getID(), description: document.getElementById('e-desc').value, amount: parseFloat(document.getElementById('e-amount').value), category: document.getElementById('e-category').value, date: document.getElementById('e-date').value }); save(); closeModal('expenseModal'); renderFinance(); renderVehicle(); }
+        function submitMaintenance(e) { e.preventDefault(); db.vehicle.maintenance.push({ id: getID(), service: document.getElementById('m-service').value, cost: parseFloat(document.getElementById('m-cost').value), date: document.getElementById('m-date').value, workshop: document.getElementById('m-workshop').value, notes: document.getElementById('m-notes').value }); save(); closeModal('maintenanceModal'); renderVehicle(); }
+
+        function saveVehicleInfo() {
+            db.vehicle.model = document.getElementById('vehicle-model').value;
+            db.vehicle.plate = document.getElementById('vehicle-plate').value;
+            db.vehicle.year = document.getElementById('vehicle-year').value;
+            db.vehicle.color = document.getElementById('vehicle-color').value;
+            save(); showNotification('Info veículo salva!');
+        }
+
+        function updateFuel() {
+            const val = prompt('Nível combustível (0-100):', db.vehicle.fuel);
+            if (val) { db.vehicle.fuel = parseInt(val); save(); updateFuelDisplay(); }
+        }
+
+        function refuelVehicle() {
+            const liters = prompt('Quantos litros?'); const price = prompt('Preço/Litro?');
+            if (liters && price) {
+                const total = parseFloat(liters) * parseFloat(price);
+                db.finances.expenses.push({ id: getID(), description: `Abastecimento ${liters}L`, amount: total, category: 'fuel', date: new Date().toISOString().split('T')[0] });
+                db.vehicle.fuel = Math.min(100, db.vehicle.fuel + (parseFloat(liters) * 2.5)); // Approx
+                save(); renderFinance(); renderVehicle(); showNotification(`Abastecido: ${fmtMoney(total)}`);
+            }
+        }
+
+        function updateFuelDisplay() {
+            const f = db.vehicle.fuel;
+            const fill = document.getElementById('detail-fuel-fill'); if (fill) fill.style.height = f + '%';
+            const pct = document.getElementById('detail-fuel-percent'); if (pct) pct.textContent = f + '%';
+            const disp = document.getElementById('fuel-display'); if (disp) disp.textContent = f + '%';
+            const circ = document.getElementById('fuel-display-circle'); if (circ) circ.style.strokeDashoffset = 175 - (175 * f) / 100;
+        }
+
+        // --- DELIVERY ACTIONS ---
+        function viewDeliveryDetail(id) {
+            const d = db.deliveries.find(x => x.id === id);
+            if (!d) return;
+            currentDeliveryId = id;
+            const cnt = document.getElementById('delivery-detail-content');
+            cnt.innerHTML = `
+                <div class="space-y-4">
+                     <div class="flex justify-between">
+                        <span class="status-badge status-${d.status}">${d.status}</span>
+                        <div class="text-right"><p class="font-bold text-plena-green text-xl">${fmtMoney(d.value)}</p><p class="text-xs text-slate-500">${d.payment}</p></div>
+                     </div>
+                     <div class="bg-slate-50 p-3 rounded">
+                        <p class="font-bold text-slate-700">${d.clientName}</p>
+                        <p class="text-sm text-slate-600">${d.address}</p>
+                        ${d.clientPhone ? `<a href="tel:${d.clientPhone}" class="text-blue-500 text-xs hover:underline flex items-center gap-1 mt-1"><i data-lucide="phone" class="w-3 h-3"></i> ${d.clientPhone}</a>` : ''}
+                     </div>
+                     <div class="grid grid-cols-2 gap-2 text-xs text-slate-500">
+                        <div><span class="font-bold uppercase">Data:</span> ${fmtDate(d.date)} ${d.time}</div>
+                        <div><span class="font-bold uppercase">Tipo:</span> ${d.type}</div>
+                     </div>
+                     ${d.notes ? `<div class="p-2 bg-yellow-50 text-yellow-800 text-xs rounded border border-yellow-100">${d.notes}</div>` : ''}
+                </div>
+             `;
+
+            const btn = document.getElementById('status-action-btn');
+            const acts = { pending: 'Coletar', collecting: 'Entregar', delivering: 'Finalizar', delivered: 'Entregue' };
+            btn.textContent = acts[d.status] || 'Fechar';
+            btn.disabled = d.status === 'delivered';
+
+            lucide.createIcons();
+            document.getElementById('deliveryDetailModal').classList.remove('hidden');
+        }
+
+        function updateDeliveryStatus() {
+            const d = db.deliveries.find(x => x.id === currentDeliveryId);
+            if (!d) return;
+
+            if (d.status === 'pending') d.status = 'collecting';
+            else if (d.status === 'collecting') d.status = 'delivering';
+            else if (d.status === 'delivering') {
+                d.status = 'delivered';
+                if (d.payment === 'pending') {
+                    d.payment = 'cash'; // Assume recbto
+                    db.finances.incomes.push({ id: getID(), description: `Entrega ${d.clientName}`, amount: d.value, category: 'delivery', date: new Date().toISOString().split('T')[0] });
+                }
+            }
+            save(); closeModal('deliveryDetailModal');
+            renderDashboard(); renderDeliveries(); renderFinance();
+            showNotification('Status atualizado!');
+        }
+
+        function navigateToDelivery() {
+            const d = db.deliveries.find(x => x.id === currentDeliveryId);
+            if (d) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.address)}`, '_blank');
+        }
+
+        function openDeliveryModal(d = null) {
+            document.getElementById('deliveryModal').classList.remove('hidden');
+            // Populando clientes
+            const sel = document.getElementById('existing-client');
+            sel.innerHTML = '<option value="">Cliente Existente</option>' + db.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            if (d) { /* Edit mode logic skipped for brevity but ID field is key */ document.getElementById('d-id').value = d.id; }
+            else {
+                document.getElementById('d-id').value = '';
+                document.querySelector('#deliveryModal form').reset();
+                document.getElementById('d-value').value = db.settings.defaultFee;
+                document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        function fillClientInfo(id) {
+            const c = db.clients.find(x => x.id === id);
+            if (c) {
+                document.getElementById('d-client-name').value = c.name;
+                document.getElementById('d-client-phone').value = c.phone || '';
+                document.getElementById('d-client-address').value = c.address || '';
+                document.getElementById('client-form-section').classList.remove('hidden');
+                document.getElementById('quick-client-section').classList.add('hidden');
+            }
+        }
+
+        function showClientForm() {
+            document.getElementById('quick-client-section').classList.add('hidden');
+            document.getElementById('client-form-section').classList.remove('hidden');
+        }
+
+        function saveAndStartDelivery() {
+            // Emulate submit then start
+            const form = document.querySelector('#deliveryModal form');
+            if (form.checkValidity()) {
+                submitDelivery({ preventDefault: () => { } });
+                // Get last
+                const last = db.deliveries[db.deliveries.length - 1];
+                if (last) { last.status = 'collecting'; save(); renderDashboard(); renderDeliveries(); }
+            } else form.reportValidity();
+        }
+
+        // --- HELPERS ---
+        function openClientModal() { document.getElementById('clientModal').classList.remove('hidden'); document.getElementById('c-id').value = ''; document.querySelector('#clientModal form').reset(); }
+        function editClient(id) {
+            const c = db.clients.find(x => x.id === id); if (!c) return;
+            openClientModal(); document.getElementById('c-id').value = c.id; document.getElementById('c-name').value = c.name; /* ... fill others */
+            document.getElementById('c-phone').value = c.phone; document.getElementById('c-address').value = c.address;
+        }
+        function createDeliveryForClient(id) { openDeliveryModal(); fillClientInfo(id); }
+
+        function openIncomeModal() { document.getElementById('incomeModal').classList.remove('hidden'); document.querySelector('#incomeModal form').reset(); }
+        function openExpenseModal() { document.getElementById('expenseModal').classList.remove('hidden'); document.querySelector('#expenseModal form').reset(); }
+        function openMaintenanceModal() { document.getElementById('maintenanceModal').classList.remove('hidden'); document.querySelector('#maintenanceModal form').reset(); }
+        function openQuickDelivery() { document.getElementById('quickDeliveryModal').classList.remove('hidden'); }
+        function startQuickDelivery(type) {
+            closeModal('quickDeliveryModal'); openDeliveryModal();
+            document.getElementById('d-type').value = type;
+            const vals = { food: 12, document: 15, product: 18 };
+            if (vals[type]) document.getElementById('d-value').value = vals[type];
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function showNotification(msg) {
+            const n = document.createElement('div');
+            n.className = 'fixed top-4 right-4 z-[70] bg-slate-800 text-white px-4 py-3 rounded shadow-lg animate-bounce';
+            n.textContent = msg; document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        function exportDeliveriesCSV() {
+            const rows = [['Data', 'Cliente', 'Valor', 'Status']].concat(db.deliveries.map(d => [d.date, d.clientName, d.value, d.status]));
+            const csv = rows.map(r => r.join(';')).join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'entregas.csv'; a.click();
+        }
+
+        // --- RENDER VIEWS ---
+        function renderDeliveries() {
+            const term = document.getElementById('delivery-search').value.toLowerCase();
+            const statusFilter = document.getElementById('delivery-status').value;
+            const paymentFilter = document.getElementById('delivery-payment').value;
+            const start = document.getElementById('delivery-start').value;
+
+            let filtered = db.deliveries.filter(d => {
+                const matchesTerm = d.clientName.toLowerCase().includes(term) || d.address.toLowerCase().includes(term);
+                const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
+                const matchesPayment = paymentFilter === 'all' || (paymentFilter === 'paid' && d.payment !== 'pending') || (paymentFilter === 'pending' && d.payment === 'pending');
+                const matchesDate = !start || d.date === start; // Simplificado para data específica ou todas se vazio (mas input date sempre tem valor no init)
+                return matchesTerm && matchesStatus && matchesPayment;
+            });
+
+            // Se start tiver valor, filtrar (mas o input type date retorna YYYY-MM-DD)
+            if (start) filtered = filtered.filter(d => d.date === start);
+
+            filtered.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+
+            const tbody = document.getElementById('deliveries-table-body');
+            const emptyMsg = document.getElementById('deliveries-empty-msg');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = ''; emptyMsg.classList.remove('hidden');
+            } else {
+                emptyMsg.classList.add('hidden');
+                tbody.innerHTML = filtered.map(d => `
+                    <tr class="hover:bg-slate-50 group border-b border-slate-100 cursor-pointer" onclick="viewDeliveryDetail('${d.id}')">
+                        <td class="px-6 py-4 whitespace-nowrap"><span class="font-medium text-slate-700">${fmtDate(d.date)}</span><br><span class="text-xs text-slate-400">${d.time}</span></td>
+                        <td class="px-6 py-4"><div class="font-medium text-slate-800">${d.clientName}</div><div class="text-xs text-slate-400">${d.clientPhone || ''}</div></td>
+                        <td class="px-6 py-4"><div class="text-xs text-slate-600 max-w-[200px] truncate">${d.address}</div></td>
+                        <td class="px-6 py-4"><span class="status-badge status-${d.status}">${d.status}</span></td>
+                        <td class="px-6 py-4 text-right"><div class="font-bold ${d.payment === 'pending' ? 'text-yellow-600' : 'text-green-600'}">${fmtMoney(d.value)}</div></td>
+                        <td class="px-6 py-4 text-center"><button class="text-slate-400 hover:text-blue-500"><i data-lucide="eye" class="w-4 h-4"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+            lucide.createIcons();
+
+            // Summary
+            const total = filtered.length;
+            const value = filtered.reduce((acc, d) => acc + d.value, 0);
+            const pending = filtered.filter(d => d.payment === 'pending').reduce((acc, d) => acc + d.value, 0);
+            const success = filtered.length ? Math.round((filtered.filter(d => d.status === 'delivered').length / filtered.length) * 100) : 0;
+
+            document.getElementById('total-deliveries').textContent = total;
+            document.getElementById('total-delivery-value').textContent = fmtMoney(value);
+            document.getElementById('pending-payments').textContent = fmtMoney(pending);
+            document.getElementById('success-rate').textContent = success + '%';
+        }
+
+        function clearDeliveryFilters() {
+            document.getElementById('delivery-search').value = '';
+            document.getElementById('delivery-status').value = 'all';
+            document.getElementById('delivery-payment').value = 'all';
+            document.getElementById('delivery-start').value = new Date().toISOString().split('T')[0];
+            renderDeliveries();
+        }
+
+        function renderClients() {
+            const grid = document.getElementById('clients-grid');
+            const empty = document.getElementById('no-clients-msg');
+
+            if (db.clients.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            grid.innerHTML = db.clients.map(c => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div><h3 class="font-bold text-slate-800">${c.name}</h3><p class="text-sm text-slate-500">${c.phone || '--'}</p></div>
+                        <button onclick="editClient('${c.id}')" class="text-slate-300 hover:text-plena-green"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="text-xs text-slate-600 flex items-start gap-2"><i data-lucide="map-pin" class="w-3 h-3 mt-0.5"></i> <span class="line-clamp-2">${c.address || 'Sem endereço'}</span></div>
+                         <button onclick="createDeliveryForClient('${c.id}')" class="w-full py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded hover:bg-slate-200 mt-2">Nova Entrega</button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderFinance() {
+            const now = new Date();
+            const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            const mIncs = db.finances.incomes.filter(i => i.date >= startMonth && i.date <= endMonth);
+            const mExps = db.finances.expenses.filter(e => e.date >= startMonth && e.date <= endMonth);
+
+            const sumInc = mIncs.reduce((a, i) => a + i.amount, 0);
+            const sumExp = mExps.reduce((a, e) => a + e.amount, 0);
+
+            document.getElementById('current-balance').textContent = fmtMoney(sumInc - sumExp); // Simplificado
+            document.getElementById('month-income').textContent = fmtMoney(sumInc);
+            document.getElementById('month-expenses').textContent = fmtMoney(sumExp);
+
+            const tbody = document.getElementById('finance-table-body');
+            const all = [...db.finances.incomes.map(i => ({ ...i, type: 'inc' })), ...db.finances.expenses.map(e => ({ ...e, type: 'exp' }))];
+            all.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = all.slice(0, 10).map(t => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-3 text-slate-500">${fmtDate(t.date)}</td>
+                    <td class="px-6 py-3 font-medium text-slate-800">${t.description}</td>
+                    <td class="px-6 py-3 text-xs text-slate-500 uppercase">${t.category}</td>
+                    <td class="px-6 py-3 text-right font-bold ${t.type === 'inc' ? 'text-green-600' : 'text-red-600'}">${t.type === 'inc' ? '+' : '-'}${fmtMoney(t.amount)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderVehicle() {
+            const hist = document.getElementById('maintenance-list');
+            if (db.vehicle.maintenance.length === 0) hist.innerHTML = '<p class="text-center text-slate-400 py-4">Nenhuma manutenção.</p>';
+            else {
+                hist.innerHTML = db.vehicle.maintenance.sort((a, b) => new Date(b.date) - new Date(a.date)).map(m => `
+                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div><p class="font-bold text-slate-700 text-sm">${m.service}</p><p class="text-xs text-slate-400">${fmtDate(m.date)}</p></div>
+                        <div class="text-right"><p class="font-bold text-slate-800">${fmtMoney(m.cost)}</p></div>
+                    </div>
+                `).join('');
+            }
+
+            const expsDiv = document.getElementById('vehicle-expenses');
+            // Simplified expenses logic
+            expsDiv.innerHTML = '<p class="text-center text-slate-400 text-xs">Detalhes indisponíveis no resumo.</p>';
+
+            updateFuelDisplay();
+        }
+
+        // --- REPORTS & SETTINGS & FIXES ---
+        function openDeliveryModal(d=null) {
+            document.getElementById('deliveryModal').classList.remove('hidden');
+            const sel = document.getElementById('existing-client');
+            sel.innerHTML = '<option value="">Cliente Existente</option>' + db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            
+            if(d) { 
+                document.getElementById('d-id').value = d.id;
+                document.getElementById('d-value').value = d.value;
+                document.getElementById('d-type').value = d.type;
+                document.getElementById('d-payment').value = d.payment;
+                document.getElementById('d-notes').value = d.notes || '';
+                document.getElementById('d-date').value = d.date;
+                document.getElementById('d-time').value = d.time;
+                
+                // Fill Client
+                document.getElementById('d-client-name').value = d.clientName;
+                document.getElementById('d-client-phone').value = d.clientPhone;
+                d.address && (document.getElementById('d-client-address').value = d.address); // Avoid null
+                document.getElementById('client-form-section').classList.remove('hidden');
+                document.getElementById('quick-client-section').classList.add('hidden');
+            } else { 
+                document.getElementById('d-id').value = ''; 
+                document.querySelector('#deliveryModal form').reset();
+                document.getElementById('d-value').value = db.settings.defaultFee;
+                document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('client-form-section').classList.add('hidden');
+                document.getElementById('quick-client-section').classList.remove('hidden');
+            }
+        }
+
+        function editDelivery(id) { const d = db.deliveries.find(x=>x.id===id); if(d) openDeliveryModal(d); }
+
+        function editClient(id) { 
+            const c = db.clients.find(x=>x.id===id); if(!c) return;
+            openClientModal(); 
+            document.getElementById('c-id').value = c.id; 
+            document.getElementById('c-name').value = c.name;
+            document.getElementById('c-phone').value = c.phone || '';
+            document.getElementById('c-whatsapp').value = c.whatsapp || 'yes';
+            document.getElementById('c-address').value = c.address || '';
+            document.getElementById('c-reference').value = c.reference || '';
+            document.getElementById('c-notes').value = c.notes || '';
+        }
+
+        function saveProfile() {
+            db.settings.riderName = document.getElementById('rider-name-input').value;
+            db.settings.defaultFee = parseFloat(document.getElementById('default-fee').value);
+            save(); loadSettings(); showNotification('Perfil salvo!');
+        }
+        
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "plena_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+        
+        function restoreBackup(input) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    db = JSON.parse(e.target.result);
+                    save(); location.reload();
+                } catch(e) { alert('Erro no backup'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function generateReport() {
+            const start = document.getElementById('report-start').value;
+            const end = document.getElementById('report-end').value;
+            if(!start || !end) return alert('Selecione as datas');
+            
+            const dels = db.deliveries.filter(d => d.date >= start && d.date <= end);
+            const incs = db.finances.incomes.filter(i => i.date >= start && i.date <= end);
+            const exps = db.finances.expenses.filter(e => e.date >= start && e.date <= end);
+            
+            const totalInc = incs.reduce((a,b)=>a+b.amount,0);
+            const totalExp = exps.reduce((a,b)=>a+b.amount,0);
+            
+            document.getElementById('report-deliveries').textContent = dels.length;
+            document.getElementById('report-income').textContent = fmtMoney(totalInc);
+            document.getElementById('report-expenses').textContent = fmtMoney(totalExp);
+            document.getElementById('report-profit').textContent = fmtMoney(totalInc - totalExp);
+            document.getElementById('report-results').classList.remove('hidden');
+        }
+
+        // --- START APP ---
+        window.addEventListener('load', init);
+    </script>
+</body>
+
+</html>

@@ -41,6 +41,7 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         /* CSS Otimizado */
@@ -457,6 +458,16 @@
                 Sobre a Plena
             </button>
 
+            <button onclick="router('system')"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
+                id="nav-system">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                <span class="font-medium">Sistema</span>
+            </button>
+
+
+
+
         </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
@@ -481,6 +492,17 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Notification Bell -->
+                <button onclick="router('system')"
+                    class="relative p-2 mr-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors group"
+                    title="Notificações do Sistema">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-3 w-3 hidden">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
+                    </span>
+                </button>
 
                 <div class="relative group">
                     <div
@@ -498,7 +520,106 @@
         <!-- Content Area -->
         <div class="p-4 lg:p-8 flex-1 overflow-y-auto">
 
-            <!-- Dashboard View -->
+            <!-- System View v5.3 -->
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Sistema e Atualizações</h2>
+                        <p class="text-gray-500 text-sm mt-1">Central de notificações e controle de versão.</p>
+                    </div>
+                    <div
+                        class="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold border border-green-100">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Sistema Online
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-gray-700 flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-plena-blue">
+                                        <i data-lucide="bell" class="w-4 h-4"></i>
+                                    </div>
+                                    Notificações do Sistema
+                                </h3>
+                                <button onclick="markAllAsRead()"
+                                    class="text-xs font-medium text-gray-400 hover:text-plena-blue transition flex items-center gap-1">
+                                    <i data-lucide="check-check" class="w-3 h-3"></i> Limpar tudo
+                                </button>
+                            </div>
+                            <div id="notification-feed-container" class="space-y-3 min-h-[100px]">
+                                <div class="text-center py-8 opacity-50">
+                                    <i data-lucide="loader-2"
+                                        class="w-6 h-6 mx-auto animate-spin text-plena-blue mb-2"></i>
+                                    <p class="text-xs text-gray-400">Verificando...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-gray-400"></i>
+                                Diagnóstico do Dispositivo
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div
+                                    class="bg-gray-50 p-4 rounded-xl flex items-center justify-between border border-gray-100">
+                                    <div>
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+                                            Conexão</div>
+                                        <div class="text-green-600 font-bold text-sm mt-1 flex items-center gap-1">
+                                            <i data-lucide="wifi" class="w-3 h-3"></i> Online
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-gray-50 p-4 rounded-xl flex items-center justify-between border border-gray-100">
+                                    <div>
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+                                            Armazenamento</div>
+                                        <div class="text-blue-600 font-bold text-sm mt-1" id="storage-status">
+                                            Calculando...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden group">
+                            <div class="absolute -right-6 -top-6 opacity-5 transform rotate-12">
+                                <i data-lucide="cpu" class="w-32 h-32 text-white"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="text-[10px] uppercase tracking-widest font-bold mb-1 text-slate-400">VERSÃO
+                                    INSTALADA</div>
+                                <div
+                                    class="text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-300">
+                                    v5.3</div>
+                                <div class="text-slate-400 text-xs mb-6 border-l-2 border-slate-700 pl-3">
+                                    Build 2026.01.24<br>Plena Aluguéis Pro
+                                </div>
+                                <button onclick="checkForUpdates()"
+                                    class="w-full bg-plena-blue hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    Verificar Atualizações
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-gray-700 mb-2">Sobre esta versão</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">
+                                A versão 5.3 traz melhorias significativas de performance, correções de segurança na
+                                geração de recibos e compatibilidade expandida.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section <!-- Dashboard View -->
             <section id="view-dashboard" class="view-section fade-in">
                 <!-- Month Selector -->
                 <div
@@ -2676,6 +2797,9 @@
         </section>
 
         </div>
+
+
+
     </main>
 
     <!-- Property Modal (Responsive Optimized) -->
@@ -2908,6 +3032,8 @@
     </div>
     </div>
     </div>
+
+
 
     <!-- Receipt Modal (A4 Style) -->
     <div id="receiptModal" class="fixed inset-0 modal-backdrop hidden z-50 overflow-y-auto">
@@ -3323,6 +3449,11 @@
                 // Inicializar componentes do manual
                 loadTutorialState();
 
+                // Inicializar Notificações
+                if (typeof initNotificationSystem === 'function') {
+                    initNotificationSystem();
+                }
+
                 // Configurar periodicidade para salvar
                 setInterval(save, 30000); // Salva a cada 30 segundos
             } catch (error) {
@@ -3388,6 +3519,8 @@
                 renderCategories();
             } else if (view === 'instructions') {
                 loadTutorialState();
+            } else if (view === 'system') {
+                initNotificationSystem(); // Força update ao abrir
             }
         }
 
@@ -3486,14 +3619,14 @@
 
             if (occupiedProperties.length === 0) {
                 container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-12 text-center">
-                        <div class="bg-gray-50 p-4 rounded-full mb-4">
-                            <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                        <div class="flex flex-col items-center justify-center py-12 text-center">
+                            <div class="bg-gray-50 p-4 rounded-full mb-4">
+                                <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                            </div>
+                            <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum imóvel ocupado</h3>
+                            <p class="text-gray-500 text-sm">Registre inquilinos para gerenciar pagamentos.</p>
                         </div>
-                        <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum imóvel ocupado</h3>
-                        <p class="text-gray-500 text-sm">Registre inquilinos para gerenciar pagamentos.</p>
-                    </div>
-                `;
+                    `;
                 return;
             }
 
@@ -3504,47 +3637,47 @@
                 const hasPayment = !!transaction;
 
                 return `
-                    <div class="flex flex-col md:flex-row items-center justify-between p-4 rounded-xl border ${hasPayment ? 'border-green-100 bg-green-50' : 'border-red-100 bg-white shadow-sm'} gap-4">
-                        <div class="flex-1 w-full md:w-auto">
-                            <h4 class="font-bold text-gray-800 flex items-center gap-2">
-                                <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-                                ${sanitizeHTML(p.name)}
-                            </h4>
-                            <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                                <i data-lucide="user" class="w-3 h-3"></i>
-                                ${sanitizeHTML(p.tenant)} 
-                                <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">Dia ${p.dueDay || 5}</span>
-                            </p>
-                        </div>
-                        
-                        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                            <div class="text-right mr-2">
-                                <p class="text-[10px] uppercase text-gray-500 font-bold mb-0.5">Valor</p>
-                                <span class="text-lg font-bold ${hasPayment ? 'text-green-700' : 'text-gray-900'}">
-                                    ${fmtMoney(p.value || 0)}
-                                </span>
+                        <div class="flex flex-col md:flex-row items-center justify-between p-4 rounded-xl border ${hasPayment ? 'border-green-100 bg-green-50' : 'border-red-100 bg-white shadow-sm'} gap-4">
+                            <div class="flex-1 w-full md:w-auto">
+                                <h4 class="font-bold text-gray-800 flex items-center gap-2">
+                                    <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
+                                    ${sanitizeHTML(p.name)}
+                                </h4>
+                                <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                    <i data-lucide="user" class="w-3 h-3"></i>
+                                    ${sanitizeHTML(p.tenant)} 
+                                    <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold">Dia ${p.dueDay || 5}</span>
+                                </p>
                             </div>
+                            
+                            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                                <div class="text-right mr-2">
+                                    <p class="text-[10px] uppercase text-gray-500 font-bold mb-0.5">Valor</p>
+                                    <span class="text-lg font-bold ${hasPayment ? 'text-green-700' : 'text-gray-900'}">
+                                        ${fmtMoney(p.value || 0)}
+                                    </span>
+                                </div>
 
-                            ${hasPayment ?
+                                ${hasPayment ?
                         `<div class="flex gap-2">
-                                    <button onclick="sendReceipt('${p.id}', '${currentMonth}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm shadow-green-200">
-                                        <i data-lucide="share-2" class="w-3 h-3"></i> WhatsApp
-                                    </button>
-                                    <button onclick="window.openReceiptModal('${transaction.id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
-                                        <i data-lucide="printer" class="w-3 h-3"></i> Imprimir
-                                    </button>
-                                </div>` :
+                                        <button onclick="sendReceipt('${p.id}', '${currentMonth}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm shadow-green-200">
+                                            <i data-lucide="share-2" class="w-3 h-3"></i> WhatsApp
+                                        </button>
+                                        <button onclick="window.openReceiptModal('${transaction.id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
+                                            <i data-lucide="printer" class="w-3 h-3"></i> Imprimir
+                                        </button>
+                                    </div>` :
                         `<div class="flex gap-2">
-                                    <button onclick="registerPayment('${p.id}', '${currentMonth}')" class="bg-plena-blue text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-plena-dark transition-colors flex items-center gap-2 shadow-sm shadow-indigo-200">
-                                        <i data-lucide="check" class="w-4 h-4"></i> RECEBER
-                                    </button>
-                                    <button onclick="sendReminder('${p.id}')" class="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-orange-200 transition-colors flex items-center gap-2">
-                                        <i data-lucide="bell" class="w-4 h-4"></i> Cobrar
-                                    </button>
-                                </div>`}
+                                        <button onclick="registerPayment('${p.id}', '${currentMonth}')" class="bg-plena-blue text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-plena-dark transition-colors flex items-center gap-2 shadow-sm shadow-indigo-200">
+                                            <i data-lucide="check" class="w-4 h-4"></i> RECEBER
+                                        </button>
+                                        <button onclick="sendReminder('${p.id}')" class="bg-orange-100 text-orange-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-orange-200 transition-colors flex items-center gap-2">
+                                            <i data-lucide="bell" class="w-4 h-4"></i> Cobrar
+                                        </button>
+                                    </div>`}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
             }).join('');
         }
 
@@ -3567,19 +3700,19 @@
             }
 
             container.innerHTML = upcoming.map(p => `
-                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.name)}</p>
-                        <p class="text-xs text-gray-500">${sanitizeHTML(p.tenant)}</p>
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.name)}</p>
+                            <p class="text-xs text-gray-500">${sanitizeHTML(p.tenant)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-plena-blue">${fmtMoney(p.value)}</p>
+                            <p class="text-xs ${p.daysUntilDue <= 3 ? 'text-red-500' : 'text-gray-500'}">
+                                Dia ${p.dueDay} (${p.daysUntilDue} dias)
+                            </p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-plena-blue">${fmtMoney(p.value)}</p>
-                        <p class="text-xs ${p.daysUntilDue <= 3 ? 'text-red-500' : 'text-gray-500'}">
-                            Dia ${p.dueDay} (${p.daysUntilDue} dias)
-                        </p>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         function renderVacantProperties() {
@@ -3592,17 +3725,17 @@
             }
 
             container.innerHTML = vacant.slice(0, 3).map(p => `
-                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="openPropertyModal('${p.id}')">
-                    <div>
-                        <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.name)}</p>
-                        <p class="text-xs text-gray-500">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="openPropertyModal('${p.id}')">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.name)}</p>
+                            <p class="text-xs text-gray-500">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-600">${fmtMoney(p.value)}</p>
+                            <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded">VAGO</span>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-gray-600">${fmtMoney(p.value)}</p>
-                        <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded">VAGO</span>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         // --- VALIDATORS ---
@@ -3868,50 +4001,50 @@
 
             if (db.properties.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-3 bg-white p-8 rounded-2xl text-center border border-gray-100">
-                        <i data-lucide="home" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                        <h3 class="text-lg font-bold text-gray-800 mb-2">Nenhum imóvel cadastrado</h3>
-                        <p class="text-gray-500 mb-4">Comece cadastrando seu primeiro imóvel</p>
-                        <button onclick="openPropertyModal()" class="bg-plena-purple text-white px-4 py-2 rounded-lg font-bold hover:bg-plena-dark">
-                            Cadastrar Primeiro Imóvel
-                        </button>
-                    </div>
-            `;
+                        <div class="col-span-3 bg-white p-8 rounded-2xl text-center border border-gray-100">
+                            <i data-lucide="home" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Nenhum imóvel cadastrado</h3>
+                            <p class="text-gray-500 mb-4">Comece cadastrando seu primeiro imóvel</p>
+                            <button onclick="openPropertyModal()" class="bg-plena-purple text-white px-4 py-2 rounded-lg font-bold hover:bg-plena-dark">
+                                Cadastrar Primeiro Imóvel
+                            </button>
+                        </div>
+                `;
                 return;
             }
 
             container.innerHTML = db.properties.map(p => `
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm card-hover cursor-pointer" onclick="openPropertyModal('${p.id}')">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1">
-                        <h3 class="font-bold text-gray-800 text-lg truncate">${sanitizeHTML(p.name)}</h3>
-                        <p class="text-xs text-gray-500 truncate">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${p.tenant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
-                        ${p.tenant ? 'OCUPADO' : 'VAGO'}
-                    </span>
-                </div>
-                    
-                    ${p.tenant ? `
-                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                            <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.tenant)}</p>
-                            <p class="text-xs text-gray-500">${sanitizeHTML(p.phone) || 'Sem telefone'}</p>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm card-hover cursor-pointer" onclick="openPropertyModal('${p.id}')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-800 text-lg truncate">${sanitizeHTML(p.name)}</h3>
+                            <p class="text-xs text-gray-500 truncate">${sanitizeHTML(p.address) || 'Sem endereço'}</p>
                         </div>
-                    ` : ''
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${p.tenant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">
+                            ${p.tenant ? 'OCUPADO' : 'VAGO'}
+                        </span>
+                    </div>
+                        
+                        ${p.tenant ? `
+                            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                                <p class="text-sm font-medium text-gray-800">${sanitizeHTML(p.tenant)}</p>
+                                <p class="text-xs text-gray-500">${sanitizeHTML(p.phone) || 'Sem telefone'}</p>
+                            </div>
+                        ` : ''
                 }
 
-        <div class="flex justify-between items-end border-t pt-4">
-            <div>
-                <p class="text-[10px] uppercase text-gray-400 font-bold">Aluguel</p>
-                <p class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[10px] uppercase text-gray-400 font-bold">Vencimento</p>
-                <p class="text-sm font-medium">Dia ${p.dueDay || 5}</p>
-            </div>
-        </div>
+            <div class="flex justify-between items-end border-t pt-4">
+                <div>
+                    <p class="text-[10px] uppercase text-gray-400 font-bold">Aluguel</p>
+                    <p class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</p>
                 </div>
-            `).join('');
+                <div class="text-right">
+                    <p class="text-[10px] uppercase text-gray-400 font-bold">Vencimento</p>
+                    <p class="text-sm font-medium">Dia ${p.dueDay || 5}</p>
+                </div>
+            </div>
+                    </div>
+                `).join('');
 
             if (window.lucide) lucide.createIcons();
         }
@@ -3925,18 +4058,18 @@
 
             if (tenants.length === 0) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-12 text-center">
-                             <div class="flex flex-col items-center justify-center">
-                                <div class="bg-gray-50 p-4 rounded-full mb-4">
-                                    <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                        <tr>
+                            <td colspan="6" class="py-12 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="bg-gray-50 p-4 rounded-full mb-4">
+                                        <i data-lucide="users" class="w-12 h-12 text-gray-300"></i>
+                                    </div>
+                                    <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum inquilino encontrado</h3>
+                                    <p class="text-gray-500 text-sm">Edite um imóvel e adicione um inquilino para vê-lo aqui.</p>
                                 </div>
-                                <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhum inquilino encontrado</h3>
-                                <p class="text-gray-500 text-sm">Edite um imóvel e adicione um inquilino para vê-lo aqui.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                        </tr>
+                    `;
                 emptyMsg.classList.add('hidden');
                 return;
             }
@@ -3944,45 +4077,45 @@
             emptyMsg.classList.add('hidden');
 
             tbody.innerHTML = tenants.map(p => `
-                <tr class="hover:bg-gray-50 group border-b border-gray-100">
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-gray-800">${sanitizeHTML(p.tenant)}</div>
-                        ${p.tenantDoc ? `<div class="text-[10px] text-gray-500 font-mono mt-0.5">CPF: ${sanitizeHTML(p.tenantDoc)}</div>` : ''}
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-gray-800">${sanitizeHTML(p.name)}</div>
-                        <div class="text-xs text-gray-400">${sanitizeHTML(p.address) || 'Sem endereço'}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-700 flex items-center gap-1">
-                            <i data-lucide="phone" class="w-3 h-3 text-gray-400"></i>
-                            ${sanitizeHTML(p.phone) || 'Não informado'}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</div>
-                        <div class="text-xs text-gray-500">Dia ${p.dueDay || 5}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
-                            Ativo
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center space-x-2">
-                            <button onclick="openPropertyModal('${p.id}')" 
-                                    class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
-                                <i data-lucide="edit-2" class="w-3 h-3"></i> Editar
-                            </button>
-                            ${p.phone ? `
-                            <button onclick="sendReminder('${p.id}')" 
-                                    class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
-                                <i data-lucide="message-circle" class="w-3 h-3"></i> Contato
-                            </button>` : ''}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+                    <tr class="hover:bg-gray-50 group border-b border-gray-100">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-800">${sanitizeHTML(p.tenant)}</div>
+                            ${p.tenantDoc ? `<div class="text-[10px] text-gray-500 font-mono mt-0.5">CPF: ${sanitizeHTML(p.tenantDoc)}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-800">${sanitizeHTML(p.name)}</div>
+                            <div class="text-xs text-gray-400">${sanitizeHTML(p.address) || 'Sem endereço'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-700 flex items-center gap-1">
+                                <i data-lucide="phone" class="w-3 h-3 text-gray-400"></i>
+                                ${sanitizeHTML(p.phone) || 'Não informado'}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-plena-blue">${fmtMoney(p.value || 0)}</div>
+                            <div class="text-xs text-gray-500">Dia ${p.dueDay || 5}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                Ativo
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex justify-center space-x-2">
+                                <button onclick="openPropertyModal('${p.id}')" 
+                                        class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                                    <i data-lucide="edit-2" class="w-3 h-3"></i> Editar
+                                </button>
+                                ${p.phone ? `
+                                <button onclick="sendReminder('${p.id}')" 
+                                        class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                                    <i data-lucide="message-circle" class="w-3 h-3"></i> Contato
+                                </button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
 
             if (window.lucide) lucide.createIcons();
         }
@@ -4243,18 +4376,18 @@
 
             if (filtered.length === 0) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-12 text-center">
-                             <div class="flex flex-col items-center justify-center">
-                                <div class="bg-gray-50 p-4 rounded-full mb-4">
-                                    <i data-lucide="search-x" class="w-12 h-12 text-gray-300"></i>
+                        <tr>
+                            <td colspan="6" class="py-12 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="bg-gray-50 p-4 rounded-full mb-4">
+                                        <i data-lucide="search-x" class="w-12 h-12 text-gray-300"></i>
+                                    </div>
+                                    <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhuma transação encontrada</h3>
+                                    <p class="text-gray-500 text-sm">Tente ajustar os filtros ou adicione uma nova movimentação.</p>
                                 </div>
-                                <h3 class="text-gray-900 font-bold text-lg mb-1">Nenhuma transação encontrada</h3>
-                                <p class="text-gray-500 text-sm">Tente ajustar os filtros ou adicione uma nova movimentação.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                        </tr>
+                    `;
                 emptyMsg.classList.add('hidden');
                 updateTransactionSummary([]);
                 return;
@@ -4268,47 +4401,47 @@
                 const isIncome = t.type === 'income';
 
                 return `
-                    <tr class="hover:bg-gray-50 group border-b border-gray-100">
-                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap text-sm">${fmtDate(t.date)}</td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-gray-800">${sanitizeHTML(t.desc)}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">${sanitizeHTML(propertyName)}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            ${category ?
+                        <tr class="hover:bg-gray-50 group border-b border-gray-100">
+                            <td class="px-6 py-4 text-gray-500 whitespace-nowrap text-sm">${fmtDate(t.date)}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-gray-800">${sanitizeHTML(t.desc)}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">${sanitizeHTML(propertyName)}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                ${category ?
                         `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" 
-                                      style="background:${sanitizeHTML(category.color)}20; color:${sanitizeHTML(category.color)}">
-                                    ${sanitizeHTML(category.name)}
-                                </span>` :
+                                        style="background:${sanitizeHTML(category.color)}20; color:${sanitizeHTML(category.color)}">
+                                        ${sanitizeHTML(category.name)}
+                                    </span>` :
                         '<span class="text-xs text-gray-400">-</span>'
                     }
-                        </td>
-                        <td class="px-6 py-4 text-right font-bold ${isIncome ? 'text-green-600' : 'text-red-500'}">
-                            ${isIncome ? '+' : '-'} ${fmtMoney(t.amount)}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="openReceiptModal('${t.id}')" 
-                                        class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
-                                        title="Imprimir Recibo">
-                                    <i data-lucide="printer" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="editTransaction('${t.id}')" 
-                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Editar">
-                                    <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="deleteTransaction('${t.id}')" 
-                                        class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Excluir">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                            <td class="px-6 py-4 text-right font-bold ${isIncome ? 'text-green-600' : 'text-red-500'}">
+                                ${isIncome ? '+' : '-'} ${fmtMoney(t.amount)}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="openReceiptModal('${t.id}')" 
+                                            class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                                            title="Imprimir Recibo">
+                                        <i data-lucide="printer" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="editTransaction('${t.id}')" 
+                                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="Editar">
+                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="deleteTransaction('${t.id}')" 
+                                            class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="Excluir">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
             }).join('');
 
             lucide.createIcons();
@@ -4442,17 +4575,17 @@
             }
 
             container.innerHTML = db.categories.map(cat => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 rounded-full mr-3" style="background:${sanitizeHTML(cat.color)}"></div>
-                        <span class="text-sm font-medium text-gray-800">${sanitizeHTML(cat.name)}</span>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3" style="background:${sanitizeHTML(cat.color)}"></div>
+                            <span class="text-sm font-medium text-gray-800">${sanitizeHTML(cat.name)}</span>
+                        </div>
+                        <button onclick="deleteCategory('${cat.id}')" 
+                                class="text-gray-400 hover:text-red-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                    <button onclick="deleteCategory('${cat.id}')" 
-                            class="text-gray-400 hover:text-red-500 transition-colors">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `).join('');
+                `).join('');
 
             if (window.lucide) lucide.createIcons();
         }
@@ -4664,20 +4797,20 @@
                 const percent = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
 
                 return `
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full print-color-exact" style="background-color: ${cat.color}"></div>
-                            <span class="text-gray-700 font-medium">${sanitizeHTML(cat.name)}</span>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full print-color-exact" style="background-color: ${cat.color}"></div>
+                                <span class="text-gray-700 font-medium">${sanitizeHTML(cat.name)}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-gray-900">${fmtMoney(amount)}</span>
+                                <span class="text-xs text-gray-400 ml-1">(${percent.toFixed(0)}%)</span>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <span class="font-bold text-gray-900">${fmtMoney(amount)}</span>
-                            <span class="text-xs text-gray-400 ml-1">(${percent.toFixed(0)}%)</span>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 print-color-exact">
+                            <div class="h-1.5 rounded-full print-color-exact" style="width: ${percent}%; background-color: ${cat.color}"></div>
                         </div>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 print-color-exact">
-                        <div class="h-1.5 rounded-full print-color-exact" style="width: ${percent}%; background-color: ${cat.color}"></div>
-                    </div>
-                `;
+                    `;
             }).join('');
         }
 
@@ -4689,31 +4822,31 @@
             const expPercent = (expense / max) * 100;
 
             container.innerHTML = `
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="font-medium text-gray-600">Receitas</span>
-                        <span class="font-bold text-green-600">${fmtMoney(income)}</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
-                        <div class="h-8 rounded-full bg-green-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
-                             style="width: ${incPercent}%">
-                             ${incPercent > 10 ? Math.round(incPercent) + '%' : ''}
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium text-gray-600">Receitas</span>
+                            <span class="font-bold text-green-600">${fmtMoney(income)}</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
+                            <div class="h-8 rounded-full bg-green-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
+                                style="width: ${incPercent}%">
+                                ${incPercent > 10 ? Math.round(incPercent) + '%' : ''}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div>
-                    <div class="flex justify-between text-sm mb-1">
-                        <span class="font-medium text-gray-600">Despesas</span>
-                        <span class="font-bold text-red-600">${fmtMoney(expense)}</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
-                        <div class="h-8 rounded-full bg-red-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
-                             style="width: ${expPercent}%">
-                             ${expPercent > 10 ? Math.round(expPercent) + '%' : ''}
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium text-gray-600">Despesas</span>
+                            <span class="font-bold text-red-600">${fmtMoney(expense)}</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-8 print-color-exact">
+                            <div class="h-8 rounded-full bg-red-500 flex items-center justify-end px-3 text-xs text-white font-bold transition-all duration-1000 print-color-exact" 
+                                style="width: ${expPercent}%">
+                                ${expPercent > 10 ? Math.round(expPercent) + '%' : ''}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
         }
 
         function printReport() {
@@ -4798,22 +4931,22 @@
                 const net = data.income - data.expense;
 
                 return `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center">
-                            <i data-lucide="home" class="w-4 h-4 mr-3 text-gray-400"></i>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">${sanitizeHTML(name)}</p>
-                                <p class="text-xs text-gray-500">${data.income > 0 ? 'Receitas' : 'Despesas'}</p>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i data-lucide="home" class="w-4 h-4 mr-3 text-gray-400"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">${sanitizeHTML(name)}</p>
+                                    <p class="text-xs text-gray-500">${data.income > 0 ? 'Receitas' : 'Despesas'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold ${net >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${net >= 0 ? '+' : ''}${fmtMoney(total)}
+                                </p>
+                                <p class="text-xs text-gray-500">${fmtMoney(net)} líquido</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold ${net >= 0 ? 'text-green-600' : 'text-red-600'}">
-                                ${net >= 0 ? '+' : ''}${fmtMoney(total)}
-                            </p>
-                            <p class="text-xs text-gray-500">${fmtMoney(net)} líquido</p>
-                        </div>
-                    </div>
-                `;
+                    `;
             }).join('');
         }
 
@@ -4899,12 +5032,12 @@
                     'bg-blue-500 text-white'
                 }`;
             notification.innerHTML = `
-                <div class="flex items-center">
-                    <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}" 
-                       class="w-5 h-5 mr-2"></i>
-                    <span>${sanitizeHTML(message)}</span>
-                </div>
-            `;
+                    <div class="flex items-center">
+                        <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}" 
+                        class="w-5 h-5 mr-2"></i>
+                        <span>${sanitizeHTML(message)}</span>
+                    </div>
+                `;
 
             document.body.appendChild(notification);
             lucide.createIcons();
@@ -4985,69 +5118,269 @@
             document.body.classList.add('in-iframe');
         }
     </script>
-    <script src="../../assets/js/plena-lock.js"></script>
+
+
+
+
+
+
+
+
 
     
-        
+    <script>
+        // ==========================================================
+        // MÓDULO DE NOTIFICAÇÕES INTELIGENTE (MODELO BARBEARIA)
+        // ==========================================================
+        const NOTIF_API_URL = '../../api_licenca.php';
 
-    
+        async function initNotificationSystem() {
+            const key = localStorage.getItem('plena_license_key');
+            if (!key) return;
 
-    
+            try {
+                const res = await fetch(`${NOTIF_API_URL}?action=get_notifications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ license_key: key })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    processNotifications(data.notifications || []);
+                }
+            } catch (e) { console.warn('Notif Error'); }
+        }
+
+        function processNotifications(list) {
+            const read = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+            const unread = list.filter(n => !read.includes(String(n.id)));
+
+            // Atualiza Badges (Red Dot)
+            updateBadges(unread.length > 0);
+
+            // Renderiza Lista
+            const container = document.getElementById('notification-feed-container');
+            if (container) {
+                if (unread.length === 0) {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm">Nenhuma nova notificação.</div>`;
+                } else {
+                    container.innerHTML = unread.map(n => `
+                            <div class="bg-white p-4 rounded-lg border-l-4 ${n.type === 'danger' ? 'border-red-500' : 'border-blue-500'} shadow-sm mb-3">
+                                <h4 class="font-bold text-sm text-slate-800">${n.title || 'Sistema'}</h4>
+                                <p class="text-xs text-slate-600 mt-1">${n.message}</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-[10px] text-slate-400">${n.date}</span>
+                                    <button onclick="markSingleAsRead('${n.id}')" class="text-[10px] font-bold text-blue-600 hover:underline">MARCAR LIDO</button>
+                                </div>
+                            </div>
+                        `).join('');
+                }
+            }
+
+            // Modal Bloqueante
+            const blocking = unread.find(n => n.requireRead === true || String(n.requireRead) === "true");
+            if (blocking) showBlockingModal(blocking);
+        }
+
+        function showBlockingModal(n) {
+            const modal = document.getElementById('sysBlockingModal');
+            if (modal) {
+                document.getElementById('sysModalMessage').innerHTML = n.message;
+                modal.classList.remove('hidden');
+                // Salva ID no botão para o acknowledge
+                window.currentBlockingId = n.id;
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function acknowledgeNotification() {
+            if (window.currentBlockingId) markSingleAsRead(window.currentBlockingId);
+            const modal = document.getElementById('sysBlockingModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function markSingleAsRead(id) {
+            const sid = String(id);
+            const read = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+            if (!read.includes(sid)) {
+                read.push(sid);
+                localStorage.setItem('plena_read_notifs', JSON.stringify(read));
+            }
+            initNotificationSystem();
+        }
+
+        function updateBadges(hasUnread) {
+            // Implemente os IDs dos seus badges aqui (header-badge, sidebar-badge)
+            const els = document.querySelectorAll('#header-badge, #sidebar-badge');
+            els.forEach(el => el.style.display = hasUnread ? 'flex' : 'none');
+        }
+
+        window.markAllAsRead = () => {
+            const container = document.getElementById('notification-feed-container');
+            // Simplesmente marca todos que estão na tela atual como lidos? 
+            // Melhor: marca a lista atual de unread. Mas aqui simplificamos recarregando.
+            // Para implementar corretamente markAll, precisariamos ter a lista em memória global ou buscar de novo.
+            // A solução do usuário era initNotificationSystem().
+            initNotificationSystem();
+        };
+
+        // CORREÇÃO: A função markAllAsRead original realmente marcava.
+        // Vou manter a lógica original de markAllAsRead se o usuário não forneceu. 
+        // O usuario forneceu:
+        /*
+        window.markAllAsRead = () => {
+            // Lógica para marcar tudo como lido
+            initNotificationSystem(); // Recarrega
+        };
+        */
+        // Isso sugere que o usuario quer que eu implemente "Lógica para marcar tudo como lido".
+        // IMPLEMENTAÇÃO ROBUSTA:
+        window.markAllAsRead = async () => {
+            const key = localStorage.getItem('plena_license_key');
+            if (!key) return;
+            try {
+                const res = await fetch(`${NOTIF_API_URL}?action=get_notifications`, {
+                    method: 'POST', body: JSON.stringify({ license_key: key })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = data.notifications || [];
+                    const read = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+                    list.forEach(n => {
+                        if (!read.includes(String(n.id))) read.push(String(n.id));
+                    });
+                    localStorage.setItem('plena_read_notifs', JSON.stringify(read));
+                    initNotificationSystem();
+                }
+            } catch (e) { }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initNotificationSystem, 1000));
+
+        // Exports
+        window.activeNotifications = []; // Placeholder se necessario
+        window.markSingleAsRead = markSingleAsRead;
+        window.acknowledgeNotification = acknowledgeNotification;
+    </script>
+
+    <!-- SYSTEM BLOCKING MODAL (Static) -->
+    <div id="sysBlockingModal"
+        class="fixed inset-0 z-[10000] hidden bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div id="sysModalHeader" class="bg-red-600 p-6 text-white flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                <h3 id="sysModalTitle" class="font-bold text-xl">Atenção Necessária</h3>
+            </div>
+            <div class="p-8 text-center">
+                <p id="sysModalMessage" class="text-slate-800 text-lg font-medium mb-6 leading-relaxed">Carregando
+                    aviso...</p>
+                <p class="text-xs text-slate-400 border-t pt-4">Mensagem Oficial do Sistema Plena</p>
+            </div>
+            <div class="p-6 bg-slate-50">
+                <button onclick="acknowledgeNotification()"
+                    class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="check"></i> ESTOU CIENTE
+                </button>
+            </div>
+        </div>
+    </div>
+    </script>
+
+    <div id="pwa-install-toast" class="fixed bottom-4 left-4 right-4 z-[9999] hidden animate-slide-in">
+        <div
+            class="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 border border-slate-700 max-w-md mx-auto w-full">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-plena-indigo rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-download text-white"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">Instalar Aplicativo</h4>
+                    <p class="text-xs text-slate-400">Acesso offline e tela cheia.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="dismissInstall()" class="p-2 text-slate-400 hover:text-white transition"><i
+                        class="fa-solid fa-xmark"></i></button>
+                <button onclick="installPWA()"
+                    class="bg-plena-indigo hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition shadow-lg">INSTALAR</button>
+            </div>
+        </div>
+    </div>
+
 
 <!-- PWA INSTALLATION TOAST (Standardized) -->
-<div id="pwa-install-toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
-    <div style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-        <img src="./icons/icon-192.png" alt="App Icon" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+    <div id="pwa-install-toast"
+        style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
+        <div
+            style="background-color: transparent; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <img src="./icons/icon-192.png" alt="App Icon"
+                style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
+            <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
+        </div>
+        <button onclick="installPWA()"
+            style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+            Instalar
+        </button>
+        <button onclick="dismissInstall()"
+            style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-x">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
     </div>
-    <div style="flex: 1;">
-        <p style="font-size: 14px; font-weight: bold; margin: 0; color: #1f2937;">Instalar Aplicativo</p>
-        <p style="font-size: 12px; color: #6b7280; margin: 0;">Acesso rápido 100% offline</p>
-    </div>
-    <button onclick="installPWA()" style="background-color: #000; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-        Instalar
-    </button>
-    <button onclick="dismissInstall()" style="background-color: transparent; border: none; color: #9ca3af; cursor: pointer; padding: 4px; display: flex; align-items: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-</div>
 
-<script>
-    let deferredPrompt;
-    
-    // Check if installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+    <script>
+        let deferredPrompt;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        // Show the toast if not already dismissed and not in standalone mode
-        if (!localStorage.getItem('pwa_dismissed') && !isStandalone) {
-             const toast = document.getElementById('pwa-install-toast');
-             if (toast) toast.style.display = 'flex';
+        // Check if installed (Robust Check)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone
+            || document.referrer.includes('android-app://');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log("PWA Install Prompt Captured");
+
+            // Show the toast if not in standalone mode
+            if (!isStandalone) {
+                const toast = document.getElementById('pwa-install-toast');
+                if (toast) toast.style.display = 'flex';
+            }
+        });
+
+        // Fallback: If techincally not triggering (e.g. dev mode), we can't force it, 
+        // but we can ensure the UI is ready if it DOES trigger.
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    dismissInstall();
+                });
+            } else {
+                alert("O navegador não permitiu a instalação automática. Tente pelo menu do navegador > Instalar app.");
+            }
         }
-    });
 
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                }
-                deferredPrompt = null;
-                dismissInstall();
-            });
+        function dismissInstall() {
+            const toast = document.getElementById('pwa-install-toast');
+            if (toast) toast.style.display = 'none';
+            // localStorage.setItem('pwa_dismissed', 'true'); // Temporarily disabled persistence
         }
-    }
-
-    function dismissInstall() {
-        const toast = document.getElementById('pwa-install-toast');
-        if (toast) toast.style.display = 'none';
-        localStorage.setItem('pwa_dismissed', 'true');
-    }
-</script>
+    </script>
 </body>
 
 </html>

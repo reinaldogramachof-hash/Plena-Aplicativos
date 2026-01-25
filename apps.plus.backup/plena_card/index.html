@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<!-- 
+    ARQUITETURA DO PROJETO - PLENA CARD HÍBRIDO PRO
+    1. HTML: Estrutura Híbrida (Desktop Fixo / Mobile Retrátil)
+    2. CSS: Estilos refinados com Breakpoints (lg: 1024px) e Paleta Indigo
+    3. JS: Lógica de Cartões, Faturas e Controle Financeiro
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Card - Gerenciador Inteligente</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuração Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        plena: {
+                            indigo: '#4F46E5',
+                            dark: '#312E81',
+                            black: '#0f172a',
+                            green: '#10B981',
+                            red: '#EF4444',
+                            yellow: '#F59E0B',
+                            soft: '#EEF2FF'
+                        }
+                    },
+                    screens: {
+                        'lg': '1024px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- LÓGICA HÍBRIDA (SIDEBAR) --- */
+        .sidebar-container {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            background: #0f172a;
+            color: white;
+            z-index: 50;
+            border-right: 1px solid #1e293b;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Desktop (≥1024px) */
+        @media (min-width: 1024px) {
+            .sidebar-container { transform: translateX(0); }
+            .main-container { margin-left: 280px; }
+            .hamburger-btn { display: none !important; }
+        }
+
+        /* Mobile/Tablet (<1024px) */
+        @media (max-width: 1023px) {
+            .sidebar-container { transform: translateX(-100%); box-shadow: 10px 0 25px -5px rgba(0,0,0,0.5); }
+            .sidebar-container.open { transform: translateX(0); }
+            .main-container { margin-left: 0; }
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #F8FAFC;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Utilitários */
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Navegação */
+        .nav-item {
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-item.active-nav {
+            background: rgba(79, 70, 229, 0.15); /* Indigo tint */
+            color: #818CF8; /* Indigo light */
+            border-right: 3px solid #4F46E5;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Hover */
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1); }
+
+        /* Gráfico CSS */
+        .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; gap: 2%; }
+        .bar-group { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; position: relative; }
+        .bar-wrapper { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 100%; width: 100%; }
+        .bar { width: 45%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; min-height: 2px; position: relative; }
+        .x-label { font-size: 10px; color: #64748b; text-align: center; margin-top: 8px; font-weight: 600; }
+
+        /* Impressão */
+        @media print {
+            .sidebar-container, .hamburger-btn, header, .no-print { display: none !important; }
+            .main-container { margin-left: 0; width: 100%; }
+            body { background: white; }
+            .view-section { display: none; }
+            #view-reports, #view-invoice { display: block !important; }
+            .print-color-exact { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body class="antialiased bg-slate-50">
+
+    <!-- Overlay Mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-container flex flex-col shadow-2xl">
+        <!-- Logo -->
+        <div class="h-20 flex items-center px-6 bg-slate-900 border-b border-slate-800">
+            <div class="bg-gradient-to-br from-plena-indigo to-plena-dark p-2 rounded-lg mr-3 shadow-lg shadow-indigo-900/50">
+                <i data-lucide="credit-card" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white">PLENA CARD</h1>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">DESKTOP PRO</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Financeiro</p>
+            
+            <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-indigo"></i> Dashboard
+            </button>
+            <button onclick="router('cards')" id="nav-cards" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="wallet-cards" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-indigo"></i> Meus Cartões
+            </button>
+            <button onclick="router('invoice')" id="nav-invoice" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="file-text" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-plena-indigo"></i> Faturas
+            </button>
+
+            <div class="pt-4 pb-2"><div class="border-t border-slate-800"></div></div>
+            <p class="px-4 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ferramentas</p>
+
+            <button onclick="router('reports')" id="nav-reports" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Relatórios
+            </button>
+            <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="settings" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Configurações
+            </button>
+            <button onclick="router('instructions')" id="nav-instructions" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="book-open" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Manual
+            </button>
+            <button onclick="router('about')" id="nav-about" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group">
+                <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sobre
+            </button>
+            <button onclick="router('system')" id="nav-system" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-slate-300 group relative">
+                <i data-lucide="cpu" class="w-5 h-5 mr-3 text-slate-400 group-hover:text-white"></i> Sistema
+                <span id="sidebar-badge" class="hidden absolute right-4 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-plena-indigo to-blue-500 flex items-center justify-center font-bold text-xs">US</div>
+                <div>
+                    <p class="text-sm font-medium text-white">Usuário</p>
+                    <p class="text-xs text-slate-500">Premium</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="hamburger-btn p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
+                    <p class="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider hidden md:block">Controle de Cartões</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="router('system')" class="relative p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-2.5 w-2.5 hidden">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                </button>
+
+                <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+
+                <button onclick="openClosingModal()" class="flex items-center px-3 md:px-4 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all shadow-sm">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 md:mr-2 text-green-600"></i>
+                    <span class="hidden md:inline">Fechar Fatura</span>
+                </button>
+
+                <button onclick="openExpenseModal()" class="flex items-center px-3 md:px-5 py-2.5 bg-plena-indigo text-white rounded-lg text-sm font-bold hover:bg-plena-dark transition-all shadow-md shadow-indigo-200">
+                    <i data-lucide="plus" class="w-5 h-5 md:mr-2"></i>
+                    <span class="hidden md:inline">Nova Compra</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 md:p-8 flex-1 overflow-y-auto">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <!-- Controle de Mês -->
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                    <h3 class="text-lg font-bold text-slate-700 w-full sm:w-auto">Resumo Financeiro</h3>
+                    <div class="relative w-full sm:w-auto">
+                        <i data-lucide="calendar" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        <input type="month" id="month-selector" onchange="renderDashboard()"
+                            class="w-full sm:w-auto pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-plena-indigo outline-none cursor-pointer hover:bg-white">
+                    </div>
+                </div>
+
+                <!-- Alert -->
+                <div id="balance-alert" class="hidden mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 mr-3"></i>
+                    <div>
+                        <p class="font-bold text-sm">Atenção: Limite Crítico!</p>
+                        <p class="text-xs">Um ou mais cartões estão com limite próximo do esgotamento.</p>
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Disponível Total</p>
+                                <h3 id="dash-limit-available" class="text-2xl md:text-3xl font-bold text-slate-900 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Limite somado</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-lg text-blue-600"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Fatura Atual</p>
+                                <h3 id="dash-current-invoice" class="text-2xl md:text-3xl font-bold text-red-600 mt-2">R$ 0,00</h3>
+                                <div class="flex items-center mt-1 text-xs font-medium text-red-600"><span id="invoice-growth">+0%</span><span class="text-slate-400 ml-1">vs anterior</span></div>
+                            </div>
+                            <div class="p-3 bg-red-50 rounded-lg text-red-600"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm card-hover">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximos 3 Meses</p>
+                                <h3 id="dash-next-installments" class="text-2xl md:text-3xl font-bold text-yellow-600 mt-2">R$ 0,00</h3>
+                                <p class="text-xs text-slate-500 mt-1">Parcelas futuras</p>
+                            </div>
+                            <div class="p-3 bg-yellow-50 rounded-lg text-yellow-600"><i data-lucide="calendar-clock" class="w-6 h-6"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <!-- Chart Area -->
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                                <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Utilização por Cartão
+                            </h3>
+                            <div class="flex gap-4">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-plena-indigo"></div> Usado</div>
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><div class="w-3 h-3 rounded-full bg-slate-300"></div> Livre</div>
+                            </div>
+                        </div>
+                        <div class="p-6 h-64 w-full">
+                            <div id="chart-area" class="chart-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Side Lists -->
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="zap" class="w-4 h-4 mr-2 text-plena-indigo"></i>
+                                Melhor Cartão (Hoje)
+                            </h3>
+                            <div id="best-card-today"></div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                            <h3 class="font-bold text-slate-800 mb-4">Limite Disponível</h3>
+                            <div id="limit-list" class="space-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Expenses -->
+                <div class="mt-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">Compras Recentes</h3>
+                        <button onclick="router('invoice')" class="text-xs font-bold text-plena-indigo hover:underline">Ver Faturas</button>
+                    </div>
+                    <div id="recent-expenses" class="divide-y divide-slate-50"></div>
+                </div>
+            </section>
+
+            <!-- VIEW: CARDS -->
+            <section id="view-cards" class="view-section hide fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Meus Cartões</h2>
+                    <button onclick="openCardModal()" class="bg-plena-indigo text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-plena-dark flex items-center shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Adicionar Cartão
+                    </button>
+                </div>
+                <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: INVOICE -->
+            <section id="view-invoice" class="view-section hide fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Faturas</h2>
+                        <p class="text-sm text-slate-500 hidden sm:block">Gerencie seus pagamentos</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="exportInvoiceCSV()" class="flex-1 md:flex-none justify-center bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-200 flex items-center shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> CSV
+                        </button>
+                        <button onclick="printInvoice()" class="flex-1 md:flex-none justify-center bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 flex items-center shadow-sm">
+                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-full"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                        <h3 id="inv-month-display" class="text-lg font-bold text-slate-800 w-40 text-center">--</h3>
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-full"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                    </div>
+                    <select id="inv-card-select" onchange="renderInvoiceView()" class="w-full md:w-auto border p-2 rounded-lg text-sm bg-white font-bold text-slate-600">
+                        <option value="all">Todos os Cartões</option>
+                    </select>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 bg-slate-50 grid grid-cols-1 md:grid-cols-4 gap-3 border-b border-slate-200">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                            <input type="text" id="search-term" onkeyup="renderInvoiceView()" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-sm outline-none focus:border-plena-indigo">
+                        </div>
+                        <div class="md:col-span-3 flex justify-end items-center">
+                            <span class="text-sm text-slate-500 mr-2">Total Fatura:</span>
+                            <span id="inv-total" class="text-2xl font-bold text-slate-900">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[600px]">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-3">Dia</th>
+                                    <th class="px-6 py-3">Descrição</th>
+                                    <th class="px-6 py-3">Cartão</th>
+                                    <th class="px-6 py-3">Parc.</th>
+                                    <th class="px-6 py-3 text-right">Valor</th>
+                                    <th class="px-6 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inv-items-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: RELATÓRIOS -->
+            <section id="view-reports" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Relatórios Avançados</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6 max-w-3xl">
+                    <h3 class="font-bold text-slate-800 mb-4">Configurar Período</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Início</label><input type="date" id="rep-start" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Fim</label><input type="date" id="rep-end" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                        <div class="flex gap-2">
+                            <button onclick="generateReport()" class="flex-1 bg-plena-indigo text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-plena-dark">Gerar</button>
+                            <button onclick="generateFullReport()" class="bg-slate-100 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-200"><i data-lucide="calendar" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="report-result" class="hide">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center"><p class="text-xs font-bold text-green-700 uppercase">Cartão Mais Usado</p><p id="rep-most-used" class="text-lg font-bold text-green-800 mt-1">-</p></div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-100 text-center"><p class="text-xs font-bold text-red-700 uppercase">Maior Gasto</p><p id="rep-highest-expense" class="text-lg font-bold text-red-800 mt-1">R$ 0,00</p></div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center"><p class="text-xs font-bold text-blue-700 uppercase">Parcelas Futuras</p><p id="rep-future-installments" class="text-lg font-bold text-blue-800 mt-1">R$ 0,00</p></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-6">
+                        <h3 class="font-bold text-slate-800 mb-4">Análise por Cartão</h3>
+                        <div id="card-report" class="space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIGURAÇÕES -->
+            <section id="view-settings" class="view-section hide fade-in">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Configurações</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Preferências</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Nome</label><input type="text" id="company-name" class="w-full border p-2 rounded-lg text-sm mt-1"></div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase">Moeda</label>
+                                <select id="currency-select" class="w-full border p-2 rounded-lg text-sm mt-1 bg-white">
+                                    <option value="BRL">Real (R$)</option><option value="USD">Dólar ($)</option><option value="EUR">Euro (€)</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between mt-2"><span class="text-sm">Backup Automático</span><input type="checkbox" id="auto-backup" class="accent-plena-indigo w-5 h-5"></div>
+                            <div class="flex items-center justify-between mt-2"><span class="text-sm">Notificações</span><input type="checkbox" id="notifications" class="accent-plena-indigo w-5 h-5"></div>
+                            <button onclick="saveSettings()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-bold mt-2">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i> Dados</h3>
+                        <div class="space-y-3">
+                            <button onclick="downloadBackup()" class="w-full border border-slate-300 py-3 rounded-lg text-sm font-medium hover:bg-slate-50 flex justify-center items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Backup</button>
+                            <label class="w-full bg-slate-800 text-white py-3 rounded-lg text-sm font-medium flex justify-center items-center gap-2 cursor-pointer hover:bg-slate-900"><i data-lucide="upload" class="w-4 h-4"></i> Restaurar <input type="file" onchange="restoreBackup(this)" accept=".json" class="hidden"></label>
+                            <button onclick="factoryReset()" class="w-full text-red-500 text-xs font-bold mt-2 hover:underline">Resetar Tudo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: SYSTEM, INSTRUCTIONS, ABOUT -->
+            <section id="view-system" class="view-section hide fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-end mb-8">
+                        <h2 class="text-2xl font-bold text-slate-800">Sistema</h2>
+                        <button onclick="checkForUpdates()" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center"><i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Verificar</button>
+                    </div>
+                    <div class="bg-slate-900 text-white rounded-xl shadow-lg p-6 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="credit-card" class="w-32 h-32"></i></div>
+                        <p class="text-indigo-200 text-xs font-bold uppercase tracking-wider mb-1">Versão Instalada</p>
+                        <h2 id="display-installed-version" class="text-4xl font-bold mb-1">v4.2</h2>
+                        <p class="text-slate-300 text-sm">Build Híbrido Pro</p>
+                    </div>
+                </div>
+            </section>
+            <section id="view-instructions" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Manual Interativo em desenvolvimento.</div></section>
+            <section id="view-about" class="view-section hide fade-in"><div class="p-8 text-center text-slate-500 bg-white rounded-xl border border-slate-200 shadow-sm">Plena Soluções Digitais - v4.2</div></section>
+
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    
+    <!-- Card Modal -->
+    <div id="cardModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Novo Cartão</h3>
+                <button onclick="closeModal('cardModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitCard(event)" class="space-y-4">
+                <input type="hidden" id="cd-id">
+                <input type="text" id="cd-name" required placeholder="Nome (Ex: Nubank)" class="w-full border p-2 rounded-lg">
+                <input type="text" id="cd-last4" maxlength="4" placeholder="4 Dígitos (Opcional)" class="w-full border p-2 rounded-lg">
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Limite</label><input type="number" step="0.01" id="cd-limit" required class="w-full border p-2 rounded-lg" placeholder="R$ 0,00"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Fechamento</label><input type="number" min="1" max="31" id="cd-close" required class="w-full border p-2 rounded-lg" placeholder="Dia"></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Vencimento</label><input type="number" min="1" max="31" id="cd-due" required class="w-full border p-2 rounded-lg" placeholder="Dia"></div>
+                </div>
+                <button type="submit" class="w-full bg-plena-indigo text-white py-3 rounded-xl font-bold">Salvar Cartão</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Nova Compra</h3>
+                <button onclick="closeModal('expModal')" class="text-slate-400"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitExpense(event)" class="space-y-4">
+                <input type="hidden" id="ex-id">
+                <select id="ex-card" required class="w-full border p-2 rounded-lg bg-white font-medium"></select>
+                <input type="text" id="ex-desc" required placeholder="O que você comprou?" class="w-full border p-2 rounded-lg">
+                <input type="number" step="0.01" id="ex-val" required placeholder="Valor Total (R$)" class="w-full border p-2 rounded-lg text-lg font-bold">
+                <input type="date" id="ex-date" required class="w-full border p-2 rounded-lg">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Parcelas</label>
+                    <select id="ex-inst" class="w-full border p-2 rounded-lg bg-white">
+                        <option value="1">À vista (1x)</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option><option value="10">10x</option><option value="12">12x</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-plena-indigo text-white py-3 rounded-xl font-bold">Confirmar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Closing Modal -->
+    <div id="closingModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-plena-indigo to-plena-dark p-6 text-center text-white"><h3 class="font-bold text-lg">Resumo da Fatura</h3><p id="close-month" class="text-sm mt-1">Mês Atual</p></div>
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between p-3 bg-slate-50 rounded-lg"><span class="text-sm">Total Faturas</span><span id="close-total" class="font-bold text-slate-800">R$ 0,00</span></div>
+                <div class="flex justify-between p-3 bg-red-50 rounded-lg"><span class="text-sm">A Pagar</span><span id="close-unpaid" class="font-bold text-red-600">0 faturas</span></div>
+                <div class="flex justify-between pt-4 border-t"><span class="font-bold">Status</span><span id="close-status" class="font-bold text-xl">Aberto</span></div>
+                <button onclick="closeAllInvoices()" class="w-full bg-plena-indigo text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Fechar Todas</button>
+                <button onclick="closeModal('closingModal')" class="w-full bg-slate-100 py-3 rounded-lg font-bold text-sm">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // CONFIG
+        const DB_KEY = 'plena_card_pro_v2';
+        const defaultDB = { cards: [], expenses: [], settings: { companyName: '', currency: 'BRL', theme: 'light', autoBackup: true } };
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB;
+        let viewDate = new Date();
+
+        // UTILS
+        const save = () => localStorage.setItem(DB_KEY, JSON.stringify(db));
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const fmtDate = (d) => { if(!d) return '--/--'; const date = new Date(d+'T12:00:00'); return date.toLocaleDateString('pt-BR'); };
+        const getID = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        const getMonthYear = (d) => `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        const getMonthName = (d) => d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
+        const calculatePercentage = (c, p) => { if (p === 0) return c > 0 ? 100 : 0; return ((c - p) / p * 100).toFixed(1); };
+
+        // INIT
+        function init() {
+            if(window.lucide) lucide.createIcons();
+
+            // Configurar datas padrão
+            const today = new Date().toISOString().split('T')[0];
+            const firstDay = new Date();
+            firstDay.setDate(1);
+            const firstDayStr = firstDay.toISOString().split('T')[0];
+
+            // Helper seguro para definir valores
+            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+            const safeCheck = (id, val) => { const el = document.getElementById(id); if(el) el.checked = val; };
+
+            // Configurar inputs de data
+            safeSet('ex-date', today);
+            safeSet('month-selector', today.slice(0, 7));
+            safeSet('rep-start', firstDayStr);
+            safeSet('rep-end', today);
+            safeSet('filter-start', firstDayStr);
+            safeSet('filter-end', today);
+
+            // Configurar settings
+            safeSet('company-name', db.settings.companyName || '');
+            safeSet('currency-select', db.settings.currency || 'BRL');
+            safeCheck('auto-backup', db.settings.autoBackup !== false);
+            safeCheck('notifications', db.settings.notifications !== false);
+
+            // Renderizar dados iniciais
+            renderDashboard();
+            if(typeof updateDataStatus === 'function') updateDataStatus();
+            if(typeof updateTermsVisuals === 'function') updateTermsVisuals();
+
+            // Configurar periodicidade para salvar
+            if (db.settings.autoBackup !== false) {
+                setInterval(save, 30000); // Salva a cada 30 segundos
+            }
+
+            // Iniciar na dashboard
+            router('dashboard');
+        }
+
+        // ROUTER
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function router(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10', 'text-white'));
+            
+            const target = document.getElementById('view-' + view);
+            if(target) { target.classList.remove('hide'); target.classList.add('fade-in'); }
+            
+            const nav = document.getElementById('nav-' + view);
+            if(nav) { nav.classList.add('active-nav', 'bg-white/10', 'text-white'); }
+            
+            document.getElementById('page-title').innerText = { dashboard:'Dashboard', cards:'Meus Cartões', invoice:'Faturas', reports:'Relatórios', settings:'Configurações' }[view] || 'Plena Card';
+
+            if(window.innerWidth < 1024) { 
+                const sb = document.getElementById('sidebar'); 
+                if(sb.classList.contains('open')) toggleSidebar(); 
+            }
+
+            if(view === 'dashboard') renderDashboard();
+            else if(view === 'cards') renderCards();
+            else if(view === 'invoice') { viewDate = new Date(); renderInvoiceView(); }
+        }
+
+        // DASHBOARD
+        function renderDashboard() {
+            const monthSelector = document.getElementById('month-selector').value;
+            const currentMonth = monthSelector || getMonthYear(new Date());
+            
+            // Calc Totals
+            const monthExpenses = db.expenses.filter(e => e.invoiceMonth === currentMonth && !e.paid);
+            const currentInvoice = monthExpenses.reduce((s, e) => s + e.val, 0);
+            
+            let totalLimit = 0, totalUsed = 0;
+            db.cards.forEach(card => {
+                totalLimit += card.limit;
+                totalUsed += db.expenses.filter(e => e.cardId === card.id && !e.paid).reduce((s, e) => s + e.val, 0);
+            });
+            const limitAvailable = totalLimit - totalUsed;
+
+            // Future
+            const today = new Date();
+            const futureMonths = [];
+            for(let i=1; i<=3; i++) { const d=new Date(today); d.setMonth(today.getMonth()+i); futureMonths.push(getMonthYear(d)); }
+            const future = db.expenses.filter(e => futureMonths.includes(e.invoiceMonth) && !e.paid).reduce((s,e)=>s+e.val,0);
+
+            document.getElementById('dash-limit-available').innerText = fmtMoney(limitAvailable);
+            document.getElementById('dash-current-invoice').innerText = fmtMoney(currentInvoice);
+            document.getElementById('dash-next-installments').innerText = fmtMoney(future);
+
+            // Alert
+            const critical = db.cards.some(c => {
+                const used = db.expenses.filter(e => e.cardId === c.id && !e.paid).reduce((s,e)=>s+e.val,0);
+                return (used/c.limit) > 0.8;
+            });
+            if(critical) document.getElementById('balance-alert').classList.remove('hidden'); else document.getElementById('balance-alert').classList.add('hidden');
+
+            renderChart(currentMonth);
+            renderBestCardToday();
+            renderLimitList();
+            renderRecentExpenses();
+            lucide.createIcons();
+        }
+
+        function renderChart(month) {
+            const area = document.getElementById('chart-area');
+            if(db.cards.length === 0) { area.innerHTML = '<p class="text-center text-slate-400 w-full py-8 text-sm">Sem cartões</p>'; return; }
+            let max = 0;
+            const data = db.cards.map(c => {
+                const used = db.expenses.filter(e => e.cardId === c.id && e.invoiceMonth === month && !e.paid).reduce((s,e)=>s+e.val,0);
+                const avail = Math.max(0, c.limit - used);
+                max = Math.max(max, c.limit);
+                return { c, used, avail };
+            });
+            area.innerHTML = data.map(d => `
+                <div class="bar-group">
+                    <div class="bar-wrapper">
+                        <div class="bar bg-plena-indigo" style="height:${(d.used/max)*100}%" title="Usado: ${fmtMoney(d.used)}"></div>
+                        <div class="bar bg-slate-300" style="height:${(d.avail/max)*100}%" title="Livre: ${fmtMoney(d.avail)}"></div>
+                    </div>
+                    <div class="x-label truncate w-full">${d.c.name.substring(0,6)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderBestCardToday() {
+            const today = new Date().getDate();
+            let best = null, daysToClose = Infinity;
+            
+            db.cards.forEach(c => {
+                const diff = c.closeDay - today;
+                if(diff > 0 && diff < daysToClose) { daysToClose = diff; best = c; }
+            });
+            // Fallback: fechamento mais distante no prox mes
+            if(!best) {
+                db.cards.forEach(c => {
+                    const diff = (c.closeDay + 30) - today;
+                    if(diff < daysToClose) { daysToClose = diff; best = c; }
+                });
+            }
+
+            const container = document.getElementById('best-card-today');
+            if(!best) { container.innerHTML='<p class="text-sm text-slate-400">Sem cartões</p>'; return; }
+            
+            const used = db.expenses.filter(e => e.cardId === best.id && !e.paid).reduce((s,e)=>s+e.val,0);
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-plena-indigo to-plena-dark p-5 rounded-2xl text-white shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <div><span class="font-bold text-sm opacity-90">${best.name}</span><p class="text-xs opacity-70">•••• ${best.last4||'****'}</p></div>
+                        <i data-lucide="zap" class="w-5 h-5 opacity-50"></i>
+                    </div>
+                    <p class="text-xs opacity-70 uppercase tracking-wider">Recomendado</p>
+                    <h3 class="text-xl font-bold mt-2">${fmtMoney(best.limit - used)}</h3>
+                    <p class="text-xs opacity-70 mt-2">Fecha dia ${best.closeDay}</p>
+                </div>
+            `;
+        }
+
+        function renderLimitList() {
+            document.getElementById('limit-list').innerHTML = db.cards.map(c => {
+                const used = db.expenses.filter(e => e.cardId === c.id && !e.paid).reduce((s,e)=>s+e.val,0);
+                const pct = Math.min((used/c.limit)*100, 100);
+                return `
+                <div>
+                    <div class="flex justify-between text-sm mb-1"><span class="font-bold text-slate-700">${c.name}</span><span class="text-slate-500">${fmtMoney(c.limit-used)} disp.</span></div>
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${pct>80?'bg-red-500':pct>60?'bg-yellow-500':'bg-plena-indigo'}" style="width:${pct}%"></div></div>
+                </div>`;
+            }).join('') || '<p class="text-sm text-slate-400 text-center">Nenhum cartão</p>';
+        }
+
+        function renderRecentExpenses() {
+            const list = db.expenses.sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+            document.getElementById('recent-expenses').innerHTML = list.map(e => {
+                const c = db.cards.find(x=>x.id===e.cardId);
+                return `
+                <div class="flex items-center justify-between p-3 hover:bg-slate-50">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 text-indigo-600"><i data-lucide="shopping-cart" class="w-4 h-4"></i></div>
+                        <div><p class="text-sm font-medium text-slate-800">${e.desc}</p><p class="text-xs text-slate-500">${fmtDate(e.date)} • ${c?.name||'-'}</p></div>
+                    </div>
+                    <span class="text-sm font-bold text-slate-800">${fmtMoney(e.val)}</span>
+                </div>`;
+            }).join('') || '<p class="p-4 text-center text-sm text-slate-400">Nenhuma compra recente</p>';
+        }
+
+        // CARDS
+        function renderCards() {
+            document.getElementById('cards-grid').innerHTML = db.cards.map(c => {
+                const used = db.expenses.filter(e => e.cardId === c.id && !e.paid).reduce((s,e)=>s+e.val,0);
+                const pct = Math.min((used/c.limit)*100, 100);
+                return `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600"><i data-lucide="credit-card"></i></div>
+                            <div><h3 class="font-bold text-slate-800">${c.name}</h3><p class="text-xs text-slate-500">**** ${c.last4||'****'}</p></div>
+                        </div>
+                        <div class="flex gap-2"><button onclick="editCard('${c.id}')" class="text-slate-300 hover:text-blue-500"><i data-lucide="edit" class="w-4 h-4"></i></button><button onclick="deleteCard('${c.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
+                    </div>
+                    <div class="mb-4"><div class="flex justify-between text-sm mb-1"><span class="text-slate-500">Utilizado</span><span class="font-bold">${fmtMoney(used)}</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${pct>80?'bg-red-500':pct>60?'bg-yellow-500':'bg-plena-indigo'}" style="width:${pct}%"></div></div></div>
+                    <div class="grid grid-cols-3 gap-4 text-center border-t pt-4">
+                        <div><p class="text-[10px] uppercase font-bold text-slate-400">Limite</p><p class="font-bold text-slate-800">${fmtMoney(c.limit)}</p></div>
+                        <div><p class="text-[10px] uppercase font-bold text-slate-400">Fecha</p><p class="font-bold text-slate-800">Dia ${c.closeDay}</p></div>
+                        <div><p class="text-[10px] uppercase font-bold text-slate-400">Vence</p><p class="font-bold text-slate-800">Dia ${c.dueDay}</p></div>
+                    </div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openCardModal(card=null) {
+            document.querySelector('#cardModal form').reset();
+            if(card) {
+                document.getElementById('cd-id').value = card.id;
+                document.getElementById('cd-name').value = card.name;
+                document.getElementById('cd-last4').value = card.last4 || '';
+                document.getElementById('cd-limit').value = card.limit;
+                document.getElementById('cd-close').value = card.closeDay;
+                document.getElementById('cd-due').value = card.dueDay;
+            } else {
+                document.getElementById('cd-id').value = '';
+            }
+            document.getElementById('cardModal').classList.remove('hidden');
+        }
+
+        function submitCard(e) {
+            e.preventDefault();
+            const id = document.getElementById('cd-id').value;
+            const card = {
+                id: id || getID(), name: document.getElementById('cd-name').value, last4: document.getElementById('cd-last4').value,
+                limit: parseFloat(document.getElementById('cd-limit').value), closeDay: parseInt(document.getElementById('cd-close').value), dueDay: parseInt(document.getElementById('cd-due').value)
+            };
+            if(id) { const idx = db.cards.findIndex(c=>c.id===id); db.cards[idx]=card; } else { db.cards.push(card); }
+            save(); closeModal('cardModal'); renderCards();
+        }
+
+        function editCard(id) { openCardModal(db.cards.find(c=>c.id===id)); }
+        function deleteCard(id) { if(confirm('Apagar cartão e despesas?')) { db.cards=db.cards.filter(c=>c.id!==id); db.expenses=db.expenses.filter(e=>e.cardId!==id); save(); renderCards(); } }
+
+        // EXPENSES
+        function openExpenseModal() {
+            if(db.cards.length===0) { alert('Cadastre um cartão primeiro.'); return; }
+            document.querySelector('#expModal form').reset();
+            document.getElementById('ex-id').value = '';
+            document.getElementById('ex-date').value = new Date().toISOString().split('T')[0];
+            const sel = document.getElementById('ex-card');
+            sel.innerHTML = '<option value="">Selecione...</option>' + db.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('expModal').classList.remove('hidden');
+        }
+
+        function submitExpense(e) {
+            e.preventDefault();
+            const cardId = document.getElementById('ex-card').value;
+            const desc = document.getElementById('ex-desc').value;
+            const totalVal = parseFloat(document.getElementById('ex-val').value);
+            const dateStr = document.getElementById('ex-date').value;
+            const inst = parseInt(document.getElementById('ex-inst').value);
+            const card = db.cards.find(c=>c.id===cardId);
+            
+            const valPerInst = totalVal/inst;
+            const date = new Date(dateStr + 'T12:00:00');
+
+            for(let i=1; i<=inst; i++) {
+                let target = new Date(date);
+                if(target.getDate() >= card.closeDay) target.setMonth(target.getMonth()+1);
+                target.setMonth(target.getMonth() + (i-1));
+                
+                db.expenses.push({
+                    id: getID(), cardId, desc: `${desc} (${i}/${inst})`, val: valPerInst, date: dateStr,
+                    invoiceMonth: getMonthYear(target), installment: i, totalInstallments: inst, paid: false
+                });
+            }
+            save(); closeModal('expModal'); renderDashboard(); if(!document.getElementById('view-invoice').classList.contains('hide')) renderInvoiceView();
+        }
+
+        // INVOICES
+        function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth()+delta); renderInvoiceView(); }
+        function renderInvoiceView() {
+            const sel = document.getElementById('inv-card-select');
+            if(sel.options.length===1 && db.cards.length>0) db.cards.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.text=c.name; sel.add(o); });
+            
+            document.getElementById('inv-month-display').innerText = getMonthName(viewDate);
+            const monthStr = getMonthYear(viewDate);
+            const cardFilter = sel.value;
+            
+            let items = db.expenses.filter(e => e.invoiceMonth === monthStr);
+            if(cardFilter !== 'all') items = items.filter(e => e.cardId === cardFilter);
+            
+            const total = items.reduce((s,e)=>s+e.val,0);
+            document.getElementById('inv-total').innerText = fmtMoney(total);
+
+            document.getElementById('inv-items-list').innerHTML = items.length ? items.map(e => {
+                const c = db.cards.find(x=>x.id===e.cardId);
+                return `
+                <tr class="hover:bg-slate-50 border-b border-slate-100 ${e.paid?'opacity-50':''}">
+                    <td class="px-6 py-4 text-slate-500 font-mono">${fmtDate(e.date)}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800">${e.desc} ${e.paid?'<span class="text-xs bg-green-100 text-green-700 px-2 rounded">PAGA</span>':''}</td>
+                    <td class="px-6 py-4 text-xs">${c?c.name:'-'}</td>
+                    <td class="px-6 py-4 text-center text-xs">${e.installment}/${e.totalInstallments}</td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-800">${fmtMoney(e.val)}</td>
+                    <td class="px-6 py-4 text-right"><button onclick="togglePaid('${e.id}')" class="text-slate-300 hover:text-green-500"><i data-lucide="check" class="w-4 h-4"></i></button></td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="6" class="text-center py-8 text-slate-400">Nenhuma compra</td></tr>';
+            lucide.createIcons();
+        }
+
+        function togglePaid(id) { const e = db.expenses.find(x=>x.id===id); if(e) { e.paid = !e.paid; save(); renderInvoiceView(); renderDashboard(); } }
+
+        // REPORTS
+        function generateReport() {
+            const start = document.getElementById('rep-start').value;
+            const end = document.getElementById('rep-end').value;
+            const items = db.expenses.filter(e => e.date >= start && e.date <= end);
+            
+            const usage = {}; items.forEach(e => { usage[e.cardId] = (usage[e.cardId]||0)+1; });
+            const mostUsedId = Object.keys(usage).reduce((a,b)=>usage[a]>usage[b]?a:b, null);
+            const mostUsed = db.cards.find(c=>c.id===mostUsedId)?.name || '-';
+            const highest = items.length ? Math.max(...items.map(e=>e.val)) : 0;
+            
+            const today = new Date();
+            const future = db.expenses.filter(e => new Date(e.date)>today && !e.paid).reduce((s,e)=>s+e.val,0);
+
+            document.getElementById('rep-most-used').innerText = mostUsed;
+            document.getElementById('rep-highest-expense').innerText = fmtMoney(highest);
+            document.getElementById('rep-future-installments').innerText = fmtMoney(future);
+            
+            // Breakdown
+            const breakdown = {};
+            items.forEach(e => { const n = db.cards.find(c=>c.id===e.cardId)?.name||'?'; if(!breakdown[n]) breakdown[n]=0; breakdown[n]+=e.val; });
+            document.getElementById('card-report').innerHTML = Object.entries(breakdown).map(([n,v]) => `
+                <div class="flex justify-between items-center text-sm"><span>${n}</span><span class="font-bold">${fmtMoney(v)}</span></div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-2"><div class="bg-plena-indigo h-full" style="width:100%"></div></div>
+            `).join('');
+            
+            document.getElementById('report-result').classList.remove('hide');
+        }
+
+        // UTILS
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openClosingModal() {
+            const m = getMonthYear(new Date());
+            const exps = db.expenses.filter(e => e.invoiceMonth === m);
+            const tot = exps.reduce((s,e)=>s+e.val,0);
+            const unpaid = exps.filter(e=>!e.paid).length;
+            document.getElementById('close-total').innerText = fmtMoney(tot);
+            document.getElementById('close-unpaid').innerText = `${unpaid} faturas`;
+            document.getElementById('close-status').innerText = unpaid===0?'FECHADO':'ABERTO';
+            document.getElementById('close-status').className = `font-bold text-2xl ${unpaid===0?'text-green-600':'text-red-600'}`;
+            document.getElementById('closingModal').classList.remove('hidden');
+        }
+        function closeAllInvoices() {
+            if(confirm('Fechar faturas deste mês?')) {
+                const m = getMonthYear(new Date());
+                db.expenses.forEach(e => { if(e.invoiceMonth === m) e.paid = true; });
+                save(); closeModal('closingModal'); renderDashboard(); renderInvoiceView();
+            }
+        }
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "backup_plena_card.json"); document.body.appendChild(node); node.click(); node.remove();
+        }
+        function restoreBackup(input) {
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { try { db = JSON.parse(e.target.result); save(); location.reload(); } catch(err) { alert('Erro ao ler'); } };
+            reader.readAsText(file);
+        }
+        function saveSettings() { db.settings.companyName = document.getElementById('company-name').value; save(); alert('Salvo!'); }
+        function checkForUpdates() { alert('Sistema atualizado: v4.2'); }
+
+        // INICIALIZAÇÃO SEGURA
+        function init() {
+            if(window.lucide) lucide.createIcons();
+
+            // Configurar datas padrão
+            const today = new Date().toISOString().split('T')[0];
+            const firstDay = new Date();
+            firstDay.setDate(1);
+            const firstDayStr = firstDay.toISOString().split('T')[0];
+
+            // Helper seguro para definir valores
+            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+            const safeCheck = (id, val) => { const el = document.getElementById(id); if(el) el.checked = val; };
+
+            // Configurar inputs de data
+            safeSet('ex-date', today);
+            safeSet('month-selector', today.slice(0, 7));
+            safeSet('rep-start', firstDayStr);
+            safeSet('rep-end', today);
+            safeSet('filter-start', firstDayStr);
+            safeSet('filter-end', today);
+
+            // Configurar settings
+            safeSet('company-name', db.settings.companyName || '');
+            safeSet('currency-select', db.settings.currency || 'BRL');
+            safeCheck('auto-backup', db.settings.autoBackup !== false);
+            safeCheck('notifications', db.settings.notifications !== false);
+
+            // Renderizar dados iniciais
+            renderDashboard();
+            
+            // Configurar periodicidade para salvar
+            if (db.settings.autoBackup !== false) {
+                setInterval(save, 30000); // Salva a cada 30 segundos
+            }
+
+            // Iniciar na dashboard
+            router('dashboard');
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
