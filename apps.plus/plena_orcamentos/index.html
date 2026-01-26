@@ -364,6 +364,15 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Notification Bell -->
+                <button onclick="router('system')"
+                    class="relative p-2 mr-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors group"
+                    title="Notificações do Sistema">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <!-- Container Neutro para Badge (O JS injeta o visual) -->
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-3 w-3 hidden"></span>
+                </button>
+
                 <div class="relative group">
                     <div
                         class="absolute -inset-1 bg-plena-green/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-300">

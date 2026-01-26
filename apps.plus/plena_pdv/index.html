@@ -20,7 +20,7 @@
     <meta name="plena-category" content="Financeiro">
     <meta name="plena-price" content="127,00">
     <meta name="plena-access" content="full">
-    
+
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -608,7 +608,7 @@
                 <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Sobre a Plena
             </button>
-        
+
 
 
 
@@ -624,7 +624,7 @@
                 </span>
             </button>
 
-</nav>
+        </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
             <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2026</p>
@@ -648,6 +648,14 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Notification Bell -->
+                <button onclick="router('system')"
+                    class="relative p-2 mr-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors group"
+                    title="Notificações do Sistema">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span id="header-badge" class="absolute top-2 right-2 flex h-3 w-3 hidden"></span>
+                </button>
+
                 <div class="relative group">
                     <div
                         class="absolute -inset-1 bg-plena-green/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-300">
@@ -1756,147 +1764,143 @@
             </section>
 
         </div>
-    
 
-<!-- System View (New) -->
-            <section id="view-system" class="view-section hide fade-in">
-                <div class="max-w-4xl mx-auto pb-12">
 
-                    <!-- Header -->
-                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">Sistema e Atualizações</h2>
-                            <p class="text-sm text-slate-600">Central de notificações e controle de versão</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span id="system-status-indicator"
-                                class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                <span class="relative flex h-2 w-2">
-                                    <span
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                                Sistema Operacional
-                            </span>
-                        </div>
+        <!-- System View (New) -->
+        <section id="view-system" class="view-section hide fade-in">
+            <div class="max-w-4xl mx-auto pb-12">
+
+                <!-- Header -->
+                <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Sistema e Atualizações</h2>
+                        <p class="text-sm text-slate-600">Central de notificações e controle de versão</p>
                     </div>
-
-                    <!-- Grid Layout -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                        <!-- Column 1: Notifications & Alerts -->
-                        <div class="space-y-6">
-                            <!-- Notifications Card -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-bold text-slate-800 flex items-center">
-                                        <i data-lucide="bell" class="w-5 h-5 mr-2 text-plena-blue"></i>
-                                        Notificações do Sistema
-                                    </h3>
-                                    <button onclick="clearSystemNotifications()"
-                                        class="text-xs text-slate-400 hover:text-plena-blue">
-                                        Limpar tudo
-                                    </button>
-                                </div>
-                                <div id="notification-feed-container" class="space-y-3">
-                                    <!-- Dynamic Content -->
-                                    <div
-                                        class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
-                                        <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
-                                        <div>
-                                            <p class="text-xs font-bold text-blue-800">Boas-vindas ao Plena Barbearia
-                                                v4.3</p>
-                                            <p class="text-xs text-blue-600 mt-1">Conheça a nova aba Sistema para
-                                                acompanhar todas as novidades.</p>
-                                            <p class="text-[10px] text-blue-400 mt-1">Agora</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Device & Storage Diagnostics -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center">
-                                    <i data-lucide="activity" class="w-5 h-5 mr-2 text-slate-500"></i>
-                                    Diagnóstico do Dispositivo
-                                </h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <div class="flex justify-between text-xs mb-1">
-                                            <span class="text-slate-500">Armazenamento Local (Estimado)</span>
-                                            <span class="font-bold text-slate-700"
-                                                id="storage-usage">Calculando...</span>
-                                        </div>
-                                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                            <div id="storage-bar" class="h-full bg-plena-blue" style="width: 5%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-3 text-xs">
-                                        <div class="p-3 bg-slate-50 rounded-lg text-center">
-                                            <span class="block text-slate-400 mb-1">Status Offline/Online</span>
-                                            <span id="conn-status" class="font-bold text-green-600">Online</span>
-                                        </div>
-                                        <div class="p-3 bg-slate-50 rounded-lg text-center">
-                                            <span class="block text-slate-400 mb-1">Service Worker</span>
-                                            <span id="sw-status" class="font-bold text-green-600">Ativo</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Column 2: Versioning & Changelog -->
-                        <div class="space-y-6">
-                            <!-- Update Center -->
-                            <div
-                                class="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
-                                <div class="relative z-10">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">
-                                                Versão Instalada</p>
-                                            <h3 id="display-installed-version"
-                                                class="text-3xl font-bold text-white mb-2">v4.3</h3>
-                                            <p class="text-slate-300 text-xs">Build 2026.01.24 • Desktop Pro</p>
-                                        </div>
-                                        <div
-                                            class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                            <i data-lucide="zap" class="w-6 h-6 text-yellow-400"></i>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-6">
-                                        <button onclick="checkForUpdates()"
-                                            class="w-full bg-plena-blue hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50">
-                                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                            Buscar Atualizações
-                                        </button>
-                                        <p class="text-[10px] text-center text-slate-400 mt-2">Última verificação: <span
-                                                id="last-update-check">Nunca</span></p>
-                                    </div>
-                                </div>
-                                <!-- Background decoration -->
-                                <div
-                                    class="absolute -right-6 -bottom-6 w-32 h-32 bg-plena-blue/20 rounded-full blur-2xl">
-                                </div>
-                            </div>
-
-                            <!-- Changelog Feed -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center">
-                                    <i data-lucide="list" class="w-5 h-5 mr-2 text-slate-500"></i>
-                                    Histórico de Mudanças
-                                </h3>
-                                <div class="space-y-0" id="changelog-feed">
-                                    <!-- Populated by JS -->
-                                </div>
-                            </div>
-                        </div>
-
+                    <div class="flex items-center gap-3">
+                        <span id="system-status-indicator"
+                            class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            Sistema Operacional
+                        </span>
                     </div>
                 </div>
-            </section>
-</main>
+
+                <!-- Grid Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <!-- Column 1: Notifications & Alerts -->
+                    <div class="space-y-6">
+                        <!-- Notifications Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-800 flex items-center">
+                                    <i data-lucide="bell" class="w-5 h-5 mr-2 text-plena-blue"></i>
+                                    Notificações do Sistema
+                                </h3>
+                                <button onclick="clearSystemNotifications()"
+                                    class="text-xs text-slate-400 hover:text-plena-blue">
+                                    Limpar tudo
+                                </button>
+                            </div>
+                            <div id="notification-feed-container" class="space-y-3">
+                                <!-- Dynamic Content -->
+                                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
+                                    <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                                    <div>
+                                        <p class="text-xs font-bold text-blue-800">Boas-vindas ao Plena Barbearia
+                                            v4.3</p>
+                                        <p class="text-xs text-blue-600 mt-1">Conheça a nova aba Sistema para
+                                            acompanhar todas as novidades.</p>
+                                        <p class="text-[10px] text-blue-400 mt-1">Agora</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Device & Storage Diagnostics -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="activity" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Diagnóstico do Dispositivo
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-500">Armazenamento Local (Estimado)</span>
+                                        <span class="font-bold text-slate-700" id="storage-usage">Calculando...</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div id="storage-bar" class="h-full bg-plena-blue" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-xs">
+                                    <div class="p-3 bg-slate-50 rounded-lg text-center">
+                                        <span class="block text-slate-400 mb-1">Status Offline/Online</span>
+                                        <span id="conn-status" class="font-bold text-green-600">Online</span>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg text-center">
+                                        <span class="block text-slate-400 mb-1">Service Worker</span>
+                                        <span id="sw-status" class="font-bold text-green-600">Ativo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Versioning & Changelog -->
+                    <div class="space-y-6">
+                        <!-- Update Center -->
+                        <div
+                            class="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+                            <div class="relative z-10">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">
+                                            Versão Instalada</p>
+                                        <h3 id="display-installed-version" class="text-3xl font-bold text-white mb-2">
+                                            v4.3</h3>
+                                        <p class="text-slate-300 text-xs">Build 2026.01.24 • Desktop Pro</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+                                        <i data-lucide="zap" class="w-6 h-6 text-yellow-400"></i>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <button onclick="checkForUpdates()"
+                                        class="w-full bg-plena-blue hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                        Buscar Atualizações
+                                    </button>
+                                    <p class="text-[10px] text-center text-slate-400 mt-2">Última verificação: <span
+                                            id="last-update-check">Nunca</span></p>
+                                </div>
+                            </div>
+                            <!-- Background decoration -->
+                            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-plena-blue/20 rounded-full blur-2xl">
+                            </div>
+                        </div>
+
+                        <!-- Changelog Feed -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="list" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Histórico de Mudanças
+                            </h3>
+                            <div class="space-y-0" id="changelog-feed">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Transaction Modal -->
     <div id="transactionModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
@@ -3144,7 +3148,7 @@
         .text-xs { font-size: 9px; }
     </style>
     <link rel="manifest" href="manifest.json">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest"><\/script>
     </head>
 
     <body>
@@ -3152,28 +3156,29 @@
 
 
 
-        
-    
 
-    
-    <script>
+
+
+
+        <script>
         // Failsafe Icon Init
         document.addEventListener('DOMContentLoaded', () => {
             if(window.lucide) lucide.createIcons();
         });
         // Immediate Init for static content
         if(window.lucide) lucide.createIcons();
-    </script>
-</body>
+        <\/script>
+    </body>
+
 </html>`;
 
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 250);
+                printWindow.document.write(htmlContent);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 250);
             } catch (e) {
                 console.error("Erro ao imprimir:", e);
                 alert("Erro ao abrir janela de impressão");
@@ -3182,7 +3187,7 @@
     </script>
 
 
-<!-- Blocking Modal (Secure Broadcast) -->
+    <!-- Blocking Modal (Secure Broadcast) -->
     <div id="sysBlockingModal" class="fixed inset-0 z-[10000] hidden bg-black/80 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div id="sysModalHeader" class="bg-red-600 p-6 text-white flex items-center gap-3">
@@ -3205,7 +3210,7 @@
     </div>
 
 
-<!-- PWA INSTALLATION TOAST (Standardized) -->
+    <!-- PWA INSTALLATION TOAST (Standardized) -->
     <div id="pwa-install-toast"
         style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
         <div
@@ -3281,10 +3286,10 @@
     <script>
         // Failsafe Icon Init
         document.addEventListener('DOMContentLoaded', () => {
-            if(window.lucide) lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         });
         // Immediate Init for static content
-        if(window.lucide) lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
     </script>
 </body>
 
