@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de controle financeiro pessoal offline - Plena Aplicativos">
-    <link rel="manifest" href="data:application/manifest+json,{}">
+    
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -2737,28 +2737,8 @@
             }, 3000);
         }
 
-        // PWA INSTALL PROMPT
-        let deferredPrompt;
+        // Legacy PWA removed
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-
-            // Mostrar botão de instalação
-            const installButton = document.createElement('button');
-            installButton.className = 'fixed bottom-4 right-4 bg-plena-green text-white px-4 py-2 rounded-lg shadow-lg z-40';
-            installButton.innerHTML = '<i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Instalar App';
-            installButton.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                    installButton.remove();
-                });
-            };
-
-            document.body.appendChild(installButton);
-            lucide.createIcons();
-        });
 
         // OFFLINE SUPPORT
         window.addEventListener('online', () => {
@@ -2893,26 +2873,7 @@
 
 
 
-<div id="pwa-install-toast" class="fixed bottom-4 left-4 right-4 z-[9999] hidden animate-slide-in">
-    <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 border border-slate-700 max-w-md mx-auto w-full">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-plena-emerald rounded-xl flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-download text-white"></i>
-            </div>
-            <div>
-                <h4 class="font-bold text-sm">Instalar Aplicativo</h4>
-                <p class="text-xs text-slate-400">Acesso offline e tela cheia.</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="dismissInstall()" class="p-2 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
-            <button onclick="installPWA()" class="bg-plena-emerald hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition shadow-lg">INSTALAR</button>
-        </div>
-    </div>
-</div>
-
-
-    <!-- Blocking Modal (Secure Broadcast) -->
+<!-- Blocking Modal (Secure Broadcast) -->
     <div id="sysBlockingModal" class="fixed inset-0 z-[10000] hidden bg-black/80 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div id="sysModalHeader" class="bg-red-600 p-6 text-white flex items-center gap-3">
@@ -2935,6 +2896,562 @@
     </div>
 
 
+
+
+<script>
+// SISTEMA DE ATUALIZAÇÃO E PWA (ROBUSTO)
+        // ==========================================
+        const BUILD_DATE = new Date().toLocaleDateString('pt-BR');
+
+        const CHANGELOG = [
+            { version: 'v4.3', date: '24/01/2026', changes: ['Melhoria no mecanismo de update', 'Detecção real de versão do SW'] },
+            { version: 'v4.2', date: '24/01/2026', changes: ['Novo Sistema Centralizado', 'Aba de Diagnóstico e Rede', 'Notificações em Tempo Real'] },
+            { version: 'v4.1', date: '10/01/2026', changes: ['Módulo Financeiro Avançado', 'Exportação PDF'] },
+            { version: 'v4.0', date: '01/01/2026', changes: ['Lançamento Oficial'] }
+        ];
+
+        let CURRENT_VERSION = CHANGELOG[0].version; // Default to latest logic in this file
+
+        // --- SYSTEM VIEW LOGIC ---
+
+        // ==========================================================
+        // MÓDULO DE NOTIFICAÇÕES INTELIGENTE V5.2 (Red Dot & Secure)
+        // ==========================================================
+        const NOTIF_API_URL = '../../api_licenca.php';
+
+        let activeNotifications = [];
+
+        async function initNotificationSystem() {
+            const licenseKey = localStorage.getItem('plena_license_key');
+            if (!licenseKey) return;
+
+            try {
+                const response = await fetch(`${NOTIF_API_URL}?action=get_notifications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ license_key: licenseKey })
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const serverNotifications = data.notifications || [];
+                processNotifications(serverNotifications);
+
+            } catch (error) {
+                console.warn('SysNotif: Erro silencioso de conexão');
+            }
+        }
+
+        function processNotifications(serverList) {
+            const readIds = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+
+            // Filtra apenas não lidas
+            const unreadList = serverList.filter(n => !readIds.includes(n.id));
+            activeNotifications = unreadList;
+
+            // 1. Atualiza Visual (Ponto Vermelho Pulsante)
+            updateBadgeUI(unreadList.length > 0);
+
+            // 2. Renderiza Lista (se estiver na aba sistema)
+            renderNotificationList(unreadList);
+
+            // 3. Lógica de Bloqueio (Correção de Tipagem Robusta)
+            const blockingNotif = unreadList.find(n => {
+                return n.requireRead === true || n.requireRead === "true" || n.requireRead === 1;
+            });
+
+            if (blockingNotif) {
+                showBlockingModal(blockingNotif);
+            }
+        }
+
+        function updateBadgeUI(hasUnread) {
+            // 1. Badge do Header (Sino)
+            const headerBadge = document.getElementById('header-badge');
+            if (headerBadge) {
+                if (hasUnread) {
+                    headerBadge.classList.remove('hidden');
+                    headerBadge.style.display = 'flex';
+                } else {
+                    headerBadge.classList.add('hidden');
+                    headerBadge.style.display = 'none';
+                }
+            }
+
+            // 2. Badge da Sidebar (Aba Sistema)
+            const sidebarBadge = document.getElementById('sidebar-badge');
+            if (sidebarBadge) {
+                if (hasUnread) {
+                    sidebarBadge.classList.remove('hidden');
+                    sidebarBadge.style.display = 'flex'; // Garante alinhamento flex
+                } else {
+                    sidebarBadge.classList.add('hidden');
+                    sidebarBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function renderNotificationList(list) {
+            const container = document.getElementById('notification-feed-container');
+            if (!container) return;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-8 text-slate-400 opacity-60">
+                <i class="fa-regular fa-circle-check text-4xl mb-2"></i>
+                <p class="text-sm font-medium">Tudo limpo por aqui!</p>
+            </div>
+        `;
+                return;
+            }
+
+            let html = '';
+            list.forEach(n => {
+                let iconColor = 'text-blue-500';
+                let icon = 'info';
+                let borderLeft = 'border-l-4 border-l-blue-500';
+
+                if (n.type === 'danger') { iconColor = 'text-red-500'; icon = 'alert-triangle'; borderLeft = 'border-l-4 border-l-red-500'; }
+                if (n.type === 'warning') { iconColor = 'text-orange-500'; icon = 'alert-circle'; borderLeft = 'border-l-4 border-l-orange-500'; }
+
+                html += `
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 ${borderLeft} mb-3 flex gap-4 transition hover:shadow-md">
+                <div class="mt-1 ${iconColor}"><i data-lucide="${icon}" class="text-xl"></i></div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-slate-800 text-sm">${n.title || 'Mensagem do Sistema'}</h4>
+                    <p class="text-slate-600 text-xs mt-1 leading-relaxed">${n.message}</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-[10px] text-slate-400 font-medium">${n.date}</span>
+                        <button onclick="markSingleAsRead('${n.id}')" class="text-[10px] uppercase font-bold text-slate-400 hover:text-blue-600 transition">
+                            Marcar como lido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function markAllAsRead() {
+            if (activeNotifications.length === 0) return;
+            const readIds = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+            activeNotifications.forEach(n => { if (!readIds.includes(n.id)) readIds.push(n.id); });
+            localStorage.setItem('plena_read_notifs', JSON.stringify(readIds));
+            initNotificationSystem();
+        }
+
+        function markSingleAsRead(id) {
+            const readIds = JSON.parse(localStorage.getItem('plena_read_notifs') || '[]');
+            if (!readIds.includes(id)) {
+                readIds.push(id);
+                localStorage.setItem('plena_read_notifs', JSON.stringify(readIds));
+            }
+            initNotificationSystem();
+        }
+
+        function showBlockingModal(notif) {
+            const existing = document.getElementById('sys-blocking-backdrop');
+            if (existing) return;
+
+            const modalHTML = `
+    <div id="sys-blocking-backdrop" class="fixed inset-0 bg-slate-900/95 z-[99999] flex items-center justify-center p-6 backdrop-blur-md animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-100">
+            <div class="bg-red-600 p-6 text-white text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/10 opacity-20 transform -skew-y-6 scale-150"></div>
+                <i data-lucide="hand" text-5xl mb-3 relative z-10 animate-pulse"></i>
+                <h3 class="font-bold text-xl uppercase tracking-widest relative z-10">Atenção Necessária</h3>
+            </div>
+            <div class="p-8 text-center">
+                <h4 class="font-bold text-slate-800 text-xl mb-4">${notif.title || 'Aviso Importante'}</h4>
+                <div class="bg-red-50 text-slate-700 text-sm leading-relaxed p-4 rounded-xl border border-red-100 text-left">
+                    ${notif.message}
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="acknowledgeBlocking('${notif.id}')" 
+                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 text-sm uppercase tracking-wide">
+                    <i data-lucide="check"></i> Entendi e Li a Mensagem
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function acknowledgeBlocking(id) {
+            markSingleAsRead(id);
+            const el = document.getElementById('sys-blocking-backdrop');
+            if (el) el.remove();
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { setTimeout(initNotificationSystem, 1000); });
+        window.markAllAsRead = markAllAsRead;
+        window.markSingleAsRead = markSingleAsRead;
+        window.acknowledgeBlocking = acknowledgeBlocking;
+        window.clearSystemNotifications = markAllAsRead;
+
+
+
+        function renderSystemTab() { setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 10);
+            // 1. Initial Render
+            renderChangelog();
+            updateDiagnostics();
+            updateVersionDisplay();
+            initNotificationSystem();
+
+            // 2. Check real version from SW (Async)
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                const messageChannel = new MessageChannel();
+                messageChannel.port1.onmessage = (event) => {
+                    if (event.data.type === 'VERSION') {
+                        // Only update if different to avoid flicker
+                        if (CURRENT_VERSION !== event.data.version) {
+                            CURRENT_VERSION = event.data.version;
+                            updateVersionDisplay();
+                            renderChangelog(); // Re-render to update badges
+                        }
+                    }
+                };
+                navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [messageChannel.port2]);
+            }
+
+            // Clear Badges
+            document.getElementById('header-badge').classList.add('hidden');
+            document.getElementById('sidebar-badge').classList.add('hidden');
+        }
+
+        function updateVersionDisplay() {
+            // Update big card
+            const mainDisplay = document.getElementById('display-installed-version');
+            if (mainDisplay) mainDisplay.textContent = CURRENT_VERSION;
+
+            // Update settings small text
+            const subDisplay = document.getElementById('app-version-display');
+            if (subDisplay) subDisplay.textContent = `${CURRENT_VERSION} (Desktop Pro)`;
+        }
+
+        function renderChangelog() {
+            const feed = document.getElementById('changelog-feed');
+            if (feed) {
+                feed.innerHTML = CHANGELOG.map((log, index) => {
+                    // It is current if it matches CURRENT_VERSION
+                    // OR if it is the first item and we haven't detected SW yet (fallback)
+                    const isCurrent = log.version === CURRENT_VERSION;
+
+                    return `
+                    <div class="relative pl-6 pb-6 border-l border-slate-200 last:border-0 ${index === CHANGELOG.length - 1 ? '' : 'border-l-2'} border-slate-200">
+                        <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full ${isCurrent ? 'bg-plena-blue border-white ring-4 ring-blue-50' : 'bg-slate-200 border-white'} border-2"></div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="text-sm font-bold text-slate-800">${log.version}</span>
+                                <span class="text-xs text-slate-400 ml-2">${log.date}</span>
+                            </div>
+                            ${isCurrent ? '<span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">Instalado</span>' : ''}
+                        </div>
+                        <ul class="space-y-1">
+                            ${log.changes.map(change => `<li class="text-xs text-slate-600 flex items-start gap-2"><span class="text-slate-300">•</span> ${change}</li>`).join('')}
+                        </ul>
+                    </div>
+                `}).join('');
+            }
+        }
+
+
+        function updateDiagnostics() {
+            // Storage
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                navigator.storage.estimate().then(estimate => {
+                    const usedMB = (estimate.usage / 1024 / 1024).toFixed(2);
+                    const percent = Math.round((estimate.usage / estimate.quota) * 100);
+                    document.getElementById('storage-usage').textContent = `${usedMB} MB usado`;
+                    document.getElementById('storage-bar').style.width = `${Math.max(percent, 5)}%`;
+                });
+            } else {
+                document.getElementById('storage-usage').textContent = '—';
+            }
+
+            // Backup Status Check
+            const lastBackup = localStorage.getItem('plena_last_backup_date');
+
+            // Let's create a dedicated Backup Status element if not exists or override connection for now to save space as requested
+            // Better: Add a new row in diagnostics dynamically if missing
+            let backupStatusEl = document.getElementById('backup-status-text');
+            if (!backupStatusEl) {
+                const grid = document.querySelector('#view-system .grid.grid-cols-2.gap-3');
+                if (grid) {
+                    grid.innerHTML += `
+                        <div class="p-3 bg-slate-50 rounded-lg text-center col-span-2">
+                            <span class="block text-slate-400 mb-1 text-[10px] uppercase font-bold">Último Backup</span>
+                            <span id="backup-status-text" class="font-bold text-slate-700">-</span>
+                        </div>
+                     `;
+                    backupStatusEl = document.getElementById('backup-status-text');
+                }
+            }
+
+            if (backupStatusEl) {
+                if (!lastBackup) {
+                    backupStatusEl.textContent = 'Nunca realizado ⚠️';
+                    backupStatusEl.className = 'font-bold text-red-500';
+                } else {
+                    const daysDiff = Math.floor((new Date() - new Date(lastBackup)) / (1000 * 60 * 60 * 24));
+                    if (daysDiff === 0) {
+                        backupStatusEl.textContent = 'Hoje ✅';
+                        backupStatusEl.className = 'font-bold text-green-600';
+                    } else if (daysDiff > 7) {
+                        backupStatusEl.textContent = `${daysDiff} dias atrás ⚠️`;
+                        backupStatusEl.className = 'font-bold text-amber-500';
+                    } else {
+                        backupStatusEl.textContent = `${daysDiff} dias atrás`;
+                        backupStatusEl.className = 'font-bold text-slate-600';
+                    }
+                }
+            }
+
+            // Connection
+            const cStatus = document.getElementById('conn-status');
+            if (cStatus) {
+                cStatus.textContent = navigator.onLine ? 'Online' : 'Offline';
+                cStatus.className = navigator.onLine ? 'font-bold text-green-600' : 'font-bold text-red-600';
+            }
+
+            // SW Status
+            const swStatus = document.getElementById('sw-status');
+            if (swStatus) {
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    swStatus.textContent = 'Ativo';
+                    swStatus.className = 'font-bold text-green-600';
+                } else {
+                    swStatus.textContent = 'Inativo';
+                    swStatus.className = 'font-bold text-amber-500';
+                }
+            }
+        }
+
+        async function clearSystemNotifications() {
+            // 1. Get current notifications from DOM or State to find the latest ID
+            // Since we don't have global state here easily, we fetch 'latest' from the API logic implicit context or just save the current timestamp
+            // Better: Save the latest notification ID available in the list.
+
+            // Simpler robust approach: Save 'plena_cleared_timestamp' = Now
+            const now = new Date().getTime();
+            localStorage.setItem('plena_cleared_timestamp', now);
+
+            // 2. Clear Visuals
+            document.getElementById('system-notifications-list').innerHTML = `
+                <div class="p-8 text-center text-slate-400">
+                    <i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                    <p class="text-xs">Nenhuma notificação</p>
+                </div>
+            `;
+
+            // 3. Clear Badges
+            document.getElementById('header-badge').classList.add('hidden');
+            document.getElementById('sidebar-badge').classList.add('hidden');
+
+            // 4. Update Read State
+            // Also mark the latest visible notification as read just in case
+            // (Handled by the timestamp filter now)
+
+            showNotification('Notificações limpas!', 'success');
+            lucide.createIcons();
+        }
+
+        function checkForUpdates() {
+            const btn = document.querySelector('[onclick="checkForUpdates()"]');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Buscando...`;
+            lucide.createIcons();
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.update().then(() => {
+                        // Wait a bit to see if a new worker appears
+                        setTimeout(() => {
+                            if (reg.installing || reg.waiting) {
+                                // Found update! Check Backup first logic implicit in showUpdateToast action
+                                btn.innerHTML = `<i data-lucide="download" class="w-4 h-4"></i> Atualizar...`;
+                                showUpdateToast(reg.installing || reg.waiting);
+                            } else {
+                                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Sistema Atualizado`;
+                                showNotification(`Versão mais recente (${CURRENT_VERSION})`, 'success');
+                                document.getElementById('last-update-check').textContent = new Date().toLocaleTimeString();
+                                setTimeout(() => btn.innerHTML = originalText, 3000);
+                            }
+                        }, 1000);
+                    });
+                }).catch(err => {
+                    console.error('Update check failed:', err);
+                    btn.innerHTML = originalText;
+                    showNotification('Erro ao verificar.', 'error');
+                });
+            } else {
+                showNotification('Modo Dev/Offline: SW não detectado.', 'warning');
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // --- INIT LOGIC ---
+        function initSystemVersionCheck() {
+            // Simple logic: if SW version != stored version, show badge
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                const messageChannel = new MessageChannel();
+                messageChannel.port1.onmessage = (event) => {
+                    if (event.data.type === 'VERSION') {
+                        const realVersion = event.data.version;
+                        const stored = localStorage.getItem('plena_last_viewed_version');
+
+                        if (realVersion !== stored) {
+                            document.getElementById('header-badge').classList.remove('hidden');
+                            document.getElementById('sidebar-badge').classList.remove('hidden');
+
+                            const list = document.getElementById('system-notifications-list');
+                            if (list) {
+                                // Add notification if not already there
+                                if (!list.innerHTML.includes('Sistema Atualizado')) {
+                                    const notifHTML = `
+                                        <div class="p-3 bg-green-50 rounded-lg border border-green-100 flex items-start gap-3 animate-pulse">
+                                            <i data-lucide="zap" class="w-5 h-5 text-green-600 mt-0.5"></i>
+                                            <div>
+                                                <p class="text-xs font-bold text-green-800">Nova Versão ${realVersion}</p>
+                                                <p class="text-xs text-green-600 mt-1">O sistema foi atualizado em segundo plano.</p>
+                                                <p class="text-[10px] text-green-500 mt-1">Agora</p>
+                                            </div>
+                                        </div>
+                                     `;
+                                    list.insertAdjacentHTML('afterbegin', notifHTML);
+                                    lucide.createIcons();
+                                }
+                            }
+                        }
+                        CURRENT_VERSION = realVersion; // Sync global
+                        updateVersionDisplay();
+                    }
+                };
+                navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [messageChannel.port2]);
+            }
+        }
+
+        
+    // Extended Router for System Tab
+    const _baseRouter = window.router;
+    window.router = function(view) {
+        if (typeof _baseRouter === 'function') _baseRouter(view);
+        if (view === 'system') {
+             // Standard view toggle if not handled by base router for 'system'
+             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+             const sysEl = document.getElementById('view-system');
+             if(sysEl) sysEl.classList.remove('hide');
+             
+             // Nav highlight
+             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10'));
+             const navSys = document.getElementById('nav-system');
+             if(navSys) navSys.classList.add('active-nav', 'bg-white/10');
+             
+             renderSystemTab();
+        }
+    };
+    // SW REGISTRATION & UPDATE DETECTION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('SW Registered:', reg.scope);
+                        initSystemVersionCheck(); // Check after registration
+                        // initNotificationSystem(); // Auto-init is already handled by DOMContentLoaded
+
+                        // If waiting (update downloaded but not active), prompt user
+                        if (reg.waiting) {
+                            showUpdateToast(reg.waiting);
+                            return;
+                        }
+
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateToast(newWorker);
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.error('SW Error:', err);
+                        const swStatus = document.getElementById('sw-status');
+                        if (swStatus) {
+                            swStatus.textContent = 'Erro';
+                            swStatus.className = 'font-bold text-red-500';
+                        }
+                    });
+            });
+
+            let refreshing;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
+        }
+
+        function showUpdateToast(worker) {
+            if (document.getElementById('update-toast')) return;
+
+            const toastHTML = `
+                <div id="update-toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-4 animate-bounce" style="z-index: 10000; min-width: 300px;">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm text-white">Nova Versão Disponível! 🚀</p>
+                        <p class="text-xs text-slate-300">Toque para atualizar.</p>
+                    </div>
+                    <button id="btn-update-confirm" class="bg-plena-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap">
+                        Atualizar Agora
+                    </button>
+                    <button onclick="document.getElementById('update-toast').style.display='none'" class="text-slate-500 hover:text-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', toastHTML);
+            lucide.createIcons();
+
+            // Handle click
+            document.getElementById('btn-update-confirm').addEventListener('click', () => {
+                const lastBackup = localStorage.getItem('plena_last_backup_date');
+                const daysDiff = lastBackup ? Math.floor((new Date() - new Date(lastBackup)) / (1000 * 60 * 60 * 24)) : 999;
+
+                if (daysDiff > 0) { // If backup wasn't made TODAY
+                    const proceed = confirm(
+                        !lastBackup
+                            ? "⚠️ PERIGO: Você NUNCA fez um backup!\n\nSe prosseguir com a atualização, seus dados estarão seguros, mas recomendamos baixá-los antes por precaução.\n\nDeseja atualizar mesmo sem backup?"
+                            : `⚠️ ATENÇÃO: Seu último backup foi há ${daysDiff} dias.\n\nRecomendamos baixar seus dados recentes antes de atualizar.\n\nDeseja atualizar agora?`
+                    );
+
+                    if (!proceed) {
+                        closeModal('changelog-modal'); // Close any modal if open
+                        router('settings'); // Go to settings
+                        showNotification('Vá em Segurança de Dados para baixar seu Backup.', 'warning');
+                        document.getElementById('update-toast').style.display = 'none';
+                        return; // Stop update
+                    }
+                }
+
+                if (worker) {
+                    worker.postMessage({ type: 'SKIP_WAITING' });
+                }
+            });
+        }
+
+
+    
+</script>
 
 <!-- PWA INSTALLATION TOAST (Standardized) -->
     <div id="pwa-install-toast"
