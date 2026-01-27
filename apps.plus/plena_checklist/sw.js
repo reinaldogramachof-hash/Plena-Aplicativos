@@ -3,7 +3,8 @@ const CACHE_NAME = 'plena-cache-v1';
 const urlsToCache = [
   './',
   './index.html',
-  '../../assets/js/plena-lock.js'
+  '../../assets/js/plena-lock.js',
+  '../../assets/js/plena-notifications.js'
 ];
 
 self.addEventListener('install', event => {
@@ -14,6 +15,11 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Ignora API (Network Only)
+  if (event.request.url.includes('api_licenca.php')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

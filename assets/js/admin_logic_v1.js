@@ -491,11 +491,21 @@ createApp({
 
         onMounted(async () => {
             // Initialize Bootstrap modals
-            newLicenseModalBS = new bootstrap.Modal(document.getElementById('newLicenseModal'));
-            editLicenseModalBS = new bootstrap.Modal(document.getElementById('editLicenseModal'));
-            partnerModalBS = new bootstrap.Modal(document.getElementById('partnerModal'));
-            saleDetailsModalBS = new bootstrap.Modal(document.getElementById('saleDetailsModal'));
-            newLeadModalBS = new bootstrap.Modal(document.getElementById('newLeadModal'));
+            // Initialize Bootstrap modals
+            const newLicEl = document.getElementById('newLicenseModal');
+            if (newLicEl) newLicenseModalBS = new bootstrap.Modal(newLicEl);
+
+            const editLicEl = document.getElementById('editLicenseModal');
+            if (editLicEl) editLicenseModalBS = new bootstrap.Modal(editLicEl);
+
+            const partEl = document.getElementById('partnerModal');
+            if (partEl) partnerModalBS = new bootstrap.Modal(partEl);
+
+            const saleEl = document.getElementById('saleDetailsModal');
+            if (saleEl) saleDetailsModalBS = new bootstrap.Modal(saleEl);
+
+            const leadEl = document.getElementById('newLeadModal');
+            if (leadEl) newLeadModalBS = new bootstrap.Modal(leadEl);
 
             const savedSecret = localStorage.getItem('admin_secret');
             if (savedSecret) {
@@ -679,10 +689,15 @@ createApp({
         };
 
         const renewLicense = async (lic) => {
-            if (!confirm(`Renovar licença por mais 30 dias?`)) return;
+            if (!confirm(`Renovar licença de ${lic.cliente} por mais 30 dias?`)) return;
 
-            showToast('info', 'Renovação', 'Funcionalidade em desenvolvimento...');
-            // TODO: Implement renew license API call
+            const res = await apiCall('renew', 'POST', { key: lic.key, days: 30 });
+            if (res && res.success) {
+                showToast('success', 'Renovada', 'Licença renovada com sucesso!');
+                refreshData();
+            } else {
+                showToast('danger', 'Erro', 'Erro ao renovar licença');
+            }
         };
 
         const updateLicenseStats = () => {
@@ -780,9 +795,7 @@ createApp({
             }
         };
 
-        const exportSales = () => {
-            showToast('info', 'Exportar', 'Funcionalidade de exportação em desenvolvimento');
-        };
+
 
         // Partners Methods
         const openPartnerModal = (partner = null) => {
@@ -1070,19 +1083,23 @@ createApp({
 
         // System Actions
         const createBackup = async () => {
-            if (confirm('Criar backup do sistema agora?')) {
-                const res = await apiCall('create_backup');
-                if (res && res.success) {
-                    lastBackup.value = new Date().toLocaleString('pt-BR');
-                    showToast('success', 'Backup Criado', 'Backup criado com sucesso');
-                } else {
-                    showToast('danger', 'Erro', 'Erro ao criar backup');
-                }
-            }
-        };
+            showLoading('Gerando Backup...');
+            const res = await apiCall('backup_system');
+            hideLoading();
 
-        const restoreBackup = () => {
-            showToast('info', 'Restaurar Backup', 'Funcionalidade em desenvolvimento');
+            if (res && res.success) {
+                lastBackup.value = new Date().toLocaleString('pt-BR');
+                showToast('success', 'Backup Criado', 'Download iniciado...');
+                // Download file
+                const link = document.createElement('a');
+                link.href = res.file; // The API returns the filename/relative path
+                link.download = res.file;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showToast('danger', 'Erro', 'Erro ao criar backup');
+            }
         };
 
         const clearCache = () => {
@@ -1105,7 +1122,14 @@ createApp({
         };
 
         const downloadLogs = () => {
-            showToast('info', 'Download Logs', 'Funcionalidade em desenvolvimento');
+            const content = logs.value.map(l => l.msg).join('\n');
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `system_logs_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
         };
 
         // Filter Methods
@@ -1133,18 +1157,14 @@ createApp({
             showToast('info', 'Filtro', 'Licenças filtradas');
         };
 
-        // Export Methods
-        const exportLicenses = () => {
-            showToast('info', 'Exportar Licenças', 'Funcionalidade em desenvolvimento');
-        };
+
 
         // Local Notifications Methods
         const loadNotifications = async () => {
-            // For Admin, we might want to verify if there is an endpoint.
-            // Given the current API, 'get_notifications' is the only one.
-            // We'll leave this empty or minimal as the user focused on 'sendNotification'
-            // But valid implementation is good practice.
-            // Let's rely on the manual update for now.
+            const res = await apiCall('admin_get_notifications');
+            if (res && res.notifications) {
+                notifications_history.value = res.notifications;
+            }
         };
 
         const sendNotification = async () => {
@@ -1341,16 +1361,15 @@ createApp({
             refreshData, updateChart,
             openNewLicenseModal, createLicense, openEditModal, updateLicense, toggleBlock, renewLicense,
             updateLicenseStats, isExpiringSoon,
-            filteredSales, viewSaleDetails, resendSaleEmail, refundSale, exportSales,
+            filteredSales, viewSaleDetails, resendSaleEmail, refundSale,
             openPartnerModal, createPartner, updatePartner, editPartner, deletePartner, settlePartner,
             updatePartnerStats, exportPartners,
             runSystemDiagnosis, sendTestEmail,
             sendNotification, getNotificationTypeLabel, clearNotifications,
             openNewLeadModal, saveLead, editLead, getLeadStatusClass,
             saveAppConfig, openAppDetails, openNewAppModal,
-            addTransaction, openWithdrawModal, openStatementModal,
-            createBackup, restoreBackup, clearCache, optimizeDatabase, clearLogs, downloadLogs,
-            filteredLicenses, filterLicenses, exportLicenses,
+            createBackup, clearCache, optimizeDatabase, clearLogs, downloadLogs,
+            filteredLicenses,
             showToast, removeToast, getToastIcon,
             addLog,
             getTabTitle, getTabIcon, getTabBadge,

@@ -1,65 +1,79 @@
 /**
- * PLENA LOCK - GATEKEEPER V3 (Versão Final Produção)
- * - Busca automática Inteligente da API (Resolve erros 404/403)
- * - Compatível com HostGator e subpastas (apps.plus, apps, etc)
+ * PLENA LOCK - GATEKEEPER V4 (Scoped Edition)
+ * - Busca automática da API
+ * - Fingerprint de Dispositivo
+ * - Escopo de Licença por Aplicativo (Fim do compartilhamento global)
+ * - API Pública window.PlenaLock
  */
 
 (function () {
     // ==========================================================
-    // CONFIGURAÇÃO
+    // 1. UTILITÁRIOS EESCOPO
     // ==========================================================
-    const STORAGE_KEY = 'plena_license_key';
-    const DEVICE_ID_KEY = 'plena_device_fingerprint';
 
-    // Lista de locais onde a API pode estar (relativo ao arquivo HTML que chamou o script)
+    // Identifica o App ID baseado na URL
+    // Ex: /apps.plus/plena_pdv/index.html -> plena_pdv
+    // Ex: /apps/food/comanda/index.html -> comanda (ou food_comanda?)
+    // Vamos usar a pasta pai do index.html como ID.
+    function getAppId() {
+        const path = window.location.pathname;
+        const parts = path.split('/').filter(p => p.length > 0);
+
+        // Remove index.html ou parâmetros
+        if (parts.length > 0 && parts[parts.length - 1].includes('.')) {
+            parts.pop();
+        }
+
+        if (parts.length === 0) return 'root_app';
+
+        // Pega o nome da pasta
+        const appName = parts[parts.length - 1];
+
+        // Se estiver em apps.plus, usa o nome direto
+        // Se estiver em apps/categoria/nome, usa o nome
+        return appName.toLowerCase();
+    }
+
+    const APP_ID = getAppId();
+    const STORAGE_KEY = `plena_license_key_${APP_ID}`; // Chave única por app
+    const DEVICE_ID_KEY = 'plena_device_fingerprint'; // Device ID ainda pode ser global
+
+    // Lista de locais onde a API pode estar
     const CANDIDATE_PATHS = [
-        '../api_licenca.php',       // Nível acima (comum para apps/app.html)
-        '../../api_licenca.php',    // 2 Níveis acima
-        '/api_licenca.php',         // Raiz absoluta (Padrão servidores)
-        'api_licenca.php',          // Mesma pasta
-        '../../../api_licenca.php'  // 3 Níveis (caso de apps aninhados)
+        '../api_licenca.php',
+        '../../api_licenca.php',
+        '/api_licenca.php',
+        'api_licenca.php',
+        '../../../api_licenca.php'
     ];
 
-    let ACTIVE_API_URL = null; // Será preenchido automaticamente
+    let ACTIVE_API_URL = null;
+    let CURRENT_LICENSE_INFO = null; // Cache do status
 
-    // Utilitários de URL
     const urlParams = new URLSearchParams(window.location.search);
     const isDemoMode = urlParams.get('mode') === 'demo';
 
     // ==========================================================
-    // 1. LÓGICA DE BUSCA DA API (A Correção Principal)
+    // 2. LÓGICA CORE
     // ==========================================================
-    async function findApiUrl() {
-        // Se já achou, retorna rápido
-        if (ACTIVE_API_URL) return ACTIVE_API_URL;
 
-        console.log('[PlenaLock] Buscando servidor de licença...');
+    async function findApiUrl() {
+        if (ACTIVE_API_URL) return ACTIVE_API_URL;
+        console.log(`[PlenaLock] App: ${APP_ID} | Buscando API...`);
 
         for (const path of CANDIDATE_PATHS) {
             try {
-                // Tenta conectar com um parâmetro de tempo para evitar cache
                 const testUrl = `${path}?action=system_health&t=${Date.now()}`;
                 const response = await fetch(testUrl, { method: 'GET' });
-
-                // Se o servidor responder 200 (OK) ou 403 (Proibido - arquivo existe) ou 401 (Unauthorized), achamos!
                 if (response.ok || response.status === 403 || response.status === 401) {
-                    console.log(`[PlenaLock] Servidor encontrado em: ${path}`);
-                    ACTIVE_API_URL = path; // Salva o caminho vencedor
+                    ACTIVE_API_URL = path;
                     return path;
                 }
-            } catch (e) {
-                // Continua procurando...
-            }
+            } catch (e) { }
         }
-
-        // Fallback final: tenta usar a raiz se nada funcionar
-        console.warn('[PlenaLock] Aviso: API não detectada automaticamente. Tentando raiz.');
         return '/api_licenca.php';
     }
 
-    // ==========================================================
-    // 2. SISTEMA DE FINGERPRINT E VALIDAÇÃO
-    // ==========================================================
     function getDeviceFingerprint() {
         let id = localStorage.getItem(DEVICE_ID_KEY);
         if (!id) {
@@ -72,136 +86,160 @@
 
     async function validateLicense(key) {
         try {
-            const apiUrl = await findApiUrl(); // Usa a URL encontrada
+            const apiUrl = await findApiUrl();
             const endpoint = `${apiUrl}?action=validate_access`;
             const deviceId = getDeviceFingerprint();
 
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ license_key: key, device_fingerprint: deviceId })
+                body: JSON.stringify({
+                    license_key: key,
+                    device_fingerprint: deviceId,
+                    app_id: APP_ID // Scoping Field
+                })
             });
 
             if (!response.ok) {
-                // Se der erro 404 aqui, é porque o caminho estava errado mesmo após a busca
-                if (response.status === 404) return { valid: false, message: "Erro: API não encontrada (404)" };
-                return { valid: false, message: "Erro no servidor de licença" };
+                if (response.status === 404) return { valid: false, message: "Erro: API não encontrada" };
+                const errJson = await response.json().catch(() => ({}));
+                return { valid: false, message: errJson.message || "Erro no servidor" };
             }
 
             return await response.json();
         } catch (error) {
             console.error(error);
-            return { valid: false, message: "Erro de conexão. Verifique sua internet." };
+            return { valid: false, message: "Erro de conexão." };
         }
     }
 
     // ==========================================================
-    // 3. UI DE BLOQUEIO (TELA DE LOGIN)
+    // 3. UI
     // ==========================================================
-    function showLockScreen(message = '') {
-        if (document.getElementById('plena-lock-screen')) {
-            // Se já existe, só atualiza a mensagem se houver erro novo
-            if (message) {
-                const msgBox = document.querySelector('#plena-lock-msg');
-                if (msgBox) msgBox.innerHTML = message;
-            }
-            return;
-        }
+
+    function showLockScreen(message = "Insira sua Licença") {
+        if (document.getElementById('plena-lock-screen')) return;
 
         const div = document.createElement('div');
         div.id = 'plena-lock-screen';
-        div.style.cssText = `
-            position: fixed; inset: 0; background: #0f172a; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; font-family: sans-serif;
-        `;
+        // (Estilos mantidos da V3, inalterados para estabilidade)
+        div.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-family:sans-serif;`;
 
         div.innerHTML = `
-            <div style="background: #1e293b; padding: 2rem; border-radius: 1rem; border: 1px solid #334155; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff;">Ativação Necessária</h2>
-                <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    Este aplicativo é exclusivo para licenciados Plena.
-                </p>
+            <div style="background:#1e293b;padding:2rem;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);max-width:400px;width:90%;text-align:center;">
+                <h2 style="margin-bottom:0.5rem;color:#3b82f6;">🔐 Bloqueio de Segurança</h2>
+                <p style="color:#94a3b8;margin-bottom:1.5rem;font-size:0.9rem;">Este aplicativo (<b>${APP_ID}</b>) requer ativação.</p>
                 
-                <div id="plena-lock-msg" style="background: #ef444420; color: #f87171; padding: 0.75rem; border-radius: 0.5rem; font-size: 0.85rem; margin-bottom: 1rem; ${message ? '' : 'display:none'}">
-                    ${message}
-                </div>
-
-                <input type="text" id="license-input" placeholder="Cole sua chave (PLENA-XXXX-XXXX)" 
-                    style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 0.5rem; margin-bottom: 1rem; outline: none; font-family: monospace; text-align: center; text-transform: uppercase;">
+                <input type="text" id="plena-lic-input" placeholder="Cole sua chave aqui..." 
+                    style="width:100%;padding:0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;margin-bottom:1rem;text-align:center;font-family:monospace;text-transform:uppercase;">
                 
-                <button id="btn-validate" style="width: 100%; background: #2563eb; color: white; padding: 0.75rem; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: background 0.2s;">
-                    Liberar Acesso
+                <button id="plena-lic-btn" style="width:100%;background:#3b82f6;color:white;border:none;padding:0.75rem;border-radius:0.5rem;font-weight:bold;cursor:pointer;transition:all 0.2s;">
+                    ATIVAR ACESSO
                 </button>
-                <div style="margin-top: 1rem; font-size: 0.8rem; color: #64748b;">v3.0 - HostGator Ready</div>
+                
+                <p id="plena-lic-msg" style="margin-top:1rem;color:#ef4444;font-size:0.8rem;min-height:1.2em;">${message !== "Insira sua Licença" ? message : ''}</p>
+                 <p style="margin-top:2rem;color:#64748b;font-size:0.7rem;">ID do Dispositivo: <br><span style="font-family:monospace">${getDeviceFingerprint()}</span></p>
             </div>
         `;
 
         document.body.appendChild(div);
 
-        const btn = div.querySelector('#btn-validate');
-        const input = div.querySelector('#license-input');
+        const btn = document.getElementById('plena-lic-btn');
+        const input = document.getElementById('plena-lic-input');
+        const msg = document.getElementById('plena-lic-msg');
 
-        btn.onclick = async () => {
-            const key = input.value.trim().toUpperCase();
-            if (key.length < 5) return;
+        async function attemptUnlock() {
+            const key = input.value.trim();
+            if (!key) return;
 
-            const originalText = btn.innerText;
             btn.innerText = "Verificando...";
             btn.disabled = true;
+            msg.innerText = "";
 
             const result = await validateLicense(key);
 
             if (result.valid) {
                 localStorage.setItem(STORAGE_KEY, key);
-                location.reload();
+                // Opcional: Salvar meta dados
+                localStorage.setItem('plena_product_name', result.product_name || APP_ID);
+                msg.style.color = '#22c55e';
+                msg.innerText = "Sucesso! Carregando...";
+                setTimeout(() => location.reload(), 1000);
             } else {
-                const msgBox = document.querySelector('#plena-lock-msg');
-                msgBox.style.display = 'block';
-                msgBox.innerText = result.message || "Chave inválida";
-                btn.innerText = originalText;
+                msg.style.color = '#ef4444';
+                msg.innerText = result.message || "Chave inválida";
+                btn.innerText = "ATIVAR ACESSO";
                 btn.disabled = false;
             }
-        };
+        }
+
+        btn.onclick = attemptUnlock;
+        input.oninput = (e) => input.value = input.value.toUpperCase(); // Force uppercase
     }
 
-    // ==========================================================
-    // 4. MODO DEMO E INICIALIZAÇÃO
-    // ==========================================================
     function enableDemoMode() {
-        const bar = document.createElement('div');
-        bar.innerHTML = '⚠️ MODO DEMONSTRAÇÃO - DADOS NÃO SERÃO SALVOS';
-        bar.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; background: #f59e0b; color: #000; font-weight: bold; text-align: center; padding: 5px; font-size: 12px; z-index: 999999; pointer-events: none;`;
-        document.body.appendChild(bar);
-        try { Storage.prototype.setItem = () => { }; } catch (e) { }
+        const ribbon = document.createElement('div');
+        ribbon.style.cssText = `position:fixed;top:0;right:0;background:#f59e0b;color:black;padding:5px 20px;font-size:10px;font-weight:bold;z-index:99998;box-shadow:0 2px 5px rgba(0,0,0,0.2);`;
+        ribbon.innerText = "MODO DEMONSTRAÇÃO";
+        document.body.appendChild(ribbon);
     }
 
+    // ==========================================================
+    // 4. API PÚBLICA (window.PlenaLock)
+    // ==========================================================
+    window.PlenaLock = {
+        getAppId: () => APP_ID,
+        getDeviceId: () => getDeviceFingerprint(),
+        getLicenseKey: () => localStorage.getItem(STORAGE_KEY),
+        resetLicense: () => {
+            if (confirm(`Tem certeza que deseja desconectar o ${APP_ID}?`)) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        },
+        getLicenseInfo: () => CURRENT_LICENSE_INFO
+    };
+
+    // ==========================================================
+    // 5. INICIALIZAÇÃO
+    // ==========================================================
     async function init() {
-
-
         if (isDemoMode) {
             enableDemoMode();
             return;
         }
 
-        // Tenta achar a API em background logo de cara
-        findApiUrl();
+        // Tenta achar URL
+        await findApiUrl();
 
         const savedKey = localStorage.getItem(STORAGE_KEY);
+
         if (!savedKey) {
             showLockScreen();
+            CURRENT_LICENSE_INFO = { status: 'missing', valid: false };
         } else {
+            // Valida em background para nao travar o carregamento visual se a net tiver lenta?
+            // Nao, segurança primeiro. Se tiver chave, valida.
+            // Porem, podemos mostrar um loading se demorar?
+            // V3 pattern: Valida e bloqueia se falhar.
+
             const result = await validateLicense(savedKey);
             if (!result.valid) {
                 showLockScreen(result.message);
+                CURRENT_LICENSE_INFO = { status: 'invalid', valid: false, message: result.message };
+            } else {
+                // Sucesso silencioso
+                CURRENT_LICENSE_INFO = { status: 'active', valid: true, key: savedKey, deviceId: getDeviceFingerprint() };
+                console.log(`[PlenaLock] ${APP_ID} desbloqueado.`);
             }
         }
     }
 
+    // Auto-run se nao estiver sendo importado como modulo
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
+
 })();

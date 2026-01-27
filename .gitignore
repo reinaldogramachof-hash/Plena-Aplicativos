@@ -6,3 +6,25 @@ database_licenses_secure.json
 node_modules/
 .env
 *.log
+
+# Databases & User Data
+leads_crm.json
+finance_transactions.json
+parceiros.json
+products_catalog.json
+reports_history.json
+system_logs.json
+team_members.json
+apps_config.json
+notifications_system.json
+leads_abandono.json
+
+# Artifacts & Temp
+*.zip
+*.bak
+deploy_update.zip
+deploy_reset_db.zip
+debug_log.txt
+.vscode/
+__pycache__/
+*.txt
