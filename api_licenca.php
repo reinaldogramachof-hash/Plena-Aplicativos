@@ -144,9 +144,45 @@ $CATALOG_MASTER = [
 // 4. FUNÇÕES UTILITÁRIAS
 // ==================================================================
 
+function addFinancialTransaction($type, $amount, $description, $category = 'other', $related_id = null)
+{
+    global $FINANCE_FILE;
+
+    $transactions = json_decode(@file_get_contents($FINANCE_FILE), true) ?? [];
+
+    // Ensure uniqueness
+    $id = uniqid('fin_');
+
+    $transaction = [
+        'id' => $id,
+        'date' => date('Y-m-d H:i:s'),
+        'type' => $type, // 'income' or 'expense'
+        'amount' => floatval($amount),
+        'description' => $description,
+        'category' => $category,
+        'related_id' => $related_id
+    ];
+
+    // Add to beginning of array (newest first)
+    array_unshift($transactions, $transaction);
+
+    // Optional: Limit history size if needed, but for finance we usually keep all
+    // if (count($transactions) > 5000) array_pop($transactions);
+
+    @file_put_contents($FINANCE_FILE, json_encode($transactions, JSON_PRETTY_PRINT));
+    return $transaction;
+}
+
 function checkAuth($data, $get, $server)
 {
     global $ADMIN_SECRET;
+
+    // DEV BYPASS: Allow localhost without password
+    $host = $server['SERVER_NAME'] ?? '';
+    if ($host === 'localhost' || $host === '127.0.0.1') {
+        return true;
+    }
+
     $auth = $server['HTTP_X_ADMIN_SECRET'] ?? $data['secret'] ?? $get['secret'] ?? '';
     return $auth === $ADMIN_SECRET;
 }
@@ -228,61 +264,11 @@ if ($action === 'validate' || $action === 'validate_access') {
         jsonResponse(["valid" => false, "message" => "Chave de licença é obrigatória"], 400);
     }
 
-    // --- MASTER KEY LOGIC (STRICT & TRACKED) ---
-    // Apenas PLENA-MASTER-2026 permitida.
-    // Registra o uso no banco de dados para visibilidade no Painel Admin.
-    if ($key === 'PLENA-MASTER-2026') {
-        $content = @file_get_contents($DB_FILE);
-        $db = $content ? json_decode($content, true) : [];
-        if (!is_array($db))
-            $db = [];
-
-        // Dados base da Master Key
-        if (!isset($db[$key])) {
-            $db[$key] = [
-                "client" => "tecnologia@plenaaplicativos.com.br",
-                "cpf" => "",
-                "whatsapp" => "",
-                "product" => "SUPORTE MASTER",
-                "price" => 0.00,
-                "license_type" => "lifetime",
-                "duration" => 9999,
-                "device_id" => $device,
-                "status" => 'active',
-                "created_at" => date('Y-m-d H:i:s'),
-                "expires_at" => null,
-                "payment_id" => "MASTER_KEY_SYSTEM",
-                "is_manual" => true,
-                "app_link" => "#",
-                "access_count" => 0
-            ];
-        }
-
-        // Atualiza rastreamento (Sempre permite troca de dispositivo para a Master)
-        $db[$key]['last_access'] = date('Y-m-d H:i:s');
-        $db[$key]['device_id'] = $device; // Registra qual dispositivo usou por último
-        $db[$key]['access_count'] = ($db[$key]['access_count'] ?? 0) + 1;
-        // Opcional: Se quiser saber QUAL app foi liberado, poderiamos mudar o "Product" dinamicamente, 
-        // mas isso confundiria o histórico. Melhor manter "SUPORTE MASTER" e confiar no log de sistema.
-
-        // VERIFICAÇÃO DE BLOQUEIO (NEW: Permite bloquear a Master no painel)
-        if (($db[$key]['status'] ?? 'active') !== 'active') {
-            systemLog("TENTATIVA BLOQUEADA MASTER KEY | Device: $device | App: $app_id", 'warning');
-            jsonResponse(["valid" => false, "message" => "Licença Master Bloqueada Administrativamente"], 403);
-        }
-
-        @file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
-
-        systemLog("MASTER KEY USADA | Device: $device | App: $app_id", 'warning');
-
-        jsonResponse([
-            "valid" => true,
-            "message" => "Acesso Master Autorizado",
-            "app_link" => "#",
-            "is_master" => true,
-            "product_name" => "SUPORTE MASTER"
-        ]);
-    }
+    // --- MASTER KEY REMOVIDA (SECURITY UPGRADE) ---
+    // A validação agora exige chaves nominais criadas via Admin (Tipo Developer).
+    // O bloco "if ($key === 'PLENA-MASTER-2026')" foi removido.
+    // ----------------------------------------------------------------
+    // -------------------------
     // -------------------------
 
     $content = @file_get_contents($DB_FILE);
@@ -424,6 +410,7 @@ if ($action === 'dashboard_stats') {
     $last_month_revenue = 0;
     $expiring_count = 0;
     $sales_by_date = [];
+    $unique_devices = []; // Count unique active devices
 
     $current_month = date('Y-m');
     $last_month = date('Y-m', strtotime('first day of last month'));
@@ -441,8 +428,12 @@ if ($action === 'dashboard_stats') {
         if ($created_month === $last_month)
             $last_month_revenue += $price;
 
-        if ($status === 'active')
+        if ($status === 'active') {
             $subscriptions[] = $price;
+            if (!empty($license['device_id'])) {
+                $unique_devices[$license['device_id']] = 1;
+            }
+        }
 
         if ($status === 'active' && $expires && strtotime($expires) > time() && strtotime($expires) < strtotime('+7 days')) {
             $expiring_count++;
@@ -481,6 +472,7 @@ if ($action === 'dashboard_stats') {
         'mrr' => array_sum($subscriptions),
         'total_clients' => count($clients_map),
         'active_subscriptions' => count($subscriptions),
+        'active_devices_count' => count($unique_devices),
         'expiring_soon' => $expiring_count,
         'revenue_growth' => round($revenue_growth, 1),
         'top_products' => $top_products,
@@ -622,20 +614,17 @@ if ($action === 'save_lead') {
 }
 
 // FINANCE
+// FINANCE REPORT
 if ($action === 'get_finance') {
     if (!checkAuth($data, $_GET, $server))
         jsonResponse(['error' => 'Acesso Negado'], 403);
+
     $finance_db = json_decode(@file_get_contents($FINANCE_FILE), true) ?? [];
 
     $incomes = 0;
     $expenses = 0;
 
-    // Add sales from licenses
-    $db = json_decode(@file_get_contents($DB_FILE), true) ?? [];
-    foreach ($db as $l)
-        if (isset($l['price']))
-            $incomes += $l['price'];
-
+    // NEXUS 2.0: Read ONLY from finance ledger (No more mix with DB_FILE)
     foreach ($finance_db as $t) {
         if ($t['type'] === 'income')
             $incomes += $t['amount'];
@@ -647,8 +636,47 @@ if ($action === 'get_finance') {
         'incomes' => $incomes,
         'expenses' => $expenses,
         'balance' => $incomes - $expenses,
-        'transactions' => $finance_db
+        'transactions' => array_slice($finance_db, 0, 100) // Return last 100 for efficiency
     ]);
+}
+
+// MIGRATION TOOL (ONE-OFF)
+if ($action === 'migrate_legacy_sales') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    $db = json_decode(@file_get_contents($DB_FILE), true) ?? [];
+    $finance_db = json_decode(@file_get_contents($FINANCE_FILE), true) ?? [];
+
+    $count = 0;
+    $existing_refs = array_column($finance_db, 'related_id');
+
+    foreach ($db as $key => $l) {
+        $price = $l['price'] ?? 0;
+        // If price > 0 and NOT already in finance ledgers (check related_id)
+        if ($price > 0 && !in_array($key, $existing_refs)) {
+            $date = $l['activated_at'] ?? $l['created_at'] ?? date('Y-m-d H:i:s');
+            // Add manually to array to bulk save later
+            $finance_db[] = [
+                'id' => uniqid('fin_mig_'),
+                'date' => $date,
+                'type' => 'income',
+                'amount' => floatval($price),
+                'description' => "Venda (Legado): " . ($l['product'] ?? 'N/A'),
+                'category' => 'migracao',
+                'related_id' => $key
+            ];
+            $count++;
+        }
+    }
+
+    // Sort by date desc
+    usort($finance_db, function ($a, $b) {
+        return strtotime($b['date']) - strtotime($a['date']);
+    });
+
+    @file_put_contents($FINANCE_FILE, json_encode($finance_db, JSON_PRETTY_PRINT));
+    jsonResponse(['success' => true, 'migrated' => $count]);
 }
 
 // PRODUCTS
@@ -751,19 +779,12 @@ if ($action === 'create') {
     $db[$key] = $newLicense;
     @file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT), LOCK_EX);
 
-    // 2. Integração Financeira (Se Venda Manual)
-    if ($is_manual) {
-        $finance_db = json_decode(@file_get_contents($FINANCE_FILE), true) ?? [];
-        $finance_db[] = [
-            'id' => generateId('fin_'),
-            'date' => date('Y-m-d H:i:s'),
-            'description' => "Venda Manual: $product - $client",
-            'value' => $final_price,
-            'type' => 'income',
-            'user' => 'admin',
-            'ref_license' => $key
-        ];
-        @file_put_contents($FINANCE_FILE, json_encode($finance_db, JSON_PRETTY_PRINT), LOCK_EX);
+    // 2. Integração Financeira (Automática)
+    if ($final_price > 0) {
+        $desc = $is_manual ? "Venda Manual: $product - $client" : "Venda Online: $product - $client";
+        $cat = $is_manual ? "venda_manual" : "venda_online";
+        // Helper function handles DB read/write/lock
+        addFinancialTransaction('income', $final_price, $desc, $cat, $key);
     }
 
     jsonResponse(["success" => true, "license_key" => $key]);
@@ -835,7 +856,32 @@ if ($action === 'renew') {
     $db[$key]['status'] = 'active'; // Reativa se estiver expirada
 
     @file_put_contents($DB_FILE, json_encode($db, JSON_PRETTY_PRINT));
+
+    // Finance Integration for Renewal
+    $price = isset($data['price']) ? floatval($data['price']) : 0;
+    if ($price > 0) {
+        $desc = "Renovação de Licença: $key";
+        addFinancialTransaction('income', $price, $desc, 'renovacao', $key);
+    }
+
     jsonResponse(['success' => true, 'new_expiry' => $new_exp]);
+}
+
+// MANUAL FINANCE ENTRY
+if ($action === 'finance_add') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    $type = $data['type'] ?? 'expense'; // income or expense
+    $amount = floatval($data['amount'] ?? 0);
+    $description = $data['description'] ?? 'Lançamento Manual';
+    $category = $data['category'] ?? 'outros';
+
+    if ($amount <= 0)
+        jsonResponse(['error' => 'Valor inválido'], 400);
+
+    $transaction = addFinancialTransaction($type, $amount, $description, $category);
+    jsonResponse(['success' => true, 'transaction' => $transaction]);
 }
 
 // BACKUP
@@ -1172,6 +1218,16 @@ if ($action === 'send_notification') {
     jsonResponse(['success' => true, 'notification' => $new_notif]);
 }
 
+// CLEAR NOTIFICATIONS (NEW)
+if ($action === 'clear_notifications') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    @file_put_contents($NOTIFICATIONS_FILE, json_encode([], JSON_PRETTY_PRINT));
+    systemLog("Todas as notificações foram limpas pelo admin.", 'warning');
+    jsonResponse(['success' => true]);
+}
+
 // GET NOTIFICATIONS (FOR CLIENT APPS)
 // Essa action pode ser pública, pois os apps clientes precisam consultar
 // Mas idealmente validaríamos se a licença é válida. Por simplicidade, deixaremos público para "all".
@@ -1262,8 +1318,14 @@ if ($action === 'get_notifications') {
         // Filtro B: Target (Alvo da mensagem)
         // Aceita se for 'all' OU se corresponder ao produto da licença OU se for MASTER (vê tudo)
         $target = $n['target'] ?? 'all';
-        if ($target !== 'all' && $target !== $product_name && $product_name !== 'MASTER') {
-            continue;
+        $target_norm = strtolower(str_replace([' ', '_', '-'], '', $target));
+        $prod_norm = strtolower(str_replace([' ', '_', '-'], '', $product_name));
+
+        if ($target !== 'all' && $product_name !== 'MASTER') {
+            // Comparação Normalizada para evitar erros de string (Ex: "Plena Checklist" vs "plena_checklist")
+            if ($target_norm !== $prod_norm) {
+                continue;
+            }
         }
 
         // Filtro C: Linha do Tempo (Data de criação da mensagem)

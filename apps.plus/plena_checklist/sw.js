@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'plena-cache-v1';
+const CACHE_NAME = 'plena-cache-v4.3-fix2';
 const urlsToCache = [
   './',
   './index.html',

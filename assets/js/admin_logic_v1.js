@@ -34,7 +34,7 @@ createApp({
             status: 'active'
         });
         const editingPartner = ref(null);
-        const newTrans = ref({ type: 'income', description: '', value: 0 });
+        const newTrans = ref({ type: 'expense', amount: 0, description: '', category: 'outros' });
         const newLead = ref({ name: '', email: '', phone: '', source: 'Website', status: 'Novo' });
         const selectedSale = ref(null);
         const saleLogs = ref([]);
@@ -44,6 +44,7 @@ createApp({
         let partnerModalBS = null;
         let saleDetailsModalBS = null;
         let newLeadModalBS = null;
+        let financeModalBS = null; // Nexus 2.0
 
         const currentTab = ref('dashboard');
         const chartPeriod = ref('6m');
@@ -59,14 +60,18 @@ createApp({
         const vendas = ref([]);
         const licencas = ref([]);
         const apps = ref([]);
+        const editingApp = ref({ slug: '', name: '', price: 0 }); // Nexus 2.0 (Init object to avoid v-if)
         const financeiro = ref({
             saldo: 0,
-            historico: []
+            receitas: 0,
+            despesas: 0,
+            transacoes: []
         });
         const parceiros = ref([]);
         const leads = ref([]);
         const logs = ref([]);
         const realTimeLogs = ref([]);
+        const activeDevicesCount = ref(0); // New Stat
         const notifications_history = ref([]);
 
         // Stats
@@ -113,6 +118,7 @@ createApp({
         let revenueChartInstance = null;
         let financeChartInstance = null;
         let distributionChartInstance = null;
+        let editAppModalBS = null; // Nexus 2.0
 
         // Helper: Show Toast
         const showToast = (type, title, message, duration = 5000) => {
@@ -211,8 +217,13 @@ createApp({
                         faturamento: stats.total_revenue || 0,
                         mrr: stats.mrr || 0,
                         licencas: stats.active_subscriptions || 0,
+                        licencas: stats.active_subscriptions || 0,
                         tickets: stats.expiring_soon || 0
                     };
+
+                    if (stats.active_devices_count !== undefined) {
+                        activeDevicesCount.value = stats.active_devices_count;
+                    }
 
                     // Map top products
                     topProducts.value = [];
@@ -250,6 +261,8 @@ createApp({
                         cliente: l.client,
                         email: l.email,
                         produto: l.product,
+                        activated_at: l.activated_at, // New Field
+                        device_id: l.device_id, // New Field
                         type: l.license_type,
                         expires_at: l.expires_at,
                         status: l.status
@@ -308,10 +321,12 @@ createApp({
                 const finData = await apiCall('get_finance');
                 if (finData) {
                     financeiro.value.saldo = finData.balance || 0;
-                    financeiro.value.historico = finData.transactions || [];
+                    financeiro.value.receitas = finData.incomes || 0;
+                    financeiro.value.despesas = finData.expenses || 0;
+                    financeiro.value.transacoes = finData.transactions || []; // New Key
 
-                    // Update finance charts
-                    updateFinanceCharts();
+                    // Update finance charts (Simple Refresh)
+                    if (currentTab.value === 'financeiro') updateFinanceCharts();
                 }
 
                 // 8. Partners
@@ -498,6 +513,9 @@ createApp({
             const editLicEl = document.getElementById('editLicenseModal');
             if (editLicEl) editLicenseModalBS = new bootstrap.Modal(editLicEl);
 
+            const editAppEl = document.getElementById('editAppModal'); // Nexus 2.0
+            if (editAppEl) editAppModalBS = new bootstrap.Modal(editAppEl);
+
             const partEl = document.getElementById('partnerModal');
             if (partEl) partnerModalBS = new bootstrap.Modal(partEl);
 
@@ -506,6 +524,9 @@ createApp({
 
             const leadEl = document.getElementById('newLeadModal');
             if (leadEl) newLeadModalBS = new bootstrap.Modal(leadEl);
+
+            const financeEl = document.getElementById('financeModal');
+            if (financeEl) financeModalBS = new bootstrap.Modal(financeEl);
 
             const savedSecret = localStorage.getItem('admin_secret');
             if (savedSecret) {
@@ -608,7 +629,7 @@ createApp({
                 client_email: newLicense.value.email,
                 product: newLicense.value.produto,
                 license_type: newLicense.value.type,
-                duration: newLicense.value.type === 'monthly' ? 30 : (newLicense.value.type === 'yearly' ? 365 : 3650),
+                duration: newLicense.value.type === 'developer' ? 9999 : (newLicense.value.type === 'monthly' ? 30 : (newLicense.value.type === 'yearly' ? 365 : 3650)),
                 is_manual: true,
                 price: newLicense.value.price,
                 cpf: newLicense.value.cpf,
@@ -986,12 +1007,7 @@ createApp({
             return labels[type] || type.toUpperCase();
         };
 
-        const clearNotifications = () => {
-            if (confirm('Limpar todo o histórico de notificações? (Apenas visualização Admin)')) {
-                notifications_history.value = [];
-                // Implement backend clear if needed later
-            }
-        };
+
 
         // CRM Methods
         const openNewLeadModal = () => {
@@ -1168,8 +1184,8 @@ createApp({
         };
 
         const sendNotification = async () => {
-            if (!newNotification.value.message) {
-                showToast('warning', 'Atenção', 'Digite uma mensagem para enviar');
+            if (!newNotification.value.message || !newNotification.value.title) {
+                showToast('warning', 'Atenção', 'Preencha o título e a mensagem para enviar');
                 return;
             }
 
@@ -1180,7 +1196,7 @@ createApp({
                 target: newNotification.value.target,
                 type: newNotification.value.type,
                 message: newNotification.value.message,
-                title: 'Comunicado do Sistema',
+                title: newNotification.value.title,
                 requireRead: newNotification.value.requireRead === true
             };
 
@@ -1202,6 +1218,7 @@ createApp({
 
                 // Reset Form
                 newNotification.value.message = '';
+                newNotification.value.title = '';
                 newNotification.value.requireRead = false;
             } else {
                 showToast('danger', 'Erro', 'Falha ao enviar notificação');
@@ -1323,6 +1340,43 @@ createApp({
             return classes[l] || 'text-white';
         };
 
+        const clearNotifications = async () => {
+            if (!confirm('ATENÇÃO: Isso apagará TODO o histórico de notificações para todos os usuários. Deseja continuar?')) return;
+
+            try {
+                const res = await apiCall('clear_notifications', 'POST', {});
+                if (res && res.success) {
+                    showToast('success', 'Limpeza Concluída', 'Histórico de notificações apagado.');
+                    notifications_history.value = [];
+                    await refreshData();
+                } else {
+                    showToast('danger', 'Erro', 'Falha ao limpar notificações.');
+                }
+            } catch (e) {
+                showToast('danger', 'Erro', 'Erro de conexão');
+            }
+        }
+
+        const resetDevice = async (lic) => {
+            if (!confirm(`Deseja realmente desvincular o dispositivo da licença ${lic.key}? O cliente poderá ativar em um novo aparelho.`)) return;
+
+            try {
+                const res = await apiCall('update_status', 'POST', {
+                    key: lic.key,
+                    status: 'reset_device'
+                });
+
+                if (res && res.success) {
+                    showToast('success', 'Dispositivo Desvinculado', 'A licença está pronta para nova ativação.');
+                    await refreshData();
+                } else {
+                    showToast('danger', 'Erro', res.error || 'Falha ao resetar');
+                }
+            } catch (e) {
+                showToast('danger', 'Erro', 'Erro de conexão');
+            }
+        };
+
         const copyToClipboard = async (text) => {
             try {
                 await navigator.clipboard.writeText(text);
@@ -1341,18 +1395,87 @@ createApp({
             window.print();
         };
 
+        const openEditAppModal = (app) => {
+            console.log("Opening App Edit for:", app);
+
+            // 1. Set Data
+            editingApp.value = { ...app };
+
+            // 2. Show Modal (DOM is always ready now)
+            if (!editAppModalBS) {
+                const el = document.getElementById('editAppModal');
+                if (el) {
+                    editAppModalBS = new bootstrap.Modal(el);
+                } else {
+                    alert("Erro Crítico: Modal não encontrado!");
+                    return;
+                }
+            }
+            editAppModalBS.show();
+        };
+
+        const updateAppConfig = async () => {
+            if (!editingApp.value) return;
+
+            const res = await apiCall('update_app', 'POST', {
+                slug: editingApp.value.slug,
+                name: editingApp.value.name,
+                price: editingApp.value.price
+            });
+
+            if (res && res.success) {
+                showToast('success', 'Configuração Salva', 'Produto atualizado com sucesso!');
+                editAppModalBS.hide();
+                refreshData();
+            }
+        };
+
+        const openFinanceModal = () => {
+            // Reset form
+            newTrans.value = { type: 'expense', amount: '', description: '', category: 'outros' };
+            financeModalBS.show();
+        };
+
+        const createTransaction = async () => {
+            if (!newTrans.value.amount || newTrans.value.amount <= 0) {
+                showToast('warning', 'Atenção', 'Informe um valor válido');
+                return;
+            }
+            if (!newTrans.value.description) {
+                showToast('warning', 'Atenção', 'Informe uma descrição');
+                return;
+            }
+
+            const res = await apiCall('finance_add', 'POST', {
+                type: newTrans.value.type,
+                amount: newTrans.value.amount,
+                description: newTrans.value.description,
+                category: newTrans.value.category
+            });
+
+            if (res && res.success) {
+                showToast('success', 'Lançamento Realizado', 'Movimentação registrada com sucesso!');
+                financeModalBS.hide();
+                refreshData();
+            } else {
+                showToast('danger', 'Erro', 'Falha ao realizar lançamento');
+            }
+        };
+
+        // End of Methods (Hooks)
+
         return {
             // State
             isAuthenticated, loginPassword, loggingIn, sidebarToggled,
             currentTab, chartPeriod,
-            newLicense, editingLicense, newPartner, editingPartner, newTrans, newLead,
+            newLicense, editingLicense, editingApp, newPartner, editingPartner, newTrans, newLead, // Added editingApp
             selectedSale, saleLogs,
             kpi, vendas, licencas, apps, financeiro, parceiros, leads, logs, realTimeLogs,
             statsLicencas, statsParceiros,
             salesSearch, salesStatusFilter, salesDateFilter, licenseSearch, licenseTypeFilter,
             systemStatus, diagnosisLoading, testEmail, testEmailResult, lastBackup,
             newNotification, notifications_history, sendingNotification,
-            topProducts,
+            topProducts, activeDevicesCount,
             loading, loadingMessage, refreshing, creatingLicense, updatingLicense, savingPartner,
             toasts,
 
@@ -1367,7 +1490,8 @@ createApp({
             runSystemDiagnosis, sendTestEmail,
             sendNotification, getNotificationTypeLabel, clearNotifications,
             openNewLeadModal, saveLead, editLead, getLeadStatusClass,
-            saveAppConfig, openAppDetails, openNewAppModal,
+            openAppDetails, openNewAppModal, openEditAppModal, updateAppConfig, // Replaced saveAppConfig
+            openFinanceModal, createTransaction,
             createBackup, clearCache, optimizeDatabase, clearLogs, downloadLogs,
             filteredLicenses,
             showToast, removeToast, getToastIcon,
@@ -1375,7 +1499,8 @@ createApp({
             getTabTitle, getTabIcon, getTabBadge,
             formatMoney, formatDate, formatDateTime, formatPhone,
             getStatusClass, getStatusLabel, getLogLevelClass,
-            copyToClipboard, copyCheckout, printSaleDetails
+            copyToClipboard, copyCheckout, printSaleDetails,
+            resetDevice
         };
     }
 }).mount('#app');

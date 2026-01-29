@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de gestão de checklists para múltiplos cenários - Plena Aplicativos">
-    
+
     <!-- Manifest PWA -->
     <link rel="manifest" href="manifest.json">
 
@@ -77,6 +77,7 @@
                 opacity: 0;
                 transform: translateY(5px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -88,6 +89,7 @@
                 transform: translateX(-10px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -279,6 +281,7 @@
     <script src="../../assets/js/plena-toolbar.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../../assets/js/plena-lock.js"></script>
+    <script src="../../assets/js/plena-notifications.js"></script>
 </head>
 
 <body class="text-slate-800 antialiased">
@@ -346,7 +349,7 @@
                 <i data-lucide="info" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white"></i>
                 Sobre a Plena
             </button>
-        
+
 
 
 
@@ -362,7 +365,7 @@
                 </span>
             </button>
 
-</nav>
+        </nav>
 
         <div class="p-6 border-t border-white/10 text-center">
             <p class="text-xs text-gray-500">Todos os Direitos Reservados &copy; 2026</p>
@@ -429,7 +432,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Checklists Ativos</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Checklists
+                                    Ativos</p>
                                 <h3 id="dash-active" class="text-3xl font-bold text-slate-900">0</h3>
                                 <p class="text-xs text-slate-500 mt-1">Em andamento</p>
                             </div>
@@ -441,7 +445,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Concluídos (Hoje)</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Concluídos
+                                    (Hoje)</p>
                                 <h3 id="dash-completed-today" class="text-3xl font-bold text-green-600">0</h3>
                                 <p class="text-xs text-slate-500 mt-1">Tarefas finalizadas</p>
                             </div>
@@ -453,7 +458,8 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Produtividade</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Produtividade
+                                </p>
                                 <h3 id="dash-productivity" class="text-3xl font-bold text-plena-green">0%</h3>
                                 <p class="text-xs text-slate-500 mt-1">Taxa de conclusão</p>
                             </div>
@@ -527,7 +533,8 @@
                     <div class="flex items-center gap-3">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="search-checklists" onkeyup="filterChecklists()" placeholder="Buscar checklists..."
+                            <input type="text" id="search-checklists" onkeyup="filterChecklists()"
+                                placeholder="Buscar checklists..."
                                 class="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-plena-green outline-none text-sm">
                         </div>
                         <button onclick="openChecklistModal()"
@@ -667,28 +674,32 @@
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-blue-50 p-6 rounded-xl text-center border border-blue-100">
-                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="list-checks" class="w-6 h-6 text-blue-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Total Checklists</p>
                             <p id="rep-total" class="text-2xl font-bold text-blue-700 mt-2">0</p>
                         </div>
                         <div class="bg-green-50 p-6 rounded-xl text-center border border-green-100">
-                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Concluídos</p>
                             <p id="rep-completed" class="text-2xl font-bold text-green-700 mt-2">0</p>
                         </div>
                         <div class="bg-yellow-50 p-6 rounded-xl text-center border border-yellow-100">
-                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="trending-up" class="w-6 h-6 text-yellow-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Taxa Conclusão</p>
                             <p id="rep-completion-rate" class="text-2xl font-bold text-yellow-700 mt-2">0%</p>
                         </div>
                         <div class="bg-purple-50 p-6 rounded-xl text-center border border-purple-100">
-                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
+                            <div
+                                class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
                                 <i data-lucide="clock" class="w-6 h-6 text-purple-600"></i>
                             </div>
                             <p class="text-xs text-slate-500 uppercase font-bold">Tempo Médio</p>
@@ -727,6 +738,17 @@
                 <div class="mb-6">
                     <h2 class="text-xl font-bold text-slate-800 mb-2">Configurações</h2>
                     <p class="text-sm text-slate-600">Personalize o sistema</p>
+                </div>
+
+                <!-- Notifications Feed (System Tab Integration) -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="bell" class="w-5 h-5 mr-2 text-plena-green"></i>
+                        Notificações do Sistema
+                    </h3>
+                    <div id="notification-feed-container" class="space-y-3">
+                        <!-- Dynamic Notifications -->
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -832,11 +854,15 @@
                                 aria-label="Ícone de Checklist - Manual de Uso"></i>
                         </div>
                         <h1 class="text-3xl font-bold text-gray-800 mb-2">Manual Completo de Uso</h1>
-                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia completo para gestão de checklists em múltiplos cenários</p>
+                        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Guia completo para gestão de checklists em
+                            múltiplos cenários</p>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para Iniciantes</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e Desktop</span>
-                            <span class="px-3 py-1 bg-green-100 text-plena-green rounded-full text-xs font-bold">⚡ Rápido e Prático</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">✓ Para
+                                Iniciantes</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">📱 Mobile e
+                                Desktop</span>
+                            <span class="px-3 py-1 bg-green-100 text-plena-green rounded-full text-xs font-bold">⚡
+                                Rápido e Prático</span>
                         </div>
                     </div>
 
@@ -907,11 +933,13 @@
                                 <i data-lucide="download" class="w-5 h-5 mr-2 text-green-400"></i>
                                 Torne o App Disponível OFFLINE
                             </h4>
-                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app normal:</p>
+                            <p class="text-gray-300 mb-4">Instale no celular para usar sem internet, igual um app
+                                normal:</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
                                             <i data-lucide="smartphone" class="w-4 h-4"></i>
                                         </div>
                                         Android (Chrome)
@@ -939,7 +967,8 @@
                                 </div>
                                 <div class="bg-white/10 p-4 rounded-xl border border-white/10">
                                     <div class="font-bold text-white mb-3 flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center mr-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center mr-2">
                                             <i data-lucide="monitor" class="w-4 h-4"></i>
                                         </div>
                                         Windows (Chrome)
@@ -987,21 +1016,27 @@
                                     </h4>
                                     <ol class="space-y-3 text-sm">
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">A</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                A</div>
                                             <div>
                                                 <strong>Clique em "Checklist Rápido"</strong>
                                                 <p class="text-gray-600 text-xs">Botão cinza no cabeçalho</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">B</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                B</div>
                                             <div>
                                                 <strong>Adicione 3-5 tarefas simples</strong>
                                                 <p class="text-gray-600 text-xs">Ex: "Enviar e-mail"</p>
                                             </div>
                                         </li>
                                         <li class="flex items-start">
-                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">C</div>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-2 text-xs font-bold">
+                                                C</div>
                                             <div>
                                                 <strong>Marque como concluído</strong>
                                                 <p class="text-gray-600 text-xs">Clique nas checkboxes</p>
@@ -1052,7 +1087,8 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
                                     <i data-lucide="list-plus" class="w-5 h-5 text-green-600"></i>
                                 </div>
@@ -1077,7 +1113,8 @@
                                 </ul>
                             </div>
 
-                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
                                     <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
                                 </div>
@@ -1159,35 +1196,40 @@
                             </button>
                         </div>
 
-                        <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200 mb-6">
+                        <div
+                            class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200 mb-6">
                             <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                                 <i data-lucide="folder-tree" class="w-5 h-5 mr-2 text-plena-green"></i>
                                 Sistema de Categorias
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-blue-700">1</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Crie Categorias</p>
                                     <p class="text-gray-600">Organize por temas</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-green-700">2</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Atribua Tags</p>
                                     <p class="text-gray-600">Marcadores visuais</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-yellow-700">3</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Filtre</p>
                                     <p class="text-gray-600">Encontre rapidamente</p>
                                 </div>
                                 <div class="bg-white p-3 rounded-lg text-center shadow-sm">
-                                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
                                         <span class="font-bold text-purple-700">4</span>
                                     </div>
                                     <p class="font-bold text-gray-800">Priorize</p>
@@ -1213,7 +1255,8 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
                                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-600"></i>
                                 </div>
@@ -1221,7 +1264,8 @@
                                 <p class="text-xs text-gray-600">Taxa de conclusão, tempo médio por tarefa</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
                                     <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
                                 </div>
@@ -1229,7 +1273,8 @@
                                 <p class="text-xs text-gray-600">Progresso semanal e mensal</p>
                             </div>
 
-                            <div class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100 shadow-sm">
+                            <div
+                                class="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl border border-purple-100 shadow-sm">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mb-3">
                                     <i data-lucide="pie-chart" class="w-5 h-5 text-purple-600"></i>
                                 </div>
@@ -1295,7 +1340,8 @@
                                         <span>Buscar checklists</span>
                                     </li>
                                     <li class="flex items-start">
-                                        <kbd class="bg-white px-2 py-1 rounded text-xs font-mono mr-2">Ctrl + Enter</kbd>
+                                        <kbd class="bg-white px-2 py-1 rounded text-xs font-mono mr-2">Ctrl +
+                                            Enter</kbd>
                                         <span>Salvar checklist</span>
                                     </li>
                                     <li class="flex items-start">
@@ -1350,8 +1396,10 @@
                                 Termos de Uso
                             </h3>
                             <p class="text-sm text-slate-600 leading-relaxed text-justify">
-                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O software é
-                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda, cópia,
+                                A licença concedida é <strong>pessoal, intransferível e não exclusiva</strong>. O
+                                software é
+                                fornecido "no estado em que se encontra" (as-is). É estritamente proibida a revenda,
+                                cópia,
                                 distribuição não autorizada ou engenharia reversa do código-fonte, sob pena das sanções
                                 previstas na Lei de Propriedade Intelectual (9.610/98).
                             </p>
@@ -1368,7 +1416,8 @@
                             <p class="text-sm text-slate-600 leading-relaxed text-justify">
                                 Adotamos a arquitetura <strong>Privacy by Design (Local-First)</strong>. Seus dados
                                 de checklists ficam salvos <strong>exclusivamente no seu dispositivo</strong>.
-                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no sistema.
+                                A Plena não coleta, não armazena e não tem acesso a nenhuma informação inserida no
+                                sistema.
                                 Sua privacidade é absoluta.
                             </p>
                         </div>
@@ -1388,12 +1437,15 @@
                                 <p>
                                     <strong>1. Backup é Obrigatório:</strong> Como não temos acesso aos seus dados,
                                     <strong>não podemos recuperá-los</strong> em caso de perda, roubo ou dano ao seu
-                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade única e
+                                    dispositivo. A realização de cópias de segurança (Backup) é de responsabilidade
+                                    única e
                                     exclusiva do usuário.
                                 </p>
                                 <p>
-                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de qualquer
-                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no dispositivo
+                                    <strong>2. Isenção de Responsabilidade Técnica:</strong> A Plena exime-se de
+                                    qualquer
+                                    responsabilidade por prejuízos decorrentes de falhas de hardware, vírus no
+                                    dispositivo
                                     do usuário, ou uso incorreto do sistema de checklists.
                                 </p>
                             </div>
@@ -1401,7 +1453,8 @@
                     </div>
 
                     <!-- 4. Suporte e SLA -->
-                    <div class="bg-gradient-to-br from-slate-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
+                    <div
+                        class="bg-gradient-to-br from-slate-900 to-plena-dark text-white p-8 rounded-2xl mb-12 shadow-xl">
                         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="flex-1">
                                 <h3 class="font-bold text-xl mb-2 flex items-center">
@@ -1409,8 +1462,10 @@
                                     Suporte Premium Especializado
                                 </h3>
                                 <p class="text-slate-300 text-sm mb-6 leading-relaxed">
-                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está pronta
-                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa marca.
+                                    Precisa de ajuda ou encontrou alguma inconsistência? Nossa equipe técnica está
+                                    pronta
+                                    para atender você com prioridade. Garantimos a qualidade e a segurança da nossa
+                                    marca.
                                 </p>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1419,7 +1474,8 @@
                                         <p class="font-bold text-white">E-mail</p>
                                     </div>
                                     <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                                        <p class="text-xs text-slate-400 uppercase font-bold">Tempo de Resposta (SLA)</p>
+                                        <p class="text-xs text-slate-400 uppercase font-bold">Tempo de Resposta (SLA)
+                                        </p>
                                         <p class="font-bold text-plena-green">Até 24h Úteis</p>
                                     </div>
                                 </div>
@@ -1431,7 +1487,8 @@
                                     <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
                                     Falar com Suporte
                                 </a>
-                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenaaplicativos.com.br</p>
+                                <p class="text-xs text-center text-slate-400 mt-3">tecnologia@plenaaplicativos.com.br
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1441,7 +1498,8 @@
                         <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300"
                             id="terms-box">
                             <i data-lucide="check-circle-2" class="w-12 h-12 text-slate-300 mb-3" id="terms-icon"></i>
-                            <h3 class="font-bold text-slate-800 text-lg mb-2" id="terms-title">Confirmação de Leitura</h3>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2" id="terms-title">Confirmação de Leitura
+                            </h3>
                             <p class="text-sm text-slate-500 mb-6 max-w-lg" id="terms-desc">
                                 Para prosseguir com segurança, confirme que você leu e compreendeu os Termos de Uso, a
                                 Política de Privacidade e sua responsabilidade sobre os backups.
@@ -1469,7 +1527,8 @@
                     <!-- 6. Rodapé Legal -->
                     <div class="text-center border-t border-slate-200 pt-8">
                         <p class="text-sm font-bold text-slate-800">Plena Soluções Digitais LTDA</p>
-                        <p class="text-xs text-slate-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados</p>
+                        <p class="text-xs text-slate-500 mt-1">CNPJ: 17.347.919/0001-59 • Todos os direitos reservados
+                        </p>
                         <p class="text-[10px] text-slate-400 mt-4">
                             Versão 1.0 Pro • Build 2026.01.18
                         </p>
@@ -1477,147 +1536,143 @@
                 </div>
             </section>
         </div>
-    
 
-<!-- System View (New) -->
-            <section id="view-system" class="view-section hide fade-in">
-                <div class="max-w-4xl mx-auto pb-12">
 
-                    <!-- Header -->
-                    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">Sistema e Atualizações</h2>
-                            <p class="text-sm text-slate-600">Central de notificações e controle de versão</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span id="system-status-indicator"
-                                class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                <span class="relative flex h-2 w-2">
-                                    <span
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                                Sistema Operacional
-                            </span>
-                        </div>
+        <!-- System View (New) -->
+        <section id="view-system" class="view-section hide fade-in">
+            <div class="max-w-4xl mx-auto pb-12">
+
+                <!-- Header -->
+                <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Sistema e Atualizações</h2>
+                        <p class="text-sm text-slate-600">Central de notificações e controle de versão</p>
                     </div>
-
-                    <!-- Grid Layout -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                        <!-- Column 1: Notifications & Alerts -->
-                        <div class="space-y-6">
-                            <!-- Notifications Card -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-bold text-slate-800 flex items-center">
-                                        <i data-lucide="bell" class="w-5 h-5 mr-2 text-plena-blue"></i>
-                                        Notificações do Sistema
-                                    </h3>
-                                    <button onclick="clearSystemNotifications()"
-                                        class="text-xs text-slate-400 hover:text-plena-blue">
-                                        Limpar tudo
-                                    </button>
-                                </div>
-                                <div id="notification-feed-container" class="space-y-3">
-                                    <!-- Dynamic Content -->
-                                    <div
-                                        class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
-                                        <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
-                                        <div>
-                                            <p class="text-xs font-bold text-blue-800">Boas-vindas ao Plena Barbearia
-                                                v4.3</p>
-                                            <p class="text-xs text-blue-600 mt-1">Conheça a nova aba Sistema para
-                                                acompanhar todas as novidades.</p>
-                                            <p class="text-[10px] text-blue-400 mt-1">Agora</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Device & Storage Diagnostics -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center">
-                                    <i data-lucide="activity" class="w-5 h-5 mr-2 text-slate-500"></i>
-                                    Diagnóstico do Dispositivo
-                                </h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <div class="flex justify-between text-xs mb-1">
-                                            <span class="text-slate-500">Armazenamento Local (Estimado)</span>
-                                            <span class="font-bold text-slate-700"
-                                                id="storage-usage">Calculando...</span>
-                                        </div>
-                                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                            <div id="storage-bar" class="h-full bg-plena-blue" style="width: 5%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-3 text-xs">
-                                        <div class="p-3 bg-slate-50 rounded-lg text-center">
-                                            <span class="block text-slate-400 mb-1">Status Offline/Online</span>
-                                            <span id="conn-status" class="font-bold text-green-600">Online</span>
-                                        </div>
-                                        <div class="p-3 bg-slate-50 rounded-lg text-center">
-                                            <span class="block text-slate-400 mb-1">Service Worker</span>
-                                            <span id="sw-status" class="font-bold text-green-600">Ativo</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Column 2: Versioning & Changelog -->
-                        <div class="space-y-6">
-                            <!-- Update Center -->
-                            <div
-                                class="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
-                                <div class="relative z-10">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">
-                                                Versão Instalada</p>
-                                            <h3 id="display-installed-version"
-                                                class="text-3xl font-bold text-white mb-2">v4.3</h3>
-                                            <p class="text-slate-300 text-xs">Build 2026.01.24 • Desktop Pro</p>
-                                        </div>
-                                        <div
-                                            class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                            <i data-lucide="zap" class="w-6 h-6 text-yellow-400"></i>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-6">
-                                        <button onclick="checkForUpdates()"
-                                            class="w-full bg-plena-blue hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50">
-                                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                            Buscar Atualizações
-                                        </button>
-                                        <p class="text-[10px] text-center text-slate-400 mt-2">Última verificação: <span
-                                                id="last-update-check">Nunca</span></p>
-                                    </div>
-                                </div>
-                                <!-- Background decoration -->
-                                <div
-                                    class="absolute -right-6 -bottom-6 w-32 h-32 bg-plena-blue/20 rounded-full blur-2xl">
-                                </div>
-                            </div>
-
-                            <!-- Changelog Feed -->
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <h3 class="font-bold text-slate-800 mb-4 flex items-center">
-                                    <i data-lucide="list" class="w-5 h-5 mr-2 text-slate-500"></i>
-                                    Histórico de Mudanças
-                                </h3>
-                                <div class="space-y-0" id="changelog-feed">
-                                    <!-- Populated by JS -->
-                                </div>
-                            </div>
-                        </div>
-
+                    <div class="flex items-center gap-3">
+                        <span id="system-status-indicator"
+                            class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            Sistema Operacional
+                        </span>
                     </div>
                 </div>
-            </section>
-</main>
+
+                <!-- Grid Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <!-- Column 1: Notifications & Alerts -->
+                    <div class="space-y-6">
+                        <!-- Notifications Card -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-800 flex items-center">
+                                    <i data-lucide="bell" class="w-5 h-5 mr-2 text-plena-blue"></i>
+                                    Notificações do Sistema
+                                </h3>
+                                <button onclick="clearSystemNotifications()"
+                                    class="text-xs text-slate-400 hover:text-plena-blue">
+                                    Limpar tudo
+                                </button>
+                            </div>
+                            <div id="notification-feed-container" class="space-y-3">
+                                <!-- Dynamic Content -->
+                                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
+                                    <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                                    <div>
+                                        <p class="text-xs font-bold text-blue-800">Boas-vindas ao Plena Barbearia
+                                            v4.3</p>
+                                        <p class="text-xs text-blue-600 mt-1">Conheça a nova aba Sistema para
+                                            acompanhar todas as novidades.</p>
+                                        <p class="text-[10px] text-blue-400 mt-1">Agora</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Device & Storage Diagnostics -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="activity" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Diagnóstico do Dispositivo
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-500">Armazenamento Local (Estimado)</span>
+                                        <span class="font-bold text-slate-700" id="storage-usage">Calculando...</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div id="storage-bar" class="h-full bg-plena-blue" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-xs">
+                                    <div class="p-3 bg-slate-50 rounded-lg text-center">
+                                        <span class="block text-slate-400 mb-1">Status Offline/Online</span>
+                                        <span id="conn-status" class="font-bold text-green-600">Online</span>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg text-center">
+                                        <span class="block text-slate-400 mb-1">Service Worker</span>
+                                        <span id="sw-status" class="font-bold text-green-600">Ativo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Versioning & Changelog -->
+                    <div class="space-y-6">
+                        <!-- Update Center -->
+                        <div
+                            class="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+                            <div class="relative z-10">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">
+                                            Versão Instalada</p>
+                                        <h3 id="display-installed-version" class="text-3xl font-bold text-white mb-2">
+                                            v4.3</h3>
+                                        <p class="text-slate-300 text-xs">Build 2026.01.24 • Desktop Pro</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+                                        <i data-lucide="zap" class="w-6 h-6 text-yellow-400"></i>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <button onclick="checkForUpdates()"
+                                        class="w-full bg-plena-blue hover:bg-blue-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                        Buscar Atualizações
+                                    </button>
+                                    <p class="text-[10px] text-center text-slate-400 mt-2">Última verificação: <span
+                                            id="last-update-check">Nunca</span></p>
+                                </div>
+                            </div>
+                            <!-- Background decoration -->
+                            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-plena-blue/20 rounded-full blur-2xl">
+                            </div>
+                        </div>
+
+                        <!-- Changelog Feed -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="list" class="w-5 h-5 mr-2 text-slate-500"></i>
+                                Histórico de Mudanças
+                            </h3>
+                            <div class="space-y-0" id="changelog-feed">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Checklist Modal -->
     <div id="checklistModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
@@ -1632,7 +1687,7 @@
             <div class="p-6 flex-1 overflow-y-auto">
                 <form onsubmit="submitChecklist(event)" id="checklistForm" class="space-y-6">
                     <input type="hidden" id="cl-id">
-                    
+
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase">Título do Checklist</label>
                         <input type="text" id="cl-title" required
@@ -1665,8 +1720,7 @@
 
                     <div>
                         <label class="text-xs font-bold text-slate-500 uppercase">Descrição (Opcional)</label>
-                        <textarea id="cl-description" rows="3"
-                            class="w-full border p-2 rounded-lg text-sm"
+                        <textarea id="cl-description" rows="3" class="w-full border p-2 rounded-lg text-sm"
                             placeholder="Descreva o propósito deste checklist..."></textarea>
                     </div>
 
@@ -1680,7 +1734,8 @@
                     <div>
                         <div class="flex justify-between items-center mb-4">
                             <label class="text-xs font-bold text-slate-500 uppercase">Tarefas</label>
-                            <button type="button" onclick="addTask()" class="text-sm text-plena-green hover:text-plena-dark flex items-center gap-1">
+                            <button type="button" onclick="addTask()"
+                                class="text-sm text-plena-green hover:text-plena-dark flex items-center gap-1">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Tarefa
                             </button>
                         </div>
@@ -2097,7 +2152,7 @@
         function openChecklistModal(checklist = null) {
             const modal = document.getElementById('checklistModal');
             const form = document.getElementById('checklistForm');
-            
+
             if (checklist) {
                 document.getElementById('cl-id').value = checklist.id;
                 document.getElementById('cl-title').value = checklist.title;
@@ -2105,7 +2160,7 @@
                 document.getElementById('cl-priority').value = checklist.priority || 'medium';
                 document.getElementById('cl-description').value = checklist.description || '';
                 document.getElementById('cl-deadline').value = checklist.deadline || '';
-                
+
                 // Preencher tarefas
                 const tasksContainer = document.getElementById('tasks-container');
                 tasksContainer.innerHTML = '';
@@ -2125,14 +2180,14 @@
                 addTask();
                 addTask();
             }
-            
+
             modal.classList.remove('hidden');
         }
 
         function addTask(text = '', completed = false, index = null) {
             const container = document.getElementById('tasks-container');
             const taskId = index !== null ? index : container.children.length;
-            
+
             const taskHTML = `
                 <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <input type="checkbox" ${completed ? 'checked' : ''} 
@@ -2145,7 +2200,7 @@
                     </button>
                 </div>
             `;
-            
+
             if (index !== null) {
                 const existingTask = container.children[index];
                 if (existingTask) {
@@ -2156,7 +2211,7 @@
             } else {
                 container.insertAdjacentHTML('beforeend', taskHTML);
             }
-            
+
             lucide.createIcons();
         }
 
@@ -2169,19 +2224,19 @@
 
         function submitChecklist(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('cl-id').value;
             const title = document.getElementById('cl-title').value.trim();
             const category = document.getElementById('cl-category').value;
             const priority = document.getElementById('cl-priority').value;
             const description = document.getElementById('cl-description').value.trim();
             const deadline = document.getElementById('cl-deadline').value;
-            
+
             if (!title) {
                 alert('Por favor, insira um título para o checklist.');
                 return;
             }
-            
+
             // Coletar tarefas
             const taskElements = document.querySelectorAll('#tasks-container .flex');
             const tasks = Array.from(taskElements).map(el => {
@@ -2193,7 +2248,7 @@
                     createdAt: new Date().toISOString()
                 };
             }).filter(task => task.text); // Remover tarefas vazias
-            
+
             const checklist = {
                 id: id || getID(),
                 title,
@@ -2208,7 +2263,7 @@
                 updatedAt: new Date().toISOString(),
                 completedAt: null
             };
-            
+
             // Atualizar completed e completedAt
             if (tasks.length > 0 && tasks.every(t => t.completed)) {
                 checklist.completed = true;
@@ -2217,7 +2272,7 @@
                 checklist.completed = false;
                 checklist.completedAt = null;
             }
-            
+
             if (id) {
                 // Atualizar checklist existente
                 const index = db.checklists.findIndex(c => c.id === id);
@@ -2228,43 +2283,43 @@
                 // Adicionar novo checklist
                 db.checklists.push(checklist);
             }
-            
+
             save();
             closeModal('checklistModal');
-            
+
             if (document.getElementById('view-my-checklists').classList.contains('hide') === false) {
                 renderChecklists();
             }
-            
+
             updateDashboardStats();
             renderRecentChecklists();
-            
+
             showNotification('Checklist salvo com sucesso!', 'success');
         }
 
         function renderChecklists() {
             const container = document.getElementById('checklists-grid');
             if (!container) return;
-            
+
             const searchTerm = document.getElementById('search-checklists')?.value.toLowerCase() || '';
             const filter = document.querySelector('#view-my-checklists .bg-plena-green')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all';
             const categoryFilter = document.getElementById('filter-category')?.value || '';
-            
+
             let filtered = db.checklists.filter(checklist => {
                 const matchesSearch = checklist.title.toLowerCase().includes(searchTerm) ||
-                                    checklist.description?.toLowerCase().includes(searchTerm);
+                    checklist.description?.toLowerCase().includes(searchTerm);
                 const matchesFilter = filter === 'all' ? true :
-                                    filter === 'active' ? !checklist.completed :
-                                    filter === 'completed' ? checklist.completed :
-                                    filter === 'favorite' ? checklist.favorite : true;
+                    filter === 'active' ? !checklist.completed :
+                        filter === 'completed' ? checklist.completed :
+                            filter === 'favorite' ? checklist.favorite : true;
                 const matchesCategory = !categoryFilter || checklist.category === categoryFilter;
-                
+
                 return matchesSearch && matchesFilter && matchesCategory;
             });
-            
+
             // Ordenar por data de criação (mais recente primeiro)
             filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="col-span-full text-center py-12">
@@ -2280,13 +2335,13 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = filtered.map(checklist => {
                 const completedTasks = checklist.tasks?.filter(t => t.completed)?.length || 0;
                 const totalTasks = checklist.tasks?.length || 0;
                 const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
                 const category = db.categories.find(c => c.id === checklist.category) || { name: 'Outros', color: 'gray' };
-                
+
                 return `
                     <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm card-hover hover:shadow-md transition-shadow">
                         <div class="flex justify-between items-start mb-4">
@@ -2346,7 +2401,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
@@ -2365,7 +2420,7 @@
                     }
                 }
             });
-            
+
             renderChecklists();
         }
 
@@ -2379,10 +2434,10 @@
         function renderTemplates() {
             const container = document.getElementById('templates-grid');
             if (!container) return;
-            
+
             container.innerHTML = db.templates.map(template => {
                 const category = db.categories.find(c => c.id === template.category) || { name: 'Outros', color: 'gray' };
-                
+
                 return `
                     <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm card-hover">
                         <div class="flex justify-between items-start mb-4">
@@ -2402,14 +2457,14 @@
                     </div>
                 `;
             }).join('');
-            
+
             lucide.createIcons();
         }
 
         function useTemplate(templateId) {
             const template = db.templates.find(t => t.id === templateId);
             if (!template) return;
-            
+
             const checklist = {
                 id: getID(),
                 title: template.name,
@@ -2425,10 +2480,10 @@
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            
+
             db.checklists.push(checklist);
             save();
-            
+
             router('my-checklists');
             showNotification('Checklist criado a partir do template!', 'success');
         }
@@ -2496,18 +2551,18 @@
 
         function submitQuickChecklist(e) {
             e.preventDefault();
-            
+
             const title = document.getElementById('quick-title').value.trim();
             const taskInputs = document.querySelectorAll('#quick-tasks input');
             const tasks = Array.from(taskInputs)
                 .map(input => input.value.trim())
                 .filter(task => task);
-            
+
             if (!title || tasks.length === 0) {
                 alert('Por favor, insira um título e pelo menos uma tarefa.');
                 return;
             }
-            
+
             const checklist = {
                 id: getID(),
                 title,
@@ -2522,18 +2577,18 @@
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            
+
             db.checklists.push(checklist);
             save();
             closeModal('quickChecklistModal');
-            
+
             updateDashboardStats();
             renderRecentChecklists();
-            
+
             if (document.getElementById('view-my-checklists').classList.contains('hide') === false) {
                 renderChecklists();
             }
-            
+
             showNotification('Checklist rápido criado!', 'success');
         }
 
@@ -2623,7 +2678,7 @@
         function restoreBackup(input) {
             const file = input.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
@@ -2763,13 +2818,13 @@
         // Inicializar Aplicativo
         // INICIALIZAR APLICATIVO
         document.addEventListener('DOMContentLoaded', () => {
-             if (typeof init === 'function') init();
-             // Register SW for PWA
-             if ('serviceWorker' in navigator) {
-                 navigator.serviceWorker.register('./sw.js')
-                     .then(() => console.log('SW Registered'))
-                     .catch(err => console.error('SW Error:', err));
-             }
+            if (typeof init === 'function') init();
+            // Register SW for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('SW Registered'))
+                    .catch(err => console.error('SW Error:', err));
+            }
         });
         document.addEventListener('DOMContentLoaded', updateTutorialProgress);
     </script>
@@ -2788,13 +2843,13 @@
         }
     </script>
 
-    
-
-    
 
 
 
-<!-- Blocking Modal (Secure Broadcast) -->
+
+
+
+    <!-- Blocking Modal (Secure Broadcast) -->
     <div id="sysBlockingModal" class="fixed inset-0 z-[10000] hidden bg-black/80 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div id="sysModalHeader" class="bg-red-600 p-6 text-white flex items-center gap-3">
@@ -2819,8 +2874,8 @@
 
 
 
-<script>
-// SISTEMA DE ATUALIZAÇÃO E PWA (ROBUSTO)
+    <script>
+        // SISTEMA DE ATUALIZAÇÃO E PWA (ROBUSTO)
         // ==========================================
         const BUILD_DATE = new Date().toLocaleDateString('pt-BR');
 
@@ -3020,7 +3075,8 @@
 
 
 
-        function renderSystemTab() { setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 10);
+        function renderSystemTab() {
+            setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 10);
             // 1. Initial Render
             renderChangelog();
             updateDiagnostics();
@@ -3261,26 +3317,26 @@
             }
         }
 
-        
-    // Extended Router for System Tab
-    const _baseRouter = window.router;
-    window.router = function(view) {
-        if (typeof _baseRouter === 'function') _baseRouter(view);
-        if (view === 'system') {
-             // Standard view toggle if not handled by base router for 'system'
-             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
-             const sysEl = document.getElementById('view-system');
-             if(sysEl) sysEl.classList.remove('hide');
-             
-             // Nav highlight
-             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10'));
-             const navSys = document.getElementById('nav-system');
-             if(navSys) navSys.classList.add('active-nav', 'bg-white/10');
-             
-             renderSystemTab();
-        }
-    };
-    // SW REGISTRATION & UPDATE DETECTION
+
+        // Extended Router for System Tab
+        const _baseRouter = window.router;
+        window.router = function (view) {
+            if (typeof _baseRouter === 'function') _baseRouter(view);
+            if (view === 'system') {
+                // Standard view toggle if not handled by base router for 'system'
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hide'));
+                const sysEl = document.getElementById('view-system');
+                if (sysEl) sysEl.classList.remove('hide');
+
+                // Nav highlight
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav', 'bg-white/10'));
+                const navSys = document.getElementById('nav-system');
+                if (navSys) navSys.classList.add('active-nav', 'bg-white/10');
+
+                renderSystemTab();
+            }
+        };
+        // SW REGISTRATION & UPDATE DETECTION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -3371,10 +3427,10 @@
         }
 
 
-    
-</script>
 
-<!-- PWA INSTALLATION TOAST (Standardized) -->
+    </script>
+
+    <!-- PWA INSTALLATION TOAST (Standardized) -->
     <div id="pwa-install-toast"
         style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: white; color: black; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; align-items: center; gap: 12px; border: 1px solid #e5e7eb; min-width: 300px;">
         <div
@@ -3446,7 +3502,7 @@
             // localStorage.setItem('pwa_dismissed', 'true'); // Temporarily disabled persistence
         }
     </script>
-<script src="../../assets/js/plena-notifications.js"></script>
+    <script src="../../assets/js/plena-notifications.js"></script>
 </body>
 
 </html>

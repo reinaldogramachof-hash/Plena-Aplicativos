@@ -52,37 +52,42 @@
         const sidebarBadge = document.getElementById('sidebar-badge');
         if (sidebarBadge) {
             if (unreadCount > 0) {
-                // ESTÁTICO: Apenas mostra, sem afetar layout (absolute dentro do container do ícone se possível, ou inline-flex ajustado)
-                // Assumindo que o sidebar-badge é um elemento injetado ou existente.
-                // Correção de Layout: Forçar que seja pequeno e não quebre linha/scroll.
+                // Remove any pre-existing pulsing spans from HTML
+                sidebarBadge.innerHTML = '';
+                // Simple static red dot styling
                 sidebarBadge.className = 'absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500';
-                // Nota: O CSS 'hidden' original foi removido para usar display nativo do tailwind se disponível, ou style
                 sidebarBadge.style.display = 'block';
             } else {
                 sidebarBadge.style.display = 'none';
             }
         }
 
-        // 2. Header Bell Badge (Inject in plena-toolbar or existing header)
-        // Procura botões de sino
-        const bells = document.querySelectorAll('button i[data-lucide="bell"], button .fa-bell');
-        bells.forEach(icon => {
-            const btn = icon.closest('button');
-            if (btn) {
-                let badge = btn.querySelector('.header-dot-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'header-dot-badge absolute top-2 right-2 flex h-3 w-3 hidden pointer-events-none';
-                    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>`;
-                    btn.appendChild(badge);
-                    btn.style.position = 'relative';
-                }
+        // 2. Header Bell Badge (Robust Select for Lucide SVG)
+        // Lucide transforms <i> into <svg class="lucide lucide-bell">. We look for the svg OR the i, inside a button.
+        // We stick the badge on the BUTTON container, not the icon itself, for better positioning.
+        const bellContainers = document.querySelectorAll('button:has(.lucide-bell), button:has(i[data-lucide="bell"]), .notification-bell-btn');
 
-                if (unreadCount > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
+        bellContainers.forEach(btn => {
+            // Avoid duplicate badges
+            let badge = btn.querySelector('.header-dot-badge');
+
+            if (!badge) {
+                badge = document.createElement('span');
+                // Pulsing Red Dot (Top Right of button)
+                badge.className = 'header-dot-badge absolute top-1 right-1 flex h-3 w-3 hidden pointer-events-none';
+                badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>`;
+
+                // Ensure button is relative so absolute positioning works
+                if (getComputedStyle(btn).position === 'static') {
+                    btn.classList.add('relative');
                 }
+                btn.appendChild(badge);
+            }
+
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
             }
         });
     }
