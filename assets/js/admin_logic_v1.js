@@ -295,9 +295,9 @@ createApp({
                 }
 
                 // 5. System Health
-                const health = await apiCall('system_diagnosis');
-                if (health && health.status) {
-                    systemStatus.value = health.status;
+                const health = await apiCall('system_health');
+                if (health) {
+                    systemStatus.value = health;
                 }
 
                 // 6. Leads (CRM)
@@ -333,8 +333,26 @@ createApp({
                 }
 
                 // 9. Logs
-                const logData = await apiCall('read_logs');
-                if (logData && logData.logs) logs.value = logData.logs;
+                const logData = await apiCall('get_logs');
+                if (logData && logData.logs) {
+                    logs.value = logData.logs;
+
+                    // Populate RealTimeLogs from History if empty
+                    if (realTimeLogs.value.length === 0) {
+                        realTimeLogs.value = logData.logs.slice(0, 50).map(logStr => {
+                            // Format: [2024-01-01 10:00:00] [INFO] Message
+                            const match = logStr.match(/^\[(.*?)\] \[(.*?)\] (.*)$/);
+                            if (match) {
+                                return {
+                                    ts: match[1].split(' ')[1], // Just time
+                                    level: match[2],
+                                    msg: match[3]
+                                };
+                            }
+                            return { ts: '---', level: 'INFO', msg: logStr };
+                        });
+                    }
+                }
 
                 // 10. Last backup
                 const backupData = await apiCall('get_last_backup');
@@ -546,7 +564,7 @@ createApp({
 
             setInterval(async () => {
                 if (isAuthenticated.value) {
-                    const logData = await apiCall('read_logs');
+                    const logData = await apiCall('get_logs');
                     if (logData && logData.logs) logs.value = logData.logs;
                 }
             }, 5000); // 5 secs logs (Real-time feel)
@@ -557,11 +575,12 @@ createApp({
             diagnosisLoading.value = true;
             await new Promise(r => setTimeout(r, 800));
 
-            const res = await apiCall('system_diagnosis');
+            const res = await apiCall('system_health');
 
-            if (res && res.status) {
-                systemStatus.value = res.status;
-                if (res.status.db && res.status.smtp && res.status.mp) {
+            if (res) {
+                // PHP returns the health object directly
+                systemStatus.value = res;
+                if (res.db && res.smtp && res.mp) {
                     // OK
                 } else {
                     showToast('warning', 'Atenção', 'Alguns serviços não estão operando 100%.');
