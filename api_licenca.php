@@ -754,6 +754,57 @@ if ($action === 'create') {
     // Usa preço customizado se informado, senão pega do catálogo
     $final_price = $custom_price !== null ? $custom_price : ($CATALOG_MASTER[$product]['price'] ?? 97.00);
 
+    // ------------------------------------------------------------------
+    // LOGICA DE CUPOM E PARCEIROS (NEXUS 2.0)
+    // ------------------------------------------------------------------
+    $coupon_code = $data['coupon'] ?? '';
+    $partner_id = null;
+    $discount_val = 0;
+
+    if (!empty($coupon_code)) {
+        $partners_db = json_decode(@file_get_contents($PARTNERS_FILE), true) ?? [];
+        foreach ($partners_db as $p) {
+            if (strtoupper($p['code']) === strtoupper($coupon_code) && ($p['status'] ?? 'active') === 'active') {
+                $partner_id = $p['id'];
+                $partner_desc = $p['name'];
+
+                // Aplica Desconto (Se configurado)
+                $disc_percent = $p['discount_percent'] ?? 0;
+                if ($disc_percent > 0 && !$is_manual) { // Só aplica desconto se não for venda manual com preço fixo
+                    // Se for venda de site, o preço final já vem "descontado" da gateway ou calculamos aqui?
+                    // Assumindo que aqui geramos a licença APÓS o pagamento, o valor $final_price já é o pago.
+                    // Mas se formos gerar link de pagamento, aí aplicariamos.
+                    // Como este endpoint cria a licença FINAL, assumimos que $final_price é o valor real da transação.
+                }
+
+                // Calcula Comissão
+                $comm_percent = $p['commission_percent'] ?? 0;
+                $commission_val = ($final_price * $comm_percent) / 100;
+
+                // Atualiza Ledger do Parceiro
+                $p['sales_count'] = ($p['sales_count'] ?? 0) + 1;
+                $p['pending_commission'] = ($p['pending_commission'] ?? 0) + $commission_val;
+
+                // Salva alteração no parceiro
+                // NOTA: Para performance extrema em flat-file, ideal seria ter arquivo separado, 
+                // mas vamos atualizar o array principal por enquanto.
+                // Precisamos reencontrar o índice correto pois estamos num foreach
+                foreach ($partners_db as $idx => $pp) {
+                    if ($pp['id'] === $p['id']) {
+                        $partners_db[$idx] = $p;
+                        break;
+                    }
+                }
+                @file_put_contents($PARTNERS_FILE, json_encode($partners_db, JSON_PRETTY_PRINT));
+
+                // Log sistemico
+                systemLog("Venda atribuída ao parceiro {$p['name']} (Cupom: $coupon_code). Comissão: R$ $commission_val", 'money');
+                break;
+            }
+        }
+    }
+    // ------------------------------------------------------------------
+
     // Formato Padronizado: PLENA-XXXX-XXXX
     $key = "PLENA-" . strtoupper(substr(md5(uniqid()), 0, 4) . "-" . substr(md5(time()), 0, 4));
 
@@ -771,6 +822,7 @@ if ($action === 'create') {
         "expires_at" => date('Y-m-d H:i:s', strtotime("+$duration days")),
         "payment_id" => $is_manual ? "MANUAL_" . date('YmdHis') : "API_" . uniqid(),
         "is_manual" => $is_manual,
+        "partner_id" => $partner_id, // Link
         "app_link" => "https://www.plenaaplicativos.com.br/apps.plus/" . strtolower(str_replace([' ', 'é', 'ê', 'á', 'ã', 'ç', 'í', 'ó', 'ô', 'ú'], ['_', 'e', 'e', 'a', 'a', 'c', 'i', 'o', 'o', 'u'], $product)) . "/index.html"
     ];
 
@@ -783,6 +835,9 @@ if ($action === 'create') {
     if ($final_price > 0) {
         $desc = $is_manual ? "Venda Manual: $product - $client" : "Venda Online: $product - $client";
         $cat = $is_manual ? "venda_manual" : "venda_online";
+        if ($partner_id)
+            $desc .= " [Parceiro: $partner_desc]";
+
         // Helper function handles DB read/write/lock
         addFinancialTransaction('income', $final_price, $desc, $cat, $key);
     }
@@ -1338,6 +1393,41 @@ if ($action === 'get_notifications') {
         $valid_notifs[] = $n;
     }
     jsonResponse(['notifications' => $valid_notifs]);
+}
+
+// READ LOGS (NEW - Phase 4.2)
+if ($action === 'read_logs') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    $logs = [];
+    if (file_exists($LOGS_FILE)) {
+        // Read last 50 lines for performance
+        $lines = file($LOGS_FILE);
+        $logs_raw = array_slice($lines, -50);
+        foreach ($logs_raw as $l) {
+            $json = json_decode($l, true);
+            if ($json)
+                $logs[] = $json;
+        }
+        $logs = array_reverse($logs); // Newest first
+    }
+    jsonResponse(['logs' => $logs]);
+}
+
+// SYSTEM DIAGNOSIS (NEW)
+if ($action === 'system_diagnosis') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    $status = [
+        'db' => is_writable($DB_FILE) && is_writable($LEADS_FILE),
+        'smtp' => file_exists('SimpleMailer.php') && (defined('SMTP_HOST') || getenv('SMTP_HOST')),
+        'mp' => !empty($MP_ACCESS_TOKEN)
+    ];
+
+    systemLog("Diagnóstico do Sistema executado pelo Admin.", 'info');
+    jsonResponse(['status' => $status]);
 }
 
 

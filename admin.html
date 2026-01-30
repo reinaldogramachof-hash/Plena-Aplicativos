@@ -379,9 +379,11 @@
                         <div class="col-md-3">
                             <div class="card h-100 border-start border-4 border-warning">
                                 <div class="card-body">
-                                    <h6 class="text-muted small text-uppercase mb-2">Tickets Suporte</h6>
+                                    <h6 class="text-muted small text-uppercase mb-2">Renovações (7 dias)</h6>
                                     <h3 class="fw-bold mb-0">{{ kpi.tickets }}</h3>
-                                    <small class="text-danger">2 aguardando resposta</small>
+                                    <small class="text-danger" v-if="kpi.tickets > 0">{{ kpi.tickets }} vencendo em
+                                        breve</small>
+                                    <small class="text-success" v-else>Tudo em dia!</small>
                                 </div>
                             </div>
                         </div>
@@ -430,6 +432,29 @@
                         </div>
                     </div>
 
+                    <!-- Activity Feed (New) -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <i class="fa-solid fa-bolt me-2 text-warning"></i> Atividade Recente
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                <div v-for="(log, i) in realTimeLogs.slice(0, 5)" :key="i"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge me-2" :class="getLogLevelClass(log.level)">{{ log.level
+                                            }}</span>
+                                        <span class="small">{{ log.msg }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ log.ts }}</small>
+                                </div>
+                                <div v-if="realTimeLogs.length === 0" class="p-3 text-center text-muted small">
+                                    Nenhuma atividade recente registrada.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Últimas Vendas -->
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center bg-white">
@@ -471,21 +496,23 @@
                 <!-- 2. VENDAS (TRANSLATED) -->
                 <div v-if="currentTab === 'vendas'">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="row align-items-center">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="row align-items-center flex-grow-1">
                                 <div class="col">
-                                    <input type="text" class="form-control form-control-sm"
+                                    <input type="text" class="form-control form-control-sm" v-model="salesSearch"
                                         placeholder="Buscar transação...">
                                 </div>
                                 <div class="col-auto">
-                                    <select class="form-select form-select-sm">
-                                        <option>Todos Status</option>
-                                        <option>Aprovado</option>
-                                        <option>Pendente</option>
-                                        <option>Estornado</option>
+                                    <select class="form-select form-select-sm" v-model="salesStatusFilter">
+                                        <option value="">Todos Status</option>
+                                        <option value="paid">Confirmado/Pago</option>
+                                        <option value="pending">Pendente</option>
+                                        <option value="refunded">Estornado</option>
                                     </select>
                                 </div>
                             </div>
+                            <button class="btn btn-sm btn-success ms-3" @click="openNewLicenseModal"><i
+                                    class="fa-solid fa-plus"></i> Nova Venda Manual</button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover mb-0 align-middle">
@@ -501,7 +528,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="venda in vendas" :key="venda.id">
+                                    <tr v-for="venda in filteredSales" :key="venda.id">
                                         <td class="font-monospace text-muted small">#{{ venda.mp_id }}</td>
                                         <td>{{ formatDate(venda.data) }}</td>
                                         <td>
@@ -607,8 +634,10 @@
                     <div class="row">
                         <div class="col-md-8">
                             <div class="card">
-                                <div class="card-header bg-white">
-                                    Clientes & Leads
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <span>Clientes & Leads</span>
+                                    <button class="btn btn-sm btn-primary" @click="openLeadModal()"><i
+                                            class="fa-solid fa-plus"></i> Novo Lead</button>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-hover mb-0 align-middle">
@@ -631,10 +660,21 @@
                                                         }}</span>
                                                 </td>
                                                 <td class="text-end">
-                                                    <a :href="'https://wa.me/55'+lead.phone.replace(/\D/g,'')"
-                                                        target="_blank" class="btn btn-success btn-sm text-white">
-                                                        <i class="fa-brands fa-whatsapp"></i> Chamar
-                                                    </a>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a :href="'https://wa.me/55'+lead.phone.replace(/\D/g,'')"
+                                                            target="_blank" class="btn btn-success text-white"
+                                                            title="WhatsApp">
+                                                            <i class="fa-brands fa-whatsapp"></i>
+                                                        </a>
+                                                        <button class="btn btn-light text-primary"
+                                                            @click="openLeadModal(lead)" title="Editar">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </button>
+                                                        <button class="btn btn-light text-danger"
+                                                            @click="deleteLead(lead.id)" title="Excluir">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1209,6 +1249,64 @@
             </div>
         </div>
 
+        <!-- New Lead Modal (CRM) -->
+        <div class="modal fade" id="newLeadModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ newLead.id ? 'Editar Lead' : 'Novo Lead' }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="saveLead">
+                            <div class="mb-3">
+                                <label class="form-label">Nome <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" v-model="newLead.name" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" v-model="newLead.email">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">WhatsApp</label>
+                                    <input type="text" class="form-control" v-model="newLead.phone">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Origem</label>
+                                    <select class="form-select" v-model="newLead.source">
+                                        <option value="Manual">Manual</option>
+                                        <option value="Website">Site / Landing Page</option>
+                                        <option value="Indicação">Indicação</option>
+                                        <option value="Checkout (Abandono)">Checkout (Abandono)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" v-model="newLead.status">
+                                        <option value="Novo">Novo</option>
+                                        <option value="Em Negociação">Em Negociação</option>
+                                        <option value="Aguardando Pagamento">Aguardando Pagamento</option>
+                                        <option value="Fechado (Venda)">Fechado (Venda)</option>
+                                        <option value="Perdido">Perdido</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notas</label>
+                                <textarea class="form-control" rows="3" v-model="newLead.notes"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Salvar Lead</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Create Partner Modal -->
         <div class="modal fade" id="partnerModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
@@ -1316,7 +1414,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="assets/js/admin_logic_v1.js?v=5.6"></script>
+    <script src="assets/js/admin_logic_v1.js?v=5.8"></script>
 </body>
 
 </html>

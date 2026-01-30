@@ -59,6 +59,7 @@ createApp({
         });
         const vendas = ref([]);
         const licencas = ref([]);
+
         const apps = ref([]);
         const editingApp = ref({ slug: '', name: '', price: 0 }); // Nexus 2.0 (Init object to avoid v-if)
         const financeiro = ref({
@@ -217,7 +218,6 @@ createApp({
                         faturamento: stats.total_revenue || 0,
                         mrr: stats.mrr || 0,
                         licencas: stats.active_subscriptions || 0,
-                        licencas: stats.active_subscriptions || 0,
                         tickets: stats.expiring_soon || 0
                     };
 
@@ -295,13 +295,9 @@ createApp({
                 }
 
                 // 5. System Health
-                const health = await apiCall('system_diag');
-                if (health) {
-                    systemStatus.value = {
-                        db: health.db,
-                        smtp: health.smtp,
-                        mp: health.mp
-                    };
+                const health = await apiCall('system_diagnosis');
+                if (health && health.status) {
+                    systemStatus.value = health.status;
                 }
 
                 // 6. Leads (CRM)
@@ -553,8 +549,29 @@ createApp({
                     const logData = await apiCall('read_logs');
                     if (logData && logData.logs) logs.value = logData.logs;
                 }
-            }, 15000); // 15 secs logs
+            }, 5000); // 5 secs logs (Real-time feel)
         });
+
+        // System Methods (Moved up)
+        const runSystemDiagnosis = async () => {
+            diagnosisLoading.value = true;
+            await new Promise(r => setTimeout(r, 800));
+
+            const res = await apiCall('system_diagnosis');
+
+            if (res && res.status) {
+                systemStatus.value = res.status;
+                if (res.status.db && res.status.smtp && res.status.mp) {
+                    // OK
+                } else {
+                    showToast('warning', 'Atenção', 'Alguns serviços não estão operando 100%.');
+                }
+            } else {
+                systemStatus.value = { db: false, smtp: false, mp: false };
+                showToast('danger', 'Diagnóstico Falhou', 'Não foi possível verificar status do backend');
+            }
+            diagnosisLoading.value = false;
+        };
 
         watch(currentTab, async (newTab) => {
             if (newTab === 'dashboard') {
@@ -563,6 +580,8 @@ createApp({
             } else if (newTab === 'financeiro') {
                 await nextTick();
                 updateFinanceCharts();
+            } else if (newTab === 'sistema') {
+                runSystemDiagnosis();
             }
 
             // Auto close sidebar on mobile
@@ -617,8 +636,12 @@ createApp({
 
         // License Methods
         const openNewLicenseModal = () => {
+            if (!newLicenseModalBS) {
+                const el = document.getElementById('newLicenseModal');
+                if (el) newLicenseModalBS = new bootstrap.Modal(el);
+            }
             if (apps.value.length > 0) newLicense.value.produto = apps.value[0].name;
-            newLicenseModalBS.show();
+            if (newLicenseModalBS) newLicenseModalBS.show();
         };
 
         const createLicense = async () => {
@@ -745,43 +768,7 @@ createApp({
         };
 
         // Sales Methods
-        const filteredSales = computed(() => {
-            let filtered = vendas.value;
 
-            if (salesSearch.value) {
-                const search = salesSearch.value.toLowerCase();
-                filtered = filtered.filter(v =>
-                    v.cliente.toLowerCase().includes(search) ||
-                    v.produto.toLowerCase().includes(search) ||
-                    v.mp_id.toString().includes(search)
-                );
-            }
-
-            if (salesStatusFilter.value) {
-                filtered = filtered.filter(v => v.status === salesStatusFilter.value);
-            }
-
-            if (salesDateFilter.value) {
-                const today = new Date();
-                filtered = filtered.filter(v => {
-                    const saleDate = new Date(v.data);
-                    switch (salesDateFilter.value) {
-                        case 'today':
-                            return saleDate.toDateString() === today.toDateString();
-                        case 'week':
-                            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-                            return saleDate >= weekAgo;
-                        case 'month':
-                            const monthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-                            return saleDate >= monthAgo;
-                        default:
-                            return true;
-                    }
-                });
-            }
-
-            return filtered;
-        });
 
         const viewSaleDetails = async (sale) => {
             selectedSale.value = sale;
@@ -941,34 +928,7 @@ createApp({
             showToast('info', 'Exportar', 'Funcionalidade de exportação em desenvolvimento');
         };
 
-        // System Methods
-        const runSystemDiagnosis = async () => {
-            diagnosisLoading.value = true;
-            systemStatus.value = { db: false, smtp: false, mp: false };
 
-            const health = await apiCall('system_diag');
-            if (health) {
-                setTimeout(() => {
-                    systemStatus.value = {
-                        db: health.db,
-                        smtp: health.smtp,
-                        mp: health.mp
-                    };
-                    diagnosisLoading.value = false;
-
-                    if (health.db && health.smtp && health.mp) {
-                        showToast('success', 'Diagnóstico', 'Todos os sistemas estão funcionando normalmente');
-                    } else {
-                        showToast('warning', 'Diagnóstico', 'Alguns sistemas apresentam problemas');
-                    }
-
-                    addLog(health.details || 'Diagnosis completed.');
-                }, 1000);
-            } else {
-                diagnosisLoading.value = false;
-                showToast('danger', 'Diagnóstico', 'Falha ao executar diagnóstico');
-            }
-        };
 
         const sendTestEmail = async () => {
             if (!testEmail.value) {
@@ -1149,6 +1109,33 @@ createApp({
         };
 
         // Filter Methods
+        const filteredSales = computed(() => {
+            let filtered = vendas.value;
+
+            // 1. Text Search
+            if (salesSearch.value) {
+                const q = salesSearch.value.toLowerCase();
+                filtered = filtered.filter(s =>
+                    (s.cliente && s.cliente.toLowerCase().includes(q)) ||
+                    (s.email && s.email.toLowerCase().includes(q)) ||
+                    (s.mp_id && s.mp_id.toString().includes(q)) ||
+                    (s.produto && s.produto.toLowerCase().includes(q))
+                );
+            }
+
+            // 2. Status Filter
+            if (salesStatusFilter.value) {
+                // Map frontend status to backend status if needed, or use raw
+                // Backend assumes 'paid', 'pending', 'refunded'
+                let status = salesStatusFilter.value;
+                if (status === 'approved') status = 'paid'; // alias
+
+                filtered = filtered.filter(s => s.status === status);
+            }
+
+            return filtered;
+        });
+
         const filteredLicenses = computed(() => {
             let filtered = licencas.value;
 
