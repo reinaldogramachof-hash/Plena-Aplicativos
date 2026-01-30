@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cardápio Digital Premium | PlenaFood</title>
+
+    <meta name="description"
+        content="Sistema de cardápio digital completo para restaurantes e estabelecimentos gastronômicos">
+    <meta name="theme-color" content="#212529">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        :root {
+            --plena-primary: #F59E0B;
+            /* Amber-500 equivalent */
+            --plena-secondary: #ffc107;
+            --plena-dark: #212529;
+            --plena-darker: #121212;
+            --bg-body: #18181b;
+            --card-bg: #222225;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: #e4e4e7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Utils */
+        .text-brand {
+            color: var(--plena-primary) !important;
+        }
+
+        .bg-brand {
+            background-color: var(--plena-primary) !important;
+        }
+
+        .text-gradient {
+            background: linear-gradient(90deg, #F59E0B 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navbar */
+        .navbar-blur {
+            background: rgba(24, 24, 27, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Hero */
+        .hero-section {
+            height: 280px;
+            background-position: center;
+            background-size: cover;
+            position: relative;
+            transition: background-image 0.5s ease;
+        }
+
+        .hero-overlay {
+            background: linear-gradient(to top, var(--bg-body) 0%, rgba(0, 0, 0, 0.4) 100%);
+        }
+
+        /* Products Config */
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+        }
+
+        .product-card img {
+            height: 140px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        /* Category Nav */
+        .cat-pills {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .cat-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .btn-pill {
+            border-radius: 50px;
+            white-space: nowrap;
+            padding: 8px 20px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a1a1aa;
+            background: var(--card-bg);
+            transition: all 0.3s;
+        }
+
+        .btn-pill.active {
+            background: var(--plena-primary);
+            color: #000;
+            border-color: var(--plena-primary);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Modal */
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.85;
+        }
+
+        /* Cart Floating Button */
+        .fab-cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #F59E0B 0%, #d97706 100%);
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .fab-cart:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 576px) {
+            .hero-section {
+                height: 200px;
+            }
+
+            .product-card img {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+
+        <!-- Loading Overlay -->
+        <div v-if="loading"
+            class="position-fixed top-0 start-0 w-100 h-100 bg-dark d-flex flex-column align-items-center justify-content-center z-3">
+            <div class="spinner-grow text-warning mb-3" role="status"></div>
+            <div class="text-white-50">Carregando Cardápio...</div>
+        </div>
+
+        <!-- Top Navbar -->
+        <nav class="navbar fixed-top navbar-blur">
+            <div class="container-xl d-flex justify-content-between align-items-center py-2">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-3 bg-gradient p-2 text-dark d-flex align-items-center justify-content-center"
+                        style="background: var(--plena-primary); width: 40px; height: 40px;">
+                        <i class="fa-solid fa-fire-burner fs-5"></i>
+                    </div>
+                    <div class="lh-1">
+                        <h5 class="m-0 text-white fw-bold">Plena<span class="text-warning">Food</span></h5>
+                        <small class="text-white-50" style="font-size: 0.75rem">Cardápio Digital</small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-dark border-0 text-white-50 rounded-circle" @click="toggleSearch">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar (Conditional) -->
+            <div v-if="showSearch" class="container-xl py-2 animate__animated animate__fadeInDown">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-white-50"><i
+                            class="fa-solid fa-magnifying-glass"></i></span>
+                    <input v-model="searchQuery" type="text"
+                        class="form-control bg-dark border-secondary text-white shadow-none"
+                        placeholder="Buscar no cardápio...">
+                    <button class="btn btn-outline-secondary" @click="searchQuery = ''"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main style="padding-top: 70px; padding-bottom: 100px;">
+
+            <!-- Hero Restaurant Info -->
+            <div class="hero-section d-flex align-items-end mb-4"
+                :style="{ backgroundImage: 'url(' + config.headerImg + ')' }">
+                <div class="hero-overlay position-absolute w-100 h-100 top-0 start-0"></div>
+                <div class="container-xl position-relative z-1 pb-4">
+                    <h1 class="display-5 fw-bold text-white mb-1 shadow-sm">{{ config.name }}</h1>
+                    <div class="d-flex flex-wrap gap-3 text-white-50 small fw-medium">
+                        <span><i class="fa-solid fa-star text-warning me-1"></i> {{ config.rating }}</span>
+                        <span><i class="fa-solid fa-clock text-warning me-1"></i> {{ config.hours }}</span>
+                        <span><i class="fa-solid fa-motorcycle text-warning me-1"></i> {{
+                            formatCurrency(config.deliveryFee) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Nav -->
+            <div class="container-xl sticky-top bg-body pt-2 pb-3 z-0" style="top: 70px;">
+                <div class="cat-pills">
+                    <button v-for="cat in categories" :key="cat.id" class="btn btn-pill"
+                        :class="{ active: activeCategory === cat.id }" @click="activeCategory = cat.id">
+                        <i :class="cat.icon" class="me-1"></i> {{ cat.name }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="container-xl">
+                <h4 class="text-white mb-3 border-start border-4 border-warning ps-3">{{ getCategoryName(activeCategory)
+                    }}</h4>
+
+                <div v-if="filteredItems.length === 0" class="text-center py-5">
+                    <i class="fa-solid fa-burger text-secondary opacity-25 display-1 mb-3"></i>
+                    <p class="text-white-50">Nenhum item encontrado nesta categoria.</p>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                    <div class="col" v-for="item in filteredItems" :key="item.id">
+                        <div class="product-card d-flex flex-row flex-md-column h-100" @click="openProductModal(item)"
+                            role="button">
+                            <!-- Image Column (Left on mobile, Top on desktop) -->
+                            <div class="col-4 col-md-12 p-0 position-relative">
+                                <img :src="item.img" :alt="item.name" loading="lazy">
+                                <span v-if="item.popular"
+                                    class="position-absolute top-0 start-0 badge bg-warning text-dark m-2 shadow-sm">
+                                    <i class="fa-solid fa-fire me-1"></i> Pop
+                                </span>
+                            </div>
+
+                            <!-- Content Column -->
+                            <div class="col-8 col-md-12 p-3 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="text-white fw-bold mb-0 text-truncate-2">{{ item.name }}</h6>
+                                    </div>
+                                    <p class="text-white-50 small mb-2 text-truncate-2"
+                                        style="font-size: 0.85rem; line-height: 1.3;">{{ item.desc }}</p>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <span class="text-warning fw-bold">{{ formatCurrency(item.price) }}</span>
+                                    <button class="btn btn-sm btn-dark rounded-circle border border-secondary">
+                                        <i class="fa-solid fa-plus text-white-50"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- FAB Content Cart -->
+        <div v-if="cart.length > 0" class="fab-cart d-flex align-items-center gap-2 px-3 py-2 text-dark fw-bold pe-auto"
+            role="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <span class="badge bg-dark text-warning rounded-pill">{{ cartCount }}</span>
+            <span>Ver Pedido</span>
+            <span class="ms-1 small opacity-75">{{ formatCurrency(cartTotal) }}</span>
+        </div>
+
+        <!-- Product Modal -->
+        <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content text-white">
+                    <div v-if="selectedItem" class="modal-body p-0">
+                        <div class="position-relative">
+                            <img :src="selectedItem.img" class="w-100" style="height: 200px; object-fit: cover;">
+                            <button type="button"
+                                class="btn btn-dark rounded-circle position-absolute top-0 end-0 m-3 shadow"
+                                data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <div class="p-4">
+                            <h4 class="fw-bold mb-1">{{ selectedItem.name }}</h4>
+                            <p class="text-white-50 small mb-3">{{ selectedItem.desc }}</p>
+                            <h5 class="text-warning fw-bold mb-4">{{ formatCurrency(selectedItem.price) }}</h5>
+
+                            <!-- Options Logic would go here -->
+                            <div v-if="selectedItem.addons" class="mb-4">
+                                <h6 class="text-uppercase text-white-50 small fw-bold mb-2">Adicionais (Opcional)</h6>
+                                <div v-for="(addon, idx) in selectedItem.addons" :key="idx"
+                                    class="form-check py-2 border-bottom border-dark">
+                                    <input class="form-check-input bg-dark border-secondary focus-ring-warning"
+                                        type="checkbox" :value="addon" v-model="currentAddons">
+                                    <label class="form-check-label d-flex justify-content-between w-100 pe-2">
+                                        <span>{{ addon.name }}</span>
+                                        <span class="text-brand">+{{ formatCurrency(addon.price) }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-uppercase text-white-50 small fw-bold">Observações</label>
+                                <textarea v-model="currentObs" class="form-control bg-dark border-secondary text-white"
+                                    rows="2" placeholder="Ex: Tirar cebola, maionese à parte..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-top border-secondary bg-dark p-3 d-flex justify-content-between">
+                        <div class="d-flex align-items-center gap-3 bg-secondary bg-opacity-10 rounded px-3 py-2">
+                            <i class="fa-solid fa-minus text-white-50" role="button"
+                                @click="currentQty > 1 && currentQty--"></i>
+                            <span class="fw-bold">{{ currentQty }}</span>
+                            <i class="fa-solid fa-plus text-white-50" role="button" @click="currentQty++"></i>
+                        </div>
+                        <button type="button" class="btn btn-warning fw-bold px-4 flex-grow-1 ms-3" @click="addToCart">
+                            Adicionar {{ formatCurrency(currentTotal) }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Offcanvas -->
+        <div class="offcanvas offcanvas-end bg-dark text-white" tabindex="-1" id="cartOffcanvas"
+            aria-labelledby="cartOffcanvasLabel">
+            <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title font-brand" id="cartOffcanvasLabel"><i
+                        class="fa-solid fa-bag-shopping text-warning me-2"></i>Seu Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column p-0">
+                <!-- Cart Items -->
+                <div class="flex-grow-1 overflow-auto p-3">
+                    <div v-if="cart.length === 0" class="text-center py-5 opacity-50">
+                        <i class="fa-solid fa-basket-shopping display-1 mb-3"></i>
+                        <p>Sua sacola está vazia</p>
+                    </div>
+
+                    <div v-else v-for="(item, idx) in cart" :key="idx"
+                        class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom border-secondary">
+                        <div>
+                            <div class="fw-bold text-white mb-1">{{ item.qty }}x {{ item.name }}</div>
+                            <div class="text-white-50 small" v-for="add in item.addons">+ {{ add.name }}</div>
+                            <div class="text-white-50 small fst-italic" v-if="item.obs">"{{ item.obs }}"</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-warning">{{ formatCurrency(item.total) }}</div>
+                            <small class="text-danger text-decoration-underline" role="button"
+                                @click="removeFromCart(idx)">remover</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Area -->
+                <div class="p-3 bg-body border-top border-secondary">
+                    <div class="d-flex justify-content-between mb-2 small text-white-50">
+                        <span>Subtotal</span>
+                        <span>{{ formatCurrency(cartSubtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 small text-white-50">
+                        <span>Taxa de Entrega</span>
+                        <span class="text-warning">{{ formatCurrency(config.deliveryFee) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 fs-5 fw-bold text-white">
+                        <span>Total</span>
+                        <span>{{ formatCurrency(cartTotal) }}</span>
+                    </div>
+
+                    <!-- Simples inputs for MVP -->
+                    <div class="mb-3">
+                        <input v-model="customer.name" type="text"
+                            class="form-control bg-dark border-secondary text-white mb-2" placeholder="Seu Nome">
+                        <select v-model="customer.payment" class="form-select bg-dark border-secondary text-white">
+                            <option value="" disabled selected>Forma de Pagamento</option>
+                            <option value="pix">PIX</option>
+                            <option value="card">Cartão</option>
+                            <option value="cash">Dinheiro</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-success w-100 fw-bold py-3" @click="sendOrder">
+                        <i class="fa-brands fa-whatsapp me-2"></i> Enviar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Config -->
+    <script src="config.js"></script>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const loading = ref(true);
+                const showSearch = ref(false);
+                const searchQuery = ref('');
+                const activeCategory = ref('lanches');
+                const productModal = ref(null);
+
+                // State for Modal
+                const selectedItem = ref(null);
+                const currentQty = ref(1);
+                const currentAddons = ref([]);
+                const currentObs = ref('');
+
+                // State for Cart
+                const cart = ref([]);
+                const customer = ref({ name: '', payment: '' });
+
+                // Mock Data (Replace with JSON fetch later)
+                const config = ref({ name: 'Burger House Premium', rating: '4.8', hours: '18h as 23h', deliveryFee: 5.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600' });
+
+                const categories = ref([
+                    { id: 'lanches', name: 'Lanches', icon: 'fa-solid fa-burger' },
+                    { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
+                ]);
+
+                // THEMES CONFIGURATION (DEMO MODE)
+                const themes = {
+                    'pizza': {
+                        config: { name: 'Bella Pizza', rating: '4.9', hours: '18h as 00h', deliveryFee: 7.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1574126154517-d1e0d89e7344?w=1600' },
+                        categories: [
+                            { id: 'tradicionais', name: 'Tradicionais', icon: 'fa-solid fa-pizza-slice' },
+                            { id: 'especiais', name: 'Especiais', icon: 'fa-solid fa-star' },
+                            { id: 'doces', name: 'Doces', icon: 'fa-solid fa-cookie' },
+                            { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
+                        ],
+                        items: [
+                            { id: 1, category: 'tradicionais', name: 'Calabresa Acebolada', desc: 'Molho de tomate, mussarela, calabresa fatiada e cebola.', price: 45.00, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400', popular: true },
+                            { id: 2, category: 'especiais', name: 'Marguerita Premium', desc: 'Mussarela de búfala, rodelas de tomate e manjericão fresco.', price: 52.00, img: 'https://images.unsplash.com/photo-1574071318500-add3327d07af?auto=format&fit=crop&w=400', popular: false },
+                            { id: 3, category: 'doces', name: 'Chocolate com Morango', desc: 'Chocolate ao leite com pedaços de morango.', price: 60.00, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400', popular: true }
+                        ]
+                    },
+                    'sushi': {
+                        config: { name: 'Sushi Zen', rating: '4.7', hours: '11h as 23h', deliveryFee: 0.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=1600' },
+                        categories: [
+                            { id: 'combinados', name: 'Combinados', icon: 'fa-solid fa-box-open' },
+                            { id: 'temakis', name: 'Temakis', icon: 'fa-solid fa-ice-cream' },
+                            { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
+                        ],
+                        items: [
+                            { id: 1, category: 'combinados', name: 'Combo Salmão 20 Pçs', desc: '10 sashimis, 5 niguiris e 5 jows.', price: 89.90, img: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400', popular: true },
+                            { id: 2, category: 'temakis', name: 'Temaki Salmão Completo', desc: 'Salmão em cubos, cream cheese e cebolinha.', price: 24.90, img: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=400', popular: true }
+                        ]
+                    },
+                    'acai': {
+                        config: { name: 'Açaí Tropical', rating: '5.0', hours: '10h as 20h', deliveryFee: 3.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1494376877685-d3d655f01280?w=1600' },
+                        categories: [
+                            { id: 'copos', name: 'Copos', icon: 'fa-solid fa-glass-water' },
+                            { id: 'barcas', name: 'Barcas', icon: 'fa-solid fa-ship' },
+                            { id: 'adicionais', name: 'Extras', icon: 'fa-solid fa-plus' }
+                        ],
+                        items: [
+                            { id: 1, category: 'copos', name: 'Açaí 500ml Turbinado', desc: 'Leite ninho, leite condensado, morango e banana.', price: 18.00, img: 'https://images.unsplash.com/photo-1590301157886-f630de884e9b?auto=format&fit=crop&w=400', popular: true },
+                            { id: 2, category: 'barcas', name: 'Barca Família', desc: '1kg de açaí + 5 acompanhamentos à escolha.', price: 45.00, img: 'https://images.unsplash.com/photo-1490226317772-23c3167b57c6?auto=format&fit=crop&w=400', popular: true }
+                        ]
+                    }
+                };
+
+                const items = ref([
+                    { id: 1, category: 'lanches', name: 'X-Burger Premium', desc: 'Pão brioche, 180g de angus.', price: 32.90, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400', popular: true },
+                    { id: 3, category: 'bebidas', name: 'Coca Cola Lata', desc: '350ml gelada.', price: 6.00, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400', popular: true }
+                ]);
+
+                // DATA LOADING
+                onMounted(async () => {
+                    // 1. Check for URL Theme (Demo Mode)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const theme = urlParams.get('theme');
+
+                    if (theme && themes[theme]) {
+                        // Apply Theme Data
+                        config.value = { ...config.value, ...themes[theme].config };
+                        categories.value = themes[theme].categories;
+                        items.value = themes[theme].items;
+                    } else {
+                        // 2. Normal Flow: Try to load dynamic JSON or keep default Burger
+                        // Start/Pro Check
+                        if (typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
+                            try {
+                                const resp = await fetch(PLENA_CONFIG.apiUrl + 'cardapio.json');
+                                if (resp.ok) {
+                                    const data = await resp.json();
+                                    if (Array.isArray(data)) items.value = data;
+                                }
+                            } catch (e) { console.log('Offline/Local Data'); }
+                        }
+                    }
+
+                    setTimeout(() => loading.value = false, 800);
+                    productModal.value = new bootstrap.Modal(document.getElementById('productModal'));
+                });
+
+                // Computeds
+                const filteredItems = computed(() => {
+                    let list = items.value;
+                    if (searchQuery.value) {
+                        const q = searchQuery.value.toLowerCase();
+                        activeCategory.value = 'all'; // Reset category active visual if searching
+                        return list.filter(i => i.name.toLowerCase().includes(q));
+                    }
+                    return list.filter(i => i.category === activeCategory.value);
+                });
+
+                const currentTotal = computed(() => {
+                    if (!selectedItem.value) return 0;
+                    let total = selectedItem.value.price;
+                    currentAddons.value.forEach(a => total += a.price);
+                    return total * currentQty.value;
+                });
+
+                const cartSubtotal = computed(() => cart.value.reduce((acc, item) => acc + item.total, 0));
+                const cartTotal = computed(() => cartSubtotal.value + config.value.deliveryFee);
+                const cartCount = computed(() => cart.value.reduce((acc, item) => acc + item.qty, 0));
+
+                // Methods
+                const formatCurrency = (val) => {
+                    return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                };
+
+                const toggleSearch = () => showSearch.value = !showSearch.value;
+
+                const getCategoryName = (id) => {
+                    if (searchQuery.value) return 'Resultados da Busca';
+                    const cat = categories.value.find(c => c.id === id);
+                    return cat ? cat.name : '';
+                };
+
+                const openProductModal = (item) => {
+                    selectedItem.value = item;
+                    currentQty.value = 1;
+                    currentAddons.value = [];
+                    currentObs.value = '';
+                    productModal.value.show();
+                };
+
+                const addToCart = () => {
+                    const itemTotal = (selectedItem.value.price + currentAddons.value.reduce((a, b) => a + b.price, 0)) * currentQty.value;
+                    cart.value.push({
+                        ...selectedItem.value,
+                        qty: currentQty.value,
+                        addons: [...currentAddons.value],
+                        obs: currentObs.value,
+                        total: itemTotal
+                    });
+                    productModal.value.hide();
+                };
+
+                const removeFromCart = (idx) => {
+                    cart.value.splice(idx, 1);
+                };
+
+                const sendOrder = async () => {
+                    if (!customer.value.name || !customer.value.payment) {
+                        alert('Por favor, preencha seu nome e forma de pagamento.');
+                        return;
+                    }
+
+                    // 1. Build Metadata
+                    const orderData = {
+                        id: Date.now(),
+                        customer: customer.value,
+                        items: cart.value,
+                        total: cartTotal.value,
+                        date: new Date().toISOString()
+                    };
+
+                    // 2. Send to PHP Relay (Online Mode - Try/Catch)
+                    try {
+                        // Uncomment below when backend is ready
+                        /*
+                        await fetch('api_pedidos.php?action=create', {
+                            method: 'POST',
+                            body: JSON.stringify(orderData)
+                        });
+                        */
+                        console.log('Online persistence would happen here');
+                    } catch (e) {
+                        console.error('Offline mode active');
+                    }
+
+                    // 3. Fallback/Standard WhatsApp
+                    let msg = `*NOVO PEDIDO - ${config.value.name}*\n`;
+                    msg += `--------------------------------\n`;
+                    msg += `👤 *Cliente:* ${customer.value.name}\n`;
+                    msg += `💳 *Pagamento:* ${customer.value.payment.toUpperCase()}\n`;
+                    msg += `--------------------------------\n`;
+                    cart.value.forEach(item => {
+                        msg += `${item.qty}x ${item.name}\n`;
+                        if (item.addons.length) item.addons.forEach(a => msg += `   + ${a.name}\n`);
+                        if (item.obs) msg += `   (Obs: ${item.obs})\n`;
+                    });
+                    msg += `--------------------------------\n`;
+                    msg += `🚚 *Taxa de Entrega:* ${formatCurrency(config.value.deliveryFee)}\n`;
+                    msg += `💰 *TOTAL:* ${formatCurrency(cartTotal.value)}\n`;
+                    msg += `\nLink do Pedido (Interno): order://${orderData.id}`;
+
+                    const url = `https://wa.me/${config.value.whatsapp}?text=${encodeURIComponent(msg)}`;
+                    window.open(url, '_blank');
+                };
+
+                return {
+                    loading, showSearch, searchQuery, activeCategory,
+                    config, categories, items,
+                    filteredItems, toggleSearch, getCategoryName, formatCurrency,
+                    openProductModal, selectedItem, currentQty, currentAddons, currentObs,
+                    currentTotal, addToCart, cart, cartCount, cartTotal, cartSubtotal,
+                    removeFromCart, customer, sendOrder
+                };
+            }
+        }).mount('#app');
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena Delivery | Gestão de Pedidos</title>
+
+    <meta name="theme-color" content="#212529">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        :root {
+            --plena-primary: #198754;
+            /* Green-500 equivalent */
+            --plena-secondary: #0d6efd;
+            --bg-body: #18181b;
+            --card-bg: #222225;
+            --column-bg: #27272a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: #e4e4e7;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #121212;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            color: #a1a1aa;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin: 4px 10px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(25, 135, 84, 0.15);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid var(--plena-primary);
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 60px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: var(--card-bg);
+            padding: 0 24px;
+        }
+
+        /* Kanban Board */
+        .kanban-container {
+            flex: 1;
+            overflow-x: auto;
+            padding: 24px;
+        }
+
+        .kanban-column {
+            min-width: 320px;
+            max-width: 320px;
+            background-color: var(--column-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .kanban-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kanban-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .kanban-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .kanban-body::-webkit-scrollbar-thumb {
+            background-color: #3f3f46;
+            border-radius: 4px;
+        }
+
+        /* Order Card */
+        .order-card {
+            background-color: #2e2e32;
+            border-radius: 8px;
+            padding: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-top: 3px solid transparent;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .border-new {
+            border-top-color: #0dcaf0;
+        }
+
+        /* Cyan */
+        .border-prep {
+            border-top-color: #ffc107;
+        }
+
+        /* Warning */
+        .border-dlv {
+            border-top-color: #198754;
+        }
+
+        /* Success */
+
+        .badge-online {
+            background-color: rgba(13, 110, 253, 0.2);
+            color: #6ea8fe;
+            border: 1px solid rgba(13, 110, 253, 0.4);
+        }
+
+        /* Pulse Animation for New Orders */
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+            }
+        }
+
+        .pulse-btn {
+            animation: pulse-green 2s infinite;
+        }
+
+        /* Pro Theme */
+        .pro-active body {
+            background-color: #111827;
+            color: #e2e8f0;
+        }
+
+        .pro-active .navbar {
+            background: rgba(17, 24, 39, 0.95) !important;
+            border-bottom: 2px solid #eab308;
+        }
+
+        .pro-active .card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #fff;
+        }
+
+        .pro-active .kanban-col {
+            background: #111827;
+            border: 1px dashed #374151;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app" class="d-flex h-100">
+
+        <!-- Sidebar -->
+        <aside class="sidebar d-none d-md-flex">
+            <div class="p-4 d-flex align-items-center gap-2">
+                <div class="rounded-3 bg-gradient p-2 text-white d-flex align-items-center justify-content-center"
+                    style="background: var(--plena-primary); width: 36px; height: 36px;">
+                    <i class="fa-solid fa-truck-fast"></i>
+                </div>
+                <h5 class="m-0 text-white fw-bold font-brand">Plena<span class="text-success">Delivery</span></h5>
+            </div>
+
+            <nav class="flex-grow-1">
+                <a href="#" class="nav-link active">
+                    <i class="fa-solid fa-clipboard-list w-25px"></i> Kanban
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fa-solid fa-motorcycle w-25px"></i> Entregadores
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fa-solid fa-chart-pie w-25px"></i> Relatórios
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fa-solid fa-gear w-25px"></i> Ajustes
+                </a>
+            </nav>
+
+            <div class="p-4 border-top border-dark">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
+                        style="width: 32px; height: 32px;">A</div>
+                    <div class="lh-1">
+                        <div class="text-white small fw-bold">Admin</div>
+                        <div class="text-white-50" style="font-size: 10px;">Loja Principal</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow-1 d-flex flex-column bg-body">
+
+            <!-- Topbar -->
+            <header class="topbar d-flex justify-content-between align-items-center">
+                <h5 class="m-0 text-white d-md-none"><i class="fa-solid fa-truck-fast text-success me-2"></i>Plena</h5>
+
+                <!-- Online Status / Polling -->
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" :class="connectionStatus.class"
+                        style="background: rgba(255,255,255,0.05)">
+                        <i class="fa-solid fa-wifi" style="font-size: 12px;"></i>
+                        <small class="fw-bold">{{ connectionStatus.text }}</small>
+                    </div>
+
+                    <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-2"
+                        :class="{ 'pulse-btn': newOrdersCount > 0 }" @click="forcePoll">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span v-if="newOrdersCount > 0">{{ newOrdersCount }} Novos</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Kanban Board -->
+            <div class="kanban-container d-flex gap-4">
+
+                <!-- Column: Pendentes -->
+                <div class="kanban-column">
+                    <div class="kanban-header border-start border-4 border-info">
+                        <span class="text-info">PENDENTES</span>
+                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.new.length }}</span>
+                    </div>
+                    <div class="kanban-body">
+                        <div v-for="order in orders.new" :key="order.id" class="order-card border-new"
+                            @click="viewOrder(order)">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-dark border border-secondary text-white-50">#{{
+                                    String(order.id).slice(-4) }}</span>
+                                <span class="badge badge-online" v-if="order.isOnline"><i
+                                        class="fa-solid fa-globe me-1"></i>Online</span>
+                                <span class="badge bg-secondary bg-opacity-25 text-secondary" v-else>Manual</span>
+                            </div>
+                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                            <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{
+                                formatCurrency(order.total) }}</small>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-warning w-100"
+                                    @click.stop="moveOrder(order, 'new', 'processing')">
+                                    <i class="fa-solid fa-fire-burner me-1"></i> Preparar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column: Em Preparo -->
+                <div class="kanban-column">
+                    <div class="kanban-header border-start border-4 border-warning">
+                        <span class="text-warning">EM PREPARO</span>
+                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.processing.length
+                            }}</span>
+                    </div>
+                    <div class="kanban-body">
+                        <div v-for="order in orders.processing" :key="order.id" class="order-card border-prep"
+                            @click="viewOrder(order)">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-dark border border-secondary text-white-50">#{{
+                                    String(order.id).slice(-4) }}</span>
+                                <small class="text-warning fw-bold"><i class="fa-regular fa-clock me-1"></i> 12
+                                    min</small>
+                            </div>
+                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                            <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{
+                                formatCurrency(order.total) }}</small>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-success w-100"
+                                    @click.stop="moveOrder(order, 'processing', 'delivery')">
+                                    <i class="fa-solid fa-motorcycle me-1"></i> Entregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column: Entrega -->
+                <div class="kanban-column">
+                    <div class="kanban-header border-start border-4 border-success">
+                        <span class="text-success">SAIU P/ ENTREGA</span>
+                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.delivery.length
+                            }}</span>
+                    </div>
+                    <div class="kanban-body">
+                        <div v-for="order in orders.delivery" :key="order.id" class="order-card border-dlv"
+                            @click="viewOrder(order)">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-dark border border-secondary text-white-50">#{{
+                                    String(order.id).slice(-4) }}</span>
+                                <span class="text-white-50 small">Motoboy: João</span>
+                            </div>
+                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                            <small class="text-white-50 d-block mb-3">{{ order.customer.payment }}</small>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-success w-100" @click.stop="archiveOrder(order)">
+                                    <i class="fa-solid fa-check me-1"></i> Concluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Order Details Modal -->
+        <div class="modal fade" id="orderModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title font-brand">Detalhes do Pedido</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" v-if="selectedOrder">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="badge bg-info text-dark">#{{ selectedOrder.id }}</span>
+                            <span class="text-white-50 small">{{ new Date(selectedOrder.date).toLocaleString() }}</span>
+                        </div>
+                        <h6>{{ selectedOrder.customer.name }}</h6>
+                        <p class="text-white-50 small mb-4">Pagamento: {{ selectedOrder.customer.payment }}</p>
+
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between px-0"
+                                v-for="item in selectedOrder.items">
+                                <div>
+                                    <div>{{ item.qty }}x {{ item.name }}</div>
+                                    <small class="text-white-50" v-for="add in item.addons">+ {{ add.name }} </small>
+                                    <div class="text-warning small fst-italic" v-if="item.obs">Obs: {{ item.obs }}</div>
+                                </div>
+                                <span>{{ formatCurrency(item.total) }}</span>
+                            </li>
+                        </ul>
+
+                        <div class="d-flex justify-content-between fw-bold pt-3 border-top border-secondary">
+                            <span>Total</span>
+                            <span class="text-success fs-5">{{ formatCurrency(selectedOrder.total) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Config -->
+    <script src="config.js"></script>
+
+    <script>
+        const { createApp, ref, onMounted, computed } = Vue;
+
+        createApp({
+            setup() {
+                const orders = ref({
+                    new: [],
+                    processing: [],
+                    delivery: []
+                });
+                const selectedOrder = ref(null);
+                const connectionStatus = ref({ text: 'Offline', class: 'text-secondary' }); // Default offline
+                const newOrdersCount = ref(0);
+                let orderModal = null;
+
+                // --- API Logic ---
+                const pollOrders = async () => {
+                    // Check Mode (Start vs Pro)
+                    if (typeof PLENA_CONFIG === 'undefined' || PLENA_CONFIG.mode !== 'HYBRID') {
+                        return; // Stop polling in Start mode
+                    }
+
+                    try {
+                        const response = await fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=poll');
+                        const data = await response.json();
+
+                        if (data.success && data.orders) {
+                            // Merge logic: Add only if not already exists in any column
+                            data.orders.forEach(remoteOrder => {
+                                const exists =
+                                    orders.value.new.some(o => o.id == remoteOrder.id) ||
+                                    orders.value.processing.some(o => o.id == remoteOrder.id) ||
+                                    orders.value.delivery.some(o => o.id == remoteOrder.id);
+
+                                if (!exists) {
+                                    remoteOrder.isOnline = true; // Mark as online
+                                    orders.value.new.unshift(remoteOrder);
+                                    newOrdersCount.value++;
+                                    playNotificationSound();
+                                }
+                            });
+                            connectionStatus.value = { text: 'Online', class: 'text-success' };
+                        }
+                    } catch (e) {
+                        connectionStatus.value = { text: 'Erro de Conexão', class: 'text-danger' };
+                        console.error('Polling error', e);
+                    }
+                };
+
+                const forcePoll = () => {
+                    newOrdersCount.value = 0;
+                    pollOrders();
+                };
+
+                const playNotificationSound = () => {
+                    // Simple beep logic or Audio object
+                    // const audio = new Audio('assets/sound/bell.mp3'); audio.play();
+                    console.log('Beep!');
+                };
+
+                const moveOrder = async (order, fromCol, toCol) => {
+                    // 1. UI Update
+                    const idx = orders.value[fromCol].indexOf(order);
+                    if (idx > -1) orders.value[fromCol].splice(idx, 1);
+                    orders.value[toCol].push(order);
+
+                    // 2. Server Update (Only Pro)
+                    if (order.isOnline && typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
+                        try {
+                            await fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=update_status', {
+                                method: 'POST',
+                                body: JSON.stringify({ id: order.id, status: toCol }) // Simplify status mapping
+                            });
+                        } catch (e) { console.error('Failed to sync status'); }
+                    }
+                };
+
+                const archiveOrder = (order) => {
+                    // Remove from board
+                    const idx = orders.value.delivery.indexOf(order);
+                    if (idx > -1) orders.value.delivery.splice(idx, 1);
+
+                    // TODO: Save to 'History' local array or file
+                    if (order.isOnline && typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
+                        fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=update_status', {
+                            method: 'POST',
+                            body: JSON.stringify({ id: order.id, status: 'history' })
+                        });
+                    }
+                };
+
+                // --- UI Logic ---
+                const viewOrder = (order) => {
+                    selectedOrder.value = order;
+                    orderModal.show();
+                };
+
+                const formatCurrency = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                onMounted(() => {
+                    orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+
+                    // Init based on config
+                    if (typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
+                        connectionStatus.value = { text: 'Conectando...', class: 'text-warning' };
+                        document.body.classList.add('pro-active'); // Pro Theme
+                        pollOrders();
+                        setInterval(pollOrders, 30000);
+                    } else {
+                        connectionStatus.value = { text: 'Modo Local', class: 'text-secondary' };
+                    }
+
+                    // Add Mock Data for demo if empty
+                    if (orders.value.new.length === 0) {
+                        orders.value.new.push({
+                            id: 1234, customer: { name: 'Mariana Silva', payment: 'PIX' },
+                            total: 45.90, items: [{ qty: 1, name: 'X-Burger', total: 32.90, addons: [] }],
+                            date: new Date().toISOString(), isOnline: false
+                        });
+                    }
+                });
+
+                return {
+                    orders, selectedOrder, connectionStatus, newOrdersCount,
+                    forcePoll, moveOrder, archiveOrder, viewOrder, formatCurrency
+                };
+            }
+        }).mount('#app');
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
