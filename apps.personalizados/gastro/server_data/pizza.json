@@ -1,0 +1,61 @@
+{
+    "config": {
+        "name": "Bella Pizza",
+        "rating": "4.9",
+        "hours": "18h as 00h",
+        "deliveryFee": 7.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1574126154517-d1e0d89e7344?w=1600"
+    },
+    "categories": [
+        {
+            "id": "tradicionais",
+            "name": "Tradicionais",
+            "icon": "fa-solid fa-pizza-slice"
+        },
+        {
+            "id": "especiais",
+            "name": "Especiais",
+            "icon": "fa-solid fa-star"
+        },
+        {
+            "id": "doces",
+            "name": "Doces",
+            "icon": "fa-solid fa-cookie"
+        },
+        {
+            "id": "bebidas",
+            "name": "Bebidas",
+            "icon": "fa-solid fa-glass-water"
+        }
+    ],
+    "items": [
+        {
+            "id": 1,
+            "category": "tradicionais",
+            "name": "Calabresa Acebolada",
+            "desc": "Molho de tomate, mussarela, calabresa fatiada e cebola.",
+            "price": 45.00,
+            "img": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 2,
+            "category": "especiais",
+            "name": "Marguerita Premium",
+            "desc": "Mussarela de búfala, rodelas de tomate e manjericão fresco.",
+            "price": 52.00,
+            "img": "https://images.unsplash.com/photo-1574071318500-add3327d07af?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 3,
+            "category": "doces",
+            "name": "Chocolate com Morango",
+            "desc": "Chocolate ao leite com pedaços de morango.",
+            "price": 60.00,
+            "img": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400",
+            "popular": true
+        }
+    ]
+}

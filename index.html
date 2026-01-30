@@ -98,6 +98,21 @@
             box-shadow: 0 0 20px rgba(0, 149, 255, 0.3),
                 0 0 40px rgba(0, 149, 255, 0.2),
                 inset 0 0 20px rgba(0, 149, 255, 0.1);
+            border: 1px solid rgba(0, 149, 255, 0.5);
+        }
+
+        .neon-border-pizza {
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.3),
+                0 0 40px rgba(220, 38, 38, 0.2),
+                inset 0 0 20px rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+        }
+
+        .neon-border-burger {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3),
+                0 0 40px rgba(245, 158, 11, 0.2),
+                inset 0 0 20px rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.5);
         }
 
         .neon-text {
@@ -414,8 +429,12 @@
             <div v-if="previewOpen"
                 class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/95 backdrop-blur-sm"
                 role="dialog" aria-modal="true">
-                <div
-                    class="w-full max-w-7xl h-[90vh] bg-slate-900 rounded-2xl flex flex-col relative overflow-hidden neon-border shadow-2xl animate-fade-in-up">
+                <div class="w-full max-w-7xl h-[90vh] bg-slate-900 rounded-2xl flex flex-col relative overflow-hidden shadow-2xl animate-fade-in-up transition-all duration-300"
+                    :class="[
+                        currentPreviewApp?.theme === 'pizza' ? 'neon-border-pizza' : 
+                        currentPreviewApp?.theme === 'burger' ? 'neon-border-burger' : 
+                        'neon-border'
+                    ]">
                     <!-- Header -->
                     <div class="h-16 bg-slate-950 flex items-center justify-between px-6 border-b border-slate-800">
                         <div class="flex items-center gap-3">
@@ -527,7 +546,7 @@
                         { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
                         { name: "Plena Fit", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_fit/index.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Controle de alunos, treinos e mensalidades para academias." },
                         { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota/index.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas e manutenção." },
-                        { name: "Plena Hamburgueria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_hamburgueria/index.html", img: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500", desc: "PDA e delivery focado para hamburguerias artesanais." },
+                        { name: "Plena Hamburgueria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_hamburgueria/index.html", img: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500", desc: "PDA e delivery focado para hamburguerias artesanais.", theme: 'burger' },
                         { name: "Plena Marmita", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_marmita/index.html", img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500", desc: "Gestão de produção e entrega de marmitas saudáveis." },
                         { name: "Plena Motoboy", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motoboy/index.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle ágil de entregas e caixa para motoboys.", mobileBadge: true },
                         { name: "Plena Motorista", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motorista/index.html", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500", desc: "Gestão de ganhos e gastos em movimento.", mobileBadge: true },
@@ -536,7 +555,7 @@
                         { name: "Plena Odonto", tier: "plus", category: "Saúde", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto/index.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para odontologia." },
                         { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos profissionais." },
                         { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                        { name: "Plena Pizzaria", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_pizzaria/index.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema para pizzarias com montagem de sabores e delivery." },
+                        { name: "Plena Pizzaria", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_pizzaria/index.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema para pizzarias com montagem de sabores e delivery.", theme: 'pizza' },
                         { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=500", desc: "Gestão de vendas por peso ou unidade para sorveterias." },
                         { name: "Plena Terapia", tier: "plus", category: "Saúde", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_terapia/index.html", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500", desc: "Prontuário eletrônico e gestão para psicólogos e terapeutas." },
                     ]);

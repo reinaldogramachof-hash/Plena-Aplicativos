@@ -1,0 +1,42 @@
+{
+    "config": {
+        "name": "Burger House Premium",
+        "rating": "4.8",
+        "hours": "18h as 23h",
+        "deliveryFee": 5.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600"
+    },
+    "categories": [
+        {
+            "id": "lanches",
+            "name": "Lanches",
+            "icon": "fa-solid fa-burger"
+        },
+        {
+            "id": "bebidas",
+            "name": "Bebidas",
+            "icon": "fa-solid fa-glass-water"
+        }
+    ],
+    "items": [
+        {
+            "id": 1,
+            "category": "lanches",
+            "name": "X-Burger Premium",
+            "desc": "Pão brioche, 180g de angus.",
+            "price": 32.90,
+            "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 3,
+            "category": "bebidas",
+            "name": "Coca Cola Lata",
+            "desc": "350ml gelada.",
+            "price": 6.00,
+            "img": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400",
+            "popular": true
+        }
+    ]
+}

@@ -467,79 +467,41 @@
                     { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
                 ]);
 
-                // THEMES CONFIGURATION (DEMO MODE)
-                const themes = {
-                    'pizza': {
-                        config: { name: 'Bella Pizza', rating: '4.9', hours: '18h as 00h', deliveryFee: 7.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1574126154517-d1e0d89e7344?w=1600' },
-                        categories: [
-                            { id: 'tradicionais', name: 'Tradicionais', icon: 'fa-solid fa-pizza-slice' },
-                            { id: 'especiais', name: 'Especiais', icon: 'fa-solid fa-star' },
-                            { id: 'doces', name: 'Doces', icon: 'fa-solid fa-cookie' },
-                            { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
-                        ],
-                        items: [
-                            { id: 1, category: 'tradicionais', name: 'Calabresa Acebolada', desc: 'Molho de tomate, mussarela, calabresa fatiada e cebola.', price: 45.00, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400', popular: true },
-                            { id: 2, category: 'especiais', name: 'Marguerita Premium', desc: 'Mussarela de búfala, rodelas de tomate e manjericão fresco.', price: 52.00, img: 'https://images.unsplash.com/photo-1574071318500-add3327d07af?auto=format&fit=crop&w=400', popular: false },
-                            { id: 3, category: 'doces', name: 'Chocolate com Morango', desc: 'Chocolate ao leite com pedaços de morango.', price: 60.00, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400', popular: true }
-                        ]
-                    },
-                    'sushi': {
-                        config: { name: 'Sushi Zen', rating: '4.7', hours: '11h as 23h', deliveryFee: 0.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=1600' },
-                        categories: [
-                            { id: 'combinados', name: 'Combinados', icon: 'fa-solid fa-box-open' },
-                            { id: 'temakis', name: 'Temakis', icon: 'fa-solid fa-ice-cream' },
-                            { id: 'bebidas', name: 'Bebidas', icon: 'fa-solid fa-glass-water' }
-                        ],
-                        items: [
-                            { id: 1, category: 'combinados', name: 'Combo Salmão 20 Pçs', desc: '10 sashimis, 5 niguiris e 5 jows.', price: 89.90, img: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400', popular: true },
-                            { id: 2, category: 'temakis', name: 'Temaki Salmão Completo', desc: 'Salmão em cubos, cream cheese e cebolinha.', price: 24.90, img: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=400', popular: true }
-                        ]
-                    },
-                    'acai': {
-                        config: { name: 'Açaí Tropical', rating: '5.0', hours: '10h as 20h', deliveryFee: 3.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1494376877685-d3d655f01280?w=1600' },
-                        categories: [
-                            { id: 'copos', name: 'Copos', icon: 'fa-solid fa-glass-water' },
-                            { id: 'barcas', name: 'Barcas', icon: 'fa-solid fa-ship' },
-                            { id: 'adicionais', name: 'Extras', icon: 'fa-solid fa-plus' }
-                        ],
-                        items: [
-                            { id: 1, category: 'copos', name: 'Açaí 500ml Turbinado', desc: 'Leite ninho, leite condensado, morango e banana.', price: 18.00, img: 'https://images.unsplash.com/photo-1590301157886-f630de884e9b?auto=format&fit=crop&w=400', popular: true },
-                            { id: 2, category: 'barcas', name: 'Barca Família', desc: '1kg de açaí + 5 acompanhamentos à escolha.', price: 45.00, img: 'https://images.unsplash.com/photo-1490226317772-23c3167b57c6?auto=format&fit=crop&w=400', popular: true }
-                        ]
-                    }
-                };
+                // Initial Empty State (Populated by JSON)
+                const items = ref([]);
 
-                const items = ref([
-                    { id: 1, category: 'lanches', name: 'X-Burger Premium', desc: 'Pão brioche, 180g de angus.', price: 32.90, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400', popular: true },
-                    { id: 3, category: 'bebidas', name: 'Coca Cola Lata', desc: '350ml gelada.', price: 6.00, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400', popular: true }
-                ]);
-
-                // DATA LOADING
+                // DATA LOADING (Universal Engine)
                 onMounted(async () => {
-                    // 1. Check for URL Theme (Demo Mode)
+                    // 1. Determine Niche: URL Override > Config > Default
                     const urlParams = new URLSearchParams(window.location.search);
-                    const theme = urlParams.get('theme');
+                    const themeOverride = urlParams.get('theme');
+                    const targetNiche = themeOverride || (typeof PLENA_CONFIG !== 'undefined' ? PLENA_CONFIG.niche : 'burger');
 
-                    if (theme && themes[theme]) {
-                        // Apply Theme Data
-                        config.value = { ...config.value, ...themes[theme].config };
-                        categories.value = themes[theme].categories;
-                        items.value = themes[theme].items;
-                    } else {
-                        // 2. Normal Flow: Try to load dynamic JSON or keep default Burger
-                        // Start/Pro Check
-                        if (typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
-                            try {
-                                const resp = await fetch(PLENA_CONFIG.apiUrl + 'cardapio.json');
-                                if (resp.ok) {
-                                    const data = await resp.json();
-                                    if (Array.isArray(data)) items.value = data;
-                                }
-                            } catch (e) { console.log('Offline/Local Data'); }
-                        }
+                    console.log('Loading Niche:', targetNiche);
+
+                    try {
+                        // 2. Fetch External Data (JSON)
+                        // Paths: Try server_data/ first.
+                        const response = await fetch(`server_data/${targetNiche}.json`);
+
+                        if (!response.ok) throw new Error('Falha ao carregar dados do nicho');
+
+                        const data = await response.json();
+
+                        // 3. Apply Data to State
+                        if (data.config) config.value = { ...config.value, ...data.config };
+                        if (data.categories) categories.value = data.categories;
+                        if (data.items) items.value = data.items;
+
+                        // 4. Force Title Update
+                        document.title = `${config.value.name} | Cardápio Digital`;
+
+                    } catch (error) {
+                        console.error('Erro ao carregar cardápio:', error);
+                        // Fallback/Safety: If config.js is broken, data remains as mockup initial state
                     }
 
-                    setTimeout(() => loading.value = false, 800);
+                    setTimeout(() => loading.value = false, 500);
                     productModal.value = new bootstrap.Modal(document.getElementById('productModal'));
                 });
 
