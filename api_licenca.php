@@ -598,13 +598,13 @@ if ($action === 'save_lead') {
 
     if ($is_edit) {
         foreach ($leads as &$l) {
-            if ($l['unique_id'] === $lead['unique_id']) {
+            if ($l['id'] === $lead['id']) {
                 $l = array_merge($l, $lead);
                 break;
             }
         }
     } else {
-        $lead['unique_id'] = generateId('lead_');
+        $lead['id'] = generateId('lead_');
         $lead['created_at'] = date('Y-m-d H:i:s');
         $lead['status'] = 'pending';
         $leads[] = $lead;
@@ -683,16 +683,104 @@ if ($action === 'migrate_legacy_sales') {
 if ($action === 'get_products') {
     if (!checkAuth($data, $_GET, $server))
         jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    global $CATALOG_MASTER;
     $products = json_decode(@file_get_contents($PRODUCTS_FILE), true) ?? [];
+
+    // If no products file, use Master Catalog as base
     if (empty($products)) {
-        // Fallback to Master Catalog
-        global $CATALOG_MASTER;
         $products = [];
         foreach ($CATALOG_MASTER as $name => $details) {
             $products[] = array_merge(['id' => generateId('prod_'), 'name' => $name], $details);
         }
     }
+
     jsonResponse($products);
+}
+
+// CREATE APP (SCAFFOLDING)
+if ($action === 'create_app') {
+    if (!checkAuth($data, $_GET, $server))
+        jsonResponse(['error' => 'Acesso Negado'], 403);
+
+    $name = $data['name'] ?? '';
+    $slug = $data['slug'] ?? '';
+    $price = floatval($data['price'] ?? 0);
+    $category = $data['category'] ?? 'plus';
+
+    if (empty($name) || empty($slug))
+        jsonResponse(['error' => 'Nome e Slug são obrigatórios'], 400);
+
+    // 1. Sanitize Slug
+    $slug = strtolower(preg_replace('/[^a-z0-9_]/', '', $slug));
+
+    // 2. Scaffold Folder
+    $app_dir = __DIR__ . '/apps.plus/' . $slug;
+    if (!file_exists($app_dir)) {
+        if (!mkdir($app_dir, 0755, true))
+            jsonResponse(['error' => 'Falha ao criar diretório do App'], 500);
+
+        // Create Index.html
+        $html_content = "<!DOCTYPE html>
+<html lang='pt-br'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>$name</title>
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+</head>
+<body class='bg-light'>
+    <div class='container py-5 text-center'>
+        <h1 class='display-4'>$name</h1>
+        <p class='lead'>Aplicativo gerado pelo Plena Admin.</p>
+        <hr class='my-4'>
+        <p>Este é o ponto de partida do seu novo aplicativo.</p>
+        <a href='#' class='btn btn-primary btn-lg'>Começar</a>
+    </div>
+</body>
+</html>";
+        file_put_contents($app_dir . '/index.html', $html_content);
+    }
+
+    // 3. Update Apps Config
+    $CONFIG_FILE = $DATA_DIR . 'apps_config.json';
+    $config = json_decode(@file_get_contents($CONFIG_FILE), true) ?? [];
+    $config[$slug] = ['name' => $name, 'price' => $price, 'category' => $category];
+    @file_put_contents($CONFIG_FILE, json_encode($config, JSON_PRETTY_PRINT));
+
+    // 4. Register in Products Catalog (for License binding)
+    global $CATALOG_MASTER;
+    $products = json_decode(@file_get_contents($PRODUCTS_FILE), true) ?? [];
+
+    // If empty, initialize with Master first
+    if (empty($products)) {
+        foreach ($CATALOG_MASTER as $m_name => $m_details) {
+            $products[] = array_merge(['id' => generateId('prod_'), 'name' => $m_name], $m_details);
+        }
+    }
+
+    // Check if exists
+    $exists = false;
+    foreach ($products as $p) {
+        if ($p['name'] === $name) {
+            $exists = true;
+            break;
+        }
+    }
+
+    if (!$exists) {
+        $products[] = [
+            'id' => generateId('prod_'),
+            'name' => $name,
+            'price' => $price,
+            'category' => $category,
+            'status' => 'active',
+            'trial_days' => 7
+        ];
+        @file_put_contents($PRODUCTS_FILE, json_encode($products, JSON_PRETTY_PRINT));
+    }
+
+    jsonResponse(['success' => true]);
 }
 
 // LOGS

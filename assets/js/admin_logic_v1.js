@@ -61,6 +61,7 @@ createApp({
         const licencas = ref([]);
 
         const apps = ref([]);
+        const newApp = ref({ name: '', slug: '', price: 97.00, category: 'plus' }); // Restored
         const editingApp = ref({ slug: '', name: '', price: 0 }); // Nexus 2.0 (Init object to avoid v-if)
         const financeiro = ref({
             saldo: 0,
@@ -119,7 +120,9 @@ createApp({
         let revenueChartInstance = null;
         let financeChartInstance = null;
         let distributionChartInstance = null;
-        let editAppModalBS = null; // Nexus 2.0
+        let editAppModalBS = null;
+        let newAppModalBS = null; // New App Modal
+        let statementModalBS = null; // Statement Modal
 
         // Helper: Show Toast
         const showToast = (type, title, message, duration = 5000) => {
@@ -207,11 +210,12 @@ createApp({
         };
 
         // Data Fetching
+        // Data Fetching
         const refreshData = async () => {
             refreshing.value = true;
 
+            // 1. Dashboard Stats
             try {
-                // 1. Dashboard Stats
                 const stats = await apiCall('dashboard_stats');
                 if (stats) {
                     kpi.value = {
@@ -252,8 +256,10 @@ createApp({
                         revenueChartInstance.update();
                     }
                 }
+            } catch (e) { console.error("Stats Error", e); }
 
-                // 2. Licenses List
+            // 2. Licenses List
+            try {
                 const licData = await apiCall('list');
                 if (licData && Array.isArray(licData)) {
                     licencas.value = licData.map(l => ({
@@ -261,25 +267,27 @@ createApp({
                         cliente: l.client,
                         email: l.email,
                         produto: l.product,
-                        activated_at: l.activated_at, // New Field
-                        device_id: l.device_id, // New Field
+                        activated_at: l.activated_at,
+                        device_id: l.device_id,
                         type: l.license_type,
                         expires_at: l.expires_at,
                         status: l.status
                     }));
-
-                    // Calculate license stats
                     updateLicenseStats();
                 }
+            } catch (e) { console.error("Lic Error", e); }
 
-                // 3. Products (From Disk Scan + Config)
+            // 3. Products
+            try {
                 const prodData = await apiCall('list_apps');
                 if (prodData) apps.value = prodData;
                 if (apps.value.length > 0 && !newLicense.value.produto) {
                     newLicense.value.produto = apps.value[0].name;
                 }
+            } catch (e) { console.error("Apps Error", e); }
 
-                // 4. Sales History
+            // 4. Sales History
+            try {
                 const salesData = await apiCall('get_sales_history');
                 if (salesData) {
                     vendas.value = salesData.map(s => ({
@@ -293,14 +301,16 @@ createApp({
                         status: s.status
                     }));
                 }
+            } catch (e) { console.error("Sales Error", e); }
 
-                // 5. System Health
+            // 5. System Health
+            try {
                 const health = await apiCall('system_health');
-                if (health) {
-                    systemStatus.value = health;
-                }
+                if (health) systemStatus.value = health;
+            } catch (e) { console.error("Health Error", e); }
 
-                // 6. Leads (CRM)
+            // 6. Leads (CRM)
+            try {
                 const leadsData = await apiCall('get_leads');
                 if (leadsData) {
                     leads.value = leadsData.map(l => ({
@@ -312,64 +322,56 @@ createApp({
                         status: l.status || 'Novo'
                     }));
                 }
+            } catch (e) { console.error("Leads Error", e); }
 
-                // 7. Finance
+            // 7. Finance
+            try {
                 const finData = await apiCall('get_finance');
                 if (finData) {
                     financeiro.value.saldo = finData.balance || 0;
                     financeiro.value.receitas = finData.incomes || 0;
                     financeiro.value.despesas = finData.expenses || 0;
-                    financeiro.value.transacoes = finData.transactions || []; // New Key
+                    financeiro.value.transacoes = finData.transactions || [];
 
-                    // Update finance charts (Simple Refresh)
                     if (currentTab.value === 'financeiro') updateFinanceCharts();
                 }
+            } catch (e) { console.error("Finance Error", e); }
 
-                // 8. Partners
+            // 8. Partners
+            try {
                 const partData = await apiCall('list_partners');
                 if (partData) {
                     parceiros.value = partData;
                     updatePartnerStats();
                 }
+            } catch (e) { console.error("Partners Error", e); }
 
-                // 9. Logs
+            // 9. Logs & Backup
+            try {
                 const logData = await apiCall('get_logs');
                 if (logData && logData.logs) {
                     logs.value = logData.logs;
-
-                    // Populate RealTimeLogs from History if empty
                     if (realTimeLogs.value.length === 0) {
                         realTimeLogs.value = logData.logs.slice(0, 50).map(logStr => {
-                            // Format: [2024-01-01 10:00:00] [INFO] Message
                             const match = logStr.match(/^\[(.*?)\] \[(.*?)\] (.*)$/);
-                            if (match) {
-                                return {
-                                    ts: match[1].split(' ')[1], // Just time
-                                    level: match[2],
-                                    msg: match[3]
-                                };
-                            }
+                            if (match) return { ts: match[1].split(' ')[1], level: match[2], msg: match[3] };
                             return { ts: '---', level: 'INFO', msg: logStr };
                         });
                     }
                 }
-
-                // 10. Last backup
                 const backupData = await apiCall('get_last_backup');
                 if (backupData && backupData.last_backup) {
                     lastBackup.value = new Date(backupData.last_backup).toLocaleString('pt-BR');
                 }
+            } catch (e) { console.error("Logs Error", e); }
 
-                // 11. Notifications History
+            // 11. Notifications
+            try {
                 await loadNotifications();
+            } catch (e) { console.error("Notif Error", e); }
 
-                showToast('success', 'Dados Atualizados', 'Os dados foram atualizados com sucesso');
-                addLog('System data refreshed.');
-            } catch (error) {
-                showToast('danger', 'Erro ao Atualizar', 'Não foi possível atualizar os dados');
-            } finally {
-                refreshing.value = false;
-            }
+            showToast('success', 'Dados Atualizados', 'Sincronização concluída');
+            refreshing.value = false;
         };
 
         // Initialize Charts
@@ -882,6 +884,29 @@ createApp({
             openPartnerModal(partner);
         };
 
+        const exportPartners = () => {
+            if (parceiros.value.length === 0) {
+                showToast('warning', 'Atenção', 'Lista de parceiros vazia.');
+                return;
+            }
+
+            let report = `*RELATÓRIO DE PARCEIROS - PLENA*\n\n`;
+            report += `📅 Data: ${new Date().toLocaleDateString()}\n`;
+            report += `👥 Total Parceiros: ${parceiros.value.length}\n\n`;
+
+            parceiros.value.forEach(p => {
+                const pending = p.pending_commission || 0;
+                const sales = p.sales_count || 0;
+                report += `🔹 *${p.name}* (Cód: ${p.code})\n`;
+                report += `   Vendas: ${sales} | Comis. Pendente: R$ ${formatMoney(pending)}\n`;
+                if (p.whatsapp) report += `   Tel: ${p.whatsapp}\n`;
+                report += `\n`;
+            });
+
+            const encoded = encodeURIComponent(report);
+            window.open(`https://wa.me/?text=${encoded}`, '_blank');
+        };
+
         const deletePartner = async (id) => {
             if (!confirm('Tem certeza que deseja excluir este parceiro?')) return;
 
@@ -943,9 +968,7 @@ createApp({
             statsParceiros.value = { total, comissaoPendente, vendasMes, totalPago };
         };
 
-        const exportPartners = () => {
-            showToast('info', 'Exportar', 'Funcionalidade de exportação em desenvolvimento');
-        };
+
 
 
 
@@ -993,6 +1016,15 @@ createApp({
             newLeadModalBS.show();
         };
 
+        const openLeadModal = (lead = null) => {
+            if (lead) {
+                newLead.value = { ...lead };
+            } else {
+                newLead.value = { id: null, name: '', email: '', phone: '', source: 'Manual', status: 'Novo', notes: '' };
+            }
+            if (newLeadModalBS) newLeadModalBS.show();
+        };
+
         const saveLead = async () => {
             const res = await apiCall('save_lead', 'POST', newLead.value);
             if (res && res.success) {
@@ -1038,12 +1070,33 @@ createApp({
         };
 
         const openAppDetails = (app) => {
-            showToast('info', 'Configurar App', `Abrindo configurações para ${app.name}`);
-            // TODO: Implement app details modal
+            openEditAppModal(app); // For now, details just opens edit
         };
 
         const openNewAppModal = () => {
-            showToast('info', 'Novo App', 'Funcionalidade em desenvolvimento');
+            // Init Modal if needed
+            if (!newAppModalBS) {
+                const el = document.getElementById('newAppModal');
+                if (el) newAppModalBS = new bootstrap.Modal(el);
+            }
+            newApp.value = { name: '', slug: '', price: 97.00, category: 'plus' };
+            if (newAppModalBS) newAppModalBS.show();
+        };
+
+        const createApp = async () => {
+            if (!newApp.value.name || !newApp.value.slug) {
+                showToast('warning', 'Atenção', 'Preencha nome e slug');
+                return;
+            }
+
+            const res = await apiCall('create_app', 'POST', newApp.value);
+            if (res && res.success) {
+                if (newAppModalBS) newAppModalBS.hide();
+                showToast('success', 'App Criado', 'Estrutura do aplicativo criada com sucesso!');
+                refreshData();
+            } else {
+                showToast('danger', 'Erro', 'Falha ao criar app: ' + (res?.error || 'Unknown'));
+            }
         };
 
         // Finance Methods
@@ -1068,13 +1121,7 @@ createApp({
             }
         };
 
-        const openWithdrawModal = () => {
-            showToast('info', 'Saque', 'Funcionalidade em desenvolvimento');
-        };
 
-        const openStatementModal = () => {
-            showToast('info', 'Extrato', 'Funcionalidade em desenvolvimento');
-        };
 
         // System Actions
         const createBackup = async () => {
@@ -1104,8 +1151,19 @@ createApp({
             }
         };
 
-        const optimizeDatabase = () => {
-            showToast('info', 'Otimizar DB', 'Funcionalidade em desenvolvimento');
+        const optimizeDatabase = async () => {
+            if (!confirm('Deseja otimizar os arquivos do sistema? Isso removerá entradas inválidas e compactará os dados.')) return;
+
+            showLoading('Otimizando...');
+            const res = await apiCall('optimize_db', 'POST');
+            hideLoading();
+
+            if (res && res.success) {
+                showToast('success', 'Otimização Concluída', `Sistema otimizado! Economia: ${res.saved_kb} KB`);
+                addLog(`Database optimized. Saved: ${res.saved_kb} KB`);
+            } else {
+                showToast('danger', 'Erro', 'Falha na otimização');
+            }
         };
 
         const clearLogs = () => {
@@ -1402,8 +1460,6 @@ createApp({
         };
 
         const openEditAppModal = (app) => {
-            console.log("Opening App Edit for:", app);
-
             // 1. Set Data
             editingApp.value = { ...app };
 
@@ -1439,7 +1495,29 @@ createApp({
         const openFinanceModal = () => {
             // Reset form
             newTrans.value = { type: 'expense', amount: '', description: '', category: 'outros' };
-            financeModalBS.show();
+
+            if (!financeModalBS) {
+                const el = document.getElementById('financeModal');
+                if (el) financeModalBS = new bootstrap.Modal(el);
+            }
+            if (financeModalBS) financeModalBS.show();
+        };
+
+        const openWithdrawModal = () => {
+            newTrans.value = { type: 'expense', amount: '', description: 'Retirada de Lucros', category: 'pessoal' };
+            if (!financeModalBS) {
+                const el = document.getElementById('financeModal');
+                if (el) financeModalBS = new bootstrap.Modal(el);
+            }
+            if (financeModalBS) financeModalBS.show();
+        };
+
+        const openStatementModal = () => {
+            if (!statementModalBS) {
+                const el = document.getElementById('statementModal');
+                if (el) statementModalBS = new bootstrap.Modal(el);
+            }
+            if (statementModalBS) statementModalBS.show();
         };
 
         const createTransaction = async () => {
@@ -1474,7 +1552,7 @@ createApp({
             // State
             isAuthenticated, loginPassword, loggingIn, sidebarToggled,
             currentTab, chartPeriod,
-            newLicense, editingLicense, editingApp, newPartner, editingPartner, newTrans, newLead, // Added editingApp
+            newLicense, editingLicense, editingApp, newApp, newPartner, editingPartner, newTrans, newLead,
             selectedSale, saleLogs,
             kpi, vendas, licencas, apps, financeiro, parceiros, leads, logs, realTimeLogs,
             statsLicencas, statsParceiros,
@@ -1495,9 +1573,9 @@ createApp({
             updatePartnerStats, exportPartners,
             runSystemDiagnosis, sendTestEmail,
             sendNotification, getNotificationTypeLabel, clearNotifications,
-            openNewLeadModal, saveLead, editLead, getLeadStatusClass,
-            openAppDetails, openNewAppModal, openEditAppModal, updateAppConfig, // Replaced saveAppConfig
-            openFinanceModal, createTransaction,
+            openNewLeadModal, saveLead, editLead, getLeadStatusClass, openLeadModal,
+            openAppDetails, openNewAppModal, openEditAppModal, updateAppConfig, createApp,
+            openFinanceModal, openWithdrawModal, openStatementModal, createTransaction,
             createBackup, clearCache, optimizeDatabase, clearLogs, downloadLogs,
             filteredLicenses,
             showToast, removeToast, getToastIcon,
