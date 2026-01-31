@@ -491,18 +491,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
                     <!-- 1. Cardápio Digital (Main Focus) -->
-                    <div @click="openNicheDemo(null, 'Cardápio Digital', 'Seu cliente pede sozinho pelo celular. Sem garçom, sem erros.')"
-                        class="cursor-pointer bg-slate-800 p-8 rounded-2xl hover:bg-slate-700 border border-slate-700 hover:border-orange-500 transition group relative overflow-hidden">
+                    <div
+                        class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-orange-500 transition group relative overflow-hidden flex flex-col text-left">
                         <div
                             class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
                             CARRO CHEFE</div>
-                        <div class="text-5xl text-orange-500 mb-6 group-hover:scale-110 transition"><i
+                        <div class="text-5xl text-orange-500 mb-6 group-hover:scale-110 transition shrink-0"><i
                                 class="fa-solid fa-mobile-screen"></i></div>
-                        <h4 class="text-white font-bold text-2xl mb-2">Cardápio Digital</h4>
-                        <p class="text-slate-400 text-sm mb-6">Pizzaria, Hamburgueria, Sushi e Açaí. Tudo em um só
-                            sistema.</p>
-                        <span class="text-orange-400 text-xs font-bold uppercase tracking-wider hover:underline">Ver
-                            Nichos <i class="fa-solid fa-arrow-right"></i></span>
+                        <div class="flex-1">
+                            <h4 class="text-white font-bold text-2xl mb-2">Cardápio Digital</h4>
+                            <p class="text-slate-400 text-sm mb-6">Um único sistema ultra-personalizável para qualquer
+                                segmento food.</p>
+
+                            <!-- Lista de Nichos -->
+                            <div class="grid grid-cols-2 gap-2 mt-4">
+                                <button v-for="niche in niches" :key="niche.id" @click.stop="openNicheDemo(niche)"
+                                    class="bg-slate-900/50 hover:bg-orange-600 text-slate-300 hover:text-white text-xs p-3 rounded-xl border border-white/5 transition flex items-center gap-2 group/btn">
+                                    <i :class="niche.icon" class="text-orange-500 group-hover/btn:text-white w-4"></i>
+                                    {{ niche.name }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-700/50">
+                            <span class="text-orange-400 text-xs font-bold uppercase tracking-wider">Clique para ver o
+                                funcionamento real</span>
+                        </div>
                     </div>
 
                     <!-- 2. Delivery KDS -->
@@ -578,8 +591,18 @@
 
                     <!-- Right: iPhone Simulator -->
                     <div class="md:w-1/2 flex justify-center h-full animate-fade-in-up">
-                        <div
-                            class="relative w-[340px] h-[700px] bg-black rounded-[50px] shadow-2xl border-[8px] border-slate-800 overflow-hidden ring-4 ring-slate-900/50">
+                        <div class="relative w-[340px] h-[700px] bg-black rounded-[50px] shadow-2xl border-[8px] overflow-hidden ring-4 ring-slate-900/50 transition-all duration-500"
+                            :class="{
+                                'border-orange-500/50 ring-orange-500/20': currentNicheTheme === 'burger',
+                                'border-red-600/50 ring-red-600/20': currentNicheTheme === 'pizza',
+                                'border-cyan-400/50 ring-cyan-400/20': currentNicheTheme === 'sushi',
+                                'border-purple-500/50 ring-purple-500/20': currentNicheTheme === 'acai',
+                                'border-amber-400/50 ring-amber-400/20': currentNicheTheme === 'lanchonete',
+                                'border-stone-500/50 ring-stone-500/20': currentNicheTheme === 'padaria',
+                                'border-emerald-500/50 ring-emerald-500/20': currentNicheTheme === 'restaurante',
+                                'border-fuchsia-500/50 ring-fuchsia-500/20': currentNicheTheme === 'petiscaria',
+                                'border-slate-800': !currentNicheTheme
+                            }">
                             <!-- Notch -->
                             <div
                                 class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-7 bg-black rounded-b-2xl z-20">
@@ -640,14 +663,28 @@
                 const currentNicheUrl = ref('');
                 const currentNicheTitle = ref('');
                 const currentNicheDesc = ref('');
+                const currentNicheTheme = ref('');
 
-                const openNicheDemo = (theme, title, desc) => {
+                const niches = [
+                    { id: 'burger', name: 'Hamburgueria', icon: 'fa-solid fa-burger', desc: 'Destaque seus blends e combos premium.', theme: 'burger' },
+                    { id: 'pizza', name: 'Pizzaria', icon: 'fa-solid fa-pizza-slice', desc: 'Ideal para montagem de sabores e bordas.', theme: 'pizza' },
+                    { id: 'sushi', name: 'Culinária Japonesa', icon: 'fa-solid fa-fish', desc: 'Design clean e minimalista para sushi.', theme: 'sushi' },
+                    { id: 'acai', name: 'Açaí & Sorvete', icon: 'fa-solid fa-bowl-food', desc: 'Foco total em adicionais e personalização.', theme: 'acai' },
+                    { id: 'lanchonete', name: 'Lanchonete', icon: 'fa-solid fa-hotdog', desc: 'Agilidade para salgados e lanches rápidos.', theme: 'lanchonete' },
+                    { id: 'padaria', name: 'Padaria/Confeitaria', icon: 'fa-solid fa-wheat-awn', desc: 'Ideal para pães, bolos e encomendas.', theme: 'padaria' },
+                    { id: 'restaurante', name: 'Restaurante/PF', icon: 'fa-solid fa-utensils', desc: 'Gestão de pratos feitos e auto-serviço.', theme: 'restaurante' },
+                    { id: 'petiscaria', name: 'Petiscaria/Bar', icon: 'fa-solid fa-beer-mug-empty', desc: 'Controle de porções, balde de cerveja e drinks.', theme: 'petiscaria' }
+                ];
+
+                const openNicheDemo = (niche) => {
+                    const target = niche || niches[0]; // Default to first (burger)
                     let url = 'apps.personalizados/gastro/cardápio.html';
-                    if (theme) url += '?theme=' + theme;
+                    url += '?theme=' + target.id;
 
                     currentNicheUrl.value = url;
-                    currentNicheTitle.value = title;
-                    currentNicheDesc.value = desc;
+                    currentNicheTitle.value = target.name;
+                    currentNicheDesc.value = target.desc;
+                    currentNicheTheme.value = target.theme;
                     nicheModalOpen.value = true;
                     document.body.style.overflow = 'hidden';
                 };
@@ -655,11 +692,12 @@
                 const closeNicheDemo = () => {
                     nicheModalOpen.value = false;
                     currentNicheUrl.value = '';
+                    currentNicheTheme.value = '';
                     document.body.style.overflow = '';
                 };
 
                 onMounted(() => { window.addEventListener('scroll', () => { scrolled.value = window.scrollY > 300; }); });
-                return { scrolled, monthlySales, calculatorPlan, marketplaceCost, yearlySavings, formatCurrency, nicheModalOpen, currentNicheUrl, currentNicheTitle, currentNicheDesc, openNicheDemo, closeNicheDemo };
+                return { scrolled, monthlySales, calculatorPlan, marketplaceCost, yearlySavings, formatCurrency, nicheModalOpen, currentNicheUrl, currentNicheTitle, currentNicheDesc, currentNicheTheme, niches, openNicheDemo, closeNicheDemo };
             }
         }).mount('#app');
     </script>

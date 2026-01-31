@@ -1,0 +1,141 @@
+{
+    "config": {
+        "name": "Lanchonete Costa & Cia",
+        "brand": "Lanche",
+        "brandSuffix": "Costa",
+        "icon": "fa-solid fa-hotdog",
+        "rating": "4.6",
+        "hours": "08h as 21h",
+        "deliveryFee": 3.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600"
+    },
+    "categories": [
+        {
+            "id": "salgados",
+            "name": "Salgados do Dia",
+            "icon": "fa-solid fa-cookie"
+        },
+        {
+            "id": "lanches",
+            "name": "Lanches de Chapa",
+            "icon": "fa-solid fa-burger"
+        },
+        {
+            "id": "combos",
+            "name": "Combos Promocionais",
+            "icon": "fa-solid fa-star"
+        },
+        {
+            "id": "bebidas",
+            "name": "Bebidas Geladas",
+            "icon": "fa-solid fa-glass-water"
+        }
+    ],
+    "items": [
+        {
+            "id": 1,
+            "category": "salgados",
+            "name": "Coxinha de Frango c/ Catupiry",
+            "desc": "A clássica coxinha dourada e crocante com recheio cremoso e temperado.",
+            "price": 6.50,
+            "img": "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Adicional de Pimenta",
+                    "price": 0.50
+                },
+                {
+                    "name": "Molho de Alho Casa",
+                    "price": 1.50
+                },
+                {
+                    "name": "Maionese Verde",
+                    "price": 1.50
+                }
+            ]
+        },
+        {
+            "id": 53,
+            "category": "salgados",
+            "name": "Kibe com Queijo",
+            "desc": "Kibe frito na hora, recheado com mussarela derretida.",
+            "price": 7.00,
+            "img": "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 56,
+            "category": "salgados",
+            "name": "Pão de Batata c/ Requeijão",
+            "desc": "Massa fofinha de batata com muito recheio cremoso.",
+            "price": 7.50,
+            "img": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 100,
+            "category": "salgados",
+            "name": "Enrolado de Presunto e Queijo",
+            "desc": "Massa assada leve com presunto, queijo e orégano.",
+            "price": 6.50,
+            "img": "https://images.unsplash.com/photo-1621236304195-2070f4435948?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 2,
+            "category": "lanches",
+            "name": "Misto Quente Especial",
+            "desc": "Pão de forma tostado na chapa com presunto, queijo e tomate.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 54,
+            "category": "lanches",
+            "name": "Americano no Prato",
+            "desc": "Presunto, queijo, ovo frito, alface e tomate no pão francês.",
+            "price": 16.50,
+            "img": "https://images.unsplash.com/photo-1539252554453-80ab65ce3586?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 55,
+            "category": "combos",
+            "name": "Combo Estação",
+            "desc": "Coxinha + Suco de Laranja + Mini Churros.",
+            "price": 22.90,
+            "img": "https://images.unsplash.com/photo-1623653387945-2fd25214f8fc?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 101,
+            "category": "combos",
+            "name": "Combo Matinal Chapa",
+            "desc": "Pão na chapa + Café com Leite + Mini Bolo.",
+            "price": 18.50,
+            "img": "https://images.unsplash.com/photo-1541167760496-162955ed8a21?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 4,
+            "category": "bebidas",
+            "name": "Suco de Laranja Natural 400ml",
+            "desc": "Refrescante, espremido na hora.",
+            "price": 9.00,
+            "img": "https://images.unsplash.com/photo-1613478223719-2ab802602424?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 57,
+            "category": "bebidas",
+            "name": "Café com Leite Médio",
+            "desc": "O clássico 'pingado' com leite vaporizado.",
+            "price": 6.00,
+            "img": "https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?auto=format&fit=crop&w=400",
+            "popular": false
+        }
+    ]
+}

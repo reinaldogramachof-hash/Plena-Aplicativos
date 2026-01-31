@@ -1,26 +1,34 @@
 {
     "config": {
-        "name": "Bella Pizza",
+        "name": "Pizza Planet Express",
+        "brand": "Pizza",
+        "brandSuffix": "Planet",
+        "icon": "fa-solid fa-pizza-slice",
         "rating": "4.9",
         "hours": "18h as 00h",
         "deliveryFee": 7.00,
         "whatsapp": "5511999999999",
-        "headerImg": "https://images.unsplash.com/photo-1574126154517-d1e0d89e7344?w=1600"
+        "headerImg": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600"
     },
     "categories": [
         {
+            "id": "entradas",
+            "name": "Entradas",
+            "icon": "fa-solid fa-bread-slice"
+        },
+        {
             "id": "tradicionais",
-            "name": "Tradicionais",
+            "name": "Pizzas Tradicionais",
             "icon": "fa-solid fa-pizza-slice"
         },
         {
             "id": "especiais",
-            "name": "Especiais",
+            "name": "Pizzas Especiais",
             "icon": "fa-solid fa-star"
         },
         {
             "id": "doces",
-            "name": "Doces",
+            "name": "Pizzas Doces",
             "icon": "fa-solid fa-cookie"
         },
         {
@@ -31,31 +39,123 @@
     ],
     "items": [
         {
+            "id": 22,
+            "category": "entradas",
+            "name": "Crostini de Ervas",
+            "desc": "Massa fina e crocante com alecrim, sal grosso e azeite.",
+            "price": 18.00,
+            "img": "https://images.unsplash.com/photo-1572610738316-e52296d9876e?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 23,
+            "category": "entradas",
+            "name": "Bruschetta Italiana",
+            "desc": "Pão de fermentação natural, tomate, alho e manjericão.",
+            "price": 22.00,
+            "img": "https://images.unsplash.com/photo-1572610738316-e52296d9876e?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
             "id": 1,
             "category": "tradicionais",
-            "name": "Calabresa Acebolada",
-            "desc": "Molho de tomate, mussarela, calabresa fatiada e cebola.",
+            "name": "Margherita Originale",
+            "desc": "Molho de tomate italiano, mussarela de búfala, manjericão fresco e azeite.",
             "price": 45.00,
+            "img": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Borda de Catupiry",
+                    "price": 8.00
+                },
+                {
+                    "name": "Borda de Cheddar",
+                    "price": 8.00
+                },
+                {
+                    "name": "Massa Integral",
+                    "price": 5.00
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "category": "tradicionais",
+            "name": "Calabresa com Cebola",
+            "desc": "Mussarela, calabresa fatiada, cebola roxa e orégano.",
+            "price": 42.00,
+            "img": "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 26,
+            "category": "tradicionais",
+            "name": "Frango com Catupiry G",
+            "desc": "Peito de frango desfiado, milho selecionado e o legítimo Catupiry original.",
+            "price": 49.00,
             "img": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400",
             "popular": true
         },
         {
             "id": 2,
             "category": "especiais",
-            "name": "Marguerita Premium",
-            "desc": "Mussarela de búfala, rodelas de tomate e manjericão fresco.",
+            "name": "Quattro Formaggi Premium",
+            "desc": "Mussarela, provolone, parmesão e gorgonzola cremoso.",
             "price": 52.00,
-            "img": "https://images.unsplash.com/photo-1574071318500-add3327d07af?auto=format&fit=crop&w=400",
+            "img": "https://images.unsplash.com/photo-1573821663912-56990549271a?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Mel de Engenho por cima",
+                    "price": 4.50
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "category": "especiais",
+            "name": "Portuguesa Completa",
+            "desc": "Mussarela, presunto, ovos, cebola, ervilha e palmito.",
+            "price": 48.00,
+            "img": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400",
             "popular": false
+        },
+        {
+            "id": 27,
+            "category": "especiais",
+            "name": "Pepperoni Americano",
+            "desc": "Mussarela premium, fatias generosas de pepperoni e um toque de orégano.",
+            "price": 54.00,
+            "img": "https://images.unsplash.com/photo-1628891435222-065924943306?auto=format&fit=crop&w=400",
+            "popular": true
         },
         {
             "id": 3,
             "category": "doces",
-            "name": "Chocolate com Morango",
-            "desc": "Chocolate ao leite com pedaços de morango.",
-            "price": 60.00,
-            "img": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400",
+            "name": "Nutella com Morango",
+            "desc": "Base de chocolate, fatias de morango e avelã.",
+            "price": 38.00,
+            "img": "https://images.unsplash.com/photo-1576014131795-d440191a8e8b?auto=format&fit=crop&w=400",
             "popular": true
+        },
+        {
+            "id": 28,
+            "category": "doces",
+            "name": "Romeu e Julieta",
+            "desc": "A combinação perfeita de mussarela derretida com goiabada cascão.",
+            "price": 38.00,
+            "img": "https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 25,
+            "category": "bebidas",
+            "name": "Vinho Tinto Cabernet",
+            "desc": "Garrafa 750ml, seleção da casa.",
+            "price": 65.00,
+            "img": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400",
+            "popular": false
         }
     ]
 }

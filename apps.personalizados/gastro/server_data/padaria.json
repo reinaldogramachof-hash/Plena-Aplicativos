@@ -1,0 +1,157 @@
+{
+    "config": {
+        "name": "Panificadora Bella Vista",
+        "brand": "Padaria",
+        "brandSuffix": "Vista",
+        "icon": "fa-solid fa-wheat-awn",
+        "rating": "4.7",
+        "hours": "06h as 20h",
+        "deliveryFee": 4.50,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600"
+    },
+    "categories": [
+        {
+            "id": "paes",
+            "name": "Pães Fresquinhos",
+            "icon": "fa-solid fa-bread-slice"
+        },
+        {
+            "id": "bolos",
+            "name": "Bolos & Tortas",
+            "icon": "fa-solid fa-cake-candles"
+        },
+        {
+            "id": "confeitaria",
+            "name": "Confeitaria Fina",
+            "icon": "fa-solid fa-cookie-bite"
+        },
+        {
+            "id": "cafe",
+            "name": "Café da Manhã",
+            "icon": "fa-solid fa-mug-saucer"
+        }
+    ],
+    "items": [
+        {
+            "id": 60,
+            "category": "paes",
+            "name": "Pão Francês (Unidade)",
+            "desc": "O pãozinho mais amado do Brasil, sempre quentinho e crocante.",
+            "price": 0.50,
+            "img": "https://images.unsplash.com/photo-1533130061792-64b345e4a833?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Fatiar",
+                    "price": 0.00
+                },
+                {
+                    "name": "Bem clarinho",
+                    "price": 0.00
+                },
+                {
+                    "name": "Mais moreninho",
+                    "price": 0.00
+                }
+            ]
+        },
+        {
+            "id": 61,
+            "category": "paes",
+            "name": "Pão de Queijo Mineiro G",
+            "desc": "Receita tradicional com queijo canastra real.",
+            "price": 4.50,
+            "img": "https://images.unsplash.com/photo-1590089415225-403ed3f57aec?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 67,
+            "category": "paes",
+            "name": "Baguete Recheada G",
+            "desc": "Frango desfiado, maionese, alface e queijo.",
+            "price": 21.00,
+            "img": "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=400",
+            "popular": false,
+            "options": [
+                {
+                    "name": "Sem Maionese",
+                    "price": 0.00
+                },
+                {
+                    "name": "Extra Recheio",
+                    "price": 6.00
+                }
+            ]
+        },
+        {
+            "id": 110,
+            "category": "paes",
+            "name": "Pão Sovado Especial",
+            "desc": "Massa leve e levemente adocicada, receita da vovó.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 62,
+            "category": "bolos",
+            "name": "Bolo de Cenoura c/ Chocolate",
+            "desc": "Massa fofinha com cobertura de brigadeiro belga.",
+            "price": 28.00,
+            "img": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Cobertura Extra",
+                    "price": 7.00
+                }
+            ]
+        },
+        {
+            "id": 111,
+            "category": "bolos",
+            "name": "Bolo de Milho Cremoso",
+            "desc": "Feito com milho verde selecionado, derrete na boca.",
+            "price": 25.00,
+            "img": "https://images.unsplash.com/photo-1584282759325-a13063f27dc6?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 63,
+            "category": "confeitaria",
+            "name": "Sonho de Creme",
+            "desc": "Massa leve e aerada recheada com legítimo creme de confeiteiro.",
+            "price": 6.00,
+            "img": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 66,
+            "category": "confeitaria",
+            "name": "Prestigio de Brigadeiro",
+            "desc": "Mini tortinha de chocolate com coco ralado.",
+            "price": 9.50,
+            "img": "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 64,
+            "category": "cafe",
+            "name": "Cappuccino Grande",
+            "desc": "Café espresso, leite vaporizado e canela.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 65,
+            "category": "cafe",
+            "name": "Tábua de Frios Individual",
+            "desc": "Presunto, mussarela, peito de peru e salame.",
+            "price": 24.00,
+            "img": "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&w=400",
+            "popular": false
+        }
+    ]
+}

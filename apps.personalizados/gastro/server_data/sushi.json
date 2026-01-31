@@ -1,11 +1,14 @@
 {
     "config": {
-        "name": "Sushi Zen",
-        "rating": "4.7",
+        "name": "Sushi Zen Garden",
+        "brand": "Sushi",
+        "brandSuffix": "Zen",
+        "icon": "fa-solid fa-shrimp",
+        "rating": "4.8",
         "hours": "11h as 23h",
         "deliveryFee": 0.00,
         "whatsapp": "5511999999999",
-        "headerImg": "https://images.unsplash.com/photo-1553621042-f6e147245754?w=1600"
+        "headerImg": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1600"
     },
     "categories": [
         {
@@ -19,8 +22,18 @@
             "icon": "fa-solid fa-ice-cream"
         },
         {
+            "id": "hotrolls",
+            "name": "Hot Rolls",
+            "icon": "fa-solid fa-fire"
+        },
+        {
+            "id": "uramakis",
+            "name": "Uramakis",
+            "icon": "fa-solid fa-layer-group"
+        },
+        {
             "id": "bebidas",
-            "name": "Bebidas",
+            "name": "Bebidas & Sakes",
             "icon": "fa-solid fa-glass-water"
         }
     ],
@@ -29,19 +42,125 @@
             "id": 1,
             "category": "combinados",
             "name": "Combo Salmão 20 Pçs",
-            "desc": "10 sashimis, 5 niguiris e 5 jows.",
+            "desc": "10 sashimis fresquinhos, 5 niguiris e 5 jows com cream cheese.",
             "price": 89.90,
             "img": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Molho Unagi Extra",
+                    "price": 4.00
+                },
+                {
+                    "name": "Gergelim Tostado",
+                    "price": 2.00
+                },
+                {
+                    "name": "Adicional de Wasabi",
+                    "price": 1.50
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "category": "combinados",
+            "name": "Combo Individual 12 Pçs",
+            "desc": "4 Sashimis, 4 Uramakis e 4 Hossomakis.",
+            "price": 45.00,
+            "img": "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 90,
+            "category": "combinados",
+            "name": "Barca Zen 40 Pçs",
+            "desc": "Mix completo de sashimis, sushis variados e hots.",
+            "price": 149.00,
+            "img": "https://images.unsplash.com/photo-1551024601-bec739746c9d?auto=format&fit=crop&w=400",
             "popular": true
         },
         {
             "id": 2,
             "category": "temakis",
             "name": "Temaki Salmão Completo",
-            "desc": "Salmão em cubos, cream cheese e cebolinha.",
+            "desc": "Alga crocante, arroz temperado, salmão em cubos, cream cheese e cebolinha.",
             "price": 24.90,
             "img": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Temaki Empanado (Hot)",
+                    "price": 6.00
+                },
+                {
+                    "name": "Sem Arroz",
+                    "price": 5.00
+                },
+                {
+                    "name": "Dobro de Cream Cheese",
+                    "price": 4.50
+                }
+            ]
+        },
+        {
+            "id": 91,
+            "category": "temakis",
+            "name": "Temaki Ebi Grill",
+            "desc": "Camarão grelhado, cream cheese, cebolinha e tarê.",
+            "price": 32.00,
+            "img": "https://images.unsplash.com/photo-1625946130424-df38d067edeb?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 31,
+            "category": "hotrolls",
+            "name": "Hot Filadélfia 10 Pçs",
+            "desc": "Enrolado de salmão e cream cheese, empanado e frito com molho tarê.",
+            "price": 32.00,
+            "img": "https://images.unsplash.com/photo-1617196034183-421b4917c92d?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Couve Crispy no topo",
+                    "price": 3.00
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "category": "uramakis",
+            "name": "Uramaki Filadélfia 8 Pçs",
+            "desc": "Enrolado de arroz com gergelim, salmão e cream cheese.",
+            "price": 28.00,
+            "img": "https://images.unsplash.com/photo-1579613832111-ac7dfcc0763f?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 32,
+            "category": "uramakis",
+            "name": "Uramaki Ebi Fly 8 Pçs",
+            "desc": "Recheado de camarão empanado e cream cheese.",
+            "price": 35.00,
+            "img": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=400",
             "popular": true
+        },
+        {
+            "id": 92,
+            "category": "uramakis",
+            "name": "Uramaki Skin 8 Pçs",
+            "desc": "Pele de salmão grelhada crocante e molho tarê.",
+            "price": 24.00,
+            "img": "https://images.unsplash.com/photo-1582450871972-ab5ca641643d?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 4,
+            "category": "bebidas",
+            "name": "Sake Azuma Kirin 740ml",
+            "desc": "O clássico sake japonês para acompanhar sua refeição.",
+            "price": 45.00,
+            "img": "https://images.unsplash.com/photo-1582650809085-780c10a4069c?auto=format&fit=crop&w=400",
+            "popular": false
         }
     ]
 }

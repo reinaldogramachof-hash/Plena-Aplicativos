@@ -1,0 +1,149 @@
+{
+    "config": {
+        "name": "Boteco do Zé - Petiscos & Cia",
+        "brand": "Boteco",
+        "brandSuffix": "do Zé",
+        "icon": "fa-solid fa-beer-mug-empty",
+        "rating": "4.6",
+        "hours": "17h as 01h",
+        "deliveryFee": 5.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=1600"
+    },
+    "categories": [
+        {
+            "id": "porcoes",
+            "name": "Porções da Casa",
+            "icon": "fa-solid fa-plate-wheat"
+        },
+        {
+            "id": "fritos",
+            "name": "Frituras Crocantes",
+            "icon": "fa-solid fa-fire-burner"
+        },
+        {
+            "id": "bebidas",
+            "name": "Cervejas Geladas",
+            "icon": "fa-solid fa-beer-mug-empty"
+        },
+        {
+            "id": "drinks",
+            "name": "Drinks Especiais",
+            "icon": "fa-solid fa-wine-glass"
+        }
+    ],
+    "items": [
+        {
+            "id": 80,
+            "category": "porcoes",
+            "name": "Tábua Mix do Zé",
+            "desc": "Carne de sol, mandioca frita, queijo coalho e melaço de cana.",
+            "price": 58.00,
+            "img": "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Extra Mandioca",
+                    "price": 10.00
+                },
+                {
+                    "name": "Dobro de Queijo Coalho",
+                    "price": 12.00
+                }
+            ]
+        },
+        {
+            "id": 130,
+            "category": "porcoes",
+            "name": "Iscas de Peixe Tilápia",
+            "desc": "Empanadas na farinha panko, super crocantes.",
+            "price": 42.00,
+            "img": "https://images.unsplash.com/photo-1534080333015-3bb5903b0a52?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 81,
+            "category": "fritos",
+            "name": "Frango a Passarinho (1kg)",
+            "desc": "Crocante por fora, suculento por dentro, com muito alho frito.",
+            "price": 45.00,
+            "img": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Molho de Pimenta da Casa",
+                    "price": 2.50
+                }
+            ]
+        },
+        {
+            "id": 82,
+            "category": "fritos",
+            "name": "Batata Suprema",
+            "desc": "Grande porção de fritas com cheddar e bacon.",
+            "price": 32.00,
+            "img": "https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 86,
+            "category": "porcoes",
+            "name": "Pasteizinhos Mistos (12 un)",
+            "desc": "Carne, queijo e palmito. Super sequinhos.",
+            "price": 38.00,
+            "img": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 131,
+            "category": "fritos",
+            "name": "Anéis de Lula à Dorê",
+            "desc": "Acompanha molho tártaro artesanal.",
+            "price": 54.00,
+            "img": "https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 83,
+            "category": "bebidas",
+            "name": "Balde de Heineken (5 Un)",
+            "desc": "Long neck estupidamente gelada.",
+            "price": 55.00,
+            "img": "https://images.unsplash.com/photo-1618885472179-5e474019f2a9?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 87,
+            "category": "bebidas",
+            "name": "Chopp Brahma 300ml",
+            "desc": "O frescor do chopp tirado na hora.",
+            "price": 9.50,
+            "img": "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 84,
+            "category": "drinks",
+            "name": "Caipirinha de Limão",
+            "desc": "Feita com cachaça artesanal e limão taiti.",
+            "price": 18.00,
+            "img": "https://images.unsplash.com/photo-1510626176961-4b57d4fbcbc5?auto=format&fit=crop&w=400",
+            "popular": false,
+            "options": [
+                {
+                    "name": "Trocar por Vodka (Caipivodka)",
+                    "price": 4.00
+                }
+            ]
+        },
+        {
+            "id": 85,
+            "category": "drinks",
+            "name": "Gin Tônica Frutas Vermelhas",
+            "desc": "Gin premium, tônica, morango, amora e mirtilo.",
+            "price": 28.00,
+            "img": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400",
+            "popular": true
+        }
+    ]
+}

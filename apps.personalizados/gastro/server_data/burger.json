@@ -1,21 +1,34 @@
 {
     "config": {
-        "name": "Burger House Premium",
+        "name": "Burger House Artisan",
+        "brand": "Burger",
+        "brandSuffix": "House",
+        "icon": "fa-solid fa-burger",
         "rating": "4.8",
         "hours": "18h as 23h",
         "deliveryFee": 5.00,
         "whatsapp": "5511999999999",
-        "headerImg": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600"
+        "headerImg": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=1600"
     },
     "categories": [
         {
             "id": "lanches",
-            "name": "Lanches",
+            "name": "Hambúrgueres",
             "icon": "fa-solid fa-burger"
         },
         {
+            "id": "combo",
+            "name": "Combos",
+            "icon": "fa-solid fa-box"
+        },
+        {
+            "id": "porcoes",
+            "name": "Acompanhamentos",
+            "icon": "fa-solid fa-fries-potatoes"
+        },
+        {
             "id": "bebidas",
-            "name": "Bebidas",
+            "name": "Bebidas Geladas",
             "icon": "fa-solid fa-glass-water"
         }
     ],
@@ -23,20 +36,152 @@
         {
             "id": 1,
             "category": "lanches",
-            "name": "X-Burger Premium",
-            "desc": "Pão brioche, 180g de angus.",
+            "name": "X-Burger Supreme",
+            "desc": "Pão brioche, 180g de blend angus, queijo cheddar derretido e maionese da casa.",
             "price": 32.90,
             "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Queijo Extra",
+                    "price": 4.50
+                },
+                {
+                    "name": "Bacon Crocante",
+                    "price": 5.00
+                },
+                {
+                    "name": "Hambúrguer Extra",
+                    "price": 12.00
+                },
+                {
+                    "name": "Ponto da Carne: Bem Passada",
+                    "price": 0.00
+                },
+                {
+                    "name": "Ponto da Carne: Mal Passada",
+                    "price": 0.00
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "category": "lanches",
+            "name": "Bacon Lover Premium",
+            "desc": "Pão australiano, carne 180g, muito bacon crocante e cebola caramelizada.",
+            "price": 38.00,
+            "img": "https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Cebola Extra",
+                    "price": 2.50
+                },
+                {
+                    "name": "Molho BBQ",
+                    "price": 3.00
+                },
+                {
+                    "name": "Picles Extra",
+                    "price": 2.00
+                }
+            ]
+        },
+        {
+            "id": 33,
+            "category": "lanches",
+            "name": "Veggie Delight",
+            "desc": "Pão integral, hambúrguer de grão de bico, alface, tomate e maionese vegana.",
+            "price": 34.00,
+            "img": "https://images.unsplash.com/photo-1520201163981-8cc95007dd2a?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 10,
+            "category": "combo",
+            "name": "Combo Galáctico",
+            "desc": "X-Burger + Batata M + Refrigerante Lata à escolha.",
+            "price": 49.90,
+            "img": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Turbinar Batata (G)",
+                    "price": 6.00
+                },
+                {
+                    "name": "Trocar por Suco",
+                    "price": 4.00
+                },
+                {
+                    "name": "Adicionar Milkshake",
+                    "price": 12.00
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "category": "combo",
+            "name": "Combo Duplo Casal",
+            "desc": "2 X-Burgers + 1 Batata G + 2 Refrigerantes Lata.",
+            "price": 89.00,
+            "img": "https://images.unsplash.com/photo-1521305916504-4a1121188589?auto=format&fit=crop&w=400",
             "popular": true
         },
         {
             "id": 3,
+            "category": "porcoes",
+            "name": "Batata Rústica",
+            "desc": "Porção individual de batatas fritas com alecrim e sal grosso.",
+            "price": 14.50,
+            "img": "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=400",
+            "popular": false,
+            "options": [
+                {
+                    "name": "Molho de Cheddar",
+                    "price": 4.00
+                },
+                {
+                    "name": "Farofa de Bacon",
+                    "price": 3.50
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "category": "porcoes",
+            "name": "Onion Rings G",
+            "desc": "Anéis de cebola empanados super crocantes com molho especial.",
+            "price": 22.00,
+            "img": "https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 35,
+            "category": "porcoes",
+            "name": "Nuggets 10 Pçs",
+            "desc": "Peito de frango empanado crocante acompanhado de molho rosê.",
+            "price": 19.90,
+            "img": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 4,
             "category": "bebidas",
-            "name": "Coca Cola Lata",
-            "desc": "350ml gelada.",
-            "price": 6.00,
-            "img": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400",
+            "name": "Milkshake Chocolate",
+            "desc": "500ml de puro sabor com calda de chocolate belga.",
+            "price": 18.00,
+            "img": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400",
             "popular": true
+        },
+        {
+            "id": 12,
+            "category": "bebidas",
+            "name": "Soda Italiana Morango",
+            "desc": "Refrescante soda de morango com gelo e hortelã.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1513558116341-75f1b259f88b?auto=format&fit=crop&w=400",
+            "popular": false
         }
     ]
 }

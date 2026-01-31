@@ -37,12 +37,24 @@
             --card-bg: #222225;
         }
 
+        /* Hide scrollbars but keep functionality */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: #e4e4e7;
-            -webkit-font-smoothing: antialiased;
+            background-color: #09090b;
+            color: #fafafa;
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         h1,
@@ -72,9 +84,11 @@
 
         /* Navbar */
         .navbar-blur {
-            background: rgba(24, 24, 27, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            /* Espaço para o Notch do iPhone em simuladores */
         }
 
         /* Hero */
@@ -180,6 +194,23 @@
                 height: 120px;
             }
         }
+
+        /* New Header Styles */
+        .header-image {
+            height: 200px;
+            background-position: center;
+            background-size: cover;
+            position: relative;
+        }
+
+        .header-overlay {
+            background: linear-gradient(to top, var(--bg-body) 0%, rgba(0, 0, 0, 0.4) 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -196,14 +227,17 @@
 
         <!-- Top Navbar -->
         <nav class="navbar fixed-top navbar-blur">
-            <div class="container-xl d-flex justify-content-between align-items-center py-2">
+            <div class="container-xl d-flex justify-content-between align-items-center py-2" v-if="config.name">
                 <div class="d-flex align-items-center gap-2">
                     <div class="rounded-3 bg-gradient p-2 text-dark d-flex align-items-center justify-content-center"
                         style="background: var(--plena-primary); width: 40px; height: 40px;">
-                        <i class="fa-solid fa-fire-burner fs-5"></i>
+                        <i :class="config.icon || 'fa-solid fa-fire-burner'" class="fs-5"></i>
                     </div>
                     <div class="lh-1">
-                        <h5 class="m-0 text-white fw-bold">Plena<span class="text-warning">Food</span></h5>
+                        <h5 class="m-0 text-white fw-bold">
+                            {{ config.brand || 'Plena' }}<span class="text-warning">{{ config.brandSuffix || 'Food'
+                                }}</span>
+                        </h5>
                         <small class="text-white-50" style="font-size: 0.75rem">Cardápio Digital</small>
                     </div>
                 </div>
@@ -232,17 +266,25 @@
         <!-- Main Content -->
         <main style="padding-top: 70px; padding-bottom: 100px;">
 
-            <!-- Hero Restaurant Info -->
-            <div class="hero-section d-flex align-items-end mb-4"
-                :style="{ backgroundImage: 'url(' + config.headerImg + ')' }">
-                <div class="hero-overlay position-absolute w-100 h-100 top-0 start-0"></div>
-                <div class="container-xl position-relative z-1 pb-4">
-                    <h1 class="display-5 fw-bold text-white mb-1 shadow-sm">{{ config.name }}</h1>
-                    <div class="d-flex flex-wrap gap-3 text-white-50 small fw-medium">
-                        <span><i class="fa-solid fa-star text-warning me-1"></i> {{ config.rating }}</span>
-                        <span><i class="fa-solid fa-clock text-warning me-1"></i> {{ config.hours }}</span>
-                        <span><i class="fa-solid fa-motorcycle text-warning me-1"></i> {{
-                            formatCurrency(config.deliveryFee) }}</span>
+            <!-- Hero Section (Compact for App feel) -->
+            <div class="header-image" :style="{ backgroundImage: `url(${config.headerImg})` }">
+                <div class="header-overlay d-flex flex-column justify-content-end p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-warning text-dark"><i class="fa-solid fa-star me-1"></i>{{ config.rating
+                            }}</span>
+                        <span class="text-white small"><i class="fa-regular fa-clock me-1"></i>{{ config.hours }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-body py-3 px-3 shadow-sm border-bottom border-secondary border-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="text-white fw-bold mb-1">{{ config.name }}</h3>
+                        <div class="text-white-50 small">
+                            <i class="fa-solid fa-motorcycle me-1 text-brand"></i> Entrega: <span class="text-brand">{{
+                                formatCurrency(config.deliveryFee) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,11 +301,14 @@
 
             <!-- Product Grid -->
             <div class="container-xl">
-                <h4 class="text-white mb-3 border-start border-4 border-warning ps-3">{{ getCategoryName(activeCategory)
-                    }}</h4>
+                <h4 class="text-white mb-3 border-start border-4 ps-3"
+                    style="border-color: var(--plena-primary) !important;">
+                    {{ getCategoryName(activeCategory) }}
+                </h4>
 
                 <div v-if="filteredItems.length === 0" class="text-center py-5">
-                    <i class="fa-solid fa-burger text-secondary opacity-25 display-1 mb-3"></i>
+                    <i :class="config.icon || 'fa-solid fa-burger'"
+                        class="text-secondary opacity-25 display-1 mb-3"></i>
                     <p class="text-white-50">Nenhum item encontrado nesta categoria.</p>
                 </div>
 
@@ -446,7 +491,7 @@
                 const loading = ref(true);
                 const showSearch = ref(false);
                 const searchQuery = ref('');
-                const activeCategory = ref('lanches');
+                const activeCategory = ref('');
                 const productModal = ref(null);
 
                 // State for Modal
@@ -479,6 +524,19 @@
 
                     console.log('Loading Niche:', targetNiche);
 
+                    // 2. Set Theme Colors (Dynamic UI)
+                    const themes = {
+                        burger: { primary: '#F59E0B' },
+                        pizza: { primary: '#DC2626' },
+                        sushi: { primary: '#0ea5e9' },
+                        acai: { primary: '#a855f7' },
+                        lanchonete: { primary: '#f59e0b' }
+                    };
+
+                    if (themes[targetNiche]) {
+                        document.documentElement.style.setProperty('--plena-primary', themes[targetNiche].primary);
+                    }
+
                     try {
                         // 2. Fetch External Data (JSON)
                         // Paths: Try server_data/ first.
@@ -493,7 +551,12 @@
                         if (data.categories) categories.value = data.categories;
                         if (data.items) items.value = data.items;
 
-                        // 4. Force Title Update
+                        // 4. Dynamic First Category
+                        if (categories.value.length > 0) {
+                            activeCategory.value = categories.value[0].id;
+                        }
+
+                        // 5. Force Title Update
                         document.title = `${config.value.name} | Cardápio Digital`;
 
                     } catch (error) {

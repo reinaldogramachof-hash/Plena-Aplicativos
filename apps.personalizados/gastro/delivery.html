@@ -6,9 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plena Delivery | Gestão de Pedidos</title>
 
-    <meta name="theme-color" content="#212529">
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#198754">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Sistema de gestão de pedidos para delivery">
+    
+    <!-- Icons PWA -->
+    <link rel="icon" type="image/png" href="icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,9 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Vue.js 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -27,11 +32,15 @@
     <style>
         :root {
             --plena-primary: #198754;
-            /* Green-500 equivalent */
             --plena-secondary: #0d6efd;
             --bg-body: #18181b;
             --card-bg: #222225;
             --column-bg: #27272a;
+        }
+
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -40,15 +49,22 @@
             color: #e4e4e7;
             height: 100vh;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Oswald', sans-serif;
+        }
+
+        /* PWA Safe Areas */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: min(0vmin, env(safe-area-inset-left));
+                padding-right: min(0vmin, env(safe-area-inset-right));
+                padding-top: min(0vmin, env(safe-area-inset-top));
+                padding-bottom: min(0vmin, env(safe-area-inset-bottom));
+            }
         }
 
         /* Sidebar */
@@ -58,6 +74,11 @@
             border-right: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-collapsed {
+            transform: translateX(-100%);
         }
 
         .nav-link {
@@ -69,6 +90,7 @@
             border-radius: 8px;
             margin: 4px 10px;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .nav-link:hover,
@@ -87,6 +109,12 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             background-color: var(--card-bg);
             padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         /* Kanban Board */
@@ -94,6 +122,7 @@
             flex: 1;
             overflow-x: auto;
             padding: 24px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .kanban-column {
@@ -103,8 +132,9 @@
             border-radius: 12px;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: calc(100vh - 180px);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
 
         .kanban-header {
@@ -123,6 +153,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            min-height: 200px;
         }
 
         .kanban-body::-webkit-scrollbar {
@@ -141,8 +172,13 @@
             padding: 14px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             border-top: 3px solid transparent;
+            touch-action: manipulation;
+        }
+
+        .order-card:active {
+            transform: scale(0.98);
         }
 
         .order-card:hover {
@@ -154,73 +190,130 @@
             border-top-color: #0dcaf0;
         }
 
-        /* Cyan */
         .border-prep {
             border-top-color: #ffc107;
         }
 
-        /* Warning */
         .border-dlv {
             border-top-color: #198754;
         }
 
-        /* Success */
-
+        /* Status Badges */
         .badge-online {
             background-color: rgba(13, 110, 253, 0.2);
             color: #6ea8fe;
             border: 1px solid rgba(13, 110, 253, 0.4);
         }
 
-        /* Pulse Animation for New Orders */
+        /* Animations */
         @keyframes pulse-green {
-            0% {
-                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
-            }
+            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+        }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
-            }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .pulse-btn {
             animation: pulse-green 2s infinite;
         }
 
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Offline Warning */
+        .offline-warning {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: #dc3545;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            z-index: 9999;
+            font-size: 14px;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .kanban-column {
+                min-width: 280px;
+                max-width: 280px;
+                height: calc(100vh - 140px);
+            }
+            
+            .kanban-container {
+                padding: 16px;
+                gap: 12px;
+            }
+            
+            .topbar {
+                padding: 0 12px;
+            }
+            
+            .order-card {
+                padding: 12px;
+            }
+        }
+
+        /* Drag and Drop */
+        .drag-over {
+            background-color: rgba(25, 135, 84, 0.1);
+            border: 2px dashed var(--plena-primary);
+        }
+
+        /* Installation Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--plena-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
         /* Pro Theme */
-        .pro-active body {
-            background-color: #111827;
-            color: #e2e8f0;
+        .pro-active {
+            --bg-body: #111827;
+            --card-bg: #1f2937;
+            --column-bg: #374151;
         }
 
-        .pro-active .navbar {
-            background: rgba(17, 24, 39, 0.95) !important;
-            border-bottom: 2px solid #eab308;
+        /* Settings Panel */
+        .settings-panel {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .pro-active .card {
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            color: #fff;
-        }
-
-        .pro-active .kanban-col {
-            background: #111827;
-            border: 1px dashed #374151;
+        .form-switch .form-check-input {
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-
     <div id="app" class="d-flex h-100">
+        <!-- Offline Warning -->
+        <div v-if="!isOnline && !isLocalMode" class="offline-warning">
+            <i class="fa-solid fa-wifi-slash me-2"></i>
+            Você está offline. Os pedidos serão sincronizados quando a conexão retornar.
+        </div>
 
         <!-- Sidebar -->
-        <aside class="sidebar d-none d-md-flex">
+        <aside :class="['sidebar', { 'd-none d-md-flex': !showSidebar, 'sidebar-collapsed': !sidebarVisible }]">
             <div class="p-4 d-flex align-items-center gap-2">
                 <div class="rounded-3 bg-gradient p-2 text-white d-flex align-items-center justify-content-center"
                     style="background: var(--plena-primary); width: 36px; height: 36px;">
@@ -230,17 +323,20 @@
             </div>
 
             <nav class="flex-grow-1">
-                <a href="#" class="nav-link active">
-                    <i class="fa-solid fa-clipboard-list w-25px"></i> Kanban
+                <a @click="setView('kanban')" :class="['nav-link', { active: currentView === 'kanban' }]">
+                    <i class="fa-solid fa-clipboard-list"></i> Kanban
                 </a>
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-motorcycle w-25px"></i> Entregadores
+                <a @click="setView('entregadores')" :class="['nav-link', { active: currentView === 'entregadores' }]">
+                    <i class="fa-solid fa-motorcycle"></i> Entregadores
                 </a>
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-chart-pie w-25px"></i> Relatórios
+                <a @click="setView('relatorios')" :class="['nav-link', { active: currentView === 'relatorios' }]">
+                    <i class="fa-solid fa-chart-pie"></i> Relatórios
                 </a>
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-gear w-25px"></i> Ajustes
+                <a @click="setView('historico')" :class="['nav-link', { active: currentView === 'historico' }]">
+                    <i class="fa-solid fa-history"></i> Histórico
+                </a>
+                <a @click="setView('ajustes')" :class="['nav-link', { active: currentView === 'ajustes' }]">
+                    <i class="fa-solid fa-gear"></i> Ajustes
                 </a>
             </nav>
 
@@ -249,128 +345,327 @@
                     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
                         style="width: 32px; height: 32px;">A</div>
                     <div class="lh-1">
-                        <div class="text-white small fw-bold">Admin</div>
-                        <div class="text-white-50" style="font-size: 10px;">Loja Principal</div>
+                        <div class="text-white small fw-bold">{{ storeName }}</div>
+                        <div class="text-white-50" style="font-size: 10px;">{{ isProMode ? 'Modo Pro' : 'Modo Local' }}</div>
                     </div>
                 </div>
+                <button @click="toggleSidebar" class="btn btn-sm btn-outline-secondary mt-3 w-100">
+                    <i class="fa-solid fa-chevron-left"></i> Ocultar
+                </button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-grow-1 d-flex flex-column bg-body">
-
+        <main class="flex-grow-1 d-flex flex-column bg-body" :class="{ 'pro-active': isProMode }">
             <!-- Topbar -->
-            <header class="topbar d-flex justify-content-between align-items-center">
-                <h5 class="m-0 text-white d-md-none"><i class="fa-solid fa-truck-fast text-success me-2"></i>Plena</h5>
-
-                <!-- Online Status / Polling -->
+            <header class="topbar">
                 <div class="d-flex align-items-center gap-3">
+                    <button @click="toggleSidebar" class="btn btn-outline-secondary btn-sm d-md-none">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h5 class="m-0 text-white d-md-none"><i class="fa-solid fa-truck-fast text-success me-2"></i>Plena</h5>
+                    <h5 class="m-0 text-white d-none d-md-block">Pedidos em Tempo Real</h5>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Connection Status -->
                     <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill" :class="connectionStatus.class"
                         style="background: rgba(255,255,255,0.05)">
                         <i class="fa-solid fa-wifi" style="font-size: 12px;"></i>
                         <small class="fw-bold">{{ connectionStatus.text }}</small>
                     </div>
 
+                    <!-- New Order Button -->
+                    <button class="btn btn-success btn-sm d-flex align-items-center gap-2" @click="showNewOrderModal">
+                        <i class="fa-solid fa-plus"></i> Novo Pedido
+                    </button>
+
+                    <!-- Sync Button -->
                     <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-2"
-                        :class="{ 'pulse-btn': newOrdersCount > 0 }" @click="forcePoll">
-                        <i class="fa-solid fa-rotate"></i>
-                        <span v-if="newOrdersCount > 0">{{ newOrdersCount }} Novos</span>
+                        :class="{ 'pulse-btn': pendingSyncCount > 0 }" @click="forceSync" :disabled="syncInProgress">
+                        <i class="fa-solid" :class="syncInProgress ? 'fa-spinner fa-spin' : 'fa-rotate'"></i>
+                        <span v-if="pendingSyncCount > 0">{{ pendingSyncCount }} Pendentes</span>
+                        <span v-else>Sincronizar</span>
+                    </button>
+
+                    <!-- Backup Button -->
+                    <button class="btn btn-outline-info btn-sm" @click="exportData" title="Exportar Dados">
+                        <i class="fa-solid fa-download"></i>
                     </button>
                 </div>
             </header>
 
-            <!-- Kanban Board -->
-            <div class="kanban-container d-flex gap-4">
+            <!-- Content Views -->
+            <div class="flex-grow-1 overflow-auto">
+                <!-- Kanban View -->
+                <div v-if="currentView === 'kanban'" class="kanban-container d-flex gap-4">
+                    <!-- Column: Pendentes -->
+                    <div class="kanban-column" @dragover.prevent @drop="dropOrder('new')">
+                        <div class="kanban-header border-start border-4 border-info">
+                            <span class="text-info">PENDENTES</span>
+                            <span class="badge bg-dark text-white-50 border border-secondary">{{ filteredOrders.new.length }}</span>
+                        </div>
+                        <div class="kanban-body">
+                            <div v-for="order in filteredOrders.new" :key="order.id" class="order-card border-new slide-in"
+                                draggable="true" @dragstart="dragStart(order, 'new')" @click="viewOrder(order)">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="badge bg-dark border border-secondary text-white-50">#{{ String(order.id).slice(-4) }}</span>
+                                    <span class="badge badge-online" v-if="order.isOnline"><i class="fa-solid fa-globe me-1"></i>Online</span>
+                                    <span class="badge bg-secondary bg-opacity-25 text-secondary" v-else>Manual</span>
+                                </div>
+                                <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                                <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{ formatCurrency(order.total) }}</small>
+                                <small class="text-muted">{{ formatTime(order.createdAt) }}</small>
 
-                <!-- Column: Pendentes -->
-                <div class="kanban-column">
-                    <div class="kanban-header border-start border-4 border-info">
-                        <span class="text-info">PENDENTES</span>
-                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.new.length }}</span>
-                    </div>
-                    <div class="kanban-body">
-                        <div v-for="order in orders.new" :key="order.id" class="order-card border-new"
-                            @click="viewOrder(order)">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="badge bg-dark border border-secondary text-white-50">#{{
-                                    String(order.id).slice(-4) }}</span>
-                                <span class="badge badge-online" v-if="order.isOnline"><i
-                                        class="fa-solid fa-globe me-1"></i>Online</span>
-                                <span class="badge bg-secondary bg-opacity-25 text-secondary" v-else>Manual</span>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-warning w-100" @click.stop="moveOrder(order, 'new', 'processing')">
+                                        <i class="fa-solid fa-fire-burner me-1"></i> Preparar
+                                    </button>
+                                </div>
                             </div>
-                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
-                            <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{
-                                formatCurrency(order.total) }}</small>
+                            <div v-if="filteredOrders.new.length === 0" class="text-center text-white-50 py-5">
+                                <i class="fa-solid fa-inbox fa-2x mb-2"></i>
+                                <p>Nenhum pedido pendente</p>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-warning w-100"
-                                    @click.stop="moveOrder(order, 'new', 'processing')">
-                                    <i class="fa-solid fa-fire-burner me-1"></i> Preparar
-                                </button>
+                    <!-- Column: Em Preparo -->
+                    <div class="kanban-column" @dragover.prevent @drop="dropOrder('processing')">
+                        <div class="kanban-header border-start border-4 border-warning">
+                            <span class="text-warning">EM PREPARO</span>
+                            <span class="badge bg-dark text-white-50 border border-secondary">{{ filteredOrders.processing.length }}</span>
+                        </div>
+                        <div class="kanban-body">
+                            <div v-for="order in filteredOrders.processing" :key="order.id" class="order-card border-prep slide-in"
+                                draggable="true" @dragstart="dragStart(order, 'processing')" @click="viewOrder(order)">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="badge bg-dark border border-secondary text-white-50">#{{ String(order.id).slice(-4) }}</span>
+                                    <small class="text-warning fw-bold"><i class="fa-regular fa-clock me-1"></i> {{ calculatePrepTime(order) }} min</small>
+                                </div>
+                                <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                                <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{ formatCurrency(order.total) }}</small>
+                                
+                                <div class="progress mb-2" style="height: 4px;">
+                                    <div class="progress-bar bg-warning" :style="{ width: calculateProgress(order) + '%' }"></div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-success w-100" @click.stop="moveOrder(order, 'processing', 'delivery')">
+                                        <i class="fa-solid fa-motorcycle me-1"></i> Entregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column: Entrega -->
+                    <div class="kanban-column" @dragover.prevent @drop="dropOrder('delivery')">
+                        <div class="kanban-header border-start border-4 border-success">
+                            <span class="text-success">SAIU P/ ENTREGA</span>
+                            <span class="badge bg-dark text-white-50 border border-secondary">{{ filteredOrders.delivery.length }}</span>
+                        </div>
+                        <div class="kanban-body">
+                            <div v-for="order in filteredOrders.delivery" :key="order.id" class="order-card border-dlv slide-in"
+                                draggable="true" @dragstart="dragStart(order, 'delivery')" @click="viewOrder(order)">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="badge bg-dark border border-secondary text-white-50">#{{ String(order.id).slice(-4) }}</span>
+                                    <span class="text-white-50 small">Motoboy: {{ order.deliveryPerson || 'Não atribuído' }}</span>
+                                </div>
+                                <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
+                                <small class="text-white-50 d-block mb-3">{{ order.customer.payment }}</small>
+                                <small class="text-muted">Saiu: {{ formatTime(order.movedToDelivery) }}</small>
+
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-success w-100" @click.stop="completeOrder(order)">
+                                        <i class="fa-solid fa-check me-1"></i> Concluir
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Column: Em Preparo -->
-                <div class="kanban-column">
-                    <div class="kanban-header border-start border-4 border-warning">
-                        <span class="text-warning">EM PREPARO</span>
-                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.processing.length
-                            }}</span>
-                    </div>
-                    <div class="kanban-body">
-                        <div v-for="order in orders.processing" :key="order.id" class="order-card border-prep"
-                            @click="viewOrder(order)">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="badge bg-dark border border-secondary text-white-50">#{{
-                                    String(order.id).slice(-4) }}</span>
-                                <small class="text-warning fw-bold"><i class="fa-regular fa-clock me-1"></i> 12
-                                    min</small>
-                            </div>
-                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
-                            <small class="text-white-50 d-block mb-3">{{ order.items.length }} itens • {{
-                                formatCurrency(order.total) }}</small>
-
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-success w-100"
-                                    @click.stop="moveOrder(order, 'processing', 'delivery')">
-                                    <i class="fa-solid fa-motorcycle me-1"></i> Entregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Column: Entrega -->
-                <div class="kanban-column">
-                    <div class="kanban-header border-start border-4 border-success">
-                        <span class="text-success">SAIU P/ ENTREGA</span>
-                        <span class="badge bg-dark text-white-50 border border-secondary">{{ orders.delivery.length
-                            }}</span>
-                    </div>
-                    <div class="kanban-body">
-                        <div v-for="order in orders.delivery" :key="order.id" class="order-card border-dlv"
-                            @click="viewOrder(order)">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="badge bg-dark border border-secondary text-white-50">#{{
-                                    String(order.id).slice(-4) }}</span>
-                                <span class="text-white-50 small">Motoboy: João</span>
-                            </div>
-                            <h6 class="text-white mb-1">{{ order.customer.name }}</h6>
-                            <small class="text-white-50 d-block mb-3">{{ order.customer.payment }}</small>
-
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-success w-100" @click.stop="archiveOrder(order)">
-                                    <i class="fa-solid fa-check me-1"></i> Concluir
-                                </button>
+                <!-- Delivery People View -->
+                <div v-else-if="currentView === 'entregadores'" class="p-4">
+                    <h4 class="mb-4">Gestão de Entregadores</h4>
+                    <div class="row">
+                        <div class="col-md-6" v-for="person in deliveryPeople" :key="person.id">
+                            <div class="card mb-3 bg-dark">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title">{{ person.name }}</h5>
+                                            <p class="card-text text-white-50 mb-1">Status: 
+                                                <span :class="person.status === 'online' ? 'text-success' : 'text-secondary'">
+                                                    {{ person.status === 'online' ? 'Online' : 'Offline' }}
+                                                </span>
+                                            </p>
+                                            <p class="card-text text-white-50">Pedidos hoje: {{ person.todayOrders }}</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary">{{ person.currentOrders }} em entrega</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary w-100 mt-2" @click="assignOrders(person)">
+                                        Atribuir Pedidos
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Reports View -->
+                <div v-else-if="currentView === 'relatorios'" class="p-4">
+                    <h4 class="mb-4">Relatórios</h4>
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark">
+                                <div class="card-body text-center">
+                                    <h1 class="text-success">{{ stats.today }}</h1>
+                                    <p class="text-white-50">Pedidos Hoje</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark">
+                                <div class="card-body text-center">
+                                    <h1 class="text-warning">{{ formatCurrency(stats.revenue) }}</h1>
+                                    <p class="text-white-50">Faturamento</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark">
+                                <div class="card-body text-center">
+                                    <h1 class="text-info">{{ stats.avgTime }} min</h1>
+                                    <p class="text-white-50">Tempo Médio</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card bg-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">Pedidos por Hora</h5>
+                            <canvas id="ordersChart" width="400" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History View -->
+                <div v-else-if="currentView === 'historico'" class="p-4">
+                    <h4 class="mb-4">Histórico de Pedidos</h4>
+                    <div class="mb-3">
+                        <input type="date" v-model="historyFilter.date" class="form-control bg-dark text-white w-auto d-inline-block me-2">
+                        <button class="btn btn-sm btn-outline-secondary" @click="clearHistoryFilter">Limpar Filtro</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="order in filteredHistory" :key="order.id">
+                                    <td>#{{ String(order.id).slice(-4) }}</td>
+                                    <td>{{ order.customer.name }}</td>
+                                    <td>{{ formatCurrency(order.total) }}</td>
+                                    <td><span class="badge" :class="getStatusBadgeClass(order.status)">{{ getStatusText(order.status) }}</span></td>
+                                    <td>{{ formatTime(order.completedAt || order.createdAt) }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-info" @click="viewOrder(order)">Ver</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div v-else-if="currentView === 'ajustes'" class="settings-panel">
+                    <h4 class="mb-4">Ajustes do Sistema</h4>
+                    
+                    <div class="card bg-dark mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Modo de Operação</h5>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" v-model="settings.proMode" @change="toggleProMode">
+                                <label class="form-check-label">Modo Pro (Sincronização Online)</label>
+                            </div>
+                            <small class="text-white-50">Ative para sincronizar com servidor</small>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark mb-4" v-if="settings.proMode">
+                        <div class="card-body">
+                            <h5 class="card-title">Configurações de API</h5>
+                            <div class="mb-3">
+                                <label class="form-label">URL da API</label>
+                                <input type="text" class="form-control bg-dark text-white" v-model="settings.apiUrl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Token de Acesso</label>
+                                <input type="password" class="form-control bg-dark text-white" v-model="settings.apiToken">
+                            </div>
+                            <button class="btn btn-sm btn-outline-success" @click="testConnection">Testar Conexão</button>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Configurações Locais</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Nome da Loja</label>
+                                <input type="text" class="form-control bg-dark text-white" v-model="settings.storeName">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tempo de Preparo (minutos)</label>
+                                <input type="number" class="form-control bg-dark text-white" v-model="settings.prepTime">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" v-model="settings.soundNotifications">
+                                <label class="form-check-label">Notificações Sonoras</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Backup e Restauração</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-info flex-grow-1" @click="exportData">
+                                    <i class="fa-solid fa-download me-2"></i>Exportar Dados
+                                </button>
+                                <button class="btn btn-outline-warning flex-grow-1" @click="importData">
+                                    <i class="fa-solid fa-upload me-2"></i>Importar Dados
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-danger w-100" @click="clearData">
+                                    <i class="fa-solid fa-trash me-2"></i>Limpar Todos os Dados
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">Informações do Sistema</h5>
+                            <p class="text-white-50 mb-1">Versão: {{ appVersion }}</p>
+                            <p class="text-white-50 mb-1">Armazenamento: {{ storageUsage }}</p>
+                            <p class="text-white-50 mb-1">Última Sincronização: {{ lastSyncTime || 'Nunca' }}</p>
+                            <button class="btn btn-sm btn-outline-secondary mt-2" @click="clearCache">Limpar Cache</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </main>
 
         <!-- Order Details Modal -->
@@ -378,20 +673,21 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content bg-dark text-white border-secondary">
                     <div class="modal-header border-secondary">
-                        <h5 class="modal-title font-brand">Detalhes do Pedido</h5>
+                        <h5 class="modal-title">Detalhes do Pedido</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body" v-if="selectedOrder">
                         <div class="d-flex justify-content-between mb-3">
                             <span class="badge bg-info text-dark">#{{ selectedOrder.id }}</span>
-                            <span class="text-white-50 small">{{ new Date(selectedOrder.date).toLocaleString() }}</span>
+                            <span class="text-white-50 small">{{ formatDateTime(selectedOrder.createdAt) }}</span>
                         </div>
                         <h6>{{ selectedOrder.customer.name }}</h6>
+                        <p class="text-white-50 small mb-1">Telefone: {{ selectedOrder.customer.phone || 'Não informado' }}</p>
                         <p class="text-white-50 small mb-4">Pagamento: {{ selectedOrder.customer.payment }}</p>
 
                         <ul class="list-group list-group-flush mb-3">
                             <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between px-0"
-                                v-for="item in selectedOrder.items">
+                                v-for="item in selectedOrder.items" :key="item.id">
                                 <div>
                                     <div>{{ item.qty }}x {{ item.name }}</div>
                                     <small class="text-white-50" v-for="add in item.addons">+ {{ add.name }} </small>
@@ -405,147 +701,980 @@
                             <span>Total</span>
                             <span class="text-success fs-5">{{ formatCurrency(selectedOrder.total) }}</span>
                         </div>
+                        
+                        <div class="mt-4" v-if="selectedOrder.status !== 'completed'">
+                            <button class="btn btn-sm btn-outline-danger w-100" @click="cancelOrder(selectedOrder)">
+                                <i class="fa-solid fa-times me-2"></i>Cancelar Pedido
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- New Order Modal -->
+        <div class="modal fade" id="newOrderModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">Novo Pedido</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="createOrder">
+                            <div class="mb-3">
+                                <label class="form-label">Nome do Cliente</label>
+                                <input type="text" class="form-control bg-dark text-white" v-model="newOrder.customer.name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Telefone</label>
+                                <input type="tel" class="form-control bg-dark text-white" v-model="newOrder.customer.phone">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Forma de Pagamento</label>
+                                <select class="form-select bg-dark text-white" v-model="newOrder.customer.payment">
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="Cartão">Cartão</option>
+                                    <option value="PIX">PIX</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Itens</label>
+                                <div class="border border-secondary rounded p-3">
+                                    <div v-for="(item, index) in newOrder.items" :key="index" class="mb-2">
+                                        <div class="d-flex gap-2">
+                                            <input type="number" class="form-control bg-dark text-white" style="width: 80px;" 
+                                                v-model="item.qty" min="1" placeholder="Qtd">
+                                            <input type="text" class="form-control bg-dark text-white" 
+                                                v-model="item.name" placeholder="Nome do item">
+                                            <input type="number" class="form-control bg-dark text-white" style="width: 120px;"
+                                                v-model="item.price" step="0.01" placeholder="Preço">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" @click="removeItem(index)">
+                                                <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary w-100" @click="addItem">
+                                        <i class="fa-solid fa-plus me-1"></i>Adicionar Item
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control bg-dark text-white" v-model="newOrder.notes" rows="2"></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Total: {{ formatCurrency(calculateNewOrderTotal()) }}</span>
+                                <button type="submit" class="btn btn-success">Criar Pedido</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Data Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">Importar Dados</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Selecione o arquivo JSON</label>
+                            <input type="file" class="form-control bg-dark text-white" accept=".json" @change="handleFileUpload">
+                        </div>
+                        <div v-if="importPreview" class="mt-3">
+                            <h6>Preview:</h6>
+                            <pre class="bg-black p-2 rounded text-white" style="max-height: 200px; overflow: auto;">{{ importPreview }}</pre>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" @click="confirmImport" :disabled="!importData">Importar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Config -->
-    <script src="config.js"></script>
+    <!-- Installation Prompt -->
+    <div v-if="showInstallPrompt" class="install-prompt">
+        <i class="fa-solid fa-download fa-lg"></i>
+        <div>
+            <small>Instalar o Plena Delivery?</small>
+            <div class="mt-1">
+                <button class="btn btn-sm btn-light me-2" @click="installApp">Instalar</button>
+                <button class="btn btn-sm btn-outline-light" @click="dismissInstallPrompt">Agora não</button>
+            </div>
+        </div>
+    </div>
 
+    <script src="config.js"></script>
     <script>
-        const { createApp, ref, onMounted, computed } = Vue;
+        const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch } = Vue;
 
         createApp({
             setup() {
-                const orders = ref({
+                // State
+                const orders = reactive({
                     new: [],
                     processing: [],
-                    delivery: []
+                    delivery: [],
+                    history: []
                 });
+                
                 const selectedOrder = ref(null);
-                const connectionStatus = ref({ text: 'Offline', class: 'text-secondary' }); // Default offline
-                const newOrdersCount = ref(0);
+                const currentView = ref('kanban');
+                const sidebarVisible = ref(true);
+                const showSidebar = ref(window.innerWidth >= 768);
+                const isOnline = ref(navigator.onLine);
+                const syncInProgress = ref(false);
+                const pendingSyncCount = ref(0);
+                const showInstallPrompt = ref(false);
+                const deferredPrompt = ref(null);
+                
+                // Settings
+                const settings = reactive({
+                    proMode: false,
+                    apiUrl: '',
+                    apiToken: '',
+                    storeName: 'Loja Principal',
+                    prepTime: 15,
+                    soundNotifications: true,
+                    autoSync: true,
+                    syncInterval: 30000
+                });
+                
+                // New order form
+                const newOrder = reactive({
+                    customer: {
+                        name: '',
+                        phone: '',
+                        payment: 'Dinheiro'
+                    },
+                    items: [
+                        { qty: 1, name: '', price: 0, total: 0 }
+                    ],
+                    notes: '',
+                    isOnline: false
+                });
+                
+                // History filter
+                const historyFilter = reactive({
+                    date: null,
+                    status: null
+                });
+                
+                // Delivery people
+                const deliveryPeople = ref([
+                    { id: 1, name: 'João Silva', status: 'online', todayOrders: 8, currentOrders: 2 },
+                    { id: 2, name: 'Maria Santos', status: 'online', todayOrders: 6, currentOrders: 1 },
+                    { id: 3, name: 'Pedro Costa', status: 'offline', todayOrders: 0, currentOrders: 0 }
+                ]);
+                
+                // Stats
+                const stats = reactive({
+                    today: 0,
+                    revenue: 0,
+                    avgTime: 0
+                });
+                
+                // Import data
+                const importData = ref(null);
+                const importPreview = ref('');
+                
+                // Modals
                 let orderModal = null;
-
-                // --- API Logic ---
-                const pollOrders = async () => {
-                    // Check Mode (Start vs Pro)
-                    if (typeof PLENA_CONFIG === 'undefined' || PLENA_CONFIG.mode !== 'HYBRID') {
-                        return; // Stop polling in Start mode
+                let newOrderModal = null;
+                let importModal = null;
+                
+                // Drag and drop
+                const draggedOrder = ref(null);
+                const draggedFrom = ref(null);
+                
+                // Computed Properties
+                const isProMode = computed(() => settings.proMode);
+                const isLocalMode = computed(() => !settings.proMode);
+                const storeName = computed(() => settings.storeName);
+                
+                const connectionStatus = computed(() => {
+                    if (!isOnline.value) return { text: 'Offline', class: 'text-danger' };
+                    if (syncInProgress.value) return { text: 'Sincronizando...', class: 'text-warning' };
+                    if (isProMode.value) return { text: 'Online', class: 'text-success' };
+                    return { text: 'Modo Local', class: 'text-secondary' };
+                });
+                
+                const filteredOrders = computed(() => {
+                    const now = new Date();
+                    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    
+                    return {
+                        new: orders.new.filter(order => new Date(order.createdAt) > oneDayAgo),
+                        processing: orders.processing.filter(order => new Date(order.updatedAt) > oneDayAgo),
+                        delivery: orders.delivery.filter(order => new Date(order.updatedAt) > oneDayAgo)
+                    };
+                });
+                
+                const filteredHistory = computed(() => {
+                    let filtered = orders.history;
+                    
+                    if (historyFilter.date) {
+                        filtered = filtered.filter(order => {
+                            const orderDate = new Date(order.completedAt || order.createdAt);
+                            return orderDate.toISOString().split('T')[0] === historyFilter.date;
+                        });
                     }
-
+                    
+                    return filtered.slice().reverse(); // Most recent first
+                });
+                
+                const appVersion = computed(() => '1.0.0');
+                const storageUsage = computed(() => {
+                    const total = JSON.stringify(localStorage).length;
+                    return `${(total / 1024).toFixed(2)} KB`;
+                });
+                
+                const lastSyncTime = computed(() => {
+                    const lastSync = localStorage.getItem('plena_last_sync');
+                    return lastSync ? formatTime(lastSync) : null;
+                });
+                
+                // Methods
+                const generateOrderId = () => {
+                    const prefix = 'PL';
+                    const timestamp = Date.now().toString().slice(-6);
+                    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                    return `${prefix}${timestamp}${random}`;
+                };
+                
+                const formatCurrency = (value) => {
+                    return new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }).format(value);
+                };
+                
+                const formatTime = (dateString) => {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    return date.toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                };
+                
+                const formatDateTime = (dateString) => {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    return date.toLocaleString('pt-BR');
+                };
+                
+                const calculateNewOrderTotal = () => {
+                    return newOrder.items.reduce((total, item) => {
+                        const price = parseFloat(item.price) || 0;
+                        const qty = parseInt(item.qty) || 0;
+                        item.total = price * qty;
+                        return total + item.total;
+                    }, 0);
+                };
+                
+                const calculatePrepTime = (order) => {
+                    const start = new Date(order.movedToProcessing || order.createdAt);
+                    const now = new Date();
+                    const diff = Math.floor((now - start) / (1000 * 60));
+                    return Math.min(diff, settings.prepTime);
+                };
+                
+                const calculateProgress = (order) => {
+                    const elapsed = calculatePrepTime(order);
+                    return Math.min((elapsed / settings.prepTime) * 100, 100);
+                };
+                
+                const getStatusBadgeClass = (status) => {
+                    const classes = {
+                        new: 'bg-info',
+                        processing: 'bg-warning',
+                        delivery: 'bg-success',
+                        completed: 'bg-secondary',
+                        cancelled: 'bg-danger'
+                    };
+                    return classes[status] || 'bg-dark';
+                };
+                
+                const getStatusText = (status) => {
+                    const texts = {
+                        new: 'Pendente',
+                        processing: 'Em Preparo',
+                        delivery: 'Saiu para Entrega',
+                        completed: 'Concluído',
+                        cancelled: 'Cancelado'
+                    };
+                    return texts[status] || status;
+                };
+                
+                // Order Management
+                const createOrder = () => {
+                    const orderId = generateOrderId();
+                    const total = calculateNewOrderTotal();
+                    
+                    const order = {
+                        id: orderId,
+                        customer: { ...newOrder.customer },
+                        items: newOrder.items.map(item => ({ ...item })),
+                        total: total,
+                        notes: newOrder.notes,
+                        status: 'new',
+                        isOnline: false,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    orders.new.push(order);
+                    saveOrders();
+                    playNotificationSound('new');
+                    
+                    // Reset form
+                    newOrder.customer = { name: '', phone: '', payment: 'Dinheiro' };
+                    newOrder.items = [{ qty: 1, name: '', price: 0, total: 0 }];
+                    newOrder.notes = '';
+                    
+                    // Close modal
+                    if (newOrderModal) newOrderModal.hide();
+                    
+                    // Show success message
+                    showToast('Pedido criado com sucesso!', 'success');
+                };
+                
+                const moveOrder = (order, fromStatus, toStatus) => {
+                    // Remove from current status array
+                    const fromArray = orders[fromStatus];
+                    const index = fromArray.findIndex(o => o.id === order.id);
+                    if (index > -1) fromArray.splice(index, 1);
+                    
+                    // Update order
+                    order.status = toStatus;
+                    order.updatedAt = new Date().toISOString();
+                    
+                    if (toStatus === 'processing') {
+                        order.movedToProcessing = new Date().toISOString();
+                    } else if (toStatus === 'delivery') {
+                        order.movedToDelivery = new Date().toISOString();
+                    } else if (toStatus === 'completed') {
+                        order.completedAt = new Date().toISOString();
+                        orders.history.push(order);
+                        playNotificationSound('completed');
+                    }
+                    
+                    // Add to new status array
+                    if (toStatus !== 'completed') {
+                        orders[toStatus].push(order);
+                    }
+                    
+                    // Save changes
+                    saveOrders();
+                    
+                    // Sync if online
+                    if (isProMode.value && order.isOnline) {
+                        syncOrderStatus(order);
+                    }
+                };
+                
+                const completeOrder = (order) => {
+                    moveOrder(order, 'delivery', 'completed');
+                };
+                
+                const cancelOrder = (order) => {
+                    order.status = 'cancelled';
+                    order.cancelledAt = new Date().toISOString();
+                    
+                    // Remove from current array
+                    const arrays = [orders.new, orders.processing, orders.delivery];
+                    for (const array of arrays) {
+                        const index = array.findIndex(o => o.id === order.id);
+                        if (index > -1) {
+                            array.splice(index, 1);
+                            break;
+                        }
+                    }
+                    
+                    orders.history.push(order);
+                    saveOrders();
+                    
+                    if (orderModal) orderModal.hide();
+                    showToast('Pedido cancelado!', 'warning');
+                };
+                
+                // Drag and Drop
+                const dragStart = (order, fromStatus) => {
+                    draggedOrder.value = order;
+                    draggedFrom.value = fromStatus;
+                };
+                
+                const dropOrder = (toStatus) => {
+                    if (draggedOrder.value && draggedFrom.value !== toStatus) {
+                        moveOrder(draggedOrder.value, draggedFrom.value, toStatus);
+                        draggedOrder.value = null;
+                        draggedFrom.value = null;
+                    }
+                };
+                
+                // Sync Operations
+                const syncOrderStatus = async (order) => {
+                    if (!isProMode.value || !settings.apiUrl) return;
+                    
                     try {
-                        const response = await fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=poll');
+                        const response = await fetch(`${settings.apiUrl}api_pedidos.php?action=update_status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${settings.apiToken}`
+                            },
+                            body: JSON.stringify({
+                                id: order.id,
+                                status: order.status
+                            })
+                        });
+                        
+                        if (!response.ok) throw new Error('Falha na sincronização');
+                    } catch (error) {
+                        console.error('Erro ao sincronizar:', error);
+                        // Queue for retry
+                        queueSync(order);
+                    }
+                };
+                
+                const queueSync = (order) => {
+                    // Add to sync queue
+                    const queue = JSON.parse(localStorage.getItem('plena_sync_queue') || '[]');
+                    queue.push({
+                        orderId: order.id,
+                        status: order.status,
+                        timestamp: new Date().toISOString()
+                    });
+                    localStorage.setItem('plena_sync_queue', JSON.stringify(queue));
+                    pendingSyncCount.value = queue.length;
+                };
+                
+                const forceSync = async () => {
+                    if (syncInProgress.value || !isProMode.value) return;
+                    
+                    syncInProgress.value = true;
+                    try {
+                        // Process sync queue
+                        const queue = JSON.parse(localStorage.getItem('plena_sync_queue') || '[]');
+                        const failed = [];
+                        
+                        for (const item of queue) {
+                            try {
+                                await syncOrderStatus({
+                                    id: item.orderId,
+                                    status: item.status
+                                });
+                            } catch (error) {
+                                failed.push(item);
+                            }
+                        }
+                        
+                        // Update queue
+                        localStorage.setItem('plena_sync_queue', JSON.stringify(failed));
+                        pendingSyncCount.value = failed.length;
+                        
+                        // Poll for new orders
+                        if (isOnline.value) {
+                            await pollOrders();
+                        }
+                        
+                        // Update last sync time
+                        localStorage.setItem('plena_last_sync', new Date().toISOString());
+                        
+                        showToast('Sincronização concluída!', 'success');
+                    } catch (error) {
+                        showToast('Erro na sincronização', 'danger');
+                    } finally {
+                        syncInProgress.value = false;
+                    }
+                };
+                
+                const pollOrders = async () => {
+                    if (!isProMode.value || !settings.apiUrl) return;
+                    
+                    try {
+                        const response = await fetch(`${settings.apiUrl}api_pedidos.php?action=poll`);
                         const data = await response.json();
-
+                        
                         if (data.success && data.orders) {
-                            // Merge logic: Add only if not already exists in any column
+                            let newCount = 0;
                             data.orders.forEach(remoteOrder => {
-                                const exists =
-                                    orders.value.new.some(o => o.id == remoteOrder.id) ||
-                                    orders.value.processing.some(o => o.id == remoteOrder.id) ||
-                                    orders.value.delivery.some(o => o.id == remoteOrder.id);
-
+                                // Check if order already exists
+                                const exists = Object.values(orders).some(array => 
+                                    array.some(o => o.id === remoteOrder.id)
+                                );
+                                
                                 if (!exists) {
-                                    remoteOrder.isOnline = true; // Mark as online
-                                    orders.value.new.unshift(remoteOrder);
-                                    newOrdersCount.value++;
-                                    playNotificationSound();
+                                    remoteOrder.isOnline = true;
+                                    remoteOrder.createdAt = new Date().toISOString();
+                                    remoteOrder.status = 'new';
+                                    orders.new.unshift(remoteOrder);
+                                    newCount++;
                                 }
                             });
-                            connectionStatus.value = { text: 'Online', class: 'text-success' };
+                            
+                            if (newCount > 0) {
+                                playNotificationSound('new');
+                                showToast(`${newCount} novo(s) pedido(s) recebido(s)!`, 'info');
+                                saveOrders();
+                            }
                         }
-                    } catch (e) {
-                        connectionStatus.value = { text: 'Erro de Conexão', class: 'text-danger' };
-                        console.error('Polling error', e);
+                    } catch (error) {
+                        console.error('Erro no polling:', error);
                     }
                 };
-
-                const forcePoll = () => {
-                    newOrdersCount.value = 0;
-                    pollOrders();
+                
+                // Data Persistence
+                const saveOrders = () => {
+                    const data = {
+                        new: orders.new,
+                        processing: orders.processing,
+                        delivery: orders.delivery,
+                        history: orders.history
+                    };
+                    
+                    localStorage.setItem('plena_orders', JSON.stringify(data));
+                    updateStats();
                 };
-
-                const playNotificationSound = () => {
-                    // Simple beep logic or Audio object
-                    // const audio = new Audio('assets/sound/bell.mp3'); audio.play();
-                    console.log('Beep!');
+                
+                const loadOrders = () => {
+                    const saved = localStorage.getItem('plena_orders');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        orders.new = data.new || [];
+                        orders.processing = data.processing || [];
+                        orders.delivery = data.delivery || [];
+                        orders.history = data.history || [];
+                    }
+                    
+                    // Load sync queue
+                    const queue = JSON.parse(localStorage.getItem('plena_sync_queue') || '[]');
+                    pendingSyncCount.value = queue.length;
+                    
+                    updateStats();
                 };
-
-                const moveOrder = async (order, fromCol, toCol) => {
-                    // 1. UI Update
-                    const idx = orders.value[fromCol].indexOf(order);
-                    if (idx > -1) orders.value[fromCol].splice(idx, 1);
-                    orders.value[toCol].push(order);
-
-                    // 2. Server Update (Only Pro)
-                    if (order.isOnline && typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
+                
+                const saveSettings = () => {
+                    localStorage.setItem('plena_settings', JSON.stringify(settings));
+                    
+                    // Apply pro mode theme
+                    document.body.classList.toggle('pro-active', isProMode.value);
+                };
+                
+                const loadSettings = () => {
+                    const saved = localStorage.getItem('plena_settings');
+                    if (saved) {
+                        Object.assign(settings, JSON.parse(saved));
+                    }
+                    
+                    // Load from config.js if available
+                    if (typeof PLENA_CONFIG !== 'undefined') {
+                        if (PLENA_CONFIG.mode === 'HYBRID') {
+                            settings.proMode = true;
+                            settings.apiUrl = PLENA_CONFIG.apiUrl || '';
+                        }
+                    }
+                };
+                
+                // Import/Export
+                const exportData = () => {
+                    const data = {
+                        orders: {
+                            new: orders.new,
+                            processing: orders.processing,
+                            delivery: orders.delivery,
+                            history: orders.history
+                        },
+                        settings: settings,
+                        exportDate: new Date().toISOString(),
+                        version: appVersion.value
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `plena-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Backup exportado com sucesso!', 'success');
+                };
+                
+                const importDataFunc = () => {
+                    if (importModal) importModal.show();
+                };
+                
+                const handleFileUpload = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
                         try {
-                            await fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=update_status', {
-                                method: 'POST',
-                                body: JSON.stringify({ id: order.id, status: toCol }) // Simplify status mapping
-                            });
-                        } catch (e) { console.error('Failed to sync status'); }
+                            const data = JSON.parse(e.target.result);
+                            importData.value = data;
+                            importPreview.value = JSON.stringify(data, null, 2);
+                        } catch (error) {
+                            showToast('Arquivo JSON inválido', 'danger');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                const confirmImport = () => {
+                    if (!importData.value) return;
+                    
+                    // Import orders
+                    if (importData.value.orders) {
+                        Object.assign(orders, importData.value.orders);
+                        saveOrders();
+                    }
+                    
+                    // Import settings
+                    if (importData.value.settings) {
+                        Object.assign(settings, importData.value.settings);
+                        saveSettings();
+                    }
+                    
+                    if (importModal) importModal.hide();
+                    showToast('Dados importados com sucesso!', 'success');
+                };
+                
+                const clearData = () => {
+                    if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+                        localStorage.clear();
+                        location.reload();
                     }
                 };
-
-                const archiveOrder = (order) => {
-                    // Remove from board
-                    const idx = orders.value.delivery.indexOf(order);
-                    if (idx > -1) orders.value.delivery.splice(idx, 1);
-
-                    // TODO: Save to 'History' local array or file
-                    if (order.isOnline && typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
-                        fetch(PLENA_CONFIG.apiUrl + 'api_pedidos.php?action=update_status', {
-                            method: 'POST',
-                            body: JSON.stringify({ id: order.id, status: 'history' })
+                
+                const clearCache = () => {
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => caches.delete(name));
+                            showToast('Cache limpo com sucesso!', 'info');
                         });
                     }
                 };
-
-                // --- UI Logic ---
+                
+                // Settings
+                const toggleProMode = () => {
+                    if (settings.proMode && (!settings.apiUrl || !settings.apiToken)) {
+                        showToast('Configure a URL e Token da API primeiro', 'warning');
+                        settings.proMode = false;
+                        return;
+                    }
+                    
+                    saveSettings();
+                    
+                    if (settings.proMode) {
+                        // Start sync when enabling pro mode
+                        forceSync();
+                        if (settings.autoSync) {
+                            setInterval(pollOrders, settings.syncInterval);
+                        }
+                    }
+                };
+                
+                const testConnection = async () => {
+                    if (!settings.apiUrl) {
+                        showToast('Configure a URL da API primeiro', 'warning');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(`${settings.apiUrl}api_pedidos.php?action=test`);
+                        if (response.ok) {
+                            showToast('Conexão estabelecida com sucesso!', 'success');
+                        } else {
+                            throw new Error('Falha na conexão');
+                        }
+                    } catch (error) {
+                        showToast('Falha ao conectar com a API', 'danger');
+                    }
+                };
+                
+                // UI Helpers
+                const setView = (view) => {
+                    currentView.value = view;
+                    if (window.innerWidth < 768) {
+                        sidebarVisible.value = false;
+                    }
+                };
+                
+                const toggleSidebar = () => {
+                    sidebarVisible.value = !sidebarVisible.value;
+                };
+                
+                const showNewOrderModal = () => {
+                    if (newOrderModal) newOrderModal.show();
+                };
+                
                 const viewOrder = (order) => {
                     selectedOrder.value = order;
-                    orderModal.show();
+                    if (orderModal) orderModal.show();
                 };
-
-                const formatCurrency = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-                onMounted(() => {
-                    orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
-
-                    // Init based on config
-                    if (typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
-                        connectionStatus.value = { text: 'Conectando...', class: 'text-warning' };
-                        document.body.classList.add('pro-active'); // Pro Theme
-                        pollOrders();
-                        setInterval(pollOrders, 30000);
-                    } else {
-                        connectionStatus.value = { text: 'Modo Local', class: 'text-secondary' };
+                
+                const addItem = () => {
+                    newOrder.items.push({ qty: 1, name: '', price: 0, total: 0 });
+                };
+                
+                const removeItem = (index) => {
+                    newOrder.items.splice(index, 1);
+                };
+                
+                const clearHistoryFilter = () => {
+                    historyFilter.date = null;
+                    historyFilter.status = null;
+                };
+                
+                // Stats
+                const updateStats = () => {
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayOrders = orders.history.filter(order => {
+                        const orderDate = new Date(order.completedAt).toISOString().split('T')[0];
+                        return orderDate === today;
+                    });
+                    
+                    stats.today = todayOrders.length;
+                    stats.revenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+                    
+                    // Calculate average time (simplified)
+                    const completedOrders = orders.history.filter(o => o.completedAt && o.createdAt);
+                    if (completedOrders.length > 0) {
+                        const totalTime = completedOrders.reduce((sum, order) => {
+                            const created = new Date(order.createdAt);
+                            const completed = new Date(order.completedAt);
+                            return sum + (completed - created) / (1000 * 60); // minutes
+                        }, 0);
+                        stats.avgTime = Math.round(totalTime / completedOrders.length);
                     }
-
-                    // Add Mock Data for demo if empty
-                    if (orders.value.new.length === 0) {
-                        orders.value.new.push({
-                            id: 1234, customer: { name: 'Mariana Silva', payment: 'PIX' },
-                            total: 45.90, items: [{ qty: 1, name: 'X-Burger', total: 32.90, addons: [] }],
-                            date: new Date().toISOString(), isOnline: false
+                };
+                
+                // Notifications
+                const playNotificationSound = (type) => {
+                    if (!settings.soundNotifications) return;
+                    
+                    try {
+                        const audio = new Audio();
+                        audio.src = type === 'new' ? 'assets/sounds/new-order.mp3' : 'assets/sounds/completed.mp3';
+                        audio.play().catch(() => {
+                            // Fallback to beep if audio file not found
+                            console.log('Beep!');
+                        });
+                    } catch (error) {
+                        console.log('Beep!');
+                    }
+                };
+                
+                const showToast = (message, type = 'info') => {
+                    // Create toast element
+                    const toast = document.createElement('div');
+                    toast.className = `toast align-items-center text-bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.show();
+                    
+                    toast.addEventListener('hidden.bs.toast', () => {
+                        document.body.removeChild(toast);
+                    });
+                };
+                
+                // PWA Installation
+                const installApp = () => {
+                    if (deferredPrompt.value) {
+                        deferredPrompt.value.prompt();
+                        deferredPrompt.value.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('Usuário aceitou a instalação');
+                            }
+                            deferredPrompt.value = null;
+                            showInstallPrompt.value = false;
                         });
                     }
+                };
+                
+                const dismissInstallPrompt = () => {
+                    showInstallPrompt.value = false;
+                    localStorage.setItem('plena_install_dismissed', 'true');
+                };
+                
+                // Event Listeners
+                const handleResize = () => {
+                    showSidebar.value = window.innerWidth >= 768;
+                };
+                
+                const handleOnline = () => {
+                    isOnline.value = true;
+                    if (isProMode.value) {
+                        forceSync();
+                    }
+                };
+                
+                const handleOffline = () => {
+                    isOnline.value = false;
+                };
+                
+                const handleBeforeInstall = (e) => {
+                    e.preventDefault();
+                    deferredPrompt.value = e;
+                    
+                    // Check if already installed or dismissed
+                    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                    const dismissed = localStorage.getItem('plena_install_dismissed');
+                    
+                    if (!isStandalone && !dismissed) {
+                        setTimeout(() => {
+                            showInstallPrompt.value = true;
+                        }, 3000);
+                    }
+                };
+                
+                // Lifecycle
+                onMounted(() => {
+                    // Load data
+                    loadSettings();
+                    loadOrders();
+                    
+                    // Initialize modals
+                    orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+                    newOrderModal = new bootstrap.Modal(document.getElementById('newOrderModal'));
+                    importModal = new bootstrap.Modal(document.getElementById('importModal'));
+                    
+                    // Event listeners
+                    window.addEventListener('resize', handleResize);
+                    window.addEventListener('online', handleOnline);
+                    window.addEventListener('offline', handleOffline);
+                    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+                    
+                    // Check for updates every 5 minutes
+                    setInterval(() => {
+                        if (isProMode.value && isOnline.value) {
+                            pollOrders();
+                        }
+                    }, 5 * 60 * 1000);
+                    
+                    // Auto-save every 30 seconds
+                    setInterval(saveOrders, 30000);
+                    
+                    // Initialize PWA
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('sw.js')
+                            .then(() => console.log('Service Worker registrado'))
+                            .catch(err => console.log('Service Worker não registrado:', err));
+                    }
                 });
-
+                
+                onUnmounted(() => {
+                    window.removeEventListener('resize', handleResize);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                });
+                
+                // Watch for changes
+                watch(settings, saveSettings, { deep: true });
+                watch(orders, saveOrders, { deep: true });
+                
                 return {
-                    orders, selectedOrder, connectionStatus, newOrdersCount,
-                    forcePoll, moveOrder, archiveOrder, viewOrder, formatCurrency
+                    // State
+                    orders,
+                    selectedOrder,
+                    currentView,
+                    sidebarVisible,
+                    showSidebar,
+                    isOnline,
+                    syncInProgress,
+                    pendingSyncCount,
+                    showInstallPrompt,
+                    settings,
+                    newOrder,
+                    historyFilter,
+                    deliveryPeople,
+                    stats,
+                    importData,
+                    importPreview,
+                    
+                    // Computed
+                    isProMode,
+                    isLocalMode,
+                    storeName,
+                    connectionStatus,
+                    filteredOrders,
+                    filteredHistory,
+                    appVersion,
+                    storageUsage,
+                    lastSyncTime,
+                    
+                    // Methods
+                    generateOrderId,
+                    formatCurrency,
+                    formatTime,
+                    formatDateTime,
+                    calculateNewOrderTotal,
+                    calculatePrepTime,
+                    calculateProgress,
+                    getStatusBadgeClass,
+                    getStatusText,
+                    createOrder,
+                    moveOrder,
+                    completeOrder,
+                    cancelOrder,
+                    dragStart,
+                    dropOrder,
+                    forceSync,
+                    saveOrders,
+                    loadOrders,
+                    saveSettings,
+                    exportData,
+                    importData: importDataFunc,
+                    handleFileUpload,
+                    confirmImport,
+                    clearData,
+                    clearCache,
+                    toggleProMode,
+                    testConnection,
+                    setView,
+                    toggleSidebar,
+                    showNewOrderModal,
+                    viewOrder,
+                    addItem,
+                    removeItem,
+                    clearHistoryFilter,
+                    updateStats,
+                    playNotificationSound,
+                    installApp,
+                    dismissInstallPrompt,
+                    showToast
                 };
             }
         }).mount('#app');
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
-
 </html>

@@ -1,124 +1,150 @@
 <?php
-/**
- * API Pedidos - PlenaGastro Kit
- * Backend minimalista Local-First para troca de arquivos JSON.
- * 
- * Funcionalidades:
- * - Create: Salva novo pedido em /orders/new/
- * - Poll: Lista pedidos em /orders/new/
- * - Update: Move pedido de /orders/new/ para /orders/processing/ ou /orders/history/
- */
-
+// API Simulada para Plena Delivery
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-// Diretórios de Armazenamento
-$baseDir = __DIR__ . '/server_data';
-$dirs = [
-    'new' => $baseDir . '/orders/new',
-    'processing' => $baseDir . '/orders/processing',
-    'history' => $baseDir . '/orders/history'
-];
+// Simular latência
+sleep(1);
 
-// Garantir que diretórios existem
-foreach ($dirs as $dir) {
-    if (!file_exists($dir)) {
-        mkdir($dir, 0777, true);
+// Verificar token de autenticação (simplificado)
+function verifyToken() {
+    $headers = getallheaders();
+    if (isset($headers['Authorization'])) {
+        $token = str_replace('Bearer ', '', $headers['Authorization']);
+        return $token === 'plena_token_secreto_2024';
     }
+    return false;
 }
 
+// Ação solicitada
 $action = $_GET['action'] ?? '';
 
-try {
-    switch ($action) {
+// Resposta padrão
+$response = [
+    'success' => false,
+    'message' => 'Ação não reconhecida',
+    'timestamp' => date('Y-m-d H:i:s')
+];
 
-        // RECEBER NOVO PEDIDO DO CARDÁPIO
-        case 'create':
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-                throw new Exception('Método inválido');
-
-            $input = file_get_contents('php://input');
-            $data = json_decode($input, true);
-
-            if (!$data || !isset($data['id']))
-                throw new Exception('Dados inválidos');
-
-            $filename = $dirs['new'] . '/' . $data['id'] . '.json';
-
-            // Adicionar timestamp de recebimento se não tiver
-            $data['server_received_at'] = date('c');
-
-            if (file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT))) {
-                echo json_encode(['success' => true, 'message' => 'Pedido recebido com sucesso', 'id' => $data['id']]);
-            } else {
-                throw new Exception('Falha ao salvar arquivo');
+switch ($action) {
+    case 'test':
+        $response = [
+            'success' => true,
+            'message' => 'API funcionando normalmente',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'version' => '1.0.0'
+        ];
+        break;
+        
+    case 'poll':
+        // Verificar autenticação para modo Pro
+        if (!verifyToken()) {
+            $response['message'] = 'Token inválido';
+            break;
+        }
+        
+        // Simular novos pedidos (em produção, viria do banco de dados)
+        $newOrders = [];
+        $hasNewOrders = rand(0, 1); // 50% chance de ter novos pedidos
+        
+        if ($hasNewOrders) {
+            $orderCount = rand(1, 3);
+            for ($i = 0; $i < $orderCount; $i++) {
+                $orderId = 'ON' . date('ymd') . rand(1000, 9999);
+                $newOrders[] = [
+                    'id' => $orderId,
+                    'customer' => [
+                        'name' => ['João Silva', 'Maria Santos', 'Pedro Costa'][rand(0, 2)],
+                        'phone' => '(11) 9' . rand(1000, 9999) . '-' . rand(1000, 9999),
+                        'payment' => ['Dinheiro', 'Cartão', 'PIX'][rand(0, 2)]
+                    ],
+                    'items' => [
+                        [
+                            'qty' => rand(1, 3),
+                            'name' => 'X-Burger Completo',
+                            'price' => 32.90,
+                            'total' => 32.90 * rand(1, 3),
+                            'addons' => [
+                                ['name' => 'Bacon', 'price' => 3.00],
+                                ['name' => 'Queijo Extra', 'price' => 2.50]
+                            ]
+                        ]
+                    ],
+                    'total' => rand(3000, 8000) / 100,
+                    'notes' => rand(0, 1) ? 'Sem cebola por favor' : '',
+                    'createdAt' => date('Y-m-d H:i:s')
+                ];
             }
+        }
+        
+        $response = [
+            'success' => true,
+            'orders' => $newOrders,
+            'count' => count($newOrders),
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        break;
+        
+    case 'update_status':
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!verifyToken()) {
+            $response['message'] = 'Token inválido';
             break;
-
-        // DELIVERY CONSULTA NOVOS PEDIDOS (POLLING)
-        case 'poll':
-            $files = glob($dirs['new'] . '/*.json');
-            $orders = [];
-
-            foreach ($files as $file) {
-                $content = file_get_contents($file);
-                $orders[] = json_decode($content, true);
+        }
+        
+        if (!isset($data['id']) || !isset($data['status'])) {
+            $response['message'] = 'Dados incompletos';
+            break;
+        }
+        
+        // Em produção, atualizaria no banco de dados
+        // Por enquanto, apenas simulamos sucesso
+        
+        $response = [
+            'success' => true,
+            'message' => 'Status atualizado com sucesso',
+            'orderId' => $data['id'],
+            'newStatus' => $data['status'],
+            'updatedAt' => date('Y-m-d H:i:s')
+        ];
+        break;
+        
+    case 'bulk_sync':
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!verifyToken()) {
+            $response['message'] = 'Token inválido';
+            break;
+        }
+        
+        // Simular processamento em lote
+        $processed = [];
+        if (isset($data['orders']) && is_array($data['orders'])) {
+            foreach ($data['orders'] as $order) {
+                $processed[] = [
+                    'id' => $order['id'] ?? 'unknown',
+                    'success' => true,
+                    'syncedAt' => date('Y-m-d H:i:s')
+                ];
             }
-
-            // Ordenar por data (mais recente primeiro)
-            usort($orders, function ($a, $b) {
-                return $b['id'] <=> $a['id'];
-            });
-
-            echo json_encode(['success' => true, 'count' => count($orders), 'orders' => $orders]);
-            break;
-
-        // ATUALIZAR STATUS (MOVER ARQUIVO)
-        case 'update_status':
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-                throw new Exception('Método inválido');
-
-            $input = json_decode(file_get_contents('php://input'), true);
-            $id = $input['id'] ?? null;
-            $newStatus = $input['status'] ?? ''; // 'processing' or 'history'
-
-            if (!$id || !$newStatus)
-                throw new Exception('ID ou Status hiante');
-
-            // Procurar onde o arquivo está atualmente
-            $currentPath = '';
-            if (file_exists($dirs['new'] . '/' . $id . '.json'))
-                $currentPath = $dirs['new'] . '/' . $id . '.json';
-            elseif (file_exists($dirs['processing'] . '/' . $id . '.json'))
-                $currentPath = $dirs['processing'] . '/' . $id . '.json';
-
-            if (!$currentPath)
-                throw new Exception('Pedido não encontrado');
-
-            // Definir destino
-            $targetDir = isset($dirs[$newStatus]) ? $dirs[$newStatus] : $dirs['history'];
-            $targetPath = $targetDir . '/' . $id . '.json';
-
-            // Ler, atualizar status no JSON, e Mover
-            $orderData = json_decode(file_get_contents($currentPath), true);
-            $orderData['status'] = $newStatus;
-            $orderData['updated_at'] = date('c');
-
-            // Salvar no novo local e apagar do antigo
-            file_put_contents($targetPath, json_encode($orderData, JSON_PRETTY_PRINT));
-            unlink($currentPath);
-
-            echo json_encode(['success' => true, 'message' => "Pedido movido para $newStatus"]);
-            break;
-
-        default:
-            echo json_encode(['success' => false, 'message' => 'API PlenaGastro Online']);
-            break;
-    }
-
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        
+        $response = [
+            'success' => true,
+            'message' => 'Sincronização em lote concluída',
+            'processed' => $processed,
+            'total' => count($processed),
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        break;
+        
+    default:
+        $response['message'] = 'Ação não suportada';
+        break;
 }
+
+echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+?>

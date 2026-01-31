@@ -1,0 +1,155 @@
+{
+    "config": {
+        "name": "Açaí Real & Gelados",
+        "brand": "Açaí",
+        "brandSuffix": "Real",
+        "icon": "fa-solid fa-bowl-food",
+        "rating": "4.7",
+        "hours": "12h as 22h",
+        "deliveryFee": 5.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1590301157890-4810935c8c44?w=1600"
+    },
+    "categories": [
+        {
+            "id": "copos",
+            "name": "Copos Montados",
+            "icon": "fa-solid fa-glass-water"
+        },
+        {
+            "id": "tigelas",
+            "name": "Tigelas & Bowls",
+            "icon": "fa-solid fa-bowl-food"
+        },
+        {
+            "id": "shakes",
+            "name": "Milk Shakes de Açaí",
+            "icon": "fa-solid fa-mug-hot"
+        },
+        {
+            "id": "adicionais",
+            "name": "Potinhos de Extras",
+            "icon": "fa-solid fa-plus"
+        }
+    ],
+    "items": [
+        {
+            "id": 1,
+            "category": "copos",
+            "name": "Copo Clássico 500ml",
+            "desc": "Açaí puríssimo. Escolha seus complementos abaixo para montar sua camada perfeita.",
+            "price": 22.00,
+            "img": "https://images.unsplash.com/photo-1590301157890-4810935c8c44?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Leite em Pó Extra",
+                    "price": 3.50
+                },
+                {
+                    "name": "Leite Condensado",
+                    "price": 3.00
+                },
+                {
+                    "name": "Granola Crocante",
+                    "price": 2.50
+                },
+                {
+                    "name": "Nutella Original",
+                    "price": 6.00
+                }
+            ]
+        },
+        {
+            "id": 40,
+            "category": "copos",
+            "name": "Copo Kids 300ml",
+            "desc": "O tamanho ideal para os pequenos. Inclui 2 complementos grátis.",
+            "price": 16.00,
+            "img": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 140,
+            "category": "copos",
+            "name": "Copo Extreme 700ml",
+            "desc": "Para os amantes de açaí. 3 camadas de recheio inclusas.",
+            "price": 32.00,
+            "img": "https://images.unsplash.com/photo-1516685018646-5483c8448f48?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 2,
+            "category": "tigelas",
+            "name": "Tigela Tropical G",
+            "desc": "Tigela de 700ml com frutas frescas (banana e morango) e mel.",
+            "price": 35.00,
+            "img": "https://images.unsplash.com/photo-1590089415225-403ed3f57aec?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Adicional de Kiwi",
+                    "price": 4.50
+                },
+                {
+                    "name": "Paçoca Moída",
+                    "price": 2.00
+                }
+            ]
+        },
+        {
+            "id": 141,
+            "category": "tigelas",
+            "name": "Bowl de Açaí c/ Cupuaçu",
+            "desc": "Metade açaí, metade cupuaçu. Uma explosão de sabor.",
+            "price": 28.00,
+            "img": "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 3,
+            "category": "shakes",
+            "name": "Açaí Shake 500ml",
+            "desc": "Batido com sorvete de baunilha e calda de chocolate.",
+            "price": 18.50,
+            "img": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 41,
+            "category": "shakes",
+            "name": "Shake de Morango Silvestre",
+            "desc": "Morango fresco batido com sorvete premium.",
+            "price": 21.00,
+            "img": "https://images.unsplash.com/photo-1543644574-19750f5feb8b?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 4,
+            "category": "adicionais",
+            "name": "Pote de Nutella 50g",
+            "desc": "Potinho extra para quem não economiza no sabor.",
+            "price": 8.00,
+            "img": "https://images.unsplash.com/photo-1576014131795-d440191a8e8b?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 42,
+            "category": "adicionais",
+            "name": "Salada de Frutas 250g",
+            "desc": "Mix de 5 frutas da estação cortadas na hora.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 142,
+            "category": "adicionais",
+            "name": "Brownie em Cubos",
+            "desc": "Porção de brownie artesanal para adicionar ao seu copo.",
+            "price": 7.50,
+            "img": "https://images.unsplash.com/photo-1564483472142-c9a0787370d8?auto=format&fit=crop&w=400",
+            "popular": true
+        }
+    ]
+}

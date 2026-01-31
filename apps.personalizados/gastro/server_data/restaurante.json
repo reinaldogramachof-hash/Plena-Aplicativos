@@ -1,0 +1,155 @@
+{
+    "config": {
+        "name": "Restaurante Sabor Caseiro",
+        "brand": "Sabor",
+        "brandSuffix": "Caseiro",
+        "icon": "fa-solid fa-utensils",
+        "rating": "4.8",
+        "hours": "11h as 15h",
+        "deliveryFee": 6.00,
+        "whatsapp": "5511999999999",
+        "headerImg": "https://images.unsplash.com/photo-1547527223-0bc44446b63a?w=1600"
+    },
+    "categories": [
+        {
+            "id": "marmitex",
+            "name": "Marmitex do Dia",
+            "icon": "fa-solid fa-box"
+        },
+        {
+            "id": "pratos",
+            "name": "Pratos à La Carte",
+            "icon": "fa-solid fa-utensils"
+        },
+        {
+            "id": "guarnicoes",
+            "name": "Guarnições Extras",
+            "icon": "fa-solid fa-bowl-rice"
+        },
+        {
+            "id": "bebidas",
+            "name": "Bidas",
+            "icon": "fa-solid fa-glass-water"
+        }
+    ],
+    "items": [
+        {
+            "id": 70,
+            "category": "marmitex",
+            "name": "Marmita Econômica (P)",
+            "desc": "Arroz, feijão, proteína do dia, farofa e salada.",
+            "price": 18.00,
+            "img": "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Trocar Feijão por Lentilha",
+                    "price": 2.00
+                },
+                {
+                    "name": "Sem Salada",
+                    "price": 0.00
+                },
+                {
+                    "name": "Adicional de Arroz",
+                    "price": 3.50
+                }
+            ]
+        },
+        {
+            "id": 71,
+            "category": "marmitex",
+            "name": "Marmita Executiva (G)",
+            "desc": "Arroz, feijão, fritas, 2 proteínas à escolha e salada completa.",
+            "price": 28.90,
+            "img": "https://images.unsplash.com/photo-1547527223-0bc44446b63a?auto=format&fit=crop&w=400",
+            "popular": true,
+            "options": [
+                {
+                    "name": "Ovo Frito Extra",
+                    "price": 3.00
+                },
+                {
+                    "name": "Bife à Milanesa Extra",
+                    "price": 8.00
+                },
+                {
+                    "name": "Batata Frita Extra",
+                    "price": 5.00
+                }
+            ]
+        },
+        {
+            "id": 77,
+            "category": "marmitex",
+            "name": "Panqueca de Carne (M)",
+            "desc": "2 unidades generosas com molho de tomate e queijo.",
+            "price": 22.00,
+            "img": "https://images.unsplash.com/photo-1551024601-bec739746c9d?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 120,
+            "category": "marmitex",
+            "name": "Marmita Fitness Frango",
+            "desc": "Arroz integral, brócolis, filé de frango e batata doce.",
+            "price": 24.50,
+            "img": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 72,
+            "category": "pratos",
+            "name": "Feijoada Completa (Sábado)",
+            "desc": "Arroz, couve, farofa, torresmo e laranja. Serve 2 pessoas.",
+            "price": 65.00,
+            "img": "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 76,
+            "category": "pratos",
+            "name": "Filé de Frango Grelhado",
+            "desc": "Acompanha arroz integral, feijão branco e legumes no vapor.",
+            "price": 26.00,
+            "img": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 121,
+            "category": "pratos",
+            "name": "Strogonoff de Carne",
+            "desc": "Acompanha arroz branco e batata palha crocante.",
+            "price": 32.00,
+            "img": "https://images.unsplash.com/photo-1547527223-0bc44446b63a?auto=format&fit=crop&w=400",
+            "popular": true
+        },
+        {
+            "id": 73,
+            "category": "guarnicoes",
+            "name": "Porção de Batata Frita",
+            "desc": "Crocante por fora e macia por dentro.",
+            "price": 12.00,
+            "img": "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 74,
+            "category": "guarnicoes",
+            "name": "Farofa da Casa (200g)",
+            "desc": "Farofa crocante com bacon e ovos.",
+            "price": 8.00,
+            "img": "https://images.unsplash.com/photo-1534080333015-3bb5903b0a52?auto=format&fit=crop&w=400",
+            "popular": false
+        },
+        {
+            "id": 75,
+            "category": "bebidas",
+            "name": "Suco de Melancia (Copo)",
+            "desc": "100% fruta, sem açúcar.",
+            "price": 10.00,
+            "img": "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?auto=format&fit=crop&w=400",
+            "popular": false
+        }
+    ]
+}
