@@ -1,0 +1,3176 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- 
+    PLENA 3D - GESTÃO DE IMPRESSÃO PROFISSIONAL
+    Architecture: Single File PWA (Offline-First)
+    Stack: Vanilla JS + TailwindCSS + LocalStorage
+    Theme: Tech Blue / Dark Glass
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plena 3D - Gestão Maker</title>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Libs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tech: {
+                            blue: '#0ea5e9',    // Sky 500
+                            dark: '#020617',    // Slate 950
+                            surface: '#0f172a', // Slate 900
+                            glass: 'rgba(15, 23, 42, 0.7)',
+                            neon: '#38bdf8'     // Sky 400
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            /* Tech Dark */
+            color: #e2e8f0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-header {
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* Sidebar Transition */
+        .sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(15, 23, 42, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 1023px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 50;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .backdrop {
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s;
+            }
+
+            .backdrop.open {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                margin-left: 280px;
+            }
+
+            .menu-btn {
+                display: none;
+            }
+        }
+
+        /* CRM Notifications */
+        @keyframes glow-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4);
+                border-color: rgba(236, 72, 153, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(236, 72, 153, 0);
+                border-color: rgba(236, 72, 153, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+                border-color: rgba(236, 72, 153, 0);
+            }
+        }
+
+        .glow-pulse {
+            animation: glow-pulse 2s infinite;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            width: 8px;
+            height: 8px;
+            background-color: #ec4899;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ec4899;
+        }
+
+        /* Tooltips Relatórios */
+        .kpi-card {
+            position: relative;
+        }
+
+        .kpi-legend {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 50;
+            pointer-events: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card:hover .kpi-legend {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        @media print {
+
+            .no-print,
+            nav,
+            header,
+            aside,
+            .sidebar,
+            .flex.gap-2.bg-slate-800\/50,
+            .print-hidden {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .glass-panel {
+                border: 1px solid #ddd !important;
+                background: white !important;
+                box-shadow: none !important;
+                color: black !important;
+            }
+
+            .text-white,
+            .text-slate-400,
+            .text-slate-300,
+            .text-cyan-400,
+            .text-purple-400,
+            .text-green-400,
+            .text-red-400 {
+                color: black !important;
+            }
+
+            .view {
+                display: block !important;
+                padding: 0 !important;
+            }
+
+            #view-reports {
+                margin: 0 !important;
+                padding: 2rem !important;
+            }
+
+            .grid {
+                display: block !important;
+            }
+
+            .glass-panel {
+                margin-bottom: 2rem !important;
+                break-inside: avoid;
+            }
+
+            h2,
+            h3,
+            h4 {
+                color: black !important;
+            }
+
+            .font-mono {
+                font-family: sans-serif !important;
+            }
+        }
+    </style>
+</head>
+
+<body onload="init()">
+    <!-- Mobile Backdrop -->
+    <div id="backdrop" class="fixed inset-0 bg-black/80 backdrop backdrop-blur-sm z-40 lg:hidden"
+        onclick="toggleSidebar()"></div>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-screen w-[280px] flex flex-col z-50">
+        <div class="h-20 flex items-center px-6 border-b border-white/5">
+            <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-2 rounded-lg shadow-lg shadow-cyan-500/20 mr-3">
+                <i data-lucide="box" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-white tracking-tight">PLENA 3D</h1>
+                <p class="text-[10px] text-cyan-400 font-mono tracking-wider">Gestão de Stúdio</p>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Operacional</p>
+            <button onclick="router('dashboard')" id="nav-dashboard"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="layout-dashboard" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Dashboard
+            </button><button onclick="router('projects')" id="nav-projects"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="printer" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Projetos & Orçamentos
+            </button><button onclick="router('clients')" id="nav-clients"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="users" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Clientes </button><button
+                onclick="router('inventory')" id="nav-inventory"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="package" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Estoque </button>
+            <div class="my-4 border-t border-white/5"></div>
+            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Gestão</p><button
+                onclick="router('financial')" id="nav-financial"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="wallet" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Financeiro
+            </button><button onclick="router('reports')" id="nav-reports"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="bar-chart-3" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Relatórios
+            </button>
+            <div class="my-4 border-t border-white/5"></div>
+            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Sistema</p><button
+                onclick="router('manual')" id="nav-manual"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="book-open" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Manual de Uso
+            </button><button onclick="router('settings')" id="nav-settings"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="settings" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Configurações
+            </button>
+        </nav>
+        <div class="p-4 border-t border-white/5 bg-black/20">
+            <div class="glass-panel p-3 rounded-lg flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-cyan-900/50 flex items-center justify-center border border-cyan-500/30">
+                    <i data-lucide="user" class="w-4 h-4 text-cyan-400"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate" id="sidebar-user">Maker</p>
+                    <p class="text-[10px] text-green-400 flex items-center"><span
+                            class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>Online</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <!-- CONTENT -->
+    <main class="main-content min-h-screen flex flex-col">
+        <!-- Header -->
+        <header
+            class="glass-header h-16 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-lg shadow-black/20">
+            <div class="flex items-center gap-4"><button onclick="toggleSidebar()"
+                    class="menu-btn text-slate-400 hover:text-white"><i data-lucide="menu"></i></button>
+                <div class="flex flex-col"><span id="header-time"
+                        class="text-lg font-bold text-white tracking-tight leading-none">00:00</span><span
+                        id="header-date"
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Data</span>
+                </div>
+            </div>
+            <div class="flex gap-3"><button onclick="openTransactionModal()"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center border border-slate-600 transition-all hidden sm:flex"><i
+                        data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>Lançamento </button><button
+                    onclick="router('projects'); openProjectModal()"
+                    class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-lg shadow-cyan-900/50 transition-all"><i
+                        data-lucide="plus" class="w-4 h-4 mr-2"></i><span class="hidden sm:inline">Novo
+                        Projeto</span></button></div>
+        </header>
+        <!-- Views -->
+        <div class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- DASHBOARD -->
+            <section id="view-dashboard" class="view fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- KPI Cards -->
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
+                            <i data-lucide="dollar-sign" class="w-16 h-16 text-cyan-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Faturamento (Mês)</p>
+                        <h3 id="kpi-revenue" class="text-3xl font-bold text-white mt-1">R$ 0,
+                            00</h3>
+                        <p class="text-xs text-green-400 mt-2 flex items-center"><i data-lucide="trending-up"
+                                class="w-3 h-3 mr-1"></i>Projetos
+                            Concluídos</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
+                            <i data-lucide="layers" class="w-16 h-16 text-purple-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Filamento Gasto</p>
+                        <h3 id="kpi-filament" class="text-3xl font-bold text-white mt-1">0g</h3>
+                        <p class="text-xs text-purple-400 mt-2 flex items-center"><i data-lucide="spool"
+                                class="w-3 h-3 mr-1"></i>Total Estimado</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
+                            <i data-lucide="clock" class="w-16 h-16 text-orange-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Horas Impressão</p>
+                        <h3 id="kpi-hours" class="text-3xl font-bold text-white mt-1">0h</h3>
+                        <p class="text-xs text-orange-400 mt-2 flex items-center"><i data-lucide="zap"
+                                class="w-3 h-3 mr-1"></i>Tempo de Máquina</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
+                            <i data-lucide="activity" class="w-16 h-16 text-red-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Projetos Ativos</p>
+                        <h3 id="kpi-active" class="text-3xl font-bold text-white mt-1">0</h3>
+                        <p class="text-xs text-red-400 mt-2 flex items-center"><i data-lucide="loader"
+                                class="w-3 h-3 mr-1"></i>Na Fila /
+                            Imprimindo</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-xl lg:col-span-2">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center"><i data-lucide="list"
+                                class="w-5 h-5 mr-2 text-cyan-400"></i>Projetos
+                            Recentes</h3>
+                        <div id="recent-projects-list" class="space-y-3">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center"><i data-lucide="spool"
+                                class="w-5 h-5 mr-2 text-purple-400"></i>Estoque
+                            Baixo</h3>
+                        <div id="low-stock-list" class="space-y-3">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- FINANCIAL -->
+            <section id="view-financial" class="view fade-in hide">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-panel p-6 rounded-xl border-l-4 border-green-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Entradas</p>
+                        <h3 id="fin-income" class="text-2xl font-bold text-green-400 mt-1">R$ 0,
+                            00</h3>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl border-l-4 border-red-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Saídas</p>
+                        <h3 id="fin-expense" class="text-2xl font-bold text-red-400 mt-1">R$ 0,
+                            00</h3>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl border-l-4 border-cyan-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Saldo</p>
+                        <h3 id="fin-balance" class="text-2xl font-bold text-white mt-1">R$ 0,
+                            00</h3>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white">Extrato Financeiro</h3>
+                    <div class="flex items-center gap-2 bg-slate-800/50 p-1 rounded-xl border border-white/5">
+                        <div class="relative">
+                            <i data-lucide="calendar"
+                                class="absolute left-3 top-2.5 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            <input type="month" id="fin-month" onchange="renderFinancial()"
+                                class="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
+                        </div>
+                        <button onclick="_('fin-month').value = ''; renderFinancial()"
+                            class="text-[10px] font-bold text-slate-500 hover:text-white uppercase px-2 py-2 transition-colors"
+                            title="Ver todo o histórico">
+                            Tudo
+                        </button>
+                        <button onclick="openTransactionModal()"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-cyan-900/50 flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> <span class="hidden sm:inline">Novo</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-sm text-slate-400">
+                        <thead class="bg-black/20 text-xs uppercase font-bold text-slate-500 border-b border-white/5">
+                            <tr>
+                                <th class="px-6 py-4">Data</th>
+                                <th class="px-6 py-4">Descrição</th>
+                                <th class="px-6 py-4">Categoria/Meio</th>
+                                <th class="px-6 py-4 text-right">Valor</th>
+                                <th class="px-6 py-4 text-center">Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financial-table" class="divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- REPORTS -->
+            <section id="view-reports" class="view fade-in hide">
+                <!-- Cabeçalho apenas para IMPRESSÃO (PDF) -->
+                <div class="hidden print:block border-b-2 border-slate-900 pb-6 mb-8">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h1 class="text-3xl font-bold uppercase tracking-wide text-slate-900 mb-1">PLENA 3D -
+                                RELATÓRIO</h1>
+                            <p class="text-sm text-slate-500">Documento de acompanhamento gerencial</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Período Selecionado</p>
+                            <p id="print-rep-dates" class="text-sm font-mono text-slate-900"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 print-hidden">
+                    <h2 class="text-xl font-bold text-white">Relatórios Gerenciais</h2>
+                    <div class="flex flex-wrap items-center gap-2 bg-slate-800/50 p-2 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="rep-start-date"
+                                class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                            <span class="text-slate-500 text-xs">até</span>
+                            <input type="date" id="rep-end-date"
+                                class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                        </div>
+                        <button onclick="renderReports()"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg shadow-cyan-900/50 flex items-center gap-2 transition-all">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4"><i data-lucide="pie-chart"
+                                class="w-5 h-5 inline mr-2 text-cyan-400"></i>Lucro X Custo
+                        </h3>
+                        <div class="flex items-center justify-center p-4">
+                            <div
+                                class="w-32 h-32 rounded-full border-8 border-cyan-500 flex items-center justify-center relative">
+                                <span id="rep-profit-margin" class="text-xl font-bold text-white">0%</span>
+                                <div class="absolute inset-0 rounded-full border-8 border-red-500"
+                                    style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: rotate(180deg); opacity: 0.3;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4 space-y-2">
+                            <div class="flex justify-between text-xs px-2">
+                                <span class="text-slate-400">Receita Total:</span>
+                                <span id="rep-total-revenue" class="text-green-400 font-bold">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-xs px-2">
+                                <span class="text-slate-400">Despesa Total:</span>
+                                <span id="rep-total-expense" class="text-red-400 font-bold">R$ 0,00</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 pt-2 border-t border-white/5 uppercase font-bold">
+                                Baseado no período</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl col-span-1 lg:col-span-2">
+                        <h3 class="text-lg font-bold text-white mb-4"><i data-lucide="spool"
+                                class="w-5 h-5 inline mr-2 text-purple-400"></i>Top
+                            Filamentos</h3>
+                        <div id="rep-top-filaments" class="space-y-3">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOVOS KPIs DE PERFORMANCE -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="glass-panel p-4 rounded-xl border border-white/5 kpi-card">
+                        <div class="kpi-legend">
+                            <strong>Ticket Médio:</strong> Representa o valor médio que cada cliente gasta por pedido. É
+                            calculado dividindo a receita total pelo número de clientes únicos.
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Ticket Médio</p>
+                        <h4 id="rep-avg-ticket" class="text-lg font-bold text-white mt-1">R$ 0,00</h4>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-white/5 kpi-card">
+                        <div class="kpi-legend">
+                            <strong>Taxa de Conversão:</strong> Mostra a eficiência das suas vendas. É a porcentagem de
+                            orçamentos que foram aprovados e concluídos em relação ao total de pedidos.
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Conversão</p>
+                        <h4 id="rep-conversion" class="text-lg font-bold text-cyan-400 mt-1">0%</h4>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-white/5 kpi-card">
+                        <div class="kpi-legend">
+                            <strong>Eficiência Operacional:</strong> Indica quanto cada hora de funcionamento da sua
+                            impressora gera em faturamento. Fundamental para precificar sua hora-máquina.
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Eficiência (R$/h)</p>
+                        <h4 id="rep-efficiency" class="text-lg font-bold text-purple-400 mt-1">R$ 0,00</h4>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-white/5 kpi-card">
+                        <div class="kpi-legend">
+                            <strong>Custo Médio/Grama:</strong> Reflete o custo direto de material por grama produzida.
+                            Ajuda a monitorar desperdícios e variações no preço dos filamentos.
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Custo Médio/Grama</p>
+                        <h4 id="rep-cost-gram" class="text-lg font-bold text-red-400 mt-1">R$ 0,00</h4>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- GASTOS POR CATEGORIA -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4"><i data-lucide="bar-chart-3"
+                                class="w-5 h-5 inline mr-2 text-red-400"></i>Gastos por Categoria</h3>
+                        <div id="rep-expense-breakdown" class="space-y-4">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+                    <!-- PERFORMANCE DE ORÇAMENTOS -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-4"><i data-lucide="check-square"
+                                class="w-5 h-5 inline mr-2 text-green-400"></i>Status de Orçamentos</h3>
+                        <div id="rep-budget-performance" class="space-y-4">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-white mb-4"><i data-lucide="users"
+                            class="w-5 h-5 inline mr-2 text-green-400"></i>Melhores Clientes
+                    </h3>
+                    <div id="rep-top-clients" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Ações de Exportação (Posicionadas abaixo para clareza) -->
+                <div id="rep-export-actions" class="flex justify-end gap-3 mt-8 print-hidden hidden">
+                    <button onclick="printReport()"
+                        class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 border border-white/5 transition-all">
+                        <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i> Imprimir Relatório (PDF)
+                    </button>
+                    <button onclick="shareReportWhatsApp()"
+                        class="bg-green-600/20 hover:bg-green-600/30 text-green-400 px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 border border-green-500/20 transition-all">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> Compartilhar no WhatsApp
+                    </button>
+                </div>
+            </section>
+            <!-- PROJECTS -->
+            <section id="view-projects" class="view fade-in hide">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div class="relative w-full md:w-96"><i data-lucide="search"
+                            class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i><input type="text" id="proj-search"
+                            onkeyup="renderProjects()" placeholder="Buscar projeto ou cliente..."
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-cyan-500 outline-none text-white">
+                    </div>
+                    <div class="flex gap-2"><select id="proj-filter" onchange="renderProjects()"
+                            class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:border-cyan-500 outline-none">
+                            <option value="all">Todos</option>
+                            <option value="Orçamento">Orçamento</option>
+                            <option value="Fila">Na Fila</option>
+                            <option value="Imprimindo">Imprimindo</option>
+                            <option value="Concluido">Concluídos</option>
+                        </select></div>
+                </div>
+                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </section>
+            <!-- CLIENTS (CRM) -->
+            <section id="view-clients" class="view fade-in hide">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-white">Carteira de Clientes
+                    </h2>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64"><i data-lucide="search"
+                                class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i><input type="text"
+                                id="cli-search" onkeyup="renderClients()"
+                                class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-lg pl-10 p-2.5 focus:border-purple-500 outline-none"
+                                placeholder="Buscar cliente..."></div><button onclick="openClientDetails()"
+                            class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-lg shadow-purple-900/50 transition-all"><i
+                                data-lucide="user-plus" class="w-4 h-4 mr-2"></i>Novo </button>
+                    </div>
+                </div>
+                <!-- CRM Grid -->
+                <div id="clients-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </section>
+            <!-- INVENTORY -->
+            <section id="view-inventory" class="view fade-in hide">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white">Gestão de Estoque</h2>
+                    <button onclick="openInventoryModal()"
+                        class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-lg shadow-purple-900/50"><i
+                            data-lucide="plus" class="w-4 h-4 mr-2"></i>Adicionar Item</button>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="flex gap-2 mb-6 border-b border-white/10 overflow-x-auto">
+                    <button onclick="switchInventoryTab('impressoras')" id="tab-inv-impressoras"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-purple-400 border-b-2 border-purple-400">
+                        <i data-lucide="printer" class="w-4 h-4 inline mr-1"></i>Impressoras
+                    </button>
+                    <button onclick="switchInventoryTab('filamentos')" id="tab-inv-filamentos"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-slate-500">
+                        <i data-lucide="spool" class="w-4 h-4 inline mr-1"></i>Filamentos
+                    </button>
+                    <button onclick="switchInventoryTab('resinas')" id="tab-inv-resinas"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-slate-500">
+                        <i data-lucide="droplet" class="w-4 h-4 inline mr-1"></i>Resinas
+                    </button>
+                    <button onclick="switchInventoryTab('pecas')" id="tab-inv-pecas"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-slate-500">
+                        <i data-lucide="wrench" class="w-4 h-4 inline mr-1"></i>Peças
+                    </button>
+                    <button onclick="switchInventoryTab('ferramentas')" id="tab-inv-ferramentas"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-slate-500">
+                        <i data-lucide="hammer" class="w-4 h-4 inline mr-1"></i>Ferramentas
+                    </button>
+                    <button onclick="switchInventoryTab('historico')" id="tab-inv-historico"
+                        class="px-4 py-3 text-sm font-bold transition-all whitespace-nowrap text-slate-500">
+                        <i data-lucide="history" class="w-4 h-4 inline mr-1"></i>Histórico
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="view-inv-impressoras" class="inv-tab-content">
+                    <div id="printers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+                <div id="view-inv-filamentos" class="inv-tab-content hidden">
+                    <div id="filaments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                </div>
+                <div id="view-inv-resinas" class="inv-tab-content hidden">
+                    <div id="resins-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                </div>
+                <div id="view-inv-pecas" class="inv-tab-content hidden">
+                    <div id="parts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+                <div id="view-inv-ferramentas" class="inv-tab-content hidden">
+                    <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+                <div id="view-inv-historico" class="inv-tab-content hidden">
+                    <div class="glass-panel rounded-xl overflow-hidden">
+                        <table class="w-full text-left text-sm text-slate-400">
+                            <thead
+                                class="bg-black/20 text-xs uppercase font-bold text-slate-500 border-b border-white/5">
+                                <tr>
+                                    <th class="px-6 py-4">Data</th>
+                                    <th class="px-6 py-4">Item</th>
+                                    <th class="px-6 py-4 text-center">Tipo</th>
+                                    <th class="px-6 py-4 text-right">Qtd</th>
+                                    <th class="px-6 py-4">Descrição</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-logs-table" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <!-- MANUAL -->
+            <section id="view-manual" class="view fade-in hide">
+                <h2 class="text-xl font-bold text-white mb-6">Manual do
+                    Sistema</h2>
+                <div class="space-y-4 max-w-3xl mx-auto">
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-2 text-cyan-400">
+                            <i data-lucide="calculator" class="w-5 h-5 inline mr-2"></i>Como
+                            funciona a Precificação?
+                        </h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">O
+                            Plena 3D usa uma fórmula profissional para
+                            garantir que você não tenha
+                            prejuízo:<br><br><code
+                                class="bg-black/30 px-2 py-1 rounded text-cyan-200 block mb-2 font-mono text-xs">(Peso Ã— Custo Filamento)+(Tempo Ã— Custo Energia)+(Tempo Ã— Depreciação)+Margem de Risco</code>O
+                            sistema soma tudo isso para chegar ao <b>Custo
+                                Total</b>. Depois,
+                            aplica sua <b>Margem de Lucro</b>desejada para
+                            sugerir o <b>Preço Final</b>. </p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-2 text-purple-400">
+                            <i data-lucide="spool" class="w-5 h-5 inline mr-2"></i>Gestão de
+                            Estoque
+                        </h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            Sempre que você cria um projeto (que não seja
+                            apenas Orçamento),
+                            o sistema <b>desconta automaticamente</b>o peso
+                            usado do rolo de filamento selecionado. A barra
+                            de progresso no menu "Filamentos" muda de cor
+                            (Verde > Amarelo > Vermelho) para te avisar
+                            quando o material está acabando. </p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-2 text-green-400">
+                            <i data-lucide="wallet" class="w-5 h-5 inline mr-2"></i>Financeiro
+                        </h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            Use o botão <b>"Lançamento" </b>no topo da
+                            tela
+                            para registrar qualquer entrada ou saída
+                            rápida.<br>Exemplo: Vendeu uma peça à vista?
+                            Lançamento>Entrada. Comprou álcool
+                            isopropílico?
+                            Lançamento>Saída.<br>No fim do mês,
+                            vá na aba <b>Relatórios</b>para ver se sua
+                            operação está dando lucro real. </p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-white mb-2 text-orange-400">
+                            <i data-lucide="cloud-off" class="w-5 h-5 inline mr-2"></i>Backup e
+                            Offline
+                        </h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            <b>Seus dados ficam salvos apenas no seu
+                                navegador.</b>Nós não temos acesso a
+                            eles.<br>Por segurança,
+                            vá em <b>Configurações>Exportar Dados</b>uma
+                            vez
+                            por semana e guarde o arquivo de backup em um
+                            local seguro (Google Drive, Pen Drive, etc.).
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <!-- SETTINGS -->
+            <section id="view-settings" class="view fade-in hide">
+                <div class="max-w-3xl mx-auto space-y-8">
+                    <!-- Store Settings -->
+                    <div class="glass-panel p-6 rounded-xl border border-white/5">
+                        <h3 class="font-bold text-white text-lg mb-4 flex items-center">
+                            <i data-lucide="store" class="w-5 h-5 mr-2 text-cyan-400"></i>Dados
+                            da Loja
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nome
+                                    do Estabelecimento</label><input type="text" id="conf-store-name"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-white"
+                                    placeholder="Ex: Plena 3D Print">
+                            </div>
+                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-1">CNPJ
+                                    / CPF</label><input type="text" id="conf-store-doc"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-white"
+                                    placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Printer Settings -->
+                    <div class="glass-panel p-6 rounded-xl border border-white/5">
+                        <h3 class="text-lg font-bold text-white mb-6 flex items-center">
+                            <i data-lucide="printer" class="w-5 h-5 mr-2 text-cyan-400"></i>Custos
+                            da Impressora
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Consumo
+                                    (Watts)</label><input type="number" id="conf-watts"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mt-1 text-white"
+                                    placeholder="Ex: 350"></div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Custo
+                                    Energia
+                                    (R$/kWh)</label><input type="number" step="0.01" id="conf-kwh"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mt-1 text-white"
+                                    placeholder="Ex: 0.90">
+                            </div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Taxa
+                                    de Depreciação
+                                    (R$/Hora)</label><input type="number" step="0.01" id="conf-depreciation"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mt-1 text-white"
+                                    placeholder="Ex: 1.50">
+                            </div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Taxa
+                                    de Falha (%)</label><input type="number" id="conf-failure"
+                                    class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mt-1 text-white"
+                                    placeholder="Ex: 10"></div>
+                        </div>
+                    </div>
+                    <!-- Backup -->
+                    <div class="glass-panel p-6 rounded-xl border border-white/5">
+                        <h3 class="text-lg font-bold text-white mb-6">
+                            Backup de Dados</h3>
+                        <div class="flex gap-4"><button onclick="exportData()"
+                                class="flex-1 bg-slate-800 hover:bg-slate-700 text-white p-4 rounded-xl font-bold flex flex-col items-center border border-slate-600"><i
+                                    data-lucide="download" class="w-6 h-6 mb-2"></i>Exportar
+                                Dados </button><label
+                                class="flex-1 bg-slate-800 hover:bg-slate-700 text-white p-4 rounded-xl font-bold flex flex-col items-center border border-slate-600 cursor-pointer"><i
+                                    data-lucide="upload" class="w-6 h-6 mb-2"></i>Importar
+                                Backup <input type="file" onchange="importData(this)" class="hidden"
+                                    accept=".json"></label>
+                        </div>
+                    </div><button onclick="saveSettings()"
+                        class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-cyan-900/50">Salvar
+                        Alterações</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <!-- MODALS -->
+    <!-- PROJECT MODAL -->
+    <div id="projectModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-slate-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
+            <div class="flex justify-between items-center p-6 border-b border-slate-800">
+                <h3 class="text-xl font-bold text-white">Novo Projeto / Orçamento</h3><button
+                    onclick="closeModal('projectModal')" class="text-slate-400 hover:text-white"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="submitProject(event)" class="p-6 space-y-8"><input type="hidden" id="pj-id">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Inputs -->
+                    <div class="space-y-6">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Nome do
+                                Projeto</label><input type="text" id="pj-name" required
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-cyan-500 outline-none"
+                                placeholder="Ex: Suporte de Headset"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Cliente</label><select
+                                id="pj-client"
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-cyan-500 outline-none">
+                                <option value="">Selecione ou deixe vazio...</option>
+                            </select></div>
+                        <div class="glass-panel p-4 rounded-lg border-l-4 border-purple-500">
+                            <h4 class="font-bold text-purple-400 text-sm mb-4"><i data-lucide="spool"
+                                    class="w-4 h-4 inline mr-1"></i>Material
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="col-span-2"><select id="pj-filament" required onchange="calculateCost()"
+                                        class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded text-sm text-white">
+                                        <option value="">Escolha o Filamento...</option>
+                                    </select></div>
+                                <div><label class="text-[10px] uppercase text-slate-500">Peso
+                                        (g)</label><input type="number" id="pj-weight" required
+                                        oninput="calculateCost()"
+                                        class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-white"
+                                        placeholder="0"></div>
+                                <div><label class="text-[10px] uppercase text-slate-500">Tempo
+                                        (Horas)</label><input type="number" step="0.1" id="pj-time" required
+                                        oninput="calculateCost()"
+                                        class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-white"
+                                        placeholder="0.0"></div>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-green-400 text-sm mb-4"><i data-lucide="dollar-sign"
+                                    class="w-4 h-4 inline mr-1"></i>Precificação</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="text-[10px] uppercase text-slate-500">Lucro
+                                        Desejado (%)</label><input type="number" id="pj-markup" value="100"
+                                        oninput="calculateCost()"
+                                        class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-white">
+                                </div>
+                                <div><label class="text-[10px] uppercase text-slate-500">Status</label><select
+                                        id="pj-status"
+                                        class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-white">
+                                        <option value="Orçamento">Orçamento</option>
+                                        <option value="Fila">Na Fila</option>
+                                        <option value="Imprimindo">Imprimindo</option>
+                                        <option value="Concluido">Concluído</option>
+                                    </select></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right: Results -->
+                    <div class="flex flex-col justify-between">
+                        <div class="glass-panel p-6 rounded-xl bg-slate-800/50">
+                            <h4 class="text-sm font-bold text-slate-400 uppercase mb-4">
+                                Composição de Custo</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span>Material</span><span id="cost-material" class="font-mono text-white">R$ 0,
+                                        00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span>Energia</span><span id="cost-energy" class="font-mono text-white">R$ 0,
+                                        00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span>Depreciação Máq.</span><span id="cost-machine" class="font-mono text-white">R$
+                                        0,
+                                        00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2 text-red-400">
+                                    <span>Risco Falha</span><span id="cost-failure" class="font-mono">R$ 0,
+                                        00</span>
+                                </div>
+                                <div class="flex justify-between pt-2"><span class="font-bold text-white">Custo
+                                        Total</span><span id="cost-total" class="font-bold text-white font-mono">R$ 0,
+                                        00</span></div>
+                            </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <p class="text-xs text-slate-500 font-bold uppercase mb-2">Preço
+                                Final Sugerido</p>
+                            <h2 id="final-price" class="text-5xl font-bold text-cyan-400 tracking-tight">R$ 0,
+                                00</h2>
+                            <div class="mt-8 flex gap-3"><button type="button" onclick="sendWhatsapp()"
+                                    class="flex-1 bg-[#25D366] hover:bg-[#1ebc57] text-white py-3 rounded-lg font-bold flex items-center justify-center transition-all"><i
+                                        data-lucide="message-circle" class="w-5 h-5 mr-2"></i><span
+                                        id="btn-wa-text">Enviar
+                                        Orçamento</span></button><button type="submit"
+                                    class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-lg font-bold shadow-lg shadow-cyan-900/50 transition-all">Salvar
+                                    Projeto</button></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- TRANSACTION MODAL -->
+    <div id="transactionModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6" id="tr-modal-title">Novo Lançamento</h3>
+            <form onsubmit="submitTransaction(event)" class="space-y-4">
+                <input type="hidden" id="tr-id">
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg"><label
+                        class="cursor-pointer text-center"><input type="radio" name="tr-type" value="income"
+                            class="peer hidden" checked>
+                        <div
+                            class="py-2 text-sm font-bold text-slate-500 rounded-md peer-checked:bg-slate-800 peer-checked:text-green-500 transition-all">
+                            Entrada</div>
+                    </label><label class="cursor-pointer text-center"><input type="radio" name="tr-type" value="expense"
+                            class="peer hidden">
+                        <div
+                            class="py-2 text-sm font-bold text-slate-500 rounded-md peer-checked:bg-slate-800 peer-checked:text-red-500 transition-all">
+                            Saída</div>
+                    </label></div><input type="number" step="0.01" id="tr-amount" required
+                    class="w-full bg-slate-950 border border-slate-700 p-4 rounded-xl text-2xl font-bold text-white text-center placeholder-slate-600"
+                    placeholder="R$ 0,00"><input type="text" id="tr-desc" required
+                    class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white placeholder-slate-600"
+                    placeholder="Descrição">
+                <div class="grid grid-cols-2 gap-4"><select id="tr-cat"
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white">
+                        <option value="Venda">Venda</option>
+                        <option value="Serviço">Serviço</option>
+                        <option value="Material">Material</option>
+                        <option value="Energia">Energia</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <select id="tr-method"
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white">
+                        <option value="Pix">Pix</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão">Cartão</option>
+                        <option value="Boleto">Boleto</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Data do Lançamento</label>
+                    <input type="date" id="tr-date" required
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white mt-1">
+                </div>
+                <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal('transactionModal')"
+                        class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold">Cancelar</button><button
+                        type="submit" class="flex-1 bg-cyan-600 text-white py-3 rounded-lg font-bold">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- CLIENT DETAILS MODAL (CRM v2) -->
+    <div id="clientDetailsModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-800 flex justify-between items-start bg-slate-950/50">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="user"
+                            class="text-purple-400"></i><span id="cd-title">Novo Cliente</span></h3>
+                    <p class="text-xs text-slate-500 mt-1">Gerencie dados,
+                        histórico e preferências.</p>
+                </div><button onclick="closeModal('clientDetailsModal')" class="text-slate-400 hover:text-white"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-800 px-6 bg-slate-950/30"><button
+                    onclick="switchClientTab('profile')" id="tab-cli-profile"
+                    class="px-4 py-3 text-sm font-bold text-purple-400 border-b-2 border-purple-400 transition-colors">Perfil</button><button
+                    onclick="switchClientTab('history')" id="tab-cli-history"
+                    class="px-4 py-3 text-sm font-bold text-slate-500 hover:text-white transition-colors">Histórico</button>
+            </div>
+            <!-- Content -->
+            <form onsubmit="submitClient(event)" class="flex-1 overflow-y-auto">
+                <input type="hidden" id="cd-id">
+                <!-- TAB: PROFILE -->
+                <div id="view-cli-profile" class="p-6 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Nome
+                                Completo</label><input type="text" id="cd-name" required
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                                placeholder="Ex: João da Silva"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">WhatsApp</label><input
+                                type="text" id="cd-phone" required
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                                placeholder="Apenas números"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Email
+                                (Opcional)</label><input type="email" id="cd-email"
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                                placeholder="cliente@email.com"></div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Data
+                                de Nascimento</label><input type="date" id="cd-birth"
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Cliente
+                                Desde</label><input type="date" id="cd-joined"
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                        </div>
+                        <div><label class="text-xs font-bold text-slate-500 uppercase">Como
+                                nos conheceu?</label><select id="cd-source"
+                                class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                                <option value="">Selecione...</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Indicação">Indicação</option>
+                                <option value="Google">Google</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Passante">Passante/Loja</option>
+                                <option value="Outros">Outros</option>
+                            </select></div>
+                    </div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i
+                                data-lucide="sticky-note" class="w-3 h-3"></i>Notas & Observações
+                            (Dossiê)
+                        </label><textarea id="cd-notes" rows="4"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg text-white text-sm focus:border-purple-500 outline-none placeholder-slate-600"
+                            placeholder="Ex: Gosta de peças com preenchimento alto; Paga sempre via Pix; Aniversário 10/05..."></textarea>
+                    </div>
+                </div>
+                <!-- TAB: HISTORY -->
+                <div id="view-cli-history" class="p-6 hidden">
+                    <div id="cli-history-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                        <p class="text-center text-slate-500 py-4">
+                            Nenhum histórico encontrado.</p>
+                    </div>
+                </div>
+                <!-- Footer Action -->
+                <div class="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('clientDetailsModal')"
+                        class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">Cancelar</button><button
+                        type="submit"
+                        class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-purple-900/50 transition-all">Salvar
+                        Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- WHATSAPP ACTIONS MODAL -->
+    <div id="whatsappActionsModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-800 bg-slate-950/50 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="message-circle"
+                        class="text-green-500"></i><span id="wa-title">Contato com Cliente</span></h3><button
+                    onclick="closeModal('whatsappActionsModal')" class="text-slate-400 hover:text-white"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-400">Escolha um modelo de mensagem:</p>
+                <div id="wa-options" class="grid grid-cols-1 gap-2">
+                    <!-- Options injected via JS -->
+                </div>
+                <div class="mt-4"><label class="text-xs font-bold text-slate-500 uppercase">Mensagem Final
+                        (Editável)</label><textarea id="wa-preview" rows="5"
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-2 text-white text-sm focus:border-green-500 outline-none font-mono"></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end gap-3">
+                <button onclick="closeModal('whatsappActionsModal')"
+                    class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">Cancelar</button><button
+                    onclick="confirmWhatsappSend()"
+                    class="bg-[#25D366] hover:bg-[#20bd5a] text-black px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-green-900/20 transition-all flex items-center"><i
+                        data-lucide="send" class="w-4 h-4 mr-2"></i>Enviar WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- INVENTORY MODAL -->
+    <div id="inventoryModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="bg-slate-900 border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
+            <div class="flex justify-between items-center p-6 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+                <h3 class="text-xl font-bold text-white" id="inv-modal-title">Adicionar Item ao Estoque</h3>
+                <button onclick="closeModal('inventoryModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form onsubmit="submitInventoryItem(event)" class="p-6 space-y-6">
+                <input type="hidden" id="inv-id">
+
+                <!-- Category Selection -->
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Categoria</label>
+                    <select id="inv-category" onchange="updateInventoryFormFields()" required
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                        <option value="">Selecione...</option>
+                        <option value="impressora">🖨️ Impressora 3D</option>
+                        <option value="filamento">🧵 Filamento</option>
+                        <option value="resina">💧 Resina</option>
+                        <option value="peca">🔧 Peça de Reposição</option>
+                        <option value="ferramenta">🔨 Ferramenta</option>
+                    </select>
+                </div>
+
+                <!-- Common Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Nome</label>
+                        <input type="text" id="inv-name" required
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="Ex: Ender 3 Pro">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Marca</label>
+                        <input type="text" id="inv-brand" required
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="Ex: Creality">
+                    </div>
+                </div>
+
+                <!-- Dynamic Fields Container -->
+                <div id="inv-dynamic-fields" class="space-y-4"></div>
+
+                <!-- Quantity & Cost -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Quantidade</label>
+                        <input type="number" id="inv-quantity" required min="0"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="0">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Estoque Mínimo</label>
+                        <input type="number" id="inv-minstock" required min="0"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="0">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Custo (R$)</label>
+                        <input type="number" step="0.01" id="inv-cost" required min="0"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('inventoryModal')"
+                        class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-bold transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-bold shadow-lg shadow-purple-900/50 transition-all">
+                        Salvar Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAINTENANCE MODAL -->
+    <div id="maintenanceModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl">
+            <div class="flex justify-between items-center p-6 border-b border-slate-800">
+                <h3 class="text-xl font-bold text-white">Registrar Manutenção</h3>
+                <button onclick="closeModal('maintenanceModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form onsubmit="submitMaintenance(event)" class="p-6 space-y-4">
+                <input type="hidden" id="maint-printer-id">
+
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Tipo de Manutenção</label>
+                    <select id="maint-type" required
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                        <option value="preventiva">Preventiva</option>
+                        <option value="corretiva">Corretiva</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Descrição</label>
+                    <textarea id="maint-desc" required rows="3"
+                        class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                        placeholder="Ex: Troca de bico, limpeza de extrusora..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Custo (R$)</label>
+                        <input type="number" step="0.01" id="maint-cost" required min="0"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none"
+                            placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Próxima Manutenção</label>
+                        <input type="date" id="maint-next"
+                            class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white focus:border-purple-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('maintenanceModal')"
+                        class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-bold transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-bold shadow-lg shadow-green-900/50 transition-all">
+                        Registrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- BUDGET MODAL (PRINT ONLY STYLE) -->
+    <div id="budgetModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] hidden overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-2xl shadow-2xl relative rounded-sm">
+                <!-- No Print Controls -->
+                <div class="bg-slate-900 text-white p-4 flex justify-between items-center no-print">
+                    <h3 class="font-bold flex items-center gap-2"><i data-lucide="file-check"
+                            class="w-5 h-5 text-cyan-400"></i>Orçamento Formal
+                    </h3>
+                    <div class="flex gap-3"><button onclick="window.print()"
+                            class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"><i
+                                data-lucide="printer" class="w-4 h-4"></i>Imprimir / PDF
+                        </button><button onclick="closeModal('budgetModal')"
+                            class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x"
+                                class="w-6 h-6"></i></button>
+                    </div>
+                </div>
+                <!-- Print Content -->
+                <div class="p-12 md:p-16 text-slate-900 leading-relaxed" id="budget-content">
+                    <!-- Header -->
+                    <div class="flex justify-between items-end border-b-2 border-slate-900 pb-6 mb-8">
+                        <div>
+                            <h1 id="bdg-store-name"
+                                class="text-3xl font-bold uppercase tracking-wide text-slate-900 mb-1">
+                                Plena 3D</h1>
+                            <p id="bdg-store-doc" class="text-sm text-slate-500 font-mono">
+                                CNPJ: 00.000.000/0000-00</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase">
+                                Orçamento NÂº</p>
+                            <p id="bdg-id" class="font-mono font-bold text-lg select-all">
+                                #0000</p>
+                        </div>
+                    </div>
+                    <!-- Client Info -->
+                    <div class="bg-slate-50 p-6 rounded-lg mb-8 border border-slate-100">
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">
+                            Cliente</p>
+                        <h2 id="bdg-client-name" class="text-xl font-bold text-slate-800">
+                            Nome do Cliente</h2>
+                        <p id="bdg-client-contact" class="text-sm text-slate-600 mt-1">
+                            Contato: -</p>
+                    </div>
+                    <!-- Project Details -->
+                    <div class="mb-8">
+                        <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4 uppercase text-sm">
+                            Detalhes do Projeto</h3>
+                        <table class="w-full text-sm">
+                            <tr class="border-b border-slate-100">
+                                <td class="py-3 text-slate-500">
+                                    Projeto</td>
+                                <td id="bdg-project-name" class="py-3 font-bold text-right text-slate-900">
+                                    Nome do Projeto</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-3 text-slate-500">
+                                    Material</td>
+                                <td id="bdg-material" class="py-3 font-bold text-right text-slate-900">
+                                    PLA - Preto</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-3 text-slate-500">
+                                    Peso Estimado</td>
+                                <td id="bdg-weight" class="py-3 font-bold text-right text-slate-900">
+                                    0g</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-3 text-slate-500">
+                                    Tempo de Execução</td>
+                                <td id="bdg-time" class="py-3 font-bold text-right text-slate-900">
+                                    0h</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- Total -->
+                    <div class="flex justify-end mb-12">
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-1">
+                                Valor Total</p>
+                            <p id="bdg-total" class="text-4xl font-black text-slate-900">
+                                R$ 0,
+                                00</p>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Válido por 15 dias</p>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="mt-20 pt-8 border-t border-slate-200 flex justify-between items-end">
+                        <div class="text-xs text-slate-400">
+                            <p>Este documento não é
+                                fiscal.</p>
+                            <p>Gerado digitalmente por
+                                Plena 3D.</p>
+                        </div>
+                        <div class="text-center px-8 border-t border-slate-900 pt-2 w-48">
+                            <p class="text-xs font-bold text-slate-900 uppercase">
+                                Assinatura</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PRINT STYLES -->
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body>*:not(#budgetModal) {
+                display: none !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            #budgetModal {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: white !important;
+                z-index: 9999;
+                overflow: visible !important;
+            }
+
+            #budgetModal .bg-white {
+                box-shadow: none !important;
+                max-width: 210mm !important;
+                width: 210mm !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+            }
+
+            /* A4 Content Area with Margins */
+            #budget-content {
+                width: 210mm;
+                height: 296mm;
+                /* Reduced 1mm to prevent overflow */
+                padding: 15mm 20mm !important;
+                margin: 0 auto;
+                background: white;
+                box-sizing: border-box;
+                overflow: hidden;
+                /* Force single page */
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .bg-slate-50 {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+    <script>
+        // --- CORE & DB ---
+        const DB = {
+            key: 'plena_3d_v1',
+            data: {
+                projects: [],
+                clients: [],
+                transactions: [],
+                inventory: [
+                    { id: '1', brand: 'Genérico', type: 'PLA', color: 'Branco', price: 110, weight: 1000, remaining: 1000 },
+                    { id: '2', brand: 'Genérico', type: 'ABS', color: 'Preto', price: 140, weight: 1000, remaining: 1000 }
+                ],
+                settings: { watts: 300, kwh: 0.95, depreciation: 2.0, failure: 10, owner: 'Maker' }
+            },
+            load() {
+                const stored = localStorage.getItem(this.key);
+                if (stored) {
+                    try {
+                        this.data = JSON.parse(stored);
+                        // Schema Validation / Migration
+                        if (!this.data.projects) this.data.projects = [];
+                        if (!this.data.clients) this.data.clients = [];
+                        if (!this.data.transactions) this.data.transactions = [];
+                        if (!this.data.inventory) this.data.inventory = [];
+                        if (!this.data.inventoryLogs) this.data.inventoryLogs = [];
+                        if (!this.data.maintenances) this.data.maintenances = [];
+                        if (!this.data.settings) this.data.settings = { watts: 300, kwh: 0.95, depreciation: 2.0, failure: 10 };
+                    } catch (e) {
+                        console.error('Data Corruption:', e);
+                        this.save(); // Reset or re-save to fix structure
+                    }
+                } else {
+                    this.save();
+                }
+            },
+            save() {
+                localStorage.setItem(this.key, JSON.stringify(this.data));
+            }
+        };
+        // --- UTILS ---
+        const _ = (id) => document.getElementById(id);
+        const fmtMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+        function startClock() {
+            const update = () => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
+                if (_('header-time')) _('header-time').innerText = timeStr;
+                if (_('header-date')) _('header-date').innerText = dateStr;
+            };
+            update();
+            setInterval(update, 1000);
+        }
+        // --- ACTIONS ---
+        function sanitizeData() {
+            const simpleReplacements = {
+                'Ã£': 'ã', 'Ã§': 'ç', 'Ãµ': 'õ', 'Ã©': 'é', 'Ãª': 'ê',
+                'Ã¡': 'á', 'Ã³': 'ó', 'Ãº': 'ú', 'Ã\xad': 'í', 'Ã\x8d': 'Í',
+                'Ã\xa0': 'à', 'Ã¢': 'â', 'Ã€': 'À', 'Ã‚': 'Â', 'Ãƒ': 'Ã',
+                'Ã…': 'Å', 'Ã‡': 'Ç', 'Ã‰': 'É', 'ÃŠ': 'Ê', 'Ã”': 'Ô',
+                'Ã•': 'Õ', 'Ãš': 'Ú', 'Ãœ': 'Ü', 'Ã ': 'à'
+            };
+            function scan(obj) {
+                if (!obj) return obj;
+                if (typeof obj === 'string') {
+                    let newStr = obj;
+                    for (const [bad, good] of Object.entries(simpleReplacements)) {
+                        if (newStr.includes(bad)) newStr = newStr.replaceAll(bad, good);
+                    }
+                    return newStr;
+                } else if (typeof obj === 'object') {
+                    for (const key in obj) {
+                        obj[key] = scan(obj[key]);
+                    }
+                }
+                return obj;
+            }
+
+            if (DB && DB.data) {
+                DB.data = scan(DB.data);
+                DB.save();
+                console.log('Sanitization Complete');
+            }
+        }
+        function init() {
+            try {
+                DB.load();
+                sanitizeData(); // Auto-fix encoding artifacts
+                lucide.createIcons();
+                startClock();
+                // Populate config inputs
+                if (DB.data.settings) {
+                    _('conf-watts').value = DB.data.settings.watts || 300;
+                    _('conf-kwh').value = DB.data.settings.kwh || 0.95;
+                    _('conf-depreciation').value = DB.data.settings.depreciation || 2.0;
+                    _('conf-failure').value = DB.data.settings.failure || 10;
+                    _('conf-store-name').value = DB.data.settings.storeName || '';
+                    _('conf-store-doc').value = DB.data.settings.storeDoc || '';
+                }
+                _('fin-month').value = new Date().toISOString().slice(0, 7);
+                checkNotifications(); // Initial check
+                router('dashboard');
+            } catch (e) {
+                alert('Erro crítico na inicialização: ' + e.message);
+                console.error(e);
+            }
+        }
+        function checkNotifications() {
+            // Check if any client has opportunities (Niver or Fidelity)
+            const hasOpps = DB.data.clients.some(c => {
+                const stats = getClientStats(c.id);
+                return stats.tags.some(t => t.label.includes('Niver') || t.label.includes('Anos'));
+            });
+            // Update Sidebar Badge
+            const navClients = _('nav-clients');
+            if (!navClients) return;
+            // Remove existing badge if any
+            const existingBadge = navClients.querySelector('.nav-badge');
+            if (existingBadge) existingBadge.remove();
+            if (hasOpps) {
+                navClients.classList.add('relative');
+                navClients.insertAdjacentHTML('beforeend', '<div class="nav-badge animate-pulse"></div>');
+            }
+        }
+        function toggleSidebar() {
+            _('sidebar').classList.toggle('open');
+            _('backdrop').classList.toggle('open');
+        }
+        function router(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hide'));
+            _('view-' + view).classList.remove('hide');
+            // Update Navigation UI
+            document.querySelectorAll('.nav-item').forEach(n => {
+                n.classList.remove('text-white', 'bg-white/5');
+                n.classList.add('text-slate-400');
+            });
+            _('nav-' + view).classList.add('text-white', 'bg-white/5');
+            if (_('header-page-title')) _('header-page-title').innerText = document.getElementById(`nav-${view}`)?.innerText.trim() || 'Dashboard';
+            // Active Tab Highlight
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-white/10', 'text-cyan-400', 'border-r-2', 'border-cyan-400');
+                el.classList.add('text-slate-400');
+                const icon = el.querySelector('svg') || el.querySelector('i');
+                if (icon) icon.classList.remove('text-cyan-400');
+            });
+            const activeBtn = document.getElementById(`nav-${view}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('bg-white/10', 'text-cyan-400', 'border-r-2', 'border-cyan-400');
+                const icon = activeBtn.querySelector('svg') || activeBtn.querySelector('i');
+                if (icon) icon.classList.add('text-cyan-400');
+            }
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+                _('sidebar').classList.remove('open');
+                _('backdrop').classList.remove('open');
+            }
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'financial') renderFinancial();
+            if (view === 'reports') renderReports();
+            if (view === 'manual') window.scrollTo(0, 0);
+            if (view === 'projects') renderProjects();
+            if (view === 'clients') renderClients();
+            if (view === 'inventory') renderInventory();
+        }
+        function closeModal(id) { _(id).classList.add('hidden'); }
+        function openClientModal() { _('clientModal').classList.remove('hidden'); _('cl-name').focus(); }
+        function openTransactionModal() { _('transactionModal').classList.remove('hidden'); _('tr-amount').focus(); _('tr-date').value = new Date().toISOString().split('T')[0]; }
+        function openProjectModal(id = null) {
+            _('projectModal').classList.remove('hidden');
+            // Populate Selects
+            const clients = DB.data.clients;
+            // Filter filaments with enough stock (support both old and new schema)
+            const filaments = DB.data.inventory.filter(f => {
+                if (f.category && f.category !== 'filamento') return false;
+                const qty = f.quantity || f.remaining || 0;
+                return qty > 50;
+            });
+            _('pj-client').innerHTML = '<option value="">Cliente Avulso</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            _('pj-filament').innerHTML = '<option value="">Selecione...</option>' + filaments.map(f => {
+                // Support both old and new schema
+                const price = f.cost || f.price || 0;
+                const weight = f.weight || f.quantity || 1000;
+                const type = f.specs?.type || f.type || 'PLA';
+                const color = f.specs?.color || f.color || f.name;
+                const brand = f.brand || 'Genérico';
+                const pricePerKg = (price / weight * 1000).toFixed(0);
+                return `<option value="${f.id}" data-price="${price}" data-weight="${weight}">${type} - ${color} (${brand}) [R$${pricePerKg}/kg]</option>`;
+            }).join('');
+            // Reset or Populate
+            _('pj-id').value = '';
+            if (id) {
+                const p = DB.data.projects.find(x => x.id === id);
+                if (p) {
+                    _('pj-id').value = p.id;
+                    _('pj-name').value = p.name;
+                    _('pj-client').value = p.clientId;
+                    _('pj-filament').value = p.filamentId;
+                    _('pj-weight').value = p.weight;
+                    _('pj-time').value = p.time;
+                    _('pj-status').value = p.status;
+                    // Markup calc logic reversal is hard, so we assume standard or let user adjust final price manually if needed
+                    // For now, re-calc based on inputs
+                }
+            } else {
+                _('pj-name').value = ''; _('pj-weight').value = ''; _('pj-time').value = ''; _('pj-filament').value = '';
+            }
+            calculateCost();
+        }
+        // --- CALCULADORA 3D ---
+        function calculateCost() {
+            const filamentId = _('pj-filament').value;
+            const weight = parseFloat(_('pj-weight').value) || 0;
+            const time = parseFloat(_('pj-time').value) || 0;
+            const markup = parseFloat(_('pj-markup').value) || 0;
+            let matCost = 0;
+            if (filamentId) {
+                const opt = _('pj-filament').selectedOptions[0];
+                const price = parseFloat(opt.getAttribute('data-price'));
+                const originalWeight = parseFloat(opt.getAttribute('data-weight'));
+                matCost = (price / originalWeight) * weight;
+            }
+            const kwhPrice = DB.data.settings.kwh;
+            const watts = DB.data.settings.watts;
+            const energyCost = (watts / 1000) * time * kwhPrice;
+            const machineCost = time * DB.data.settings.depreciation;
+            const baseCost = matCost + energyCost + machineCost;
+            const riskCost = baseCost * (DB.data.settings.failure / 100);
+            const totalCost = baseCost + riskCost;
+            const finalPrice = totalCost * (1 + (markup / 100));
+            // UI Updates
+            _('cost-material').innerText = fmtMoney(matCost);
+            _('cost-energy').innerText = fmtMoney(energyCost);
+            _('cost-machine').innerText = fmtMoney(machineCost);
+            _('cost-failure').innerText = fmtMoney(riskCost);
+            _('cost-total').innerText = fmtMoney(totalCost);
+            _('final-price').innerText = fmtMoney(finalPrice);
+            _('btn-wa-text').innerText = _('pj-status').value === 'Orçamento' ? 'Enviar Orçamento' : 'Enviar Status';
+        }
+        // --- ORÇAMENTO & WHATSAPP ---
+        function openBudgetModal(id) {
+            const p = DB.data.projects.find(x => x.id === id);
+            if (!p) return;
+            // Store Info
+            const sName = DB.data.settings.storeName || 'Plena 3D';
+            const sDoc = DB.data.settings.storeDoc ? `CNPJ: ${DB.data.settings.storeDoc}` : '';
+            _('bdg-store-name').innerText = sName;
+            _('bdg-store-doc').innerText = sDoc;
+            _('bdg-id').innerText = '#' + p.id.substr(0, 6).toUpperCase();
+            // Client Info
+            const c = DB.data.clients.find(cli => cli.id === p.clientId);
+            _('bdg-client-name').innerText = c ? c.name : (DB.data.settings.owner || 'Cliente');
+            _('bdg-client-contact').innerText = c ? `Contato: ${c.phone}` : 'Contato: -';
+            // Project Info
+            _('bdg-project-name').innerText = p.name;
+            const fil = DB.data.inventory.find(f => f.id === p.filamentId);
+            _('bdg-material').innerText = fil ? `${fil.type} - ${fil.color} (${fil.brand})` : 'Material Padrão';
+            _('bdg-weight').innerText = `${p.weight}g`;
+            _('bdg-time').innerText = `${p.time}h`;
+            // Totals
+            _('bdg-total').innerText = fmtMoney(p.price);
+            // Show Modal
+            _('budgetModal').classList.remove('hidden');
+        }
+        function sendWhatsapp(idToUse = null) {
+            // Se ID passado, busca do banco. Se não, tenta pegar dos inputs do modal (criação)
+            let name, clientID;
+            if (idToUse) {
+                const p = DB.data.projects.find(x => x.id === idToUse);
+                if (!p) return;
+                name = p.name;
+                clientID = p.clientId;
+            } else {
+                name = _('pj-name').value;
+                clientID = _('pj-client').value;
+            }
+            if (!name) return alert('Dê um nome ao projeto!');
+            let phone = '';
+            let clientName = 'Cliente';
+            if (clientID) {
+                const c = DB.data.clients.find(x => x.id === clientID);
+                if (c) { phone = c.phone.replace(/\D/g, ''); clientName = c.name; }
+            }
+            // Simplificação (Feedback do Usuário: "Vamos deixar o orçamento pelo PDF")
+            const text = `Olá, *${clientName}*! Tudo bem? %0A%0AEstou finalizando o orçamento do seu projeto *${name}*. %0A%0APodemos conversar?`;
+            window.open(`https://wa.me/55${phone}?text=${text}`, '_blank');
+        }
+        // --- SUBMITS & CRUD ---
+        function saveSettings() {
+            DB.data.settings.watts = parseFloat(_('conf-watts').value);
+            DB.data.settings.kwh = parseFloat(_('conf-kwh').value);
+            DB.data.settings.depreciation = parseFloat(_('conf-depreciation').value);
+            DB.data.settings.failure = parseFloat(_('conf-failure').value);
+            DB.data.settings.storeName = _('conf-store-name').value;
+            DB.data.settings.storeDoc = _('conf-store-doc').value;
+            DB.save();
+            alert('Configurações salvas!');
+        }
+        function submitProject(e) {
+            e.preventDefault();
+            const id = _('pj-id').value;
+            const filamentId = _('pj-filament').value;
+            const weight = parseFloat(_('pj-weight').value);
+            const status = _('pj-status').value;
+            // ESTOQUE: Descontar APENAS se:
+            // 1. É um NOVO projeto (id vazio) E não é orçamento
+            // 2. OU se mudou de Orçamento -> Produção
+            // Simplificação para V1: Desconta na criação se != Orçamento. Na edição manual, não mexe no estoque auto (Maker ajusta manual se precisar).
+            if (!id && status !== 'Orçamento' && filamentId) {
+                const fil = DB.data.inventory.find(f => f.id === filamentId);
+                if (fil) {
+                    fil.quantity -= weight;
+                    if (fil.weight) fil.remaining = fil.quantity; // Legacy
+                    addInventoryLog(filamentId, 'saida', weight, `Projeto: ${_('pj-name').value}`);
+                }
+            }
+            const projectData = {
+                id: id || uid(),
+                name: _('pj-name').value,
+                clientId: _('pj-client').value,
+                filamentId: filamentId,
+                weight: weight,
+                time: parseFloat(_('pj-time').value),
+                price: parseFloat(_('final-price').innerText.replace('R$', '').replace('.', '').replace(',', '.')),
+                cost: parseFloat(_('cost-total').innerText.replace('R$', '').replace('.', '').replace(',', '.')),
+                status: status,
+                date: id ? DB.data.projects.find(x => x.id === id).date : new Date().toISOString()
+            };
+            if (id) {
+                const index = DB.data.projects.findIndex(x => x.id === id);
+                DB.data.projects[index] = projectData;
+            } else {
+                DB.data.projects.unshift(projectData);
+            }
+            DB.save();
+            closeModal('projectModal');
+            router('projects');
+            renderDashboard(); // Refresh dash queue
+        }
+        function deleteProject(id) {
+            if (confirm('Tem certeza que deseja excluir este projeto?')) {
+                DB.data.projects = DB.data.projects.filter(p => p.id !== id);
+                DB.save();
+                renderProjects();
+                renderDashboard();
+            }
+        }
+        function duplicateProject(id) {
+            const p = DB.data.projects.find(x => x.id === id);
+            if (p) {
+                const newP = { ...p, id: uid(), name: p.name + ' (Cópia)', status: 'Orçamento', date: new Date().toISOString() };
+                DB.data.projects.unshift(newP);
+                DB.save();
+                renderProjects();
+                alert('Projeto duplicado como Orçamento!');
+            }
+        }
+        function submitClient(e) {
+            e.preventDefault();
+            DB.data.clients.push({
+                id: uid(),
+                name: _('cl-name').value,
+                phone: _('cl-phone').value.replace(/\D/g, ''),
+                email: _('cl-email').value,
+                joined: new Date().toISOString()
+            });
+            DB.save();
+            closeModal('clientModal');
+            router('clients');
+        }
+        function addTransaction(type, category, amount, desc, date, refId = null, method = 'Pix') {
+            if (!DB.data.transactions) DB.data.transactions = [];
+            DB.data.transactions.unshift({
+                id: uid(),
+                type, // 'income' | 'expense'
+                category,
+                amount: parseFloat(amount) || 0,
+                desc,
+                date: date || new Date().toISOString(),
+                method, // Pix, Dinheiro, Cartão, etc
+                refId // ID de referência (ex: id do projeto)
+            });
+        }
+
+        function openTransactionModal(id = null) {
+            _('transactionModal').classList.remove('hidden');
+            if (id) {
+                const t = DB.data.transactions.find(x => x.id === id);
+                if (t) {
+                    _('tr-modal-title').innerText = 'Editar Lançamento';
+                    _('tr-id').value = t.id;
+                    _('tr-amount').value = t.amount;
+                    _('tr-desc').value = t.desc;
+                    _('tr-cat').value = t.category;
+                    _('tr-date').value = t.date.slice(0, 10);
+                    _('tr-method').value = t.method || 'Pix';
+                    // Set radio button
+                    document.querySelector(`input[name="tr-type"][value="${t.type}"]`).checked = true;
+                }
+            } else {
+                _('tr-modal-title').innerText = 'Novo Lançamento';
+                _('tr-id').value = '';
+                _('tr-amount').value = '';
+                _('tr-desc').value = '';
+                _('tr-cat').value = 'Venda';
+                _('tr-method').value = 'Pix';
+                _('tr-date').value = new Date().toISOString().slice(0, 10);
+                document.querySelector('input[name="tr-type"][value="income"]').checked = true;
+            }
+        }
+
+        function submitTransaction(e) {
+            e.preventDefault();
+            const id = _('tr-id').value;
+            const type = document.querySelector('input[name="tr-type"]:checked').value;
+            const amount = parseFloat(_('tr-amount').value);
+            const desc = _('tr-desc').value;
+            const category = _('tr-cat').value;
+            const method = _('tr-method').value;
+            const date = _('tr-date').value;
+
+            if (id) {
+                const index = DB.data.transactions.findIndex(t => t.id === id);
+                if (index >= 0) {
+                    DB.data.transactions[index] = { ...DB.data.transactions[index], type, amount, desc, category, date, method };
+                }
+            } else {
+                addTransaction(type, category, amount, desc, date, null, method);
+            }
+
+            DB.save();
+            closeModal('transactionModal');
+            if (!_('view-financial').classList.contains('hide')) renderFinancial();
+            else router('financial');
+            renderDashboard();
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir este lançamento?')) {
+                const index = DB.data.transactions.findIndex(t => t.id === id);
+                if (index >= 0) {
+                    DB.data.transactions.splice(index, 1);
+                    DB.save();
+                    renderFinancial();
+                    renderDashboard();
+                }
+            }
+        }
+        function submitFilament(e) {
+            e.preventDefault();
+            DB.data.inventory.push({
+                id: uid(),
+                brand: _('fi-brand').value,
+                type: _('fi-type').value,
+                color: _('fi-color').value,
+                price: parseFloat(_('fi-price').value),
+                weight: parseFloat(_('fi-weight').value),
+                remaining: parseFloat(_('fi-weight').value)
+            });
+            DB.save();
+            closeModal('filamentModal');
+            router('inventory');
+        }
+        // --- RENDERS ---
+        function renderDashboard() {
+            try {
+                const p = DB.data.projects || []; // Safe default
+                // 1. KPI Faturamento Real (Mês Atual)
+                const today = new Date();
+                const currentMonth = today.toISOString().slice(0, 7);
+                const mName = today.toLocaleDateString('pt-BR', { month: 'long' });
+                // Soma entradas do financeiro do mês atual
+                const transactions = DB.data.transactions || [];
+                const revenue = transactions
+                    .filter(t => t.type === 'income' && t.date.startsWith(currentMonth))
+                    .reduce((a, b) => a + b.amount, 0);
+                // 2. KPI Filamento (Estatística Global)
+                const filament = p.reduce((a, b) => a + b.weight, 0);
+                // 3. KPI Orçamentos Pendentes (Dinheiro na Mesa)
+                const pendingBudgets = p.filter(x => x.status === 'Orçamento');
+                const potentialRevenue = pendingBudgets.reduce((a, b) => a + b.price, 0);
+                // 4. KPI Projetos Ativos
+                const active = p.filter(x => x.status === 'Fila' || x.status === 'Imprimindo').length;
+                // DOM Updates (Safe)
+                const kpiRev = _('kpi-revenue');
+                if (kpiRev) {
+                    kpiRev.innerText = fmtMoney(revenue);
+                    if (kpiRev.previousElementSibling) kpiRev.previousElementSibling.innerText = `Faturamento (${mName})`;
+                }
+                const kpiHours = _('kpi-hours');
+                if (kpiHours) {
+                    kpiHours.innerText = fmtMoney(potentialRevenue);
+                    if (kpiHours.previousElementSibling) kpiHours.previousElementSibling.innerText = "Em Orçamentos";
+                    if (kpiHours.nextElementSibling) kpiHours.nextElementSibling.innerHTML = `<i data-lucide="alert-circle" class="w-3 h-3 mr-1"></i> ${pendingBudgets.length} Pendentes`;
+                }
+                const kpiFil = _('kpi-filament');
+                if (kpiFil) kpiFil.innerText = filament + 'g';
+                const kpiAct = _('kpi-active');
+                if (kpiAct) kpiAct.innerText = active;
+                // ---------------------------------------------
+                // SEÇÃO 1: FILA DE IMPRESSÃO (O que fazer agora?)
+                // ---------------------------------------------
+                const queue = p.filter(x => x.status === 'Fila' || x.status === 'Imprimindo');
+                const container = _('recent-projects-list');
+                if (container) {
+                    // Mudar título da seção visualmente
+                    const listTitle = container.previousElementSibling;
+                    if (listTitle) listTitle.innerHTML = `<i data-lucide="list-video" class="w-5 h-5 inline mr-2 text-cyan-400"></i> Fila de Impressão`;
+                    if (queue.length > 0) {
+                        container.innerHTML = queue.map(x => {
+                            const isPrinting = x.status === 'Imprimindo';
+                            const icon = isPrinting ? 'printer' : 'clock';
+                            const color = isPrinting ? 'text-purple-400' : 'text-yellow-400';
+                            const bg = isPrinting ? 'bg-purple-500/10 border-purple-500/50' : 'bg-slate-800 border-white/5';
+                            const actionBtn = isPrinting
+                                ? `<button onclick="promoteStatus('${x.id}')" class="text-xs bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded">Concluir</button>`
+                                : `<button onclick="promoteStatus('${x.id}')" class="text-xs bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded">Imprimir</button>`;
+                            return `
+<div class="flex justify-between items-center p-3 rounded-lg border mb-2 ${bg}">
+<div class="flex items-center gap-3">
+<div class="${color}"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+<div>
+<p class="font-bold text-white text-sm">${x.name}</p>
+<p class="text-[10px] text-slate-400 uppercase">${x.weight}g â€¢ ${x.time}h</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<span class="block font-mono font-bold text-white text-sm">${fmtMoney(x.price)}</span>
+</div>
+${actionBtn}
+</div>
+</div>`;
+                        }).join('');
+                    } else {
+                        container.innerHTML = `
+<div class="text-center py-8 text-slate-500">
+<i data-lucide="coffee" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+<p class="text-sm">Máquinas paradas.</p>
+<button onclick="openProjectModal()" class="text-xs text-cyan-400 hover:underline mt-1">Criar novo projeto</button>
+</div>`;
+                    }
+                    // ---------------------------------------------
+                    // ESTOQUE (Alertas Reais)
+                    // ---------------------------------------------
+                    const lowStock = DB.data.inventory.filter(f => f.quantity < (f.minStock || 200));
+                    _('low-stock-list').innerHTML = lowStock.length ? lowStock.map(f => {
+                        const name = f.category === 'filamento' ? `${f.specs?.type || ''} ${f.specs?.color || f.name}` : f.name;
+                        return `
+<div class="flex justify-between items-center p-2 text-xs text-slate-300 border-b border-white/5">
+<span>${name}</span>
+<span class="text-red-400 font-bold">${f.quantity}${f.unit || ''}</span>
+</div>
+`;
+                    }).join('') : '<p class="text-xs text-slate-500">Estoque Saudável</p>';
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                console.error("Dashboard Render Error:", e);
+            }
+        }
+        // Helper para o Dashboard
+        function updateStatus(id, newStatus) {
+            const p = DB.data.projects.find(x => x.id === id);
+            if (p) {
+                p.status = newStatus;
+                DB.save();
+                renderDashboard(); // Re-render to update queue
+                // Se concluiu, sugerir lançar receita? (Pode ser uma feature futura)
+                if (newStatus === 'Concluido') {
+                    // Auto-toast or message could go here
+                }
+            }
+        }
+        function renderProjects() {
+            const filter = _('proj-filter').value;
+            const search = _('proj-search').value.toLowerCase();
+            let list = DB.data.projects;
+            if (filter !== 'all') list = list.filter(p => p.status === filter);
+            if (search) list = list.filter(p => p.name.toLowerCase().includes(search));
+            const grid = _('projects-grid');
+            grid.innerHTML = list.map(p => {
+                const colorClass = { 'Orçamento': 'text-slate-400', 'Fila': 'text-yellow-400', 'Imprimindo': 'text-purple-400', 'Concluido': 'text-green-400', 'Cancelado': 'text-red-500' }[p.status] || 'text-slate-400';
+                const dateStr = new Date(p.date).toLocaleDateString();
+                // Logic for Quick Actions
+                let primaryAction = '';
+                let secondaryAction = '';
+                if (p.status === 'Orçamento') {
+                    primaryAction = `<button onclick="promoteStatus('${p.id}')" class="flex-1 bg-green-600/20 hover:bg-green-600/40 text-green-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-green-600/30 transition-all"><i data-lucide="check" class="w-3 h-3 mr-1"></i> Aprovar</button>`;
+                    secondaryAction = `<button onclick="rejectStatus('${p.id}')" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 p-2 rounded border border-red-600/30 transition-all" title="Rejeitar"><i data-lucide="x" class="w-3 h-3"></i></button>`;
+                } else if (p.status === 'Fila') {
+                    primaryAction = `<button onclick="promoteStatus('${p.id}')" class="flex-1 bg-purple-600/20 hover:bg-purple-600/40 text-purple-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-purple-600/30 transition-all"><i data-lucide="play" class="w-3 h-3 mr-1"></i> Iniciar Impressão</button>`;
+                } else if (p.status === 'Imprimindo') {
+                    primaryAction = `<button onclick="promoteStatus('${p.id}')" class="flex-1 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-cyan-600/30 transition-all"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> Concluir</button>`;
+                }
+                // Extra Actions (Print/Share)
+                const extraActions = `
+<div class="flex gap-2 mt-2">
+<button onclick="openBudgetModal('${p.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 rounded border border-white/10 transition-colors flex items-center justify-center">
+<i data-lucide="printer" class="w-3 h-3 mr-1"></i> Orçamento
+</button>
+<button onclick="sendWhatsapp('${p.id}')" class="bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] px-3 py-2 rounded border border-[#25D366]/30 transition-colors" title="Enviar WhatsApp">
+<i data-lucide="message-circle" class="w-3 h-3"></i>
+</button>
+</div>
+`;
+                // If concluded or cancelled, mostly readonly actions
+                const actionsBar = (p.status !== 'Concluido' && p.status !== 'Cancelado')
+                    ? `<div class="mt-3 pt-3 border-t border-white/5 space-y-2">
+<div class="flex gap-2">
+${primaryAction}
+${secondaryAction}
+</div>
+${extraActions}
+</div>`
+                    : `<div class="mt-3 pt-3 border-t border-white/5">
+${extraActions}
+</div>`;
+                return `
+<div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-cyan-500/30 transition-all group relative flex flex-col">
+<div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+<button onclick="duplicateProject('${p.id}')" title="Duplicar" class="text-slate-400 hover:text-cyan-400"><i data-lucide="copy" class="w-4 h-4"></i></button>
+<button onclick="deleteProject('${p.id}')" title="Excluir" class="text-slate-400 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+</div>
+<div class="flex justify-between items-start mb-4">
+<div class="bg-slate-800 p-2 rounded-lg text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors"><i data-lucide="box" class="w-6 h-6"></i></div>
+<span class="text-xs font-bold uppercase ${colorClass} bg-slate-950 px-2 py-1 rounded">${p.status}</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-white text-lg mb-1 truncate pr-8 cursor-pointer hover:text-cyan-400" onclick="openProjectModal('${p.id}')">${p.name}</h3>
+<div class="flex justify-between items-center mb-4">
+<p class="text-xs text-slate-400 font-mono">${fmtMoney(p.price)}</p>
+<p class="text-[10px] text-slate-500">${dateStr}</p>
+</div>
+<div class="grid grid-cols-2 gap-2 text-xs text-slate-500 mb-2">
+<div class="flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ${p.time}h</div>
+<div class="flex items-center"><i data-lucide="spool" class="w-3 h-3 mr-1"></i> ${p.weight}g</div>
+</div>
+</div>
+${actionsBar}
+<button onclick="openProjectModal('${p.id}')" class="w-full text-center text-xs font-bold text-slate-600 hover:text-cyan-400 pt-2 mt-2 border-t border-white/5 flex items-center justify-center">
+<i data-lucide="edit-3" class="w-3 h-3 mr-2"></i> Editar Dados
+</button>
+</div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+        function promoteStatus(id) {
+            const p = DB.data.projects.find(x => x.id === id);
+            if (!p) return;
+            const next = {
+                'Orçamento': 'Fila',
+                'Fila': 'Imprimindo',
+                'Imprimindo': 'Concluido'
+            };
+            const nextStatus = next[p.status];
+            if (nextStatus) {
+                // Logic for Inventory deduction if moving to Production
+                if (p.status === 'Orçamento' && nextStatus === 'Fila' && p.filamentId) {
+                    const fil = DB.data.inventory.find(f => f.id === p.filamentId);
+                    if (fil) {
+                        fil.quantity -= p.weight;
+                        if (fil.weight) fil.remaining = fil.quantity; // Legacy
+                        addInventoryLog(p.filamentId, 'saida', p.weight, `Orçamento aprovado: ${p.name}`);
+                    }
+                }
+
+                // --- AUTOMAÇÃO FINANCEIRA ---
+                if (nextStatus === 'Concluido') {
+                    const today = new Date().toISOString();
+                    // 1. Registrar Receita
+                    addTransaction('income', 'Venda', p.price, `Projeto Concluído: ${p.name}`, today, p.id);
+                    // 2. Registrar Custo (Saída) para precisão do Balanço
+                    if (p.cost > 0) {
+                        addTransaction('expense', 'Material', p.cost, `Custo de Produção: ${p.name}`, today, p.id);
+                    }
+                }
+
+                p.status = nextStatus;
+                DB.save();
+                renderProjects();
+                renderDashboard(); // Fix: Ensure dashboard is sync
+            }
+        }
+        function rejectStatus(id) {
+            if (confirm('Deseja rejeitar/cancelar este orçamento?')) {
+                const p = DB.data.projects.find(x => x.id === id);
+                if (p) {
+                    p.status = 'Cancelado';
+                    DB.save();
+                    renderProjects();
+                    renderDashboard();
+                }
+            }
+        }
+        // --- CRM LOGIC ---
+        function getClientStats(clientId) {
+            const projects = DB.data.projects.filter(p => p.clientId === clientId);
+            const concluded = projects.filter(p => p.status === 'Concluido');
+            const client = DB.data.clients.find(c => c.id === clientId);
+            const ltv = concluded.reduce((a, b) => a + b.price, 0);
+            const lastProject = projects.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            // Tags Logic
+            const tags = [];
+            const now = new Date();
+            const joinDate = new Date(client.joined);
+            const daysSinceJoin = (now - joinDate) / (1000 * 60 * 60 * 24);
+            // 1. Status Base
+            if (daysSinceJoin < 30) tags.push({ label: 'Novo', color: 'bg-green-500/20 text-green-400' });
+            if (ltv > 500) tags.push({ label: 'VIP', color: 'bg-purple-500/20 text-purple-400' });
+            if (lastProject && (now - new Date(lastProject.date)) / (1000 * 60 * 60 * 24) > 60) tags.push({ label: 'Inativo', color: 'bg-slate-700 text-slate-400' });
+            // 2. Fidelidade (1 Ano+)
+            const years = Math.floor(daysSinceJoin / 365);
+            if (years >= 1) {
+                // Only show if NOT contacted recently (e.g. last 6 months)
+                const lastContact = client.lastContact ? new Date(client.lastContact) : null;
+                const now = new Date();
+                const monthsSinceContact = lastContact ? (now.getMonth() - lastContact.getMonth() + (12 * (now.getFullYear() - lastContact.getFullYear()))) : 999;
+
+                if (monthsSinceContact > 6) {
+                    tags.push({ label: `Client ${years}+ Anos`, color: 'bg-yellow-500/20 text-yellow-400' });
+                }
+            }
+            // 3. Aniversariante
+            if (client.birthDate) {
+                const birth = new Date(client.birthDate + 'T12:00:00'); // Force correct day
+                if (birth.getMonth() === now.getMonth()) {
+                    const lastContact = client.lastContact ? new Date(client.lastContact) : null;
+                    const contactedThisMonth = lastContact && lastContact.getMonth() === now.getMonth() && lastContact.getFullYear() === now.getFullYear();
+                    if (!contactedThisMonth) {
+                        tags.push({ label: '🎂 Niver do Mês', color: 'bg-pink-500/20 text-pink-400' });
+                    }
+                }
+            }
+            return { ltv, count: projects.length, last: lastProject ? lastProject.date : null, tags, projects, lastContact: client.lastContact };
+        }
+        // --- WHATSAPP ENGAGEMENT LOGIC ---
+        let currentWaClient = null;
+        function openWhatsappActions(clientId) {
+            const client = DB.data.clients.find(c => c.id === clientId);
+            if (!client) return;
+            currentWaClient = client;
+            const stats = getClientStats(clientId);
+            const firstName = client.name.split(' ')[0];
+            const options = [];
+            // 1. Template: Aniversário (Prioridade Alta)
+            if (stats.tags.some(t => t.label.includes('Niver'))) {
+                options.push({
+                    icon: 'cake',
+                    label: 'Parabéns Aniversariante',
+                    text: `Olá, *${firstName}*! Passando para desejar um Feliz Aniversário!%0A%0AComo forma de carinho, preparamos um *Cupom Especial* para você usar no seu próximo projeto. Que tal conferir?%0A%0AParabéns!`
+                });
+            }
+            // 2. Template: Fidelidade (1 Ano+)
+            const fidelidadeTag = stats.tags.find(t => t.label.includes('Anos'));
+            if (fidelidadeTag) {
+                options.push({
+                    icon: 'medal',
+                    label: 'Aniversário de Casa',
+                    text: `Oi, *${firstName}*! Sabia que faz ${fidelidadeTag.label.replace('Client ', '')} que somos parceiros?%0A%0AObrigado pela confiança! Tenho um mimo especial esperando por você aqui.`
+                });
+            }
+            // 3. Template: Inativo (Reativação)
+            if (stats.tags.some(t => t.label === 'Inativo')) {
+                options.push({
+                    icon: 'ghost',
+                    label: 'Reativação (Sumido)',
+                    text: `Oi, *${firstName}*! Faz tempo que não nos falamos...%0A%0AEstou com novidades incríveis de filamentos e projetos. Vamos tirar aquela ideia do papel?`
+                });
+            }
+            // 4. Template: Novo Cliente
+            if (stats.tags.some(t => t.label === 'Novo')) {
+                options.push({
+                    icon: 'party-popper',
+                    label: 'Boas Vindas',
+                    text: `Olá, *${firstName}*! Seja muito bem-vindo(a) à Plena 3D!%0A%0AEstou à disposição para transformar suas ideias em realidade. Já tem algum projeto em mente?`
+                });
+            }
+            // Default Option
+            options.push({
+                icon: 'message-circle',
+                label: 'Contato Padrão',
+                text: `Olá, *${firstName}*! Tudo bem? %0A%0APodemos conversar sobre seus projetos?`
+            });
+            // Render Options
+            const container = _('wa-options');
+            container.innerHTML = options.map((opt, idx) => `
+<button onclick="selectWaTemplate('${idx}')" class="w-full text-left p-3 rounded-lg border border-slate-700 hover:border-green-500/50 hover:bg-slate-800 transition-all group flex items-center gap-3">
+<div class="bg-slate-800 group-hover:bg-green-500/20 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+<i data-lucide="${opt.icon}" class="w-4 h-4 text-slate-400 group-hover:text-green-500"></i>
+</div>
+<span class="text-sm font-bold text-slate-300 group-hover:text-white">${opt.label}</span>
+</button>
+`).join('');
+            // Store options for selection
+            container.dataset.options = JSON.stringify(options);
+            // Select first option by default
+            selectWaTemplate(0);
+            _('wa-title').innerText = `Mensagem para ${firstName}`;
+            _('whatsappActionsModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function selectWaTemplate(index) {
+            const options = JSON.parse(_('wa-options').dataset.options);
+            const template = options[index];
+            _('wa-preview').value = template.text.split('%0A').join('\n'); // Decode slightly for preview
+            // Highlight selected
+            Array.from(_('wa-options').children).forEach((btn, idx) => {
+                if (idx == index) {
+                    btn.classList.add('bg-slate-800', 'border-green-500');
+                    btn.classList.remove('border-slate-700');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'border-green-500');
+                    btn.classList.add('border-slate-700');
+                }
+            });
+        }
+        function confirmWhatsappSend() {
+            if (!currentWaClient) return;
+
+            // 1. Update Interaction
+            currentWaClient.lastContact = new Date().toISOString();
+            DB.save();
+
+            // 2. Send Message
+            const text = _('wa-preview').value;
+            const phone = currentWaClient.phone.replace(/\D/g, '');
+            window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(text)}`, '_blank');
+
+            closeModal('whatsappActionsModal');
+
+            // 3. Refresh UI
+            renderClients();
+            checkNotifications();
+        }
+        function renderClients() {
+            const search = _('cli-search').value.toLowerCase();
+            let list = DB.data.clients;
+            if (search) list = list.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
+            const grid = _('clients-grid');
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="users" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhum cliente encontrado.</p></div>';
+                return;
+            }
+            grid.innerHTML = list.map(c => {
+                const stats = getClientStats(c.id);
+                const tagsHtml = stats.tags.map(t => `<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded ${t.color}">${t.label}</span>`).join('');
+                const lastActive = stats.last ? new Date(stats.last).toLocaleDateString() : 'Nunca';
+                // Pulse Logic: If has Birthday or Fidelity tag (Logic now centralized in getClientStats)
+                const hasOpportunity = stats.tags.some(t => t.label.includes('Niver') || t.label.includes('Anos'));
+                const pulseClass = hasOpportunity ? 'glow-pulse border-pink-500/50' : 'border-white/5';
+                return `
+<div class="glass-panel p-5 rounded-xl border ${pulseClass} hover:border-purple-500/30 transition-all group flex flex-col relative">
+${hasOpportunity ? '<div class="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full animate-ping"></div><div class="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full"></div>' : ''}
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-purple-400 font-bold text-lg">
+${c.name.charAt(0).toUpperCase()}
+</div>
+<div>
+<h3 class="font-bold text-white text-base group-hover:text-purple-400 cursor-pointer" onclick="openClientDetails('${c.id}')">${c.name}</h3>
+<div class="flex flex-wrap gap-1 mt-1">${tagsHtml}</div>
+</div>
+</div>
+<button onclick="openClientDetails('${c.id}')" class="text-slate-500 hover:text-white"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4 bg-slate-950/30 p-3 rounded-lg">
+<div>
+<p class="text-[10px] text-slate-500 uppercase font-bold">Total Gasto (LTV)</p>
+<p class="text-lg font-bold text-green-400 font-mono">${fmtMoney(stats.ltv)}</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-500 uppercase font-bold">Pedidos</p>
+<p class="text-lg font-bold text-white">${stats.count}</p>
+</div>
+</div>
+<p class="text-xs text-slate-500 mb-4 flex items-center"><i data-lucide="calendar" class="w-3 h-3 mr-1"></i> Último: ${lastActive}</p>
+<div class="mt-auto flex gap-2 pt-3 border-t border-white/5">
+<button onclick="openProjectModalForClient('${c.id}')" class="flex-1 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-purple-600/30 transition-all">
+<i data-lucide="plus-circle" class="w-3 h-3 mr-1"></i> Orçamento
+</button>
+<button onclick="openWhatsappActions('${c.id}')" class="bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] px-3 py-2 rounded border border-[#25D366]/30 transition-colors flex items-center justify-center" title="Enviar Mensagem">
+<i data-lucide="message-circle" class="w-4 h-4"></i>
+</button>
+</div>
+</div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+        // --- CLIENT DETAILS MODAL LOGIC ---
+        function switchClientTab(tab) {
+            ['profile', 'history'].forEach(t => {
+                _(`view-cli-${t}`).classList.add('hidden');
+                _(`tab-cli-${t}`).classList.remove('text-purple-400', 'border-b-2', 'border-purple-400');
+                _(`tab-cli-${t}`).classList.add('text-slate-500');
+            });
+            _(`view-cli-${tab}`).classList.remove('hidden');
+            _(`tab-cli-${tab}`).classList.add('text-purple-400', 'border-b-2', 'border-purple-400');
+            _(`tab-cli-${tab}`).classList.remove('text-slate-500');
+        }
+        function openClientDetails(id = null) {
+            _('clientDetailsModal').classList.remove('hidden');
+            switchClientTab('profile'); // Default tab
+            if (id) {
+                const c = DB.data.clients.find(x => x.id === id);
+                if (c) {
+                    _('cd-id').value = c.id;
+                    _('cd-title').innerText = c.name;
+                    _('cd-name').value = c.name;
+                    _('cd-phone').value = c.phone;
+                    _('cd-email').value = c.email || '';
+                    _('cd-notes').value = c.notes || '';
+                    _('cd-birth').value = c.birthDate || '';
+                    _('cd-joined').value = c.joined ? c.joined.split('T')[0] : new Date().toISOString().split('T')[0];
+                    _('cd-source').value = c.source || '';
+                    // Load History
+                    const stats = getClientStats(id);
+                    const historyList = _('cli-history-list');
+                    if (stats.projects.length > 0) {
+                        const ltvHeader = `
+<div class="bg-cyan-900/20 border border-cyan-500/30 p-4 rounded-xl mb-4 flex justify-between items-center">
+    <div>
+        <p class="text-xs text-cyan-400 font-bold uppercase tracking-wider">Total Investido</p>
+        <p class="text-xs text-slate-400">Lifetime Value (LTV)</p>
+    </div>
+    <div class="text-right">
+        <p class="text-2xl font-bold text-white font-mono">${fmtMoney(stats.ltv)}</p>
+    </div>
+</div>`;
+                        historyList.innerHTML = ltvHeader + stats.projects.sort((a, b) => new Date(b.date) - new Date(a.date)).map(p => `
+<div class="flex justify-between items-center bg-slate-950 p-3 rounded border border-slate-800">
+<div>
+<p class="text-sm font-bold text-slate-300">${p.name}</p>
+<span class="text-[10px] uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${p.status}</span>
+<span class="text-[10px] text-slate-500 ml-2">${new Date(p.date).toLocaleDateString()}</span>
+</div>
+<span class="font-mono text-cyan-400 font-bold text-sm">${fmtMoney(p.price)}</span>
+</div>
+`).join('');
+                    } else {
+                        historyList.innerHTML = '<p class="text-center text-slate-500 py-4">Sem histórico.</p>';
+                    }
+                }
+            } else {
+                // New Client
+                _('cd-id').value = '';
+                _('cd-title').innerText = 'Novo Cliente';
+                _('cd-name').value = '';
+                _('cd-phone').value = '';
+                _('cd-email').value = '';
+                _('cd-notes').value = '';
+                _('cd-birth').value = '';
+                _('cd-joined').value = new Date().toISOString().split('T')[0];
+                _('cd-source').value = '';
+                _('cli-history-list').innerHTML = '<p class="text-center text-slate-500 py-4 opacity-50">Salve o cliente para ver histórico.</p>';
+            }
+        }
+        function submitClient(e) {
+            e.preventDefault();
+            const id = _('cd-id').value;
+            const clientData = {
+                id: id || uid(),
+                name: _('cd-name').value,
+                phone: _('cd-phone').value,
+                email: _('cd-email').value,
+                notes: _('cd-notes').value,
+                birthDate: _('cd-birth').value,
+                source: _('cd-source').value,
+                joined: _('cd-joined').value || new Date().toISOString()
+            };
+            if (id) {
+                const index = DB.data.clients.findIndex(x => x.id === id);
+                DB.data.clients[index] = clientData;
+            } else {
+                DB.data.clients.push(clientData);
+            }
+            DB.save();
+            closeModal('clientDetailsModal');
+            renderClients();
+        }
+        function openProjectModalForClient(clientId) {
+            openProjectModal();
+            // Pre-select the client delay slightly to ensure options are loaded
+            setTimeout(() => {
+                _('pj-client').value = clientId;
+            }, 50);
+        }
+        function renderInventory() {
+            const currentTab = document.querySelector('.inv-tab-content:not(.hidden)')?.id.replace('view-inv-', '') || 'impressoras';
+            renderPrinters();
+            renderFilaments();
+            renderResins();
+            renderParts();
+            renderTools();
+            renderInventoryLogs();
+            lucide.createIcons();
+        }
+
+        function renderInventoryLogs() {
+            const container = _('inventory-logs-table');
+            if (!container) return;
+            const logs = (DB.data.inventoryLogs || []).slice(0, 50); // Últimos 50
+            if (logs.length === 0) {
+                container.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Nenhuma movimentação registrada.</td></tr>';
+                return;
+            }
+            container.innerHTML = logs.map(l => {
+                const item = DB.data.inventory.find(i => i.id === l.itemId);
+                const itemName = item ? item.name : 'Item Removido';
+                const typeColor = l.type === 'entrada' ? 'text-green-400' : 'text-red-400';
+                return `
+<tr class="hover:bg-white/5">
+    <td class="px-6 py-4 font-mono text-xs text-slate-500">${new Date(l.date).toLocaleString('pt-BR')}</td>
+    <td class="px-6 py-4 font-bold text-white">${itemName}</td>
+    <td class="px-6 py-4 text-center"><span class="text-[10px] font-bold uppercase ${typeColor}">${l.type}</span></td>
+    <td class="px-6 py-4 text-right font-mono ${typeColor}">${l.type === 'entrada' ? '+' : '-'}${l.quantity}</td>
+    <td class="px-6 py-4 text-xs text-slate-400">${l.desc}</td>
+</tr>`;
+            }).join('');
+        }
+
+        function addInventoryLog(itemId, type, quantity, desc) {
+            if (!DB.data.inventoryLogs) DB.data.inventoryLogs = [];
+            DB.data.inventoryLogs.unshift({
+                id: uid(),
+                itemId,
+                date: new Date().toISOString(),
+                type, // 'entrada' | 'saida'
+                quantity,
+                desc
+            });
+            // Limitar a 1000 logs para não estourar o localStorage
+            if (DB.data.inventoryLogs.length > 1000) DB.data.inventoryLogs.pop();
+        }
+
+        function switchInventoryTab(tab) {
+            ['impressoras', 'filamentos', 'resinas', 'pecas', 'ferramentas', 'historico'].forEach(t => {
+                _(`tab-inv-${t}`).classList.remove('text-purple-400', 'border-b-2', 'border-purple-400');
+                _(`tab-inv-${t}`).classList.add('text-slate-500');
+                _(`view-inv-${t}`).classList.add('hidden');
+            });
+            _(`tab-inv-${tab}`).classList.add('text-purple-400', 'border-b-2', 'border-purple-400');
+            _(`tab-inv-${tab}`).classList.remove('text-slate-500');
+            _(`view-inv-${tab}`).classList.remove('hidden');
+            if (tab === 'historico') renderInventoryLogs();
+            lucide.createIcons();
+        }
+
+        function renderPrinters() {
+            const grid = _('printers-grid');
+            const printers = DB.data.inventory.filter(i => i.category === 'impressora');
+            if (printers.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="printer" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhuma impressora cadastrada.</p></div>';
+                return;
+            }
+            grid.innerHTML = printers.map(p => {
+                const statusColors = {
+                    'operacional': 'bg-green-500/20 text-green-400 border-green-500/30',
+                    'manutencao': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                    'inativa': 'bg-slate-700 text-slate-400 border-slate-600'
+                };
+                const statusColor = statusColors[p.specs?.status || 'operacional'];
+                return `
+<div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-purple-500/30 transition-all">
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <h3 class="font-bold text-white text-lg">${p.name}</h3>
+            <p class="text-xs text-slate-400">${p.brand}</p>
+            <p class="text-[10px] text-slate-500 font-mono">${p.specs?.model || ''}</p>
+        </div>
+        <span class="text-xs px-2 py-1 rounded border ${statusColor} font-bold uppercase">
+            ${p.specs?.status || 'Operacional'}
+        </span>
+    </div>
+    <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+            <span class="text-slate-500">Horas de Uso:</span>
+            <span class="text-white font-mono">${p.specs?.hoursUsed || 0}h</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-slate-500">Última Manutenção:</span>
+            <span class="text-white text-xs">${p.specs?.lastMaintenance ? new Date(p.specs.lastMaintenance).toLocaleDateString() : 'Nunca'}</span>
+        </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-white/5 flex gap-2">
+        <button onclick="openMaintenanceModal('${p.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs py-2 rounded font-bold">
+            <i data-lucide="wrench" class="w-3 h-3 inline mr-1"></i>Manutenção
+        </button>
+        <button onclick="editInventoryItem('${p.id}')" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded">
+            <i data-lucide="edit" class="w-3 h-3"></i>
+        </button>
+        <button onclick="deleteInventoryItem('${p.id}')" class="bg-red-900/20 hover:bg-red-900/40 text-red-500 text-xs px-3 py-2 rounded border border-red-500/20">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+        </button>
+    </div>
+</div>`;
+            }).join('');
+        }
+
+        function renderFilaments() {
+            const grid = _('filaments-grid');
+            const filaments = DB.data.inventory.filter(i => i.category === 'filamento');
+            if (filaments.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="spool" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhum filamento cadastrado.</p></div>';
+                return;
+            }
+            grid.innerHTML = filaments.map(f => {
+                const percent = (f.quantity / (f.weight || f.quantity)) * 100;
+                let barColor = 'bg-green-500';
+                if (percent < 30) barColor = 'bg-red-500';
+                else if (percent < 60) barColor = 'bg-yellow-500';
+                return `
+<div class="glass-panel p-5 rounded-xl border border-white/5 relative overflow-hidden hover:border-purple-500/30 transition-all">
+    <div class="absolute top-0 left-0 w-1 h-full ${barColor}"></div>
+    <div class="flex justify-between items-start mb-2 pl-3">
+        <div>
+            <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">${f.specs?.type || 'PLA'}</span>
+            <h3 class="font-bold text-white text-lg">${f.specs?.color || f.name}</h3>
+            <p class="text-xs text-slate-400">${f.brand}</p>
+            ${f.quantity < (f.minStock || 200) ? '<span class="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded font-bold uppercase">Baixo Estoque</span>' : ''}
+        </div>
+        <div class="text-right">
+            <span class="block text-sm font-bold text-white">${f.quantity}g</span>
+            <span class="text-[10px] text-slate-500">de ${f.weight || f.quantity}g</span>
+        </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-white/5 flex gap-2 ml-3" style="width: calc(100% - 12px)">
+        <button onclick="editInventoryItem('${f.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs py-2 rounded font-bold">
+            <i data-lucide="edit" class="w-3 h-3 inline mr-1"></i>Editar
+        </button>
+        <button onclick="deleteInventoryItem('${f.id}')" class="bg-red-900/20 hover:bg-red-900/40 text-red-500 text-xs px-3 py-2 rounded border border-red-500/20">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+        </button>
+    </div>
+    </div>
+</div>`;
+            }).join('');
+        }
+
+        function renderResins() {
+            const grid = _('resins-grid');
+            const resins = DB.data.inventory.filter(i => i.category === 'resina');
+            if (resins.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="droplet" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhuma resina cadastrada.</p></div>';
+                return;
+            }
+            grid.innerHTML = resins.map(r => {
+                const percent = (r.quantity / (r.weight || r.quantity)) * 100;
+                let barColor = percent < 50 ? 'bg-red-500' : 'bg-cyan-500';
+                return `
+<div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-cyan-500/30 transition-all">
+    <div class="flex justify-between items-start mb-2">
+        <div>
+            <h3 class="font-bold text-white text-lg">${r.name}</h3>
+            <p class="text-xs text-slate-400">${r.brand}</p>
+            <span class="text-[10px] text-cyan-400">${r.specs?.resinType || 'Standard'}</span>
+            ${r.quantity < (r.minStock || 200) ? '<div class="mt-1"><span class="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded font-bold uppercase">Baixo Estoque</span></div>' : ''}
+        </div>
+        <div class="text-right">
+            <span class="block text-sm font-bold text-white">${r.quantity}${r.unit}</span>
+        </div>
+    </div>
+    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+        <div class="${barColor} h-full" style="width: ${Math.min(percent, 100)}%"></div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-white/5 flex gap-2">
+        <button onclick="editInventoryItem('${r.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs py-2 rounded font-bold">
+            <i data-lucide="edit" class="w-3 h-3 inline mr-1"></i>Editar
+        </button>
+        <button onclick="deleteInventoryItem('${r.id}')" class="bg-red-900/20 hover:bg-red-900/40 text-red-500 text-xs px-3 py-2 rounded border border-red-500/20">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+        </button>
+    </div>
+</div>`;
+            }).join('');
+        }
+
+        function renderParts() {
+            const grid = _('parts-grid');
+            const parts = DB.data.inventory.filter(i => i.category === 'peca');
+            if (parts.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="wrench" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhuma peça cadastrada.</p></div>';
+                return;
+            }
+            grid.innerHTML = parts.map(p => `
+<div class="glass-panel p-4 rounded-xl border border-white/5 flex justify-between items-center hover:border-purple-500/30 transition-all group">
+    <div>
+        <h3 class="font-bold text-white">${p.name}</h3>
+        <p class="text-xs text-slate-400">${p.brand}</p>
+        <div class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="editInventoryItem('${p.id}')" class="text-slate-400 hover:text-white"><i data-lucide="edit" class="w-3 h-3"></i></button>
+            <button onclick="deleteInventoryItem('${p.id}')" class="text-slate-400 hover:text-red-400"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+        </div>
+    </div>
+    <div class="text-right">
+        <span class="block text-lg font-bold ${p.quantity < p.minStock ? 'text-red-400' : 'text-white'}">${p.quantity}</span>
+        <span class="text-[10px] text-slate-500">${p.unit}</span>
+    </div>
+</div>`).join('');
+        }
+
+        function renderTools() {
+            const grid = _('tools-grid');
+            const tools = DB.data.inventory.filter(i => i.category === 'ferramenta');
+            if (tools.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="hammer" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhuma ferramenta cadastrada.</p></div>';
+                return;
+            }
+            grid.innerHTML = tools.map(t => `
+<div class="glass-panel p-4 rounded-xl border border-white/5 flex justify-between items-center hover:border-purple-500/30 transition-all group">
+    <div>
+        <h3 class="font-bold text-white">${t.name}</h3>
+        <p class="text-xs text-slate-400">${t.brand}</p>
+        <div class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="editInventoryItem('${t.id}')" class="text-slate-400 hover:text-white"><i data-lucide="edit" class="w-3 h-3"></i></button>
+            <button onclick="deleteInventoryItem('${t.id}')" class="text-slate-400 hover:text-red-400"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+        </div>
+    </div>
+    <div class="text-right">
+        <span class="block text-lg font-bold text-white">${t.quantity}</span>
+        <span class="text-[10px] text-slate-500">${t.unit}</span>
+    </div>
+</div>`).join('');
+        }
+
+
+        // --- INVENTORY MODAL FUNCTIONS ---
+        function openInventoryModal(id = null) {
+            _('inventoryModal').classList.remove('hidden');
+            if (id) {
+                const item = DB.data.inventory.find(i => i.id === id);
+                if (item) {
+                    _('inv-modal-title').innerText = 'Editar Item';
+                    _('inv-id').value = item.id;
+                    _('inv-category').value = item.category;
+                    _('inv-name').value = item.name;
+                    _('inv-brand').value = item.brand;
+                    _('inv-quantity').value = item.quantity;
+                    _('inv-minstock').value = item.minStock;
+                    _('inv-cost').value = item.cost;
+                    updateInventoryFormFields();
+                    // Populate dynamic fields
+                    if (item.specs) {
+                        Object.keys(item.specs).forEach(key => {
+                            const field = _(`inv-spec-${key}`);
+                            if (field) field.value = item.specs[key];
+                        });
+                    }
+                }
+            } else {
+                _('inv-modal-title').innerText = 'Adicionar Item ao Estoque';
+                _('inv-id').value = '';
+                _('inv-category').value = '';
+                _('inv-name').value = '';
+                _('inv-brand').value = '';
+                _('inv-quantity').value = '';
+                _('inv-minstock').value = '';
+                _('inv-cost').value = '';
+                _('inv-dynamic-fields').innerHTML = '';
+            }
+            lucide.createIcons();
+        }
+
+        function updateInventoryFormFields() {
+            const categoryEl = _('inv-category');
+            if (!categoryEl) return;
+            const category = categoryEl.value;
+            const container = _('inv-dynamic-fields');
+
+            if (!category || !container) {
+                if (container) container.innerHTML = '';
+                return;
+            }
+
+            let fields = '';
+            let defaultUnit = 'un';
+
+            if (category === 'impressora') {
+                fields = `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Modelo</label><input type="text" id="inv-spec-model" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white" placeholder="Ex: Ender 3 Pro"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Status</label><select id="inv-spec-status" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="operacional">Operacional</option><option value="manutencao">Em Manutenção</option><option value="inativa">Inativa</option></select></div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Horas de Uso</label><input type="number" id="inv-spec-hoursUsed" min="0" value="0" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Última Manutenção</label><input type="date" id="inv-spec-lastMaintenance" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"></div>
+                            </div>
+                        `;
+                defaultUnit = 'un';
+            } else if (category === 'filamento') {
+                fields = `
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Tipo</label><select id="inv-spec-type" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="PLA">PLA</option><option value="ABS">ABS</option><option value="PETG">PETG</option><option value="TPU">TPU</option><option value="Nylon">Nylon</option></select></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Cor</label><input type="text" id="inv-spec-color" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white" placeholder="Ex: Preto"></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Diâmetro</label><select id="inv-spec-diameter" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="1.75mm">1.75mm</option><option value="2.85mm">2.85mm</option></select></div>
+                            </div>
+                            <div><label class="text-xs font-bold text-slate-500 uppercase">Peso Total (g)</label><input type="number" id="inv-weight" min="0" value="1000" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"></div>
+                        `;
+                defaultUnit = 'g';
+            } else if (category === 'resina') {
+                fields = `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Tipo de Resina</label><select id="inv-spec-resinType" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="standard">Standard</option><option value="tough">Tough</option><option value="flexible">Flexible</option><option value="castable">Castable</option></select></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Comprimento de Onda</label><input type="text" id="inv-spec-wavelength" value="405nm" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"></div>
+                            </div>
+                        `;
+                defaultUnit = 'ml';
+            } else if (category === 'peca') {
+                fields = `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Tipo de Peça</label><select id="inv-spec-partType" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="nozzle">Bico (Nozzle)</option><option value="extrusor">Extrusor</option><option value="hotend">Hotend</option><option value="belt">Correia</option><option value="outro">Outro</option></select></div>
+                                <div><label class="text-xs font-bold text-slate-500 uppercase">Compatibilidade</label><input type="text" id="inv-spec-compatibility" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white" placeholder="Ex: Ender 3, CR-10"></div>
+                            </div>
+                        `;
+                defaultUnit = 'un';
+            }
+
+            const unitField = `<div><label class="text-xs font-bold text-slate-500 uppercase">Unidade</label><select id="inv-unit" required class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mt-1 text-white"><option value="un">Unidade</option><option value="g">Gramas</option><option value="ml">Mililitros</option></select></div>`;
+            container.innerHTML = unitField + fields;
+
+            // Update unit after it's in the DOM
+            if (_('inv-unit')) _('inv-unit').value = defaultUnit;
+            lucide.createIcons();
+        }
+
+        function submitInventoryItem(e) {
+            try {
+                e.preventDefault();
+                const idEl = _('inv-id');
+                const categoryEl = _('inv-category');
+                const nameEl = _('inv-name');
+                const quantityEl = _('inv-quantity');
+                const brandEl = _('inv-brand');
+                const unitEl = _('inv-unit');
+                const minStockEl = _('inv-minstock');
+                const costEl = _('inv-cost');
+
+                if (!categoryEl || !nameEl || !quantityEl) return;
+
+                const id = idEl.value;
+                const finalId = id || uid();
+                const category = categoryEl.value;
+                const newQty = parseFloat(quantityEl.value) || 0;
+                const name = nameEl.value;
+
+                // Collect specs
+                const specs = {};
+                const specContainer = _('inv-dynamic-fields');
+                if (specContainer) {
+                    const specFields = specContainer.querySelectorAll('[id^="inv-spec-"]');
+                    specFields.forEach(field => {
+                        const key = field.id.replace('inv-spec-', '');
+                        specs[key] = field.value;
+                    });
+                }
+
+                const item = {
+                    id: finalId,
+                    category,
+                    name: name,
+                    brand: brandEl ? brandEl.value : '',
+                    unit: unitEl ? unitEl.value : 'un',
+                    quantity: newQty,
+                    minStock: minStockEl ? parseFloat(minStockEl.value) || 0 : 0,
+                    cost: costEl ? parseFloat(costEl.value) || 0 : 0,
+                    specs
+                };
+
+                // Add weight for filaments (for backward compatibility)
+                if (category === 'filamento') {
+                    const weightEl = _('inv-weight');
+                    if (weightEl) {
+                        item.weight = parseFloat(weightEl.value) || 1000;
+                        item.remaining = item.quantity; // Legacy field
+                    }
+                }
+
+                const index = DB.data.inventory.findIndex(i => i.id === finalId);
+                if (index >= 0) {
+                    const oldQty = DB.data.inventory[index].quantity;
+                    if (oldQty !== newQty) {
+                        const diff = newQty - oldQty;
+                        addInventoryLog(finalId, diff > 0 ? 'entrada' : 'saida', Math.abs(diff), 'Ajuste manual de estoque');
+                    }
+                    DB.data.inventory[index] = item;
+                } else {
+                    DB.data.inventory.push(item);
+                    addInventoryLog(finalId, 'entrada', newQty, 'Cadastro inicial de item');
+                }
+
+                DB.save();
+                closeModal('inventoryModal');
+                renderInventory();
+            } catch (err) {
+                console.error("Erro ao salvar item:", err);
+                alert("Erro ao salvar. Verifique se todos os campos estão preenchidos.");
+            }
+        }
+
+        function editInventoryItem(id) {
+            openInventoryModal(id);
+        }
+
+        function deleteInventoryItem(id) {
+            if (confirm('Tem certeza que deseja excluir este item do estoque? Esta ação não pode ser desfeita.')) {
+                const index = DB.data.inventory.findIndex(i => i.id === id);
+                if (index >= 0) {
+                    DB.data.inventory.splice(index, 1);
+                    DB.save();
+                    renderInventory();
+                    renderDashboard();
+                }
+            }
+        }
+
+        function openMaintenanceModal(printerId) {
+            _('maintenanceModal').classList.remove('hidden');
+            _('maint-printer-id').value = printerId;
+            _('maint-type').value = 'preventiva';
+            _('maint-desc').value = '';
+            _('maint-cost').value = '';
+            _('maint-next').value = '';
+            lucide.createIcons();
+        }
+
+        function submitMaintenance(e) {
+            e.preventDefault();
+            const printerId = _('maint-printer-id').value;
+            const printer = DB.data.inventory.find(i => i.id === printerId);
+
+            if (!printer) return;
+
+            const maintenance = {
+                id: uid(),
+                printerId,
+                date: new Date().toISOString(),
+                type: _('maint-type').value,
+                description: _('maint-desc').value,
+                cost: parseFloat(_('maint-cost').value),
+                nextDue: _('maint-next').value || null
+            };
+
+            DB.data.maintenances.push(maintenance);
+
+            // Update printer's lastMaintenance
+            if (!printer.specs) printer.specs = {};
+            printer.specs.lastMaintenance = maintenance.date;
+
+            DB.save();
+            closeModal('maintenanceModal');
+            renderInventory();
+        }
+
+        function renderFinancial() {
+            const m = _('fin-month').value;
+            let trans = DB.data.transactions || [];
+
+            if (m) {
+                trans = trans.filter(t => t.date.startsWith(m));
+            }
+
+            const inc = trans.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+            const exp = trans.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+            _('fin-income').innerText = fmtMoney(inc);
+            _('fin-expense').innerText = fmtMoney(exp);
+            _('fin-balance').innerText = fmtMoney(inc - exp);
+            _('financial-table').innerHTML = trans.map(t => `
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-mono text-slate-400 text-xs">${new Date(t.date).toLocaleDateString()}</td>
+<td class="px-6 py-4">
+    <div class="font-bold text-white">${t.desc}</div>
+    <div class="flex gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onclick="openTransactionModal('${t.id}')" class="text-[10px] text-slate-500 hover:text-cyan-400 flex items-center gap-1"><i data-lucide="edit-3" class="w-3 h-3"></i> Editar</button>
+        <button onclick="deleteTransaction('${t.id}')" class="text-[10px] text-slate-500 hover:text-red-400 flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> Excluir</button>
+    </div>
+</td>
+<td class="px-6 py-4">
+    <div class="text-xs uppercase text-slate-400 font-bold">${t.category}</div>
+    <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
+        <i data-lucide="wallet" class="w-3 h-3"></i> ${t.method || 'Pix'}
+    </div>
+</td>
+<td class="px-6 py-4 text-right font-mono text-sm text-white">${fmtMoney(t.amount)}</td>
+<td class="px-6 py-4 text-center">
+<span class="${t.type === 'income' ? 'text-green-500' : 'text-red-500'} font-bold text-[10px] uppercase px-2 py-1 bg-${t.type === 'income' ? 'green' : 'red'}-500/10 rounded-full border border-${t.type === 'income' ? 'green' : 'red'}-500/20">${t.type === 'income' ? 'Entrada' : 'Saída'}</span>
+</td>
+</tr>
+`).join('');
+            lucide.createIcons();
+        }
+        function renderReports() {
+            const start = _('rep-start-date').value;
+            const end = _('rep-end-date').value;
+
+            // Mostrar resumo no cabeçalho de impressão
+            _('print-rep-dates').innerText = (start || 'Início') + ' até ' + (end || 'Hoje');
+
+            let projects = DB.data.projects || [];
+            let trans = DB.data.transactions || [];
+
+            if (start) {
+                projects = projects.filter(p => p.date && p.date >= start);
+                trans = trans.filter(t => t.date && t.date >= start);
+            }
+            if (end) {
+                projects = projects.filter(p => p.date && p.date <= end);
+                trans = trans.filter(t => t.date && t.date <= end);
+            }
+
+            const completed = projects.filter(p => p.status === 'Concluido');
+
+            // 1. Margem e Lucro
+            const revenue = trans.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+            const expenses = trans.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+            const profit = revenue - expenses;
+            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+            _('rep-profit-margin').innerText = Math.max(0, margin).toFixed(1) + '%';
+            _('rep-total-revenue').innerText = fmtMoney(revenue);
+            _('rep-total-expense').innerText = fmtMoney(expenses);
+
+            // 2. Ticket Médio
+            const customers = new Set(trans.filter(t => t.type === 'income').map(t => t.refId || t.desc));
+            const avgTicket = customers.size > 0 ? revenue / customers.size : 0;
+            _('rep-avg-ticket').innerText = fmtMoney(avgTicket);
+
+            // 3. Taxa de Conversão
+            const conversionBase = projects.filter(p => p.status !== 'Cancelado').length;
+            const conversion = conversionBase > 0 ? (completed.length / conversionBase) * 100 : 0;
+            _('rep-conversion').innerText = conversion.toFixed(1) + '%';
+
+            // 4. Eficiência (R$/h)
+            const totalHours = completed.reduce((a, b) => a + (parseFloat(b.time) || 0), 0);
+            const efficiency = totalHours > 0 ? revenue / totalHours : 0;
+            _('rep-efficiency').innerText = fmtMoney(efficiency) + '/h';
+
+            // 5. Custo Médio por Grama
+            const materialCost = trans.filter(t => t.category === 'Material').reduce((a, b) => a + b.amount, 0);
+            const totalWeight = completed.reduce((a, b) => a + (parseFloat(b.weight) || 0), 0);
+            const costPerGram = totalWeight > 0 ? materialCost / totalWeight : 0;
+            _('rep-cost-gram').innerText = fmtMoney(costPerGram) + '/g';
+
+            // 6. Top Filamentos
+            const filUsage = {};
+            completed.forEach(p => {
+                if (p.filamentId) {
+                    if (!filUsage[p.filamentId]) filUsage[p.filamentId] = 0;
+                    filUsage[p.filamentId] += p.weight;
+                }
+            });
+            const sortedFil = Object.keys(filUsage).map(id => {
+                const f = DB.data.inventory.find(x => x.id === id);
+                return { name: f ? `${f.type} ${f.color} (${f.brand})` : 'Desconhecido', weight: filUsage[id] };
+            }).sort((a, b) => b.weight - a.weight).slice(0, 3);
+            _('rep-top-filaments').innerHTML = sortedFil.map((f, i) => `
+                <div class="flex items-center gap-4">
+                    <span class="text-xl font-bold text-slate-600">#${i + 1}</span>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-bold text-white">${f.name}</span>
+                            <span class="text-xs text-purple-400 font-mono">${f.weight}g</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-purple-500 h-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-slate-500 text-sm">Sem dados de uso ainda.</p>';
+
+            // 7. Breakdown de Gastos
+            const expCats = {};
+            trans.filter(t => t.type === 'expense').forEach(t => {
+                if (!expCats[t.category]) expCats[t.category] = 0;
+                expCats[t.category] += t.amount;
+            });
+            const sortedExp = Object.entries(expCats).sort((a, b) => b[1] - a[1]);
+            _('rep-expense-breakdown').innerHTML = sortedExp.map(([cat, val]) => {
+                const pct = (val / expenses) * 100;
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">${cat}</span>
+                            <span class="text-white font-mono">${fmtMoney(val)} (${pct.toFixed(0)}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-red-500 h-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<p class="text-slate-500 text-sm">Sem despesas registradas.</p>';
+
+            // 8. Performance de Orçamentos
+            const approvedCount = projects.filter(p => p.status !== 'Orçamento' && p.status !== 'Cancelado').length;
+            const rejectedCount = projects.filter(p => p.status === 'Cancelado').length;
+            const pendingCount = projects.filter(p => p.status === 'Orçamento').length;
+            const totalStatus = approvedCount + rejectedCount + pendingCount;
+
+            const stats = [
+                { label: 'Aprovados', val: approvedCount, color: 'bg-green-500' },
+                { label: 'Rejeitados', val: rejectedCount, color: 'bg-red-500' },
+                { label: 'Pendentes', val: pendingCount, color: 'bg-yellow-500' }
+            ];
+
+            _('rep-budget-performance').innerHTML = stats.map(s => {
+                const pct = totalStatus > 0 ? (s.val / totalStatus) * 100 : 0;
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">${s.label}</span>
+                            <span class="text-white font-bold">${s.val} (${pct.toFixed(0)}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="${s.color} h-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 9. Top Clientes
+            const cliSpend = {};
+            completed.forEach(p => {
+                if (p.clientId) {
+                    if (!cliSpend[p.clientId]) cliSpend[p.clientId] = 0;
+                    cliSpend[p.clientId] += p.price;
+                }
+            });
+            const sortedCli = Object.keys(cliSpend).map(id => {
+                const c = DB.data.clients.find(x => x.id === id);
+                return { name: c ? c.name : 'Desconhecido', total: cliSpend[id] };
+            }).sort((a, b) => b.total - a.total).slice(0, 3);
+            _('rep-top-clients').innerHTML = sortedCli.map(c => `
+                <div class="bg-slate-800 p-4 rounded-lg border border-white/5">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Cliente VIP</p>
+                    <h4 class="font-bold text-white text-md truncate">${c.name}</h4>
+                    <p class="text-green-400 font-mono mt-1">${fmtMoney(c.total)}</p>
+                </div>
+            `).join('') || '<p class="col-span-3 text-slate-500 text-sm text-center py-4">Sem vendas registradas.</p>';
+
+            // Mostrar botões de exportação agora que temos dados
+            _('rep-export-actions').classList.remove('hidden');
+
+            lucide.createIcons();
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function shareReportWhatsApp() {
+            const startRaw = _('rep-start-date').value;
+            const endRaw = _('rep-end-date').value;
+
+            const fmtDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+            const start = fmtDate(startRaw);
+            const end = fmtDate(endRaw);
+
+            // Get values from rendered elements
+            const income = _('rep-total-revenue').innerText;
+            const expense = _('rep-total-expense').innerText;
+            const profitMargin = _('rep-profit-margin').innerText;
+            const avgTicket = _('rep-avg-ticket').innerText;
+            const conversion = _('rep-conversion').innerText;
+            const efficiency = _('rep-efficiency').innerText;
+            const costGram = _('rep-cost-gram').innerText;
+
+            const msg = `*RESUMO PLENA 3D* 🚀\n` +
+                `📅 *Período:* ${start} a ${end}\n\n` +
+                `💰 *Faturamento:* ${income}\n` +
+                `📉 *Despesas:* ${expense}\n` +
+                `📊 *Margem:* ${profitMargin}\n\n` +
+                `💎 *Ticket Médio:* ${avgTicket}\n` +
+                `🎯 *Conversão:* ${conversion}\n` +
+                `⚡ *Eficiência:* ${efficiency}\n` +
+                `⚖️ *Peso Médio:* ${costGram}\n\n` +
+                `_Gerado via Plena Aplicativos_`;
+
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+        }
+        // --- BACKUP ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB.data));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    DB.data = JSON.parse(e.target.result);
+                    DB.save();
+                    alert('Backup restaurado com sucesso!');
+                    location.reload();
+                } catch (err) { alert('Erro ao ler arquivo.'); }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+
+</html>

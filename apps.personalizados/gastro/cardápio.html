@@ -463,6 +463,9 @@
                     <div class="mb-3">
                         <input v-model="customer.name" type="text"
                             class="form-control bg-dark border-secondary text-white mb-2" placeholder="Seu Nome">
+                        <input v-model="customer.phone" type="tel"
+                            class="form-control bg-dark border-secondary text-white mb-2"
+                            placeholder="Seu WhatsApp (11) 99999-9999">
                         <select v-model="customer.payment" class="form-select bg-dark border-secondary text-white">
                             <option value="" disabled selected>Forma de Pagamento</option>
                             <option value="pix">PIX</option>
@@ -502,7 +505,7 @@
 
                 // State for Cart
                 const cart = ref([]);
-                const customer = ref({ name: '', payment: '' });
+                const customer = ref({ name: '', phone: '', payment: '' });
 
                 // Mock Data (Replace with JSON fetch later)
                 const config = ref({ name: 'Burger House Premium', rating: '4.8', hours: '18h as 23h', deliveryFee: 5.00, whatsapp: '5511999999999', headerImg: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=1600' });
@@ -633,14 +636,38 @@
                         return;
                     }
 
+
                     // 1. Build Metadata
                     const orderData = {
-                        id: Date.now(),
-                        customer: customer.value,
-                        items: cart.value,
+                        id: 'PL' + Math.floor(Math.random() * 10000),
+                        createdAt: new Date().toISOString(),
+                        customer: customer.value.name, // Mapping for Delivery App
+                        phone: customer.value.phone || 'Não informado',
+                        payment: customer.value.payment === 'cash' ? 'Dinheiro' : (customer.value.payment === 'pix' ? 'PIX' : 'Cartão'),
+                        items: cart.value.map(i => ({
+                            qty: i.qty,
+                            name: i.name + (i.addons.length ? ' + ' + i.addons.map(a => a.name).join(', ') : ''),
+                            price: i.price, // Base price for logic
+                            obs: i.obs
+                        })),
                         total: cartTotal.value,
-                        date: new Date().toISOString()
+                        status: 'new'
                     };
+
+                    // [TESTING ENV] Save to Shared LocalStorage for Delivery App
+                    try {
+                        const db = JSON.parse(localStorage.getItem('plena_delivery_v2') || '{"new":[],"preparation":[],"delivery":[],"history":[]}');
+                        db.new.push(orderData);
+                        localStorage.setItem('plena_delivery_v2', JSON.stringify(db));
+
+                        // Notify other tabs
+                        const bc = new BroadcastChannel('plena_sync');
+                        bc.postMessage({ type: 'new_order' });
+
+                        console.log('Pedido sincronizado localmente:', orderData);
+                    } catch (e) {
+                        console.error('Erro ao salvar localmente:', e);
+                    }
 
                     // 2. Send to PHP Relay (Online Mode - Try/Catch)
                     try {

@@ -186,13 +186,15 @@
             <div class="max-w-4xl mx-auto relative z-10">
                 <span
                     class="bg-blue-600/30 border border-cyan-400/50 text-cyan-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6 inline-block neon-border">
-                    Tecnologia MicroSaaS
+                    Tecnologia Para todos
                 </span>
                 <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight neon-text">
                     Gestão Profissional.<br>Sem Mensalidade.
                 </h2>
                 <p class="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-                    Softwares definitivos para substituir planilhas e cadernos. Pague uma única vez e tenha o controle
+                    Softwares definitivos para substituir planilhas e cadernos. <span
+                        class="text-green-400 font-bold text-xl border-b-2 border-green-400">Pague uma única vez</span>
+                    e tenha o controle
                     total do seu negócio no celular ou PC.
                 </p>
                 <div class="flex justify-center gap-4">
@@ -208,7 +210,7 @@
         <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4">
 
             <!-- KITS PROMOCIONAIS -->
-            <div class="mb-16 animate-fade-in-up">
+            <div class="mb-16 animate-fade-in-up hidden">
                 <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-briefcase text-blue-600"></i> Kits Profissionais Personalizados
                 </h3>
@@ -281,9 +283,13 @@
                                     class="bg-amber-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase">
                                     SISTEMA PLUS
                                 </span>
-                                <span v-if="app.mobileBadge"
-                                    class="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase ml-2 animate-pulse">
-                                    ESPECIAL MOBILE 📱
+                                <span v-if="app.devicePreference === 'mobile'"
+                                    class="bg-emerald-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase ml-2">
+                                    APP MOBILE 📱
+                                </span>
+                                <span v-if="app.devicePreference === 'desktop'"
+                                    class="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase ml-2">
+                                    IDEAL PARA PC 🖥️
                                 </span>
                             </div>
                             <div v-if="app.mobileBadge" class="absolute top-4 left-4">
@@ -429,7 +435,43 @@
             <div v-if="previewOpen"
                 class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/95 backdrop-blur-sm"
                 role="dialog" aria-modal="true">
-                <div class="w-full max-w-7xl h-[90vh] bg-slate-900 rounded-2xl flex flex-col relative overflow-hidden shadow-2xl animate-fade-in-up transition-all duration-300"
+                <!-- MOBILE PHONE LAYOUT -->
+                <div v-if="currentPreviewApp?.devicePreference === 'mobile'"
+                    class="relative w-[375px] h-full max-h-[812px] bg-black rounded-[50px] shadow-2xl border-[8px] border-slate-900 ring-4 ring-white/10 overflow-hidden animate-fade-in-up transition-all duration-300">
+
+                    <!-- Floating Actions (Close Button) -->
+                    <button @click="closePreview()"
+                        class="absolute -right-20 top-0 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition cursor-pointer backdrop-blur-md">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+
+                    <!-- Floating Actions (Buy Button) -->
+                    <button @click="buyApp()"
+                        class="absolute -right-48 bottom-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-2 animate-pulse">
+                        <span>COMPRAR</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <!-- Notch -->
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-slate-900 rounded-b-[20px] z-20 flex items-end justify-center pb-1 pointer-events-none">
+                        <div class="w-16 h-1 bg-slate-800/50 rounded-full"></div>
+                    </div>
+
+                    <!-- App Content -->
+                    <iframe :src="currentPreviewUrl" class="w-full h-full bg-white rounded-[42px]"
+                        sandbox="allow-scripts allow-same-origin allow-forms" style="scrollbar-width: none;"></iframe>
+
+                    <!-- Footer Notice -->
+                    <div class="absolute bottom-2 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                        <span
+                            class="bg-black/60 text-white/60 text-[10px] px-4 py-1 rounded-full backdrop-blur-md border border-white/5">Modo
+                            Demonstração</span>
+                    </div>
+                </div>
+
+                <!-- DESKTOP LAYOUT (Standard Window) -->
+                <div v-else
+                    class="w-full max-w-7xl h-[90vh] bg-slate-900 rounded-2xl flex flex-col relative overflow-hidden shadow-2xl animate-fade-in-up transition-all duration-300"
                     :class="[
                         currentPreviewApp?.theme === 'pizza' ? 'neon-border-pizza' : 
                         currentPreviewApp?.theme === 'burger' ? 'neon-border-burger' : 
@@ -454,14 +496,31 @@
                         </div>
                     </div>
 
-                    <!-- Iframe -->
-                    <div class="flex-1 relative bg-slate-100">
-                        <iframe :src="currentPreviewUrl" class="w-full h-full border-0"
-                            sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                    <!-- Iframe Container -->
+                    <div class="flex-1 relative bg-slate-200 flex justify-center items-center overflow-hidden p-4">
+                        <div
+                            :class="currentPreviewApp?.devicePreference === 'mobile' ? 'relative w-[375px] h-full max-h-[812px] bg-black rounded-[40px] shadow-2xl border-[8px] border-slate-900 ring-2 ring-white/20 overflow-hidden' : 'w-full h-full'">
+
+                            <!-- Notch (Visual only inside container) -->
+                            <div v-if="currentPreviewApp?.devicePreference === 'mobile'"
+                                class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-6 bg-slate-900 rounded-b-xl z-20 flex items-end justify-center pb-1">
+                                <div class="w-16 h-1 bg-slate-800 rounded-full"></div>
+                            </div>
+
+                            <iframe :src="currentPreviewUrl" class="w-full h-full bg-white"
+                                :class="currentPreviewApp?.devicePreference === 'mobile' ? 'rounded-[32px]' : ''"
+                                sandbox="allow-scripts allow-same-origin allow-forms"
+                                style="scrollbar-width: none;"></iframe>
+                        </div>
                     </div>
 
                     <!-- Warning Footer -->
-                    <div
+                    <div v-if="currentPreviewApp?.devicePreference === 'desktop' && isMobile"
+                        class="bg-amber-100 text-amber-800 text-xs font-bold py-3 text-center border-t border-amber-200 sticky bottom-0 z-10 animate-pulse">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> ⚠️ Este sistema foi projetado para telas
+                        maiores (PC/Tablet).
+                    </div>
+                    <div v-else
                         class="bg-amber-100 text-amber-800 text-xs font-bold py-2 text-center border-t border-amber-200 sticky bottom-0 z-10">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i> Você está visualizando uma versão
                         demonstrativa. Dados inseridos não serão salvos permanentemente.
@@ -495,7 +554,13 @@
                     const previewOpen = ref(false);
                     const currentPreviewUrl = ref('');
                     const currentPreviewName = ref('');
+
                     const currentPreviewApp = ref(null);
+                    const isMobile = ref(window.innerWidth < 1024);
+
+                    window.addEventListener('resize', () => {
+                        isMobile.value = window.innerWidth < 1024;
+                    });
 
                     // Body Scroll Lock
                     watch(previewOpen, (isOpen) => {
@@ -531,33 +596,33 @@
 
                     // LISTA COMPLETA DE APPS PROFISSIONAIS (29 APPS)
                     const apps = ref([
-                        { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "00,10", oldPrice: "247,00", link: "apps.plus/plena_alugueis/index.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard." },
-                        { name: "Plena Artesanato", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato/index.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos." },
-                        { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia." },
-                        { name: "Plena Barbearia", tier: "plus", category: "Beleza", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia/index.html", img: "https://images.unsplash.com/photo-1532710093739-9470acff878f?w=500", desc: "Gestão completa para barbearias: agenda, comissões e vendas." },
-                        { name: "Plena Beleza", tier: "plus", category: "Beleza", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões." },
-                        { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card/index.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas." },
-                        { name: "Plena Checklist", tier: "plus", category: "Gestão", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_checklist/index.html", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500", desc: "Criação e gestão de checklists profissionais para processos." },
-                        { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle/index.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos." },
-                        { name: "Plena Delivery", tier: "plus", category: "Food", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_delivery/index.html", img: "https://images.unsplash.com/photo-1590604172312-6804561081b8?w=500", desc: "Sistema completo de pedidos online e gestão de entregas." },
-                        { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado." },
-                        { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC." },
-                        { name: "Plena Feirante", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_feirante/index.html", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500", desc: "PDV ágil e controle de estoque para feiras e eventos." },
-                        { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE." },
-                        { name: "Plena Fit", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_fit/index.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Controle de alunos, treinos e mensalidades para academias." },
-                        { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota/index.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas e manutenção." },
-                        { name: "Plena Hamburgueria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_hamburgueria/index.html", img: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500", desc: "PDA e delivery focado para hamburguerias artesanais.", theme: 'burger' },
-                        { name: "Plena Marmita", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_marmita/index.html", img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500", desc: "Gestão de produção e entrega de marmitas saudáveis." },
-                        { name: "Plena Motoboy", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motoboy/index.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle ágil de entregas e caixa para motoboys.", mobileBadge: true },
-                        { name: "Plena Motorista", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motorista/index.html", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500", desc: "Gestão de ganhos e gastos em movimento.", mobileBadge: true },
-                        { name: "Plena Nutri", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_nutri/index.html", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500", desc: "Gestão clínica completa para nutricionistas." },
-                        { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias." },
-                        { name: "Plena Odonto", tier: "plus", category: "Saúde", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto/index.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para odontologia." },
-                        { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos profissionais." },
-                        { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios." },
-                        { name: "Plena Pizzaria", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_pizzaria/index.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema para pizzarias com montagem de sabores e delivery.", theme: 'pizza' },
-                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=500", desc: "Gestão de vendas por peso ou unidade para sorveterias." },
-                        { name: "Plena Terapia", tier: "plus", category: "Saúde", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_terapia/index.html", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500", desc: "Prontuário eletrônico e gestão para psicólogos e terapeutas." },
+                        { name: "Plena Aluguéis", tier: "plus", category: "Gestão", price: "00,10", oldPrice: "247,00", link: "apps.plus/plena_alugueis/index.html", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500", desc: "Gestão completa de imóveis, inquilinos e financeiro com dashboard.", devicePreference: 'desktop' },
+                        { name: "Plena Artesanato", tier: "plus", category: "Serviços", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_artesanato/index.html", img: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500", desc: "Precificação e gestão de estoque para artesãos.", devicePreference: 'universal' },
+                        { name: "Plena Assistência", tier: "plus", category: "Serviços", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_assistencia/index.html", img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500", desc: "Gestão de ordens de serviço, técnicos e garantia.", devicePreference: 'universal' },
+                        { name: "Plena Barbearia", tier: "plus", category: "Beleza", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_barbearia/index.html", img: "https://images.unsplash.com/photo-1532710093739-9470acff878f?w=500", desc: "Gestão completa para barbearias: agenda, comissões e vendas.", devicePreference: 'universal' },
+                        { name: "Plena Beleza", tier: "plus", category: "Beleza", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_beleza/index.html", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500", desc: "Gestão completa para clínicas de estética e salões.", devicePreference: 'universal' },
+                        { name: "Plena Card", tier: "plus", category: "Marketing", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_card/index.html", img: "https://images.unsplash.com/photo-1613243555988-441166d4d6fd?w=500", desc: "Gestão inteligente de cartões de crédito e faturas.", devicePreference: 'universal' },
+                        { name: "Plena Checklist", tier: "plus", category: "Gestão", price: "47,00", oldPrice: "97,00", link: "apps.plus/plena_checklist/index.html", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=500", desc: "Criação e gestão de checklists profissionais para processos.", devicePreference: 'mobile' },
+                        { name: "Plena Controle", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "157,00", link: "apps.plus/plena_controle/index.html", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500", desc: "Gestão empresarial generalista com múltiplos módulos.", devicePreference: 'universal' },
+
+                        { name: "Plena Distribuidora", tier: "plus", category: "Gestão", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_distribuidora/index.html", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500", desc: "Gestão logística, rotas e pedidos de atacado.", devicePreference: 'desktop' },
+                        { name: "Plena Estoque", tier: "plus", category: "Gestão", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_estoque/index.html", img: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=500", desc: "Controle de inventário avançado com curvas ABC.", devicePreference: 'desktop' },
+                        { name: "Plena Feirante", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_feirante/index.html", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500", desc: "PDV ágil e controle de estoque para feiras e eventos.", devicePreference: 'mobile' },
+                        { name: "Plena Finanças", tier: "plus", category: "Gestão", price: "67,00", oldPrice: "127,00", link: "apps.plus/plena_financas/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Controle financeiro empresarial avançado com DRE.", devicePreference: 'universal' },
+                        { name: "Plena Fit", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_fit/index.html", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500", desc: "Controle de alunos, treinos e mensalidades para academias.", devicePreference: 'universal' },
+                        { name: "Plena Frota", tier: "plus", category: "Transporte", price: "147,00", oldPrice: "297,00", link: "apps.plus/plena_frota/index.html", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500", desc: "Gestão completa de frotas, motoristas e manutenção.", devicePreference: 'desktop' },
+                        { name: "Plena Hamburgueria", tier: "plus", category: "Food", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_hamburgueria/index.html", img: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500", desc: "PDA e delivery focado para hamburguerias artesanais.", theme: 'burger', devicePreference: 'desktop' },
+                        { name: "Plena Marmita", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_marmita/index.html", img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500", desc: "Gestão de produção e entrega de marmitas saudáveis.", devicePreference: 'desktop' },
+                        { name: "Plena Motoboy", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motoboy/index.html", img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500", desc: "Controle ágil de entregas e caixa para motoboys.", mobileBadge: true, devicePreference: 'mobile' },
+                        { name: "Plena Motorista", tier: "plus", category: "Transporte", price: "39,90", oldPrice: "167,00", link: "apps.plus/plena_motorista/index.html", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500", desc: "Gestão de ganhos e gastos em movimento.", mobileBadge: true, devicePreference: 'mobile' },
+                        { name: "Plena Nutri", tier: "plus", category: "Saúde", price: "97,00", oldPrice: "197,00", link: "apps.plus/plena_nutri/index.html", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500", desc: "Gestão clínica completa para nutricionistas.", devicePreference: 'desktop' },
+                        { name: "Plena Obras", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_obras/index.html", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500", desc: "Gestão de canteiro de obras, materiais e diárias.", devicePreference: 'desktop' },
+                        { name: "Plena Odonto", tier: "plus", category: "Saúde", price: "197,00", oldPrice: "397,00", link: "apps.plus/plena_odonto/index.html", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=500", desc: "Gestão clínica completa para odontologia.", devicePreference: 'desktop' },
+                        { name: "Plena Orçamentos", tier: "plus", category: "Gestão", price: "77,00", oldPrice: "147,00", link: "apps.plus/plena_orcamentos/index.html", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500", desc: "Gerador de propostas comerciais e contratos profissionais.", devicePreference: 'universal' },
+                        { name: "Plena PDV", tier: "plus", category: "Gestão", price: "127,00", oldPrice: "297,00", link: "apps.plus/plena_pdv/index.html", img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=500", desc: "Frente de caixa profissional com controle de estoque e relatórios.", devicePreference: 'desktop' },
+                        { name: "Plena Pizzaria", tier: "plus", category: "Food", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_pizzaria/index.html", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", desc: "Sistema para pizzarias com montagem de sabores e delivery.", theme: 'pizza', devicePreference: 'desktop' },
+                        { name: "Plena Sorveteria", tier: "plus", category: "Food", price: "87,00", oldPrice: "167,00", link: "apps.plus/plena_sorveteria/index.html", img: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=500", desc: "Gestão de vendas por peso ou unidade para sorveterias.", devicePreference: 'desktop' },
+                        { name: "Plena Terapia", tier: "plus", category: "Saúde", price: "127,00", oldPrice: "247,00", link: "apps.plus/plena_terapia/index.html", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500", desc: "Prontuário eletrônico e gestão para psicólogos e terapeutas.", devicePreference: 'desktop' },
                     ]);
 
                     const filteredApps = computed(() => {
@@ -586,7 +651,7 @@
                         window.location.href = `checkout.html?${params.toString()}`;
                     };
 
-                    return { filter, search, categories, filteredApps, premiumApps, kits, previewOpen, currentPreviewUrl, currentPreviewName, openPreview, closePreview, buyApp };
+                    return { filter, search, categories, filteredApps, premiumApps, kits, previewOpen, currentPreviewUrl, currentPreviewName, currentPreviewApp, isMobile, openPreview, closePreview, buyApp };
                 }
             }).mount('#app');
         })();

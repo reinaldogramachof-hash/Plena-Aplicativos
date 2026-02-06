@@ -213,7 +213,8 @@
                             <div class="stat-icon bg-success bg-opacity-25 text-success"><i
                                     class="fa-solid fa-dollar-sign"></i></div>
                             <h6 class="text-white-50 small text-uppercase">Faturamento Hoje</h6>
-                            <h3 class="text-white fw-bold m-0">R$ 1.250,90</h3>
+                            <h3 class="text-white fw-bold m-0">{{ stats.totalToday.toLocaleString('pt-BR', {style:
+                                'currency', currency: 'BRL'}) }}</h3>
                             <small class="text-success"><i class="fa-solid fa-arrow-trend-up"></i> +12% vs ontem</small>
                         </div>
                     </div>
@@ -222,8 +223,9 @@
                             <div class="stat-icon bg-warning bg-opacity-25 text-warning"><i
                                     class="fa-solid fa-receipt"></i></div>
                             <h6 class="text-white-50 small text-uppercase">Pedidos Hoje</h6>
-                            <h3 class="text-white fw-bold m-0">34</h3>
-                            <small class="text-white-50">Ticket médio: R$ 36,00</small>
+                            <h3 class="text-white fw-bold m-0">{{ stats.ordersToday }}</h3>
+                            <small class="text-white-50">Ticket médio: {{ stats.ticketAvg.toLocaleString('pt-BR',
+                                {style: 'currency', currency: 'BRL'}) }}</small>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -325,7 +327,39 @@
         createApp({
             setup() {
                 const currentView = ref('dashboard');
-                const isProMode = ref(false); // Controls Upload Button visibility
+                const isProMode = ref(false);
+
+                // Métrica Reais
+                const stats = ref({
+                    totalToday: 0,
+                    ordersToday: 0,
+                    ticketAvg: 0
+                });
+
+                const loadRealStats = () => {
+                    const saved = localStorage.getItem('plena_delivery_v2');
+                    if (!saved) return;
+
+                    const db = JSON.parse(saved);
+                    const today = new Date().toLocaleDateString();
+
+                    // Juntar todos os pedidos de hoje (incluindo history se tiver data)
+                    // Simplificação: Vamos pegar todos os ativos + historico recente
+                    const allOrders = [...db.new, ...db.preparation, ...db.delivery, ...db.history];
+
+                    const todaysOrders = allOrders.filter(o => {
+                        const d = new Date(o.createdAt || o.date); // Fallback prop name
+                        return d.toLocaleDateString() === today;
+                    });
+
+                    stats.value.ordersToday = todaysOrders.length;
+                    stats.value.totalToday = todaysOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+                    stats.value.ticketAvg = stats.value.ordersToday ? (stats.value.totalToday / stats.value.ordersToday) : 0;
+                };
+
+                // Sync Listener
+                const bc = new BroadcastChannel('plena_sync');
+                bc.onmessage = () => loadRealStats();
 
                 // Mock Menu Data
                 const menuItems = ref([
@@ -375,6 +409,7 @@
                 const logout = () => { alert('Saindo do sistema...'); };
 
                 onMounted(() => {
+                    loadRealStats();
                     // Check Mode
                     if (typeof PLENA_CONFIG !== 'undefined' && PLENA_CONFIG.mode === 'HYBRID') {
                         isProMode.value = true;
