@@ -301,21 +301,32 @@
             <button onclick="router('dashboard')" id="nav-dashboard"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
                     data-lucide="layout-dashboard" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Dashboard
-            </button><button onclick="router('projects')" id="nav-projects"
+            </button>
+            <button onclick="router('pdv')" id="nav-pdv"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
-                    data-lucide="printer" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Projetos & Orçamentos
-            </button><button onclick="router('clients')" id="nav-clients"
+                    data-lucide="shopping-cart" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>PDV
+            </button>
+            <button onclick="router('budgets')" id="nav-budgets"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
-                    data-lucide="users" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Clientes </button><button
-                onclick="router('inventory')" id="nav-inventory"
+                    data-lucide="file-text" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Orçamentos
+            </button>
+            <button onclick="router('inventory')" id="nav-inventory"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
                     data-lucide="package" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Estoque </button>
             <div class="my-4 border-t border-white/5"></div>
-            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Gestão</p><button
-                onclick="router('financial')" id="nav-financial"
+            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Gestão</p>
+            <button onclick="router('projects')" id="nav-projects"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="printer" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Projetos (Produção)
+            </button>
+            <button onclick="router('clients')" id="nav-clients"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="users" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Clientes </button>
+            <button onclick="router('financial')" id="nav-financial"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
                     data-lucide="wallet" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Financeiro
-            </button><button onclick="router('reports')" id="nav-reports"
+            </button>
+            <button onclick="router('reports')" id="nav-reports"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
                     data-lucide="bar-chart-3" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Relatórios
             </button>
@@ -327,6 +338,9 @@
             </button><button onclick="router('settings')" id="nav-settings"
                 class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
                     data-lucide="settings" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Configurações
+            </button><button onclick="router('support')" id="nav-support"
+                class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"><i
+                    data-lucide="life-buoy" class="w-5 h-5 mr-3 group-hover:text-cyan-400"></i>Suporte
             </button>
         </nav>
         <div class="p-4 border-t border-white/5 bg-black/20">
@@ -366,6 +380,38 @@
         </header>
         <!-- Views -->
         <div class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- PDV (Ponto de Venda) -->
+            <section id="view-pdv" class="view fade-in hide">
+                <div class="flex flex-col items-center justify-center h-full text-center py-20">
+                    <div class="bg-slate-800 p-6 rounded-full mb-6">
+                        <i data-lucide="shopping-cart" class="w-16 h-16 text-cyan-400"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Módulo PDV</h2>
+                    <p class="text-slate-400 max-w-md mx-auto">Em breve: Frente de caixa rápido para venda de peças,
+                        filamentos e serviços.</p>
+                </div>
+            </section>
+
+            <!-- ORÇAMENTOS -->
+            <section id="view-budgets" class="view fade-in hide">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-white">Orçamentos</h2>
+                    <div class="flex gap-2">
+                        <div class="relative w-full md:w-64">
+                            <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i>
+                            <input type="text" id="bdg-search" onkeyup="renderProjects('budgets')"
+                                placeholder="Buscar orçamento..."
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-cyan-500 outline-none text-white">
+                        </div>
+                        <button onclick="openProjectModal()"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center shadow-lg shadow-cyan-900/50 transition-all">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Novo
+                        </button>
+                    </div>
+                </div>
+                <div id="budgets-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </section>
+
             <!-- DASHBOARD -->
             <section id="view-dashboard" class="view fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -633,22 +679,24 @@
                     </button>
                 </div>
             </section>
-            <!-- PROJECTS -->
+            <!-- PROJECTS (PRODUÇÃO) -->
             <section id="view-projects" class="view fade-in hide">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <div class="relative w-full md:w-96"><i data-lucide="search"
-                            class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i><input type="text" id="proj-search"
-                            onkeyup="renderProjects()" placeholder="Buscar projeto ou cliente..."
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-cyan-500 outline-none text-white">
+                    <h2 class="text-xl font-bold text-white">Projetos em Produção</h2>
+                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                        <div class="relative w-full md:w-64"><i data-lucide="search"
+                                class="absolute left-3 top-3 w-4 h-4 text-slate-500"></i><input type="text"
+                                id="proj-search" onkeyup="renderProjects('projects')" placeholder="Buscar projeto..."
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:border-cyan-500 outline-none text-white">
+                        </div>
+                        <div class="flex gap-2"><select id="proj-filter" onchange="renderProjects('projects')"
+                                class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:border-cyan-500 outline-none">
+                                <option value="all">Todos (Produção)</option>
+                                <option value="Fila">Na Fila</option>
+                                <option value="Imprimindo">Imprimindo</option>
+                                <option value="Concluido">Concluídos</option>
+                            </select></div>
                     </div>
-                    <div class="flex gap-2"><select id="proj-filter" onchange="renderProjects()"
-                            class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:border-cyan-500 outline-none">
-                            <option value="all">Todos</option>
-                            <option value="Orçamento">Orçamento</option>
-                            <option value="Fila">Na Fila</option>
-                            <option value="Imprimindo">Imprimindo</option>
-                            <option value="Concluido">Concluídos</option>
-                        </select></div>
                 </div>
                 <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
             </section>
@@ -1630,9 +1678,11 @@
             if (view === 'financial') renderFinancial();
             if (view === 'reports') renderReports();
             if (view === 'manual') window.scrollTo(0, 0);
-            if (view === 'projects') renderProjects();
+            if (view === 'projects') renderProjects('projects'); // Produção
+            if (view === 'budgets') renderProjects('budgets'); // Orçamentos
             if (view === 'clients') renderClients();
             if (view === 'inventory') renderInventory();
+            if (view === 'support') lucide.createIcons();
         }
         function closeModal(id) { _(id).classList.add('hidden'); }
         function openClientModal() { _('clientModal').classList.remove('hidden'); _('cl-name').focus(); }
@@ -1805,14 +1855,19 @@
             }
             DB.save();
             closeModal('projectModal');
-            router('projects');
+            DB.save();
+            closeModal('projectModal');
+            // Refresh potential views
+            if (!_('view-projects').classList.contains('hide')) renderProjects('projects');
+            if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
             renderDashboard(); // Refresh dash queue
         }
         function deleteProject(id) {
             if (confirm('Tem certeza que deseja excluir este projeto?')) {
                 DB.data.projects = DB.data.projects.filter(p => p.id !== id);
                 DB.save();
-                renderProjects();
+                if (!_('view-projects').classList.contains('hide')) renderProjects('projects');
+                if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
                 renderDashboard();
             }
         }
@@ -1822,7 +1877,7 @@
                 const newP = { ...p, id: uid(), name: p.name + ' (Cópia)', status: 'Orçamento', date: new Date().toISOString() };
                 DB.data.projects.unshift(newP);
                 DB.save();
-                renderProjects();
+                if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
                 alert('Projeto duplicado como Orçamento!');
             }
         }
@@ -2036,26 +2091,52 @@ ${actionBtn}
             if (p) {
                 p.status = newStatus;
                 DB.save();
-                renderDashboard(); // Re-render to update queue
-                // Se concluiu, sugerir lançar receita? (Pode ser uma feature futura)
-                if (newStatus === 'Concluido') {
-                    // Auto-toast or message could go here
-                }
+                renderDashboard();
+                // Refresh current view if possible, simple approach:
+                if (!_('view-projects').classList.contains('hide')) renderProjects('projects');
+                if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
             }
         }
-        function renderProjects() {
-            const filter = _('proj-filter').value;
-            const search = _('proj-search').value.toLowerCase();
+        function renderProjects(context = 'projects') {
+            const isBudgets = context === 'budgets';
+            const filterEl = isBudgets ? null : _('proj-filter');
+            const searchEl = isBudgets ? _('bdg-search') : _('proj-search');
+
+            const filter = filterEl ? filterEl.value : 'all';
+            const search = searchEl ? searchEl.value.toLowerCase() : '';
+
             let list = DB.data.projects;
-            if (filter !== 'all') list = list.filter(p => p.status === filter);
+
+            // 1. Context Filter
+            if (isBudgets) {
+                list = list.filter(p => p.status === 'Orçamento');
+            } else {
+                list = list.filter(p => p.status !== 'Orçamento');
+                // Sub-filter for Projects View
+                if (filter !== 'all') list = list.filter(p => p.status === filter);
+            }
+
+            // 2. Search Filter
             if (search) list = list.filter(p => p.name.toLowerCase().includes(search));
-            const grid = _('projects-grid');
+
+            // 3. Sort (Date Desc)
+            list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const grid = isBudgets ? _('budgets-grid') : _('projects-grid');
+            if (!grid) return; // Safety
+
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-500 py-12"><i data-lucide="${isBudgets ? 'file-text' : 'box'}" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p>Nenhum ${isBudgets ? 'orçamento' : 'projeto'} encontrado.</p></div>`;
+                return;
+            }
+
             grid.innerHTML = list.map(p => {
                 const colorClass = { 'Orçamento': 'text-slate-400', 'Fila': 'text-yellow-400', 'Imprimindo': 'text-purple-400', 'Concluido': 'text-green-400', 'Cancelado': 'text-red-500' }[p.status] || 'text-slate-400';
                 const dateStr = new Date(p.date).toLocaleDateString();
                 // Logic for Quick Actions
                 let primaryAction = '';
                 let secondaryAction = '';
+
                 if (p.status === 'Orçamento') {
                     primaryAction = `<button onclick="promoteStatus('${p.id}')" class="flex-1 bg-green-600/20 hover:bg-green-600/40 text-green-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-green-600/30 transition-all"><i data-lucide="check" class="w-3 h-3 mr-1"></i> Aprovar</button>`;
                     secondaryAction = `<button onclick="rejectStatus('${p.id}')" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 p-2 rounded border border-red-600/30 transition-all" title="Rejeitar"><i data-lucide="x" class="w-3 h-3"></i></button>`;
@@ -2064,11 +2145,12 @@ ${actionBtn}
                 } else if (p.status === 'Imprimindo') {
                     primaryAction = `<button onclick="promoteStatus('${p.id}')" class="flex-1 bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-400 text-xs font-bold py-2 rounded flex items-center justify-center border border-cyan-600/30 transition-all"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> Concluir</button>`;
                 }
+
                 // Extra Actions (Print/Share)
                 const extraActions = `
 <div class="flex gap-2 mt-2">
 <button onclick="openBudgetModal('${p.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 rounded border border-white/10 transition-colors flex items-center justify-center">
-<i data-lucide="printer" class="w-3 h-3 mr-1"></i> Orçamento
+<i data-lucide="printer" class="w-3 h-3 mr-1"></i> ${isBudgets ? 'Gerar PDF' : 'Detalhes'}
 </button>
 <button onclick="sendWhatsapp('${p.id}')" class="bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] px-3 py-2 rounded border border-[#25D366]/30 transition-colors" title="Enviar WhatsApp">
 <i data-lucide="message-circle" class="w-3 h-3"></i>
@@ -2087,6 +2169,7 @@ ${extraActions}
                     : `<div class="mt-3 pt-3 border-t border-white/5">
 ${extraActions}
 </div>`;
+
                 return `
 <div class="glass-panel p-5 rounded-xl border border-white/5 hover:border-cyan-500/30 transition-all group relative flex flex-col">
 <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -2094,7 +2177,7 @@ ${extraActions}
 <button onclick="deleteProject('${p.id}')" title="Excluir" class="text-slate-400 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
 </div>
 <div class="flex justify-between items-start mb-4">
-<div class="bg-slate-800 p-2 rounded-lg text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors"><i data-lucide="box" class="w-6 h-6"></i></div>
+<div class="bg-slate-800 p-2 rounded-lg text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors"><i data-lucide="${isBudgets ? 'file-text' : 'box'}" class="w-6 h-6"></i></div>
 <span class="text-xs font-bold uppercase ${colorClass} bg-slate-950 px-2 py-1 rounded">${p.status}</span>
 </div>
 <div class="flex-1">
@@ -2149,8 +2232,11 @@ ${actionsBar}
 
                 p.status = nextStatus;
                 DB.save();
-                renderProjects();
-                renderDashboard(); // Fix: Ensure dashboard is sync
+
+                // Refresh both because an item moves from Budgets -> Projects
+                if (!_('view-projects').classList.contains('hide')) renderProjects('projects');
+                if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
+                renderDashboard();
             }
         }
         function rejectStatus(id) {
@@ -2159,7 +2245,8 @@ ${actionsBar}
                 if (p) {
                     p.status = 'Cancelado';
                     DB.save();
-                    renderProjects();
+                    if (!_('view-projects').classList.contains('hide')) renderProjects('projects');
+                    if (!_('view-budgets').classList.contains('hide')) renderProjects('budgets');
                     renderDashboard();
                 }
             }
