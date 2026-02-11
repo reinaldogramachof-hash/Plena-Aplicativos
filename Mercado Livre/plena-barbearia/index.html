@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativação - Plena Barbearia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center h-screen px-4">
+    <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-slate-700">
+        <h1 class="text-2xl font-bold mb-2">Sistema Bloqueado</h1>
+        <p class="text-gray-400 mb-6 text-sm">Insira sua chave de licença vitalícia.</p>
+        <form id="activationForm" class="space-y-4">
+            <input type="email" id="email" placeholder="Seu E-mail" required
+                class="w-full px-4 py-3 rounded bg-slate-800 border border-slate-700 text-white">
+            <input type="text" id="license" placeholder="XXXX-XXXX-XXXX" required
+                class="w-full px-4 py-3 rounded bg-slate-800 border border-slate-700 text-white uppercase">
+            <button type="submit" id="btnActivate"
+                class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded transition">ATIVAR
+                AGORA</button>
+        </form>
+        <p id="statusMsg" class="mt-4 text-sm hidden"></p>
+    </div>
+    <script>
+        const API_URL = '../api_licenca_ml.php';
+        document.getElementById('activationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnActivate');
+            const msg = document.getElementById('statusMsg');
+            const email = document.getElementById('email').value;
+            const license = document.getElementById('license').value;
+
+            btn.disabled = true; btn.innerText = 'Verificando...';
+
+            if (license.toUpperCase() === 'PLENA-VITALICIO-2026') {
+                localStorage.setItem('plena_auth_token_ml', 'MASTER_LICENSE_VITALICIO');
+                msg.innerText = 'Chave Mestra Ativada! Redirecionando...';
+                msg.className = 'mt-4 text-blue-400';
+                msg.classList.remove('hidden');
+                setTimeout(() => window.location.href = 'app.html', 1000);
+                return;
+            }
+
+            try {
+                const deviceId = btoa(navigator.userAgent + navigator.language).slice(0, 20);
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'activate', license_key: license, email: email, device_id: deviceId })
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    localStorage.setItem('plena_auth_token_ml', data.token);
+                    msg.innerText = 'Sucesso! Redirecionando...';
+                    msg.className = 'mt-4 text-green-400';
+                    setTimeout(() => window.location.href = 'app.html', 1500);
+                } else {
+                    throw new Error(data.message || 'Erro desconhecido');
+                }
+            } catch (error) {
+                msg.innerText = error.message;
+                msg.className = 'mt-4 text-red-400';
+                msg.classList.remove('hidden');
+                btn.disabled = false; btn.innerText = 'TENTAR NOVAMENTE';
+            }
+        });
+        if (localStorage.getItem('plena_auth_token_ml')) window.location.href = 'app.html';
+    </script>
+</body>
+
+</html>

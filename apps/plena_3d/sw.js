@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plena-3d-v1';
+const CACHE_NAME = 'plena-3d-v-' + new Date().getTime(); // Força update para teste
 const ASSETS = [
     './',
     './index.html',

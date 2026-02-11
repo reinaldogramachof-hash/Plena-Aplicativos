@@ -4,9 +4,7 @@ class ProjectManager {
     }
 
     initListeners() {
-        // Form submissions are handled by global functions referenced in HTML for now, 
-        // or we need to attach them here if we remove onsubmit from HTML.
-        // For this refactor, we will keep the global proxy functions in App.js that call these methods.
+        // Listeners globais mantidos no html/app.js
     }
 
     render(context = 'projects') {
@@ -84,8 +82,8 @@ class ProjectManager {
                 <p class="text-[10px] text-slate-500">${dateStr}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-xs text-slate-500 mb-2">
-                <div class="flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ${p.time}h</div>
-                <div class="flex items-center"><i data-lucide="spool" class="w-3 h-3 mr-1"></i> ${p.weight}g</div>
+                <div class="flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ${p.time}h total</div>
+                <div class="flex items-center"><i data-lucide="package" class="w-3 h-3 mr-1"></i> ${p.quantity || 1} un</div>
                 </div>
                 </div>
                 ${actionsBar}
@@ -97,9 +95,17 @@ class ProjectManager {
         lucide.createIcons();
     }
 
-    // ... Implementation of other methods (submit, delete, promote, etc.) adapted from index.html ...
-    // Since I cannot write 3000 lines in one go, I'm simplifying the structure.
-    // I will implementation the logic methods now.
+    // Lógica segura de leitura de campos
+    getVal(id, type = 'float') {
+        const el = document.getElementById(id);
+        if (!el) {
+            console.warn(`Element #${id} not found`);
+            return type === 'string' ? '' : 0;
+        }
+        if (type === 'string') return el.value;
+        const val = parseFloat(el.value);
+        return isNaN(val) ? 0 : val;
+    }
 
     promoteStatus(id) {
         const p = DB.data.projects.find(x => x.id === id);
@@ -107,13 +113,19 @@ class ProjectManager {
         const next = { 'Orçamento': 'Fila', 'Fila': 'Imprimindo', 'Imprimindo': 'Concluido' };
         const nextStatus = next[p.status];
         if (nextStatus) {
-            if (p.status === 'Orçamento' && nextStatus === 'Fila' && p.filamentId) {
-                const fil = DB.inventory.find(f => f.id === p.filamentId);
-                if (fil) {
-                    fil.quantity -= p.weight;
-                    if (fil.weight) fil.remaining = fil.quantity;
-                    App.inventoryManager.addLog(p.filamentId, 'saida', p.weight, `Orçamento aprovado: ${p.name}`);
-                }
+            if (p.status === 'Orçamento' && nextStatus === 'Fila') {
+                const materialsToDeduct = p.materials || (p.filamentId ? [{ id: p.filamentId, weight: p.weight }] : []);
+                const quantity = p.quantity || 1;
+
+                materialsToDeduct.forEach(mat => {
+                    const fil = DB.inventory.find(f => f.id === mat.id);
+                    if (fil) {
+                        const totalDeduct = mat.weight * quantity;
+                        fil.quantity -= totalDeduct;
+                        if (fil.weight) fil.remaining = fil.quantity;
+                        App.inventoryManager.addLog(mat.id, 'saida', totalDeduct, `Orçamento aprovado: ${p.name} (${quantity} un)`);
+                    }
+                });
             }
             if (nextStatus === 'Concluido') {
                 const today = new Date().toISOString();
@@ -142,34 +154,57 @@ class ProjectManager {
     refreshViews() {
         if (!_('view-projects').classList.contains('hide')) this.render('projects');
         if (!_('view-budgets').classList.contains('hide')) this.render('budgets');
-        App.dashboardManager.render();
+        if (App.dashboardManager) App.dashboardManager.render();
     }
 
     submit(e) {
         e.preventDefault();
-        const id = _('pj-id').value;
-        const filamentId = _('pj-filament').value;
-        const weight = parseFloat(_('pj-weight').value);
-        const status = _('pj-status').value;
 
-        if (!id && status !== 'Orçamento' && filamentId) {
-            const fil = DB.inventory.find(f => f.id === filamentId);
-            if (fil) {
-                fil.quantity -= weight;
-                if (fil.weight) fil.remaining = fil.quantity;
-                App.inventoryManager.addLog(filamentId, 'saida', weight, `Projeto: ${_('pj-name').value}`);
-            }
+        // Garante cálculo atualizado antes de ler valores
+        this.calculateCost();
+
+        const id = this.getVal('pj-id', 'string');
+        const status = this.getVal('pj-status', 'string');
+        const materials = this.getMaterialsFromUI();
+        const quantity = this.getVal('pj-quantity') || 1;
+
+        if (!id && status !== 'Orçamento') {
+            materials.forEach(mat => {
+                const fil = DB.inventory.find(f => f.id === mat.id);
+                if (fil) {
+                    const totalDeduct = mat.weight * quantity;
+                    fil.quantity -= totalDeduct;
+                    if (fil.weight) fil.remaining = fil.quantity;
+                    App.inventoryManager.addLog(mat.id, 'saida', totalDeduct, `Projeto novo direto: ${_('pj-name').value} (${quantity} un)`);
+                }
+            });
         }
+
+        const unitWeight = materials.reduce((acc, curr) => acc + curr.weight, 0);
+
+        // Ler valores da UI (que acabaram de ser recalculados)
+        const finalPriceUI = parseFloat(_('final-price').innerText.replace('R$', '').replace('.', '').replace(',', '.').trim());
+        const finalCostUI = parseFloat(_('cost-total').innerText.replace('R$', '').replace('.', '').replace(',', '.').trim());
 
         const projectData = {
             id: id || uid(),
-            name: _('pj-name').value,
-            clientId: _('pj-client').value,
-            filamentId: filamentId,
-            weight: weight,
-            time: parseFloat(_('pj-time').value),
-            price: parseFloat(_('final-price').innerText.replace('R$', '').replace('.', '').replace(',', '.').trim()),
-            cost: parseFloat(_('cost-total').innerText.replace('R$', '').replace('.', '').replace(',', '.').trim()),
+            name: this.getVal('pj-name', 'string'),
+            clientId: this.getVal('pj-client', 'string'),
+            materials: materials,
+            filamentId: materials.length > 0 ? materials[0].id : null,
+            weight: unitWeight,
+            quantity: quantity,
+
+            time: this.getVal('pj-time'),
+            extraCost: this.getVal('pj-extras'),
+            setupCost: this.getVal('pj-setup'),
+            notes: this.getVal('pj-notes', 'string'),
+            markup: this.getVal('pj-markup') || 100,
+
+            // Usar valor da UI se cálculo interno falhar, ou vice-versa
+            price: finalPriceUI || this.currentCalculatedPrice || 0,
+            cost: finalCostUI || this.currentCalculatedCost || 0,
+
             status: status,
             date: id ? DB.data.projects.find(x => x.id === id).date : new Date().toISOString()
         };
@@ -205,116 +240,303 @@ class ProjectManager {
         }
     }
 
-    openModal(id = null) {
-        _('projectModal').classList.remove('hidden');
-        const clients = DB.clients;
+    addMaterialRow(savedMaterial = null) {
+        const container = _('material-list');
+        const rowId = 'mat-row-' + Math.random().toString(36).substr(2, 9);
+
         const filaments = DB.inventory.filter(f => {
             if (f.category && f.category !== 'filamento') return false;
             const qty = f.quantity || f.remaining || 0;
-            return qty > 50;
+            return qty > 10;
         });
 
-        _('pj-client').innerHTML = '<option value="">Cliente Avulso</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-        _('pj-filament').innerHTML = '<option value="">Selecione...</option>' + filaments.map(f => {
+        const options = '<option value="">Selecione...</option>' + filaments.map(f => {
             const price = f.cost || f.price || 0;
             const weight = f.weight || f.quantity || 1000;
             const type = f.specs?.type || f.type || 'PLA';
             const color = f.specs?.color || f.color || f.name;
             const brand = f.brand || 'Genérico';
             const pricePerKg = (price / weight * 1000).toFixed(0);
-            return `<option value="${f.id}" data-price="${price}" data-weight="${weight}">${type} - ${color} (${brand}) [R$${pricePerKg}/kg]</option>`;
+            const selected = savedMaterial && savedMaterial.id === f.id ? 'selected' : '';
+            return `<option value="${f.id}" data-price="${price}" data-weight="${weight}" ${selected}>${type} - ${color} (${brand}) [R$${pricePerKg}/kg]</option>`;
         }).join('');
 
-        _('pj-id').value = '';
+        const html = `
+            <div id="${rowId}" class="flex gap-2 items-start material-row">
+                <div class="flex-grow">
+                    <select class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-xs text-white mat-select" onchange="App.projectManager.calculateCost()">
+                        ${options}
+                    </select>
+                </div>
+                <div class="w-24">
+                    <input type="number" class="w-full bg-slate-950 border border-slate-700 p-2 rounded text-xs text-white mat-weight" 
+                        placeholder="Qtd(g)" oninput="App.projectManager.calculateCost()" value="${savedMaterial ? savedMaterial.weight : ''}">
+                </div>
+                <button type="button" onclick="document.getElementById('${rowId}').remove(); App.projectManager.calculateCost()" 
+                    class="text-red-400 p-2 hover:bg-slate-800 rounded">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        lucide.createIcons();
+    }
+
+    getMaterialsFromUI() {
+        const rows = document.querySelectorAll('.material-row');
+        const materials = [];
+        rows.forEach(row => {
+            const select = row.querySelector('.mat-select');
+            const weightInput = row.querySelector('.mat-weight');
+            if (select && select.value && weightInput && weightInput.value) {
+                materials.push({
+                    id: select.value,
+                    weight: parseFloat(weightInput.value)
+                });
+            }
+        });
+        return materials;
+    }
+
+    openModal(id = null) {
+        const modal = _('projectModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+
+        const clients = DB.clients;
+        const clientSelect = _('pj-client');
+        if (clientSelect) clientSelect.innerHTML = '<option value="">Cliente Avulso</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+        // Limpar lista de materiais e recriar
+        _('material-list').innerHTML = '';
+
+        const idEl = _('pj-id');
+        if (idEl) idEl.value = '';
+
         if (id) {
             const p = DB.data.projects.find(x => x.id === id);
             if (p) {
-                _('pj-id').value = p.id;
-                _('pj-name').value = p.name;
-                _('pj-client').value = p.clientId;
-                _('pj-filament').value = p.filamentId;
-                _('pj-weight').value = p.weight;
-                _('pj-time').value = p.time;
-                _('pj-status').value = p.status;
+                if (idEl) idEl.value = p.id;
+                const setVal = (eid, val) => { const e = _(eid); if (e) e.value = val; };
+
+                setVal('pj-name', p.name);
+                setVal('pj-client', p.clientId);
+                setVal('pj-time', p.time);
+                setVal('pj-status', p.status);
+                setVal('pj-quantity', p.quantity || 1);
+                setVal('pj-extras', p.extraCost || '');
+                setVal('pj-setup', p.setupCost || '');
+                setVal('pj-notes', p.notes || '');
+                setVal('pj-markup', p.markup || 100);
+
+                if (p.materials && Array.isArray(p.materials)) {
+                    p.materials.forEach(m => this.addMaterialRow(m));
+                } else if (p.filamentId) {
+                    this.addMaterialRow({ id: p.filamentId, weight: p.weight });
+                } else {
+                    this.addMaterialRow();
+                }
             }
         } else {
-            _('pj-name').value = ''; _('pj-weight').value = ''; _('pj-time').value = ''; _('pj-filament').value = '';
-            _('pj-status').value = 'Orçamento';
+            const setVal = (eid, val) => { const e = _(eid); if (e) e.value = val; };
+            setVal('pj-name', '');
+            setVal('pj-time', '');
+            setVal('pj-quantity', '1');
+            setVal('pj-extras', '');
+            setVal('pj-setup', '');
+            setVal('pj-notes', '');
+            setVal('pj-markup', '100');
+            setVal('pj-status', 'Orçamento');
+            this.addMaterialRow();
         }
         this.calculateCost();
     }
 
     calculateCost() {
-        const filamentId = _('pj-filament').value;
-        const weight = parseFloat(_('pj-weight').value) || 0;
-        const time = parseFloat(_('pj-time').value) || 0;
-        const markup = parseFloat(_('pj-markup').value) || 0;
-        let matCost = 0;
-        if (filamentId) {
-            const opt = _('pj-filament').selectedOptions[0];
-            const price = parseFloat(opt.getAttribute('data-price'));
-            const originalWeight = parseFloat(opt.getAttribute('data-weight'));
-            matCost = (price / originalWeight) * weight;
-        }
-        const kwhPrice = DB.settings.kwh;
-        const watts = DB.settings.watts;
-        const energyCost = (watts / 1000) * time * kwhPrice;
-        const machineCost = time * DB.settings.depreciation;
-        const baseCost = matCost + energyCost + machineCost;
-        const riskCost = baseCost * (DB.settings.failure / 100);
-        const totalCost = baseCost + riskCost;
-        const finalPrice = totalCost * (1 + (markup / 100));
+        // Validação defensiva - se elementos não carregaram ainda
+        if (!document.getElementById('pj-time')) return;
 
-        _('cost-material').innerText = fmtMoney(matCost);
-        _('cost-energy').innerText = fmtMoney(energyCost);
-        _('cost-machine').innerText = fmtMoney(machineCost);
-        _('cost-failure').innerText = fmtMoney(riskCost);
-        _('cost-total').innerText = fmtMoney(totalCost);
-        _('final-price').innerText = fmtMoney(finalPrice);
-        _('btn-wa-text').innerText = _('pj-status').value === 'Orçamento' ? 'Enviar Orçamento' : 'Enviar Status';
+        const time = this.getVal('pj-time');
+        const markup = this.getVal('pj-markup') || 0;
+        const extraCostUnit = this.getVal('pj-extras') || 0;
+        const setupCost = this.getVal('pj-setup') || 0;
+        const quantity = this.getVal('pj-quantity') || 1;
+
+        // 1. Custo de Material Unitário
+        let matCostUnit = 0;
+        const rows = document.querySelectorAll('.material-row');
+        rows.forEach(row => {
+            const select = row.querySelector('.mat-select');
+            const weightInput = row.querySelector('.mat-weight');
+
+            if (select && select.value) {
+                const opt = select.selectedOptions[0];
+                if (opt) {
+                    const price = parseFloat(opt.getAttribute('data-price')) || 0;
+                    const originalWeight = parseFloat(opt.getAttribute('data-weight')) || 1000;
+                    const weight = parseFloat(weightInput.value) || 0;
+                    // +5% perda no material
+                    matCostUnit += (price / originalWeight) * weight * 1.05;
+                }
+            }
+        });
+
+        // 2. Custo de Processo Unitário (Energia + Máquina)
+        const kwhPrice = DB.settings.kwh || 0;
+        const watts = DB.settings.watts || 0;
+        const energyCostUnit = (watts / 1000) * time * kwhPrice;
+        const machineCostUnit = time * (DB.settings.depreciation || 0);
+
+        // 3. Custo de Produção Unitário Base
+        const baseUnitCost = matCostUnit + energyCostUnit + machineCostUnit + extraCostUnit;
+
+        // 4. Custo de Risco
+        const failureRate = DB.settings.failure || 0;
+        const riskCostUnit = baseUnitCost * (failureRate / 100);
+
+        // 5. Custo Unitário Final
+        const finalUnitCost = baseUnitCost + riskCostUnit;
+
+        // 6. Totais para exibir UI
+        const totalMatCost = matCostUnit * quantity;
+        const totalEnergyCost = energyCostUnit * quantity;
+        const totalMachineCost = machineCostUnit * quantity;
+        const totalRiskCost = riskCostUnit * quantity;
+        const totalExtraCost = extraCostUnit * quantity;
+
+        const totalProductionCost = (finalUnitCost * quantity); // Sem Markup, Sem Setup
+
+        // 7. Preço Final
+        const finalPrice = (totalProductionCost * (1 + (markup / 100))) + setupCost;
+
+        // Guardar valores calculados para o submit
+        this.currentCalculatedPrice = finalPrice;
+        this.currentCalculatedCost = totalProductionCost;
+
+        // Atualizar UI
+        const setTxt = (eid, txt) => { const e = _(eid); if (e) e.innerText = txt; };
+
+        setTxt('cost-material', fmtMoney(totalMatCost));
+        setTxt('cost-energy', fmtMoney(totalEnergyCost));
+        setTxt('cost-machine', fmtMoney(totalMachineCost));
+        setTxt('cost-failure', fmtMoney(totalRiskCost));
+        setTxt('cost-extras', fmtMoney(totalExtraCost));
+        setTxt('cost-total', fmtMoney(totalProductionCost));
+        setTxt('final-price', fmtMoney(finalPrice));
+
+        const labelSetup = _('label-setup-cost');
+        if (labelSetup) {
+            setupCost > 0 ? labelSetup.classList.remove('hidden') : labelSetup.classList.add('hidden');
+            labelSetup.innerText = `+ ${fmtMoney(setupCost)} (Setup/Modelagem)`;
+        }
+
+        const btnWa = _('btn-wa-text');
+        if (btnWa) {
+            const statusVal = _('pj-status') ? _('pj-status').value : 'Orçamento';
+            btnWa.innerText = statusVal === 'Orçamento' ? 'Enviar Orçamento' : 'Enviar Status';
+        }
     }
 
     openBudgetModal(id) {
         const p = DB.data.projects.find(x => x.id === id);
         if (!p) return;
+        const quantity = p.quantity || 1;
         const sName = DB.settings.storeName || 'Plena 3D';
         const sDoc = DB.settings.storeDoc ? `CNPJ: ${DB.settings.storeDoc}` : '';
-        _('bdg-store-name').innerText = sName;
-        _('bdg-store-doc').innerText = sDoc;
-        _('bdg-id').innerText = '#' + p.id.substr(0, 6).toUpperCase();
+
+        const setTxt = (eid, txt) => { const e = _(eid); if (e) e.innerText = txt; };
+
+        setTxt('bdg-store-name', sName);
+        setTxt('bdg-store-doc', sDoc);
+        setTxt('bdg-id', '#' + p.id.substr(0, 6).toUpperCase());
 
         const c = DB.clients.find(cli => cli.id === p.clientId);
-        _('bdg-client-name').innerText = c ? c.name : (DB.settings.owner || 'Cliente');
-        _('bdg-client-contact').innerText = c ? `Contato: ${c.phone}` : 'Contato: -';
+        setTxt('bdg-client-name', c ? c.name : (DB.settings.owner || 'Cliente'));
+        setTxt('bdg-client-contact', c ? `Contato: ${c.phone}` : 'Contato: -');
 
-        _('bdg-project-name').innerText = p.name;
-        const fil = DB.inventory.find(f => f.id === p.filamentId);
-        _('bdg-material').innerText = fil ? `${fil.type} - ${fil.color} (${fil.brand})` : 'Material Padrão';
-        _('bdg-weight').innerText = `${p.weight}g`;
-        _('bdg-time').innerText = `${p.time}h`;
-        _('bdg-total').innerText = fmtMoney(p.price);
+        // Construir Tabela Dinâmica
+        const tbody = _('bdg-tbody');
+        tbody.innerHTML = '';
+
+        const addRow = (label, value) => {
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr class="border-b border-slate-100">
+                    <td class="py-3 text-slate-500">${label}</td>
+                    <td class="py-3 font-bold text-right text-slate-900">${value}</td>
+                </tr>
+            `);
+        };
+
+        // 1. Projeto e Quantidade
+        const projName = `${p.name} <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded ml-2 border border-gray-300">Qtd: ${quantity}</span>`;
+        addRow('Projeto', projName);
+
+        // 2. Materiais
+        const materials = p.materials || (p.filamentId ? [{ id: p.filamentId, weight: p.weight }] : []);
+        let matHtml = '';
+        materials.forEach(m => {
+            const fil = DB.inventory.find(f => f.id === m.id);
+            const type = fil ? fil.specs?.type || fil.type || 'PLA' : 'Desconhecido';
+            const color = fil ? fil.specs?.color || fil.color || 'Cor Padrão' : '';
+            const brand = fil ? fil.brand || 'Genérico' : '';
+            matHtml += `<div class="text-sm">${type} ${color} <span class="text-xs text-slate-400">(${brand})</span> - ${m.weight}g</div>`;
+        });
+        addRow('Materiais', matHtml || 'Nenhum material registrado');
+
+        // 3. Peso Total
+        const totalWeight = p.weight ? (p.weight * quantity) : materials.reduce((a, b) => a + b.weight, 0) * quantity;
+        addRow('Peso Estimado Total', `${totalWeight}g <span class="text-[10px] text-gray-400 block font-normal">(${quantity} x ${(totalWeight / quantity).toFixed(0)}g)</span>`);
+
+        // 4. Tempo Total
+        addRow('Tempo de Execução Total', `${(p.time * quantity).toFixed(1)}h <span class="text-[10px] text-gray-400 block font-normal">(${quantity} x ${p.time}h)</span>`);
+
+        // 5. Custos Extras (Se houver)
+        if (p.setupCost > 0) {
+            addRow('Setup / Modelagem (Fixo)', fmtMoney(p.setupCost));
+        }
+
+        if (p.extraCost > 0) {
+            const totalExtra = p.extraCost * quantity;
+            addRow('Acabamento / Extras', `${fmtMoney(totalExtra)} <span class="text-[10px] text-gray-400 block font-normal">(${quantity} x ${fmtMoney(p.extraCost)})</span>`);
+        }
+
+        setTxt('bdg-total', fmtMoney(p.price));
+
         _('budgetModal').classList.remove('hidden');
     }
 
     sendWhatsapp(idToUse = null) {
-        let name, clientID;
+        let name, clientID, price, notes;
         if (idToUse) {
-            const p = DB.projects.find(x => x.id === idToUse);
+            const p = DB.data.projects.find(x => x.id === idToUse);
             if (!p) return;
             name = p.name;
             clientID = p.clientId;
+            price = p.price;
+            notes = p.notes || '';
         } else {
             name = _('pj-name').value;
             clientID = _('pj-client').value;
+            price = _('final-price').innerText;
+            notes = _('pj-notes').value || '';
         }
+
         if (!name) return alert('Dê um nome ao projeto!');
+
         let phone = '';
         let clientName = 'Cliente';
         if (clientID) {
             const c = DB.clients.find(x => x.id === clientID);
             if (c) { phone = c.phone.replace(/\D/g, ''); clientName = c.name; }
         }
-        const text = `Olá, *${clientName}*! Tudo bem? %0A%0AEstou finalizando o orçamento do seu projeto *${name}*. %0A%0APodemos conversar?`;
+
+        const saudacao = `Olá, *${clientName}*! Tudo bem?`;
+        const detalhe = `Segue o orçamento para o projeto *${name}*.`;
+        const valor = `*Valor Total: ${typeof price === 'number' ? fmtMoney(price) : price}*`;
+        const obs = notes ? `%0AObs: ${notes}` : '';
+        const callToAction = `%0AFico no aguardo para iniciarmos a produção! 🚀`;
+
+        const text = `${saudacao}%0A%0A${detalhe}%0A${valor}${obs}%0A${callToAction}`;
         window.open(`https://wa.me/55${phone}?text=${text}`, '_blank');
     }
 }
